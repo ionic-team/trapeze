@@ -1,5 +1,5 @@
 environments:
-  - prod:
+  prod:
     ios:
       - bundleId: com.example.awesome
       - file: Info.plist
@@ -13,7 +13,7 @@ environments:
       - file: build.gradle
         buildscript:
           dependencies:
-            - classpath: "org.javassist:javassist:3.27.0-GA"
+            - classpath: 'org.javassist:javassist:3.27.0-GA'
             - classpath: files("./app/src/main/libs/com.microsoft.intune.mam.build.jar")
 
       - file: app/build.gradle
@@ -28,5 +28,5 @@ environments:
         Project:
           ItemGroup:
             - PackageReference:
-              Include: "Newtonsoft.Json"
-              Version: "14.0.0"
+              Include: 'Newtonsoft.Json'
+              Version: '14.0.0'
