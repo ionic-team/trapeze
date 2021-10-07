@@ -1,5 +1,10 @@
-import chalk from "chalk";
+import chalk from 'chalk';
 
+export function debug(...args) {
+  if (process.env.VERBOSE) {
+    console.log(...args);
+  }
+}
 export function log(...args) {
   console.log(...args);
 }

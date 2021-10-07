@@ -24,9 +24,11 @@ export function runProgram(env, config) {
     .description(`Run project modification`)
     .option('--dry-run', 'Show changes before making them')
     .option('-y', 'Non-interactive')
+    .option('--verbose', 'Verbose output')
     .action(
-      wrapAction(async configFile => {
-        console.log(configFile);
+      wrapAction(async (configFile, { verbose }) => {
+        process.env.VERBOSE = verbose;
+
         const { runCommand } = await import('./tasks/run.mjs');
         await runCommand(env, config, configFile);
       }),
