@@ -1,0 +1,32 @@
+environments:
+  - prod:
+    ios:
+      - bundleId: com.example.awesome
+      - file: Info.plist
+        key: NSHealthShareUsageDescription
+        string: We'd like to access your health info
+      - entitlements:
+        - Health Kit: true
+
+
+    android:
+      - package: com.example.awesome
+      - file: build.gradle
+        buildscript:
+          dependencies:
+            - classpath: "org.javassist:javassist:3.27.0-GA"
+            - classpath: files("./app/src/main/libs/com.microsoft.intune.mam.build.jar")
+
+      - file: app/build.gradle
+        text: |
+          dependencies {
+            implementation files("./src/main/libs/Microsoft.Intune.MAM.SDK.aar")
+            implementation 'com.microsoft.identity.client:msal:1.5.5'
+          }
+
+    windows:
+      - file: Project.csproj
+        Project:
+          ItemGroup:
+            - PackageReference:
+              Include: "Newtonsoft.Json" Version="14.0.0"

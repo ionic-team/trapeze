@@ -1,0 +1,83 @@
+{
+  "name": "@capacitor/configure",
+  "version": "0.0.1",
+  "description": "Capacitor Configuration Tool",
+  "author": "Ionic Team <hi@ionic.io> (https://ionicframework.com) ",
+  "license": "SEE LICENSE",
+  "files": [
+    "bin",
+    "cli",
+    "README.md"
+  ],
+  "bin": {
+    "cap-configure": "./bin/configure.mjs"
+  },
+  "scripts": {
+    "build": "npm run clean && npm run transpile && npm run rollup",
+    "clean": "rimraf dist",
+    "clean-change-log": "node ../../scripts/clean-changelog.js CHANGELOG.md",
+    "remove-void-implements": "node ../../scripts/remove-void-implements.js",
+    "dev": "npm run clean && npm-watch transpile & sleep 3 && npm-watch rollup",
+    "prepublishOnly": "npm run build",
+    "rollup": "rollup --config rollup.config.js",
+    "transpile": "tsc",
+    "docs": "typedoc --plugin typedoc-plugin-markdown --theme ./node_modules/@ionic/markdown-docs-theme/dist src/index.ts && rm -rf ../../website/docs/{enums,interfaces,classes} && npm run remove-void-implements && mv api/{enums,interfaces,classes} ../../website/docs && mv api/modules.md ../../website/docs/modules.md && rm -rf api",
+    "release": "standard-version -a",
+    "pre-release": "standard-version -a -p --skip.changelog=true --skip.tag=true",
+    "test": "echo no tests yet"
+  },
+  "watch": {
+    "transpile": {
+      "patterns": [
+        "src"
+      ],
+      "extensions": "ts,js",
+      "quite": false
+    },
+    "rollup": "dist/esm/**/*.*"
+  },
+  "main": "dist/index.js",
+  "typings": "dist/esm/index.d.ts",
+  "dependencies": {
+    "@ionic/utils-fs": "^3.1.5",
+    "@ionic/utils-subprocess": "^2.1.8",
+    "@rollup/plugin-commonjs": "^17.1.0",
+    "@rollup/plugin-node-resolve": "^11.2.0",
+    "adm-zip": "^0.5.6",
+    "chalk": "^4.1.2",
+    "chromedriver": "^94.0.0",
+    "commander": "^8.2.0",
+    "conventional-changelog": "^3.1.4",
+    "npm-watch": "^0.9.0",
+    "replace": "^1.1.0",
+    "rimraf": "^2.6.1",
+    "rollup": "^2.40.0",
+    "rollup-plugin-sourcemaps": "^0.6.3",
+    "tmp": "^0.2.1",
+    "ts-node": "^10.2.1",
+    "tslib": "^1.9.0",
+    "typescript": "^4.4.3",
+    "yargs": "^17.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ionic-team/capacitor-configure.git"
+  },
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "https://registry.npmjs.org"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "transform": {
+      "^.+\\.(ts|tsx)$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testMatch": [
+      "**/__test__/*.(ts|tsx|js)"
+    ]
+  }
+}
