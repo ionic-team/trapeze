@@ -6,8 +6,7 @@ environments:
         key: NSHealthShareUsageDescription
         string: We'd like to access your health info
       - entitlements:
-        - Health Kit: true
-
+          - Health Kit: true
 
     android:
       - package: com.example.awesome
@@ -29,4 +28,5 @@ environments:
         Project:
           ItemGroup:
             - PackageReference:
-              Include: "Newtonsoft.Json" Version="14.0.0"
+              Include: "Newtonsoft.Json"
+              Version: "14.0.0"
