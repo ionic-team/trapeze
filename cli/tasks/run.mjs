@@ -6,6 +6,7 @@ import ionicFs from '@ionic/utils-fs';
 import { debug, log, fatal } from '../log.mjs';
 import { processOperations } from '../op.mjs';
 
+import executePackage from '../operations/android/package.mjs';
 import executeGradle from '../operations/android/gradle.mjs';
 
 export async function runCommand(env, config, configFile) {
@@ -33,6 +34,8 @@ async function executeOperations(env, config, operations) {
     switch (op.name) {
       case 'build.gradle':
         return executeGradle(env, config, op);
+      case 'package':
+        return executePackage(env, config, op);
     }
   }
 }

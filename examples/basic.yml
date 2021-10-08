@@ -1,11 +1,11 @@
 environments:
   development:
     ios:
-      bundleId: io.ionic.starter
+      bundleId: io.ionic.awesomeStarter
     android:
   prod:
     ios:
-      bundleId: io.ionic.starter
+      bundleId: io.ionic.awesomeStarter
 
       entitlements:
         - keychain:
@@ -28,7 +28,7 @@ environments:
         - WebKit.framework
 
     android:
-      package: io.ionic.starter
+      package: io.ionic.awesomeStarter
       build.gradle:
         buildscript:
           dependencies:
