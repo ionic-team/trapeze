@@ -1,8 +1,9 @@
-import { Subprocess, SubprocessError } from "@ionic/utils-subprocess";
-import chalk from "chalk";
+import { Subprocess, SubprocessError } from '@ionic/utils-subprocess';
+
+import c from '../colors.mjs';
 
 export async function runCommand(command, args, options = {}) {
-  console.log(chalk`> {bold ${command} ${args.join(" ")}}`);
+  console.log(c.strong(`> ${command} ${args.join(' ')}`));
 
   const p = new Subprocess(command, args, options);
 
@@ -18,7 +19,7 @@ export async function runCommand(command, args, options = {}) {
         ? e.code
         : e.error
         ? e.error.message
-        : "Unknown error";
+        : 'Unknown error';
     }
 
     throw e;

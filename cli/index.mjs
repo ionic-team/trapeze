@@ -1,22 +1,22 @@
 import program from 'commander';
 import { loadConfig } from './config.mjs';
 import { loadEnv } from './env.mjs';
-import { error } from './log.mjs';
+import { logger } from './util/log.mjs';
 import { wrapAction } from './util/cli.mjs';
 
 export async function run() {
   try {
     const env = await loadEnv();
     const config = await loadConfig(env);
-    runProgram(env, config);
+    runProgram({ env, config });
   } catch (e) {
     process.exitCode = 1;
-    error(e.message ? e.message : String(e));
+    logger.error(e.message ? e.message : String(e));
     throw e;
   }
 }
 
-export function runProgram(env, config) {
+export function runProgram(ctx) {
   // program.version(env.package.version);
 
   program
@@ -32,7 +32,7 @@ export function runProgram(env, config) {
         // verbose && verbose !== 'undefined' ? verbose : undefined;
 
         const { runCommand } = await import('./tasks/run.mjs');
-        await runCommand(env, config, configFile);
+        await runCommand(ctx, configFile);
       }),
     );
 

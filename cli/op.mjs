@@ -1,4 +1,3 @@
-import chalk from 'chalk';
 // Given the parsed yaml file, generate a set of operations to perform against the project
 export function processOperations(yaml) {
   return processEnvironments(yaml.environments).flat();

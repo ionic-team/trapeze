@@ -1,9 +1,9 @@
-import chalk from "chalk";
-import { join } from "path";
-import { pathExists } from "@ionic/utils-fs";
+import { join } from 'path';
+import { pathExists } from '@ionic/utils-fs';
 
-import { requireTS } from "./util/node.mjs";
-import { log } from "./log.mjs";
+import { requireTS } from './util/node.mjs';
+import { logger } from './util/log.mjs';
+import c from './colors.mjs';
 
 const defaultConfig = {};
 
@@ -13,7 +13,7 @@ export async function loadConfig(env) {
   const configFile = join(rootDir, env.configFile);
 
   if (!(await pathExists(configFile))) {
-    log(chalk`No {bold ${env.configFile}} found, using defaults.`);
+    logger.warn(`No ${colors.strong(env.configFile)} found, using defaults.`);
     return { ...defaultConfig };
   }
 
@@ -27,7 +27,9 @@ export async function loadConfig(env) {
       ...(config || {}),
     };
   } catch (e) {
-    console.error(chalk`Unable to load config file: {red.bold ${e.message}}`);
+    logger.error(
+      colors.strong(`Unable to load config file: ${colors.failure(e.message)}`),
+    );
     throw e;
   }
 }

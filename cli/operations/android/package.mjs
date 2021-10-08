@@ -2,9 +2,9 @@ import xml2js from 'xml2js';
 import { join } from 'path';
 import ionicFs from '@ionic/utils-fs';
 
-import { debug } from '../../log.mjs';
+import { logger } from '../../util/log.mjs';
 
-export default async function execute(env, config, op) {
+export default async function execute({ env, config }, op) {
   const filename = join(
     env.rootDir,
     'android',
@@ -16,7 +16,7 @@ export default async function execute(env, config, op) {
 
   const parsed = await parseAndroidManifest(env, config, op, filename);
 
-  debug(op.value);
+  logger.debug(op.value);
   parsed.manifest['$'].package = op.value;
 
   await writeAndroidManifest(env, config, op, parsed, filename);
@@ -25,7 +25,7 @@ export default async function execute(env, config, op) {
 function parseAndroidManifest(env, config, op, filename) {
   return new Promise(async (resolve, reject) => {
     const contents = await ionicFs.readFile(filename, { encoding: 'utf-8' });
-    debug(contents);
+    logger.debug(contents);
 
     const parsed = xml2js.parseString(contents, (err, result) => {
       if (err) {
@@ -33,7 +33,7 @@ function parseAndroidManifest(env, config, op, filename) {
         return;
       }
 
-      debug(result);
+      logger.debug(result);
 
       resolve(result);
     });
@@ -41,11 +41,11 @@ function parseAndroidManifest(env, config, op, filename) {
 }
 
 async function writeAndroidManifest(env, config, op, parsed, filename) {
-  debug('Writing', parsed);
+  logger.debug('Writing', parsed);
 
   const builder = new xml2js.Builder();
   const xml = builder.buildObject(parsed);
 
-  debug(xml);
+  logger.debug(xml);
   return ionicFs.writeFile(filename, xml);
 }
