@@ -10,7 +10,7 @@
     "README.md"
   ],
   "bin": {
-    "cap-configure": "./bin/configure.mjs"
+    "cap-config": "./bin/cap-config.mjs"
   },
   "scripts": {
     "build": "npm run clean && npm run transpile && npm run rollup",
@@ -49,6 +49,7 @@
     "commander": "^8.2.0",
     "conventional-changelog": "^3.1.4",
     "env-paths": "^3.0.0",
+    "gradle-to-js": "^2.0.0",
     "npm-watch": "^0.9.0",
     "replace": "^1.1.0",
     "rimraf": "^2.6.1",

@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 
 export function debug(...args) {
-  if (process.env.VERBOSE) {
+  if (process.env.VERBOSE !== 'false') {
     console.log(...args);
   }
 }

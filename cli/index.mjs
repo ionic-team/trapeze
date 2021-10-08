@@ -27,7 +27,9 @@ export function runProgram(env, config) {
     .option('--verbose', 'Verbose output')
     .action(
       wrapAction(async (configFile, { verbose }) => {
-        process.env.VERBOSE = verbose;
+        console.log('VERBOSE', verbose);
+        process.env.VERBOSE = !!verbose;
+        // verbose && verbose !== 'undefined' ? verbose : undefined;
 
         const { runCommand } = await import('./tasks/run.mjs');
         await runCommand(env, config, configFile);
