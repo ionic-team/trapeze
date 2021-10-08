@@ -13,7 +13,7 @@ Add to your npm scripts:
 ## Usage
 
 ```bash
-npx cap-config config.yaml
+npx cap-config run config.yaml
 ```
 
 ## Writing Configuration Files
