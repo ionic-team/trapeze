@@ -11,6 +11,7 @@ import { logPrompt } from '../util/cli.mjs';
 import executeAndroidPackage from '../operations/android/package.mjs';
 import executeAndroidGradle from '../operations/android/gradle.mjs';
 import executeIosBundleId from '../operations/ios/bundleId.mjs';
+import executeIosFrameworks from '../operations/ios/frameworks.mjs';
 import executeIosPlist from '../operations/ios/plist.mjs';
 
 export async function runCommand(ctx, configFile) {
@@ -68,13 +69,20 @@ async function executeOperations(ctx, operations) {
 
     switch (op.id) {
       case 'ios.plist':
-        await executeIosPlist(ctx, op);
+        break;
+      // await executeIosPlist(ctx, op);
       case 'ios.bundleId':
-      // await executeIosBundleId(ctx, op);
+        await executeIosBundleId(ctx, op);
+        break;
+      case 'ios.frameworks':
+        await executeIosFrameworks(ctx, op);
+        break;
       case 'ios.build.gradle':
-      // await executeAndroidGradle(ctx, op);
+        // await executeAndroidGradle(ctx, op);
+        break;
       case 'android.package':
-      // await executeAndroidPackage(ctx, op);
+        // await executeAndroidPackage(ctx, op);
+        break;
     }
   }
   // );

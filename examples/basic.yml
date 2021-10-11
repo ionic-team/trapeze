@@ -1,8 +1,8 @@
 environments:
-  development:
-    ios:
-      bundleId: io.ionic.awesomeStarter
-    android:
+  # development:
+  #   ios:
+  #     bundleId: io.ionic.awesomeStarter
+  #   android:
   prod:
     ios:
       bundleId: io.ionic.awesomeStarter

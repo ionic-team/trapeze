@@ -4,7 +4,7 @@ import { join } from 'path';
 
 import { logger } from '../../util/log.mjs';
 
-export default async function execute({ env, config }, op) {
+export default async function execute({ env }, op) {
   const filename =
     op.name == 'build.gradle'
       ? join(env.rootDir, 'android', 'build.gradle')
