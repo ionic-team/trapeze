@@ -33,3 +33,8 @@ export async function loadConfig(env) {
     throw e;
   }
 }
+
+export function setArguments(ctx, args) {
+  ctx.args = args;
+  process.env.VERBOSE = !!args.verbose;
+}

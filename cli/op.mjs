@@ -23,6 +23,7 @@ function createPlatform(env, platform, platformEntry) {
 
 function createOperation(env, platform, op, opEntry) {
   const opRet = {
+    id: `${platform}.${op}`,
     env,
     platform,
     name: op,
@@ -36,24 +37,24 @@ function createOperation(env, platform, op, opEntry) {
 }
 
 function createOpDisplayText(op) {
-  switch (op.name) {
+  switch (op.id) {
     // ios
-    case 'bundleId':
+    case 'ios.bundleId':
       return op.value;
-    case 'entitlements':
+    case 'ios.entitlements':
       return op.value.map(v => Object.keys(v)).join(', ');
-    case 'frameworks':
+    case 'ios.frameworks':
       return op.value.join(', ');
-
+    case 'ios.plist':
+      return `${op.value.length} modifications`;
     // android
-    case 'package':
+    case 'android.package':
       return op.value;
-
-    case 'build.gradle':
+    case 'android.build.gradle':
       return '';
-    case 'app.build.gradle':
+    case 'android.app.build.gradle':
       return '';
-    case 'res':
+    case 'android.res':
       return op.value.map(r => r.file).join(', ');
   }
 

@@ -1,7 +1,7 @@
 import program from 'commander';
-import { loadConfig } from './config.mjs';
+import { loadConfig, setArguments } from './config.mjs';
 import { loadEnv } from './env.mjs';
-import { logger } from './util/log.mjs';
+import { logger, output } from './util/log.mjs';
 import { wrapAction } from './util/cli.mjs';
 
 export async function run() {
@@ -26,15 +26,19 @@ export function runProgram(ctx) {
     .option('-y', 'Non-interactive')
     .option('--verbose', 'Verbose output')
     .action(
-      wrapAction(async (configFile, { verbose }) => {
-        console.log('VERBOSE', verbose);
-        process.env.VERBOSE = !!verbose;
-        // verbose && verbose !== 'undefined' ? verbose : undefined;
+      wrapAction(async (configFile, args = {}) => {
+        setArguments(ctx, args);
 
         const { runCommand } = await import('./tasks/run.mjs');
         await runCommand(ctx, configFile);
       }),
     );
+
+  program.arguments('[command]').action(
+    wrapAction(_ => {
+      program.outputHelp();
+    }),
+  );
 
   program.parse(process.argv);
 }

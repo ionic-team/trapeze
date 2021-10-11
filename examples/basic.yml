@@ -7,6 +7,48 @@ environments:
     ios:
       bundleId: io.ionic.awesomeStarter
 
+      plist:
+        - file: Info.plist
+          entries:
+            NSFaceIDUsageDescription: Use Face ID to authenticate yourself and login
+
+        - file: Info.plist
+          entries:
+            CFBundleURLTypes:
+              - CFBundleURLSchemes:
+                  - msauth.$(PRODUCT_BUNDLE_IDENTIFIER)
+                  - msauth.$(PRODUCT_BUNDLE_IDENTIFIER)-intunemam
+                  - msauth.com.microsoft.intunemam
+
+        - file: Info.plist
+          entries:
+            LSApplicationQueriesSchemes:
+              - mvisionmobile
+              - msauthv2
+              - scmx
+              - lookoutwork-ase
+              - msauthv3
+              - lacoonsecurity
+              - zips
+              - skycure
+              - smart-ns
+              - smsec
+              - betteractiveshield
+              - companyportal
+              - wandera
+              - https-intunemam
+              - http-intunemam
+              - microsoft-edge-https-intunemam
+              - microsoft-edge-http-intunemam
+              - ms-outlook-intunemam
+
+        - file: Info.plist
+          entries:
+            IntuneMAMSettings:
+              ADALClientId: $INTUNE_CLIENT_ID
+              ADALAuthority: $INTUNE_ADAL_AUTHORITY
+              ADALRedirectUri: $INTUNE_REDIRECT_URI_IOS
+
       entitlements:
         - keychain:
             [
