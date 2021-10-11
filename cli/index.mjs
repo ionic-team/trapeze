@@ -1,12 +1,12 @@
 import program from 'commander';
-import { loadEnv, setArguments } from './env.mjs';
-import { logger, output } from './util/log.mjs';
+import { loadContext, setArguments } from './ctx.mjs';
+import { logger } from './util/log.mjs';
 import { wrapAction } from './util/cli.mjs';
 
 export async function run() {
   try {
-    const env = await loadEnv();
-    runProgram({ env });
+    const ctx = await loadContext();
+    runProgram(ctx);
   } catch (e) {
     process.exitCode = 1;
     logger.error(e.message ? e.message : String(e));

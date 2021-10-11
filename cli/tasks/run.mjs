@@ -1,30 +1,21 @@
-import yaml from 'yaml';
-import util from 'util';
-
-import ionicFs from '@ionic/utils-fs';
-
 import c from '../colors.mjs';
 import { processOperations } from '../op.mjs';
 import { debug, logger, log } from '../util/log.mjs';
 import { logPrompt } from '../util/cli.mjs';
+import { loadConfig } from '../config.mjs';
 
 import executeAndroidPackage from '../operations/android/package.mjs';
 import executeAndroidGradle from '../operations/android/gradle.mjs';
 import executeIosBundleId from '../operations/ios/bundleId.mjs';
 import executeIosFrameworks from '../operations/ios/frameworks.mjs';
+import executeIosEntitlements from '../operations/ios/entitlements.mjs';
 import executeIosPlist from '../operations/ios/plist.mjs';
 
 export async function runCommand(ctx, configFile) {
   try {
-    const contents = await ionicFs.readFile(configFile, { encoding: 'utf-8' });
-    const parsed = yaml.parse(contents, {
-      prettyErrors: true,
-    });
+    const config = await loadConfig(ctx, configFile);
 
-    debug('Parsed YAML');
-    debug(JSON.stringify(parsed, null, 2));
-
-    const processed = processOperations(parsed);
+    const processed = processOperations(config);
 
     // If not -y, confirm
 
@@ -76,6 +67,9 @@ async function executeOperations(ctx, operations) {
         break;
       case 'ios.frameworks':
         await executeIosFrameworks(ctx, op);
+        break;
+      case 'ios.entitlements':
+        await executeIosEntitlements(ctx, op);
         break;
       case 'ios.build.gradle':
         // await executeAndroidGradle(ctx, op);

@@ -1,3 +1,10 @@
+vars:
+  BUNDLE_ID:
+    default: io.ionic.wowzaStarter
+  INTUNE_CLIENT_ID:
+  INTUNE_ADAL_AUTHORITY:
+  INTUNE_REDIRECT_URI_IOS:
+
 environments:
   # development:
   #   ios:
@@ -5,7 +12,7 @@ environments:
   #   android:
   prod:
     ios:
-      bundleId: io.ionic.awesomeStarter
+      bundleId: $BUNDLE_ID
 
       plist:
         - file: Info.plist
@@ -50,7 +57,7 @@ environments:
               ADALRedirectUri: $INTUNE_REDIRECT_URI_IOS
 
       entitlements:
-        - keychain:
+        - keychain-access-groups:
             [
               '$BUNDLE_ID',
               'com.microsoft.intune.mam',

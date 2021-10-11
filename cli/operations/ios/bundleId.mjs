@@ -4,9 +4,9 @@ import ionicFs from '@ionic/utils-fs';
 
 import { logger } from '../../util/log.mjs';
 
-export default async function execute({ env }, op) {
+export default async function execute(ctx, op) {
   const filename = join(
-    env.rootDir,
+    ctx.rootDir,
     'ios',
     'App',
     'App.xcodeproj',
@@ -14,17 +14,19 @@ export default async function execute({ env }, op) {
   );
 
   const proj = await parseProject(filename);
-  console.log(proj);
+  // console.log(proj);
 
   const p1 = proj.getFirstProject();
-  console.log(p1);
+  // console.log(p1);
 
   const t1 = proj.getFirstTarget();
-  console.log(t1);
+  // console.log(t1);
 
+  /*
   console.log(
     proj.getBuildProperty('PRODUCT_BUNDLE_IDENTIFIER', undefined, t1.name),
   );
+  */
 
   proj.updateBuildProperty(
     'PRODUCT_BUNDLE_IDENTIFIER',

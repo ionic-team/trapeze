@@ -88,15 +88,16 @@ environments:
                 }
               ]
             }
-
-    windows:
-      - file: Project.csproj
-        Project:
-          ItemGroup:
-            - PackageReference:
-              Include: "Newtonsoft.Json"
-              Version: "14.0.0"
 ```
+
+## Supported Operations
+
+## | Platform | Operation | Supported |
+
+| ios | Bundle ID | :check: |
+| ios | Info.plist | :check: |
+| ios | Add Frameworks | :check: |
+| ios | Set Entitlements | :check: |
 
 ## Configuration File Structure
 
