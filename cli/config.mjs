@@ -13,7 +13,7 @@ export async function loadConfig(ctx, filename) {
     prettyErrors: true,
   });
 
-  const resolved = ensureVars(ctx, parsed);
+  const resolved = interpolateVars(ctx, parsed);
 
   debug('Parsed YAML');
   debug(JSON.stringify(resolved, null, 2));
@@ -21,10 +21,10 @@ export async function loadConfig(ctx, filename) {
   return resolved;
 }
 
-function ensureVars(ctx, yaml) {
+function interpolateVars(ctx, yaml) {
   const { vars } = yaml;
 
-  console.log('Ensuring vars', vars);
+  debug('Interpolating', vars);
 
   for (let k in vars) {
     const v = vars[k];

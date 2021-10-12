@@ -19,21 +19,20 @@ export function setArguments(ctx, args) {
 
 // Given a variable of the form $VARIABLE, resolve the
 // actual value from the environment
-export function resolveVariable(ctx, varName) {
-  const foundVar = ctx.vars[(varName || '').slice(1)];
-
-  if (foundVar) {
-    return foundVar.value || '';
-  } else if (foundVar === null) {
-    return '';
-  }
-
-  return varName;
-}
-
 export function str(ctx, s) {
-  // console.log('VAR', s);
-  return resolveVariable(ctx, s);
+  // Replace any variables in the string, ignoring
+  // ones of the type $(blah) which are handled by the platform (i.e. iOS)
+  s = s.replace(/\$[^\(][^\s]+/g, m => {
+    const foundVar = ctx.vars[m.slice(1)];
+
+    if (foundVar) {
+      return foundVar.value || '';
+    } else if (foundVar === null) {
+      return '';
+    }
+  });
+
+  return s;
 }
 
 function getInitialVars() {

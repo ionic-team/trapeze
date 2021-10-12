@@ -15,8 +15,7 @@ export default async function execute(ctx, op) {
     modified = addEntitlement(ctx, ent, modified);
   }
   const generated = plist.build(modified);
-  console.log('Writing', generated);
-  // await writePlist(filename, generated);
+  await writePlist(filename, generated);
 }
 
 async function parsePlist(_ctx, _op, filename) {
