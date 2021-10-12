@@ -137,12 +137,12 @@ platforms:
 
 | Platform | Operation | Supported |
 -----------| ----------|------------|
-| ios | Bundle ID | :heavy_check_mark: |
-| ios | Info.plist | :heavy_check_mark: |
-| ios | Add Frameworks | :heavy_check_mark: |
-| ios | Set Entitlements | :heavy_check_mark: |
-| android | Package ID | :heavy_check_mark: |
-| android | Gradle Config | :heavy_check_mark: |
+| ios | Bundle ID | :white_check_mark: |
+| ios | Info.plist | :white_check_mark: |
+| ios | Add Frameworks | :white_check_mark: |
+| ios | Set Entitlements | :white_check_mark: |
+| android | Package ID | :white_check_mark: |
+| android | Gradle Config | :white_check_mark: |
 
 ## Configuration File Structure
 
