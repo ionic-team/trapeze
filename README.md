@@ -134,8 +134,9 @@ platforms:
 
 ## Supported Operations
 
-## | Platform | Operation | Supported |
-
+##
+| Platform | Operation | Supported |
+-------------------------------------
 | ios | Bundle ID | :check: |
 | ios | Info.plist | :check: |
 | ios | Add Frameworks | :check: |
