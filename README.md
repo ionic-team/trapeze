@@ -144,4 +144,4 @@ platforms:
 | android | Package ID | :white_check_mark: |
 | android | Gradle Config | :white_check_mark: |
 | android | Resource Files | :white_check_mark: |
-
+| android | Manifest File Modification | :white_check_mark: |
