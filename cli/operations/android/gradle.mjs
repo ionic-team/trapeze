@@ -4,11 +4,11 @@ import { join } from 'path';
 
 import { logger } from '../../util/log.mjs';
 
-export default async function execute({ env }, op) {
+export default async function execute(ctx, op) {
   const filename =
     op.name == 'build.gradle'
-      ? join(env.rootDir, 'android', 'build.gradle')
-      : join(env.rootDir, 'android', 'app', 'build.gradle');
+      ? join(ctx.rootDir, 'android', 'build.gradle')
+      : join(ctx.rootDir, 'android', 'app', 'build.gradle');
 
   const parsed = await gradleToJs.parseFile(filename);
   logger.debug(`----${op.name}-----`);
@@ -18,7 +18,7 @@ export default async function execute({ env }, op) {
   const modifications = [];
   updateTree(parsed, op.value, modifications);
 
-  outputGradle(env, config, parsed);
+  outputGradle(ctx, config, parsed);
 }
 
 function updateTree(parsedNode, node, modifications) {
@@ -39,4 +39,4 @@ function modifyNode(parsedNode, node, modifications) {
   logger.debug('Modify the node', parsedNode, node);
 }
 
-async function outputGradle(env, config, parsed) {}
+async function outputGradle(ctx, config, parsed) {}

@@ -22,7 +22,7 @@ export function setArguments(ctx, args) {
 export function str(ctx, s) {
   // Replace any variables in the string, ignoring
   // ones of the type $(blah) which are handled by the platform (i.e. iOS)
-  s = s.replace(/\$[^\(][^\s]+/g, m => {
+  s = s.replace(/\$[^\(][\w]+/g, m => {
     const foundVar = ctx.vars[m.slice(1)];
 
     if (foundVar) {

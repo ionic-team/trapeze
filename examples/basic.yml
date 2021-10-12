@@ -1,6 +1,8 @@
 vars:
   BUNDLE_ID:
     default: io.ionic.wowzaStarter
+  PACKAGE_NAME:
+    default: io.ionic.wowzaStarter
   INTUNE_CLIENT_ID:
   INTUNE_ADAL_AUTHORITY:
   INTUNE_REDIRECT_URI_IOS:
@@ -68,7 +70,7 @@ platforms:
       - WebKit.framework
 
   android:
-    package: io.ionic.awesomeStarter
+    package: $PACKAGE_NAME
     build.gradle:
       buildscript:
         dependencies:
@@ -93,7 +95,7 @@ platforms:
           {
             "client_id": "f80e2e59-01b2-4f88-be80-4895a63eae7e",
             "authorization_user_agent": "DEFAULT",
-            "redirect_uri": "msauth://io.ionic.starter/uHU%2BUi09K1zPjWX4mZFggrgz%2Brk%3D",
+            "redirect_uri": "msauth://$PACKAGE_NAME/uHU%2BUi09K1zPjWX4mZFggrgz%2Brk%3D",
             "broker_redirect_uri_registered": true,
             "authorities": [
               {
@@ -105,3 +107,7 @@ platforms:
               }
             ]
           }
+
+      - path: drawable
+        file: logo.png
+        source: logo.png

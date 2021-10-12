@@ -6,6 +6,7 @@ import { loadConfig } from '../config.mjs';
 
 import executeAndroidPackage from '../operations/android/package.mjs';
 import executeAndroidGradle from '../operations/android/gradle.mjs';
+import executeAndroidRes from '../operations/android/res.mjs';
 import executeIosBundleId from '../operations/ios/bundleId.mjs';
 import executeIosFrameworks from '../operations/ios/frameworks.mjs';
 import executeIosEntitlements from '../operations/ios/entitlements.mjs';
@@ -62,8 +63,8 @@ async function executeOperations(ctx, operations) {
 
     switch (op.id) {
       case 'ios.plist':
+        await executeIosPlist(ctx, op);
         break;
-      // await executeIosPlist(ctx, op);
       case 'ios.bundleId':
         await executeIosBundleId(ctx, op);
         break;
@@ -77,7 +78,10 @@ async function executeOperations(ctx, operations) {
         // await executeAndroidGradle(ctx, op);
         break;
       case 'android.package':
-        // await executeAndroidPackage(ctx, op);
+        await executeAndroidPackage(ctx, op);
+        break;
+      case 'android.res':
+        await executeAndroidRes(ctx, op);
         break;
     }
   }
