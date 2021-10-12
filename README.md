@@ -134,7 +134,6 @@ platforms:
 
 ## Supported Operations
 
-##
 | Platform | Operation | Supported |
 -------------------------------------
 | ios | Bundle ID | :check: |
