@@ -143,7 +143,5 @@ platforms:
 | ios | Set Entitlements | :white_check_mark: |
 | android | Package ID | :white_check_mark: |
 | android | Gradle Config | :white_check_mark: |
+| android | Resource Files | :white_check_mark: |
 
-## Configuration File Structure
-
-The top-level `environments` list takes a set of environments along with the configuration options for each environment. There must be at least one environment, and the first entry will be used as the default.
