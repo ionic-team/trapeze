@@ -17,6 +17,8 @@ export async function runCommand(ctx, configFile) {
 
     const processed = processOperations(config);
 
+    console.log('Processed', processed);
+
     // If not -y, confirm
 
     if (!ctx.args.dryRun && !ctx.args.y) {
@@ -83,9 +85,9 @@ async function executeOperations(ctx, operations) {
 }
 
 function printOp(op) {
-  const env = c.weak(`[${op.env}]`);
+  // const env = c.weak(`[${op.env}]`);
   const platform = c.success(c.strong(`[${op.platform}]`));
   const opName = c.strong(op.name);
   const opDisplay = op.displayText;
-  log(env, platform, opName, opDisplay);
+  log(platform, opName, opDisplay);
 }

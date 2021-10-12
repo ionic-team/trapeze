@@ -1,8 +1,12 @@
 // Given the parsed yaml file, generate a set of operations to perform against the project
 export function processOperations(yaml) {
-  return processEnvironments(yaml.environments).flat();
+  // return processEnvironments(yaml.environments).flat();
+  return Object.keys(yaml.platforms)
+    .map(p => createPlatform(p, yaml.platforms[p]))
+    .flat();
 }
 
+/*
 function processEnvironments(envs) {
   return Object.keys(envs)
     .map(env => createEnvironment(env, envs[env]))
@@ -14,17 +18,17 @@ function createEnvironment(env, envEntry) {
     createPlatform(env, platform, envEntry[platform]),
   );
 }
+*/
 
-function createPlatform(env, platform, platformEntry) {
+function createPlatform(platform, platformEntry) {
   return Object.keys(platformEntry || {}).map(op =>
-    createOperation(env, platform, op, platformEntry[op]),
+    createOperation(platform, op, platformEntry[op]),
   );
 }
 
-function createOperation(env, platform, op, opEntry) {
+function createOperation(platform, op, opEntry) {
   const opRet = {
     id: `${platform}.${op}`,
-    env,
     platform,
     name: op,
     value: opEntry,

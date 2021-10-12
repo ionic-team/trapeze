@@ -13,6 +13,8 @@ export async function loadConfig(ctx, filename) {
     prettyErrors: true,
   });
 
+  await ensureVars(ctx, parsed);
+
   const resolved = interpolateVars(ctx, parsed);
 
   debug('Parsed YAML');
@@ -21,10 +23,21 @@ export async function loadConfig(ctx, filename) {
   return resolved;
 }
 
-function interpolateVars(ctx, yaml) {
+async function ensureVars(ctx, yaml) {
   const { vars } = yaml;
 
-  debug('Interpolating', vars);
+  for (const v in vars) {
+    const vk = vars[v];
+    console.log(vk);
+
+    if (!vk || (!ctx.vars[v] && !vk.default)) {
+      console.error('Must provide value for var', v);
+    }
+  }
+}
+
+function interpolateVars(ctx, yaml) {
+  const { vars } = yaml;
 
   for (let k in vars) {
     const v = vars[k];
@@ -40,17 +53,17 @@ function interpolateVars(ctx, yaml) {
     ...vars,
   };
 
-  return ensureVarsInTree(ctx, yaml);
+  return interpolateVarsInTree(ctx, yaml);
 }
 
-function ensureVarsInTree(ctx, yaml) {
+function interpolateVarsInTree(ctx, yaml) {
   const newObject = clone(yaml);
 
   each(yaml, (val, key) => {
     if (typeof val === 'string') {
       newObject[key] = str(ctx, val);
     } else if (typeof val === 'object' || typeof val === 'array') {
-      newObject[key] = ensureVarsInTree(ctx, val);
+      newObject[key] = interpolateVarsInTree(ctx, val);
     }
   });
 
