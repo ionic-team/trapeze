@@ -25,7 +25,6 @@ async function parsePlist(_ctx, _op, filename) {
 }
 
 function addEntitlement(ctx, entitlement, parsed) {
-  console.log('Adding entitlement', entitlement);
   return updatePlist(ctx, entitlement, parsed);
 }
 

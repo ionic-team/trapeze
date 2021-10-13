@@ -45,6 +45,14 @@ function createOpDisplayText(op) {
     // ios
     case 'ios.bundleId':
       return op.value;
+    case 'ios.version':
+      return op.value;
+    case 'ios.buildNumber':
+      return op.value;
+    case 'ios.buildSettings':
+      return Object.keys(op.value)
+        .map(k => `${k} = ${op.value[k]}`)
+        .join(', ');
     case 'ios.entitlements':
       return op.value.map(v => Object.keys(v)).join(', ');
     case 'ios.frameworks':
@@ -52,7 +60,11 @@ function createOpDisplayText(op) {
     case 'ios.plist':
       return `${op.value.length} modifications`;
     // android
-    case 'android.package':
+    case 'android.packageName':
+      return op.value;
+    case 'android.versionName':
+      return op.value;
+    case 'android.versionCode':
       return op.value;
     case 'android.build.gradle':
       return '';
