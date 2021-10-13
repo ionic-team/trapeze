@@ -2,6 +2,8 @@
 
 A utility for automatically configuring native [Capacitor](https://capacitorjs.com/) projects in a predictable and safe way.
 
+__Note:__ This project is currently in active development and should not be considered stable (As of October '21). 
+
 ## Installation
 
 ```bash
