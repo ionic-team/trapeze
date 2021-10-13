@@ -14,14 +14,13 @@ export default async function execute(ctx, op) {
 
   const proj = await parsePbxProject(filename);
 
-  if (op.id === 'ios.version') {
-    proj.addBuildProperty('MARKETING_VERSION', op.value, 'Debug');
-    proj.addBuildProperty('MARKETING_VERSION', op.value, 'Release');
-  }
-
-  if (op.id === 'ios.buildNumber') {
-    proj.addBuildProperty('CURRENT_PROJECT_VERSION', op.value, 'Debug');
-    proj.addBuildProperty('CURRENT_PROJECT_VERSION', op.value, 'Release');
+  for (const key of Object.keys(op.value)) {
+    let v = op.value[key];
+    if (typeof v === 'boolean') {
+      v = v ? 'YES' : 'NO';
+    }
+    proj.addBuildProperty(key, v, 'Debug');
+    proj.addBuildProperty(key, v, 'Release');
   }
 
   await ionicFs.writeFile(filename, proj.writeSync());

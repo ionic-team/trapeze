@@ -8,11 +8,13 @@ import executeAndroidPackageName from '../operations/android/packageName.mjs';
 import executeAndroidGradle from '../operations/android/gradle.mjs';
 import executeAndroidRes from '../operations/android/res.mjs';
 import executeAndroidManifest from '../operations/android/manifest.mjs';
+import executeAndroidVersion from '../operations/android/version.mjs';
 import executeIosBundleId from '../operations/ios/bundleId.mjs';
 import executeIosFrameworks from '../operations/ios/frameworks.mjs';
 import executeIosEntitlements from '../operations/ios/entitlements.mjs';
 import executeIosPlist from '../operations/ios/plist.mjs';
 import executeIosBuildVersion from '../operations/ios/buildVersion.mjs';
+import executeIosBuildSettings from '../operations/ios/buildSettings.mjs';
 
 export async function runCommand(ctx, configFile) {
   let processed;
@@ -77,6 +79,9 @@ async function executeOperations(ctx, operations) {
       case 'ios.version':
         await executeIosBuildVersion(ctx, op);
         break;
+      case 'ios.buildSettings':
+        await executeIosBuildSettings(ctx, op);
+        break;
       case 'ios.build':
         await executeIosBuildVersion(ctx, op);
         break;
@@ -89,14 +94,20 @@ async function executeOperations(ctx, operations) {
       case 'ios.build.gradle':
         await executeAndroidGradle(ctx, op);
         break;
+      case 'android.manifest':
+        await executeAndroidManifest(ctx, op);
+        break;
       case 'android.res':
         await executeAndroidRes(ctx, op);
         break;
       case 'android.packageName':
         await executeAndroidPackageName(ctx, op);
         break;
-      case 'android.manifest':
-        await executeAndroidManifest(ctx, op);
+      case 'android.versionName':
+        await executeAndroidVersion(ctx, op);
+        break;
+      case 'android.versionCode':
+        await executeAndroidVersion(ctx, op);
         break;
     }
   }

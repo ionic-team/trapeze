@@ -12,7 +12,11 @@ platforms:
   ios:
     bundleId: $BUNDLE_ID
     version: 16.4
-    build: 1337
+    buildNumber: 1337
+
+    buildSettings:
+      ENABLE_BITCODE: false
+      STRIP_SWIFT_SYMBOLS: false
 
     plist:
       - file: Info.plist
@@ -74,6 +78,8 @@ platforms:
 
   android:
     packageName: $PACKAGE_NAME
+    versionName: 1.2.3
+    versionCode: 45
 
     manifest:
       - file: AndroidManifest.xml
