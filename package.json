@@ -1,6 +1,6 @@
 {
   "name": "@capacitor/configure",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Capacitor Configuration Tool",
   "author": "Ionic Team <hi@ionic.io> (https://ionicframework.com) ",
   "license": "SEE LICENSE",
