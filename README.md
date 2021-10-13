@@ -37,6 +37,6 @@ See an [Example Yaml Configuration](https://github.com/ionic-team/capacitor-conf
 | android  | Package Name               | :white_check_mark: |
 | android  | Version Name and Code      | :white_check_mark: |
 | android  | Version Code               | :white_check_mark: |
-| android  | Gradle Config              | :white_check_mark: |
+| android  | Gradle Config              | ❎ |
 | android  | Resource Files             | :white_check_mark: |
 | android  | Manifest File Modification | :white_check_mark: |
