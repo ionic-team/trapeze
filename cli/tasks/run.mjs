@@ -4,22 +4,27 @@ import { debug, logger, log } from '../util/log.mjs';
 import { logPrompt } from '../util/cli.mjs';
 import { loadConfig } from '../config.mjs';
 
-import executeAndroidPackage from '../operations/android/package.mjs';
+import executeAndroidPackageName from '../operations/android/packageName.mjs';
 import executeAndroidGradle from '../operations/android/gradle.mjs';
 import executeAndroidRes from '../operations/android/res.mjs';
+import executeAndroidManifest from '../operations/android/manifest.mjs';
 import executeIosBundleId from '../operations/ios/bundleId.mjs';
 import executeIosFrameworks from '../operations/ios/frameworks.mjs';
 import executeIosEntitlements from '../operations/ios/entitlements.mjs';
 import executeIosPlist from '../operations/ios/plist.mjs';
 
 export async function runCommand(ctx, configFile) {
+  let processed;
   try {
     const config = await loadConfig(ctx, configFile);
 
-    const processed = processOperations(config);
+    processed = processOperations(config);
+  } catch (e) {
+    logger.error('Unable to load config file', e);
+    throw e;
+  }
 
-    console.log('Processed', processed);
-
+  try {
     // If not -y, confirm
 
     if (!ctx.args.dryRun && !ctx.args.y) {
@@ -44,7 +49,7 @@ export async function runCommand(ctx, configFile) {
       await executeOperations(ctx, processed);
     }
   } catch (e) {
-    logger.error('Unable to load config file', e);
+    logger.error('Unable to apply changes', e);
     throw e;
   }
 }
@@ -75,13 +80,16 @@ async function executeOperations(ctx, operations) {
         await executeIosEntitlements(ctx, op);
         break;
       case 'ios.build.gradle':
-        // await executeAndroidGradle(ctx, op);
-        break;
-      case 'android.package':
-        await executeAndroidPackage(ctx, op);
+        await executeAndroidGradle(ctx, op);
         break;
       case 'android.res':
         await executeAndroidRes(ctx, op);
+        break;
+      case 'android.packageName':
+        await executeAndroidPackageName(ctx, op);
+        break;
+      case 'android.manifest':
+        await executeAndroidManifest(ctx, op);
         break;
     }
   }

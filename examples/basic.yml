@@ -6,6 +6,7 @@ vars:
   INTUNE_CLIENT_ID:
   INTUNE_ADAL_AUTHORITY:
   INTUNE_REDIRECT_URI_IOS:
+  INTUNE_SIGNATURE_HASH:
 
 platforms:
   ios:
@@ -70,7 +71,56 @@ platforms:
       - WebKit.framework
 
   android:
-    package: $PACKAGE_NAME
+    packageName: $PACKAGE_NAME
+
+    manifest:
+      - file: AndroidManifest.xml
+        target: manifest/application
+        attrs:
+          android:name: com.ionicframework.intune.IntuneApplication
+
+      - file: AndroidManifest.xml
+        target: manifest
+        append: |
+          <queries>
+              <package android:name="com.azure.authenticator" />
+              <package android:name="$PACKAGE_NAME" />
+              <package android:name="com.microsoft.windowsintune.companyportal" />
+              <!-- Required for API Level 30 to make sure the app detect browsers
+                  (that don't support custom tabs) -->
+              <intent>
+                  <action android:name="android.intent.action.VIEW" />
+                  <category android:name="android.intent.category.BROWSABLE" />
+                  <data android:scheme="https" />
+              </intent>
+              <!-- Required for API Level 30 to make sure the app can detect browsers that support custom tabs -->
+              <!-- https://developers.google.com/web/updates/2020/07/custom-tabs-android-11#detecting_browsers_that_support_custom_tabs -->
+              <intent>
+                  <action android:name="android.support.customtabs.action.CustomTabsService" />
+              </intent>
+          </queries>
+
+      - file: AndroidManifest.xml
+        target: manifest/application
+        append: |
+          <activity android:name="com.microsoft.identity.client.BrowserTabActivity">
+              <intent-filter>
+                  <action android:name="android.intent.action.VIEW" />
+
+                  <category android:name="android.intent.category.DEFAULT" />
+                  <category android:name="android.intent.category.BROWSABLE" />
+
+                  <!--
+                      Add in your scheme/host from registered redirect URI
+                      note that the leading "/" is required for android:path
+                  -->
+                  <data
+                      android:host="$PACKAGE_NAME"
+                      android:path="/$INTUNE_SIGNATURE_HASH"
+                      android:scheme="msauth" />
+              </intent-filter>
+          </activity>
+
     build.gradle:
       buildscript:
         dependencies:

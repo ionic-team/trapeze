@@ -1,8 +1,5 @@
-import xml2js from 'xml2js';
 import { join } from 'path';
 import ionicFs from '@ionic/utils-fs';
-
-import { logger } from '../../util/log.mjs';
 
 export default async function execute(ctx, op) {
   const resRoot = join(ctx.rootDir, 'android', 'app', 'src', 'main', 'res');

@@ -1,5 +1,7 @@
 import yargs from 'yargs';
+import { join } from 'path';
 import { hideBin } from 'yargs/helpers';
+import url from 'url';
 
 export async function loadContext() {
   const rootDir = process.cwd();
@@ -8,6 +10,7 @@ export async function loadContext() {
   return {
     args: argv,
     vars: getInitialVars(),
+    nodePackageRoot: url.fileURLToPath(join(import.meta.url, '../../')),
     rootDir,
   };
 }
