@@ -12,6 +12,7 @@ import executeIosBundleId from '../operations/ios/bundleId.mjs';
 import executeIosFrameworks from '../operations/ios/frameworks.mjs';
 import executeIosEntitlements from '../operations/ios/entitlements.mjs';
 import executeIosPlist from '../operations/ios/plist.mjs';
+import executeIosBuildVersion from '../operations/ios/buildVersion.mjs';
 
 export async function runCommand(ctx, configFile) {
   let processed;
@@ -72,6 +73,12 @@ async function executeOperations(ctx, operations) {
         break;
       case 'ios.bundleId':
         await executeIosBundleId(ctx, op);
+        break;
+      case 'ios.version':
+        await executeIosBuildVersion(ctx, op);
+        break;
+      case 'ios.build':
+        await executeIosBuildVersion(ctx, op);
         break;
       case 'ios.frameworks':
         await executeIosFrameworks(ctx, op);

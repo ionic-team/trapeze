@@ -1,8 +1,6 @@
-import xcode from 'xcode';
 import { join } from 'path';
 import ionicFs from '@ionic/utils-fs';
-
-import { logger } from '../../util/log.mjs';
+import { parsePbxProject } from '../../util/pbx.mjs';
 
 export default async function execute(ctx, op) {
   const filename = join(
@@ -13,9 +11,7 @@ export default async function execute(ctx, op) {
     'project.pbxproj',
   );
 
-  const proj = await parseProject(filename);
-
-  const p1 = proj.getFirstProject();
+  const proj = await parsePbxProject(filename);
 
   const frameworks = op.value;
 
@@ -26,16 +22,4 @@ export default async function execute(ctx, op) {
   }
 
   await ionicFs.writeFile(filename, proj.writeSync());
-}
-
-function parseProject(filename) {
-  const proj = xcode.project(filename);
-  return new Promise((resolve, reject) => {
-    proj.parse(err => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(proj);
-    });
-  });
 }

@@ -11,6 +11,8 @@ vars:
 platforms:
   ios:
     bundleId: $BUNDLE_ID
+    version: 16.4
+    build: 1337
 
     plist:
       - file: Info.plist

@@ -11,7 +11,7 @@ export default async function execute(ctx, op) {
   for (const entry of entries) {
     const { file } = entry;
     if (file === 'Info.plist') {
-      const filename = join(ctx.env.rootDir, 'ios', 'App', 'App', 'Info.plist');
+      const filename = join(ctx.rootDir, 'ios', 'App', 'App', 'Info.plist');
 
       const parsed = await parsePlist(ctx, op, filename);
 
