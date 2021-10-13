@@ -4,6 +4,7 @@
   "description": "Capacitor Configuration Tool",
   "author": "Ionic Team <hi@ionic.io> (https://ionicframework.com) ",
   "license": "SEE LICENSE",
+  "private": false,
   "files": [
     "bin",
     "cli",
@@ -14,11 +15,6 @@
   },
   "scripts": {
     "build": "",
-    "clean-change-log": "node ../../scripts/clean-changelog.js CHANGELOG.md",
-    "remove-void-implements": "node ../../scripts/remove-void-implements.js",
-    "prepublishOnly": "npm run build",
-    "release": "standard-version -a",
-    "pre-release": "standard-version -a -p --skip.changelog=true --skip.tag=true",
     "test": "echo no tests yet"
   },
   "watch": {
