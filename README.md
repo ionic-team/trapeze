@@ -30,6 +30,7 @@ See an [Example Yaml Configuration](https://github.com/ionic-team/capacitor-conf
 | -------- | -------------------------- | ------------------ |
 | ios      | Bundle ID                  | :white_check_mark: |
 | ios      | version and buildNumber    | :white_check_mark: |
+| ios  | Increment buildNumber              | WIP |
 | ios      | Build Settings             | :white_check_mark: |
 | ios      | Plist Modifications        | :white_check_mark: |
 | ios      | Add Frameworks             | :white_check_mark: |
@@ -37,6 +38,7 @@ See an [Example Yaml Configuration](https://github.com/ionic-team/capacitor-conf
 | android  | Package Name               | :white_check_mark: |
 | android  | Version Name and Code      | :white_check_mark: |
 | android  | Version Code               | :white_check_mark: |
-| android  | Gradle Config              | :x: |
+| android  | Increment Version Code               | WIP |
+| android  | Gradle Config              | WIP |
 | android  | Resource Files             | :white_check_mark: |
 | android  | Manifest File Modification | :white_check_mark: |
