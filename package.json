@@ -63,10 +63,6 @@
     "type": "git",
     "url": "git+https://github.com/ionic-team/capacitor-configure.git"
   },
-  "publishConfig": {
-    "access": "restricted",
-    "registry": "https://registry.npmjs.org"
-  },
   "jest": {
     "moduleFileExtensions": [
       "ts",
