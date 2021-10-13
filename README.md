@@ -24,9 +24,12 @@ Configuration files are written in YAML. New to YAML? Read [Learn YAML in five m
 vars:
   BUNDLE_ID:
     default: io.ionic.wowzaStarter
+  PACKAGE_NAME:
+    default: io.ionic.wowzaStarter
   INTUNE_CLIENT_ID:
   INTUNE_ADAL_AUTHORITY:
   INTUNE_REDIRECT_URI_IOS:
+  INTUNE_SIGNATURE_HASH:
 
 platforms:
   ios:
@@ -91,7 +94,56 @@ platforms:
       - WebKit.framework
 
   android:
-    package: io.ionic.awesomeStarter
+    packageName: $PACKAGE_NAME
+
+    manifest:
+      - file: AndroidManifest.xml
+        target: manifest/application
+        attrs:
+          android:name: com.ionicframework.intune.IntuneApplication
+
+      - file: AndroidManifest.xml
+        target: manifest
+        append: |
+          <queries>
+              <package android:name="com.azure.authenticator" />
+              <package android:name="$PACKAGE_NAME" />
+              <package android:name="com.microsoft.windowsintune.companyportal" />
+              <!-- Required for API Level 30 to make sure the app detect browsers
+                  (that don't support custom tabs) -->
+              <intent>
+                  <action android:name="android.intent.action.VIEW" />
+                  <category android:name="android.intent.category.BROWSABLE" />
+                  <data android:scheme="https" />
+              </intent>
+              <!-- Required for API Level 30 to make sure the app can detect browsers that support custom tabs -->
+              <!-- https://developers.google.com/web/updates/2020/07/custom-tabs-android-11#detecting_browsers_that_support_custom_tabs -->
+              <intent>
+                  <action android:name="android.support.customtabs.action.CustomTabsService" />
+              </intent>
+          </queries>
+
+      - file: AndroidManifest.xml
+        target: manifest/application
+        append: |
+          <activity android:name="com.microsoft.identity.client.BrowserTabActivity">
+              <intent-filter>
+                  <action android:name="android.intent.action.VIEW" />
+
+                  <category android:name="android.intent.category.DEFAULT" />
+                  <category android:name="android.intent.category.BROWSABLE" />
+
+                  <!--
+                      Add in your scheme/host from registered redirect URI
+                      note that the leading "/" is required for android:path
+                  -->
+                  <data
+                      android:host="$PACKAGE_NAME"
+                      android:path="/$INTUNE_SIGNATURE_HASH"
+                      android:scheme="msauth" />
+              </intent-filter>
+          </activity>
+
     build.gradle:
       buildscript:
         dependencies:
@@ -116,7 +168,7 @@ platforms:
           {
             "client_id": "f80e2e59-01b2-4f88-be80-4895a63eae7e",
             "authorization_user_agent": "DEFAULT",
-            "redirect_uri": "msauth://io.ionic.starter/uHU%2BUi09K1zPjWX4mZFggrgz%2Brk%3D",
+            "redirect_uri": "msauth://$PACKAGE_NAME/uHU%2BUi09K1zPjWX4mZFggrgz%2Brk%3D",
             "broker_redirect_uri_registered": true,
             "authorities": [
               {
@@ -129,19 +181,20 @@ platforms:
             ]
           }
 
-
+      - path: drawable
+        file: logo.png
+        source: logo.png
 ```
 
 ## Supported Operations
 
-
-| Platform | Operation | Supported |
------------| ----------|------------|
-| ios | Bundle ID | :white_check_mark: |
-| ios | Info.plist | :white_check_mark: |
-| ios | Add Frameworks | :white_check_mark: |
-| ios | Set Entitlements | :white_check_mark: |
-| android | Package ID | :white_check_mark: |
-| android | Gradle Config | :white_check_mark: |
-| android | Resource Files | :white_check_mark: |
-| android | Manifest File Modification | :white_check_mark: |
+| Platform | Operation                  | Supported          |
+| -------- | -------------------------- | ------------------ |
+| ios      | Bundle ID                  | :white_check_mark: |
+| ios      | Info.plist                 | :white_check_mark: |
+| ios      | Add Frameworks             | :white_check_mark: |
+| ios      | Set Entitlements           | :white_check_mark: |
+| android  | Package ID                 | :white_check_mark: |
+| android  | Gradle Config              | :white_check_mark: |
+| android  | Resource Files             | :white_check_mark: |
+| android  | Manifest File Modification | :white_check_mark: |
