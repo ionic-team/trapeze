@@ -4,17 +4,7 @@ import { debug, logger, log } from '../util/log.mjs';
 import { logPrompt } from '../util/cli.mjs';
 import { loadConfig } from '../config.mjs';
 
-import executeAndroidPackageName from '../operations/android/packageName.mjs';
-import executeAndroidGradle from '../operations/android/gradle.mjs';
-import executeAndroidRes from '../operations/android/res.mjs';
-import executeAndroidManifest from '../operations/android/manifest.mjs';
-import executeAndroidVersion from '../operations/android/version.mjs';
-import executeIosBundleId from '../operations/ios/bundleId.mjs';
-import executeIosFrameworks from '../operations/ios/frameworks.mjs';
-import executeIosEntitlements from '../operations/ios/entitlements.mjs';
-import executeIosPlist from '../operations/ios/plist.mjs';
-import executeIosBuildVersion from '../operations/ios/buildVersion.mjs';
-import executeIosBuildSettings from '../operations/ios/buildSettings.mjs';
+import { hasHandler, runOperation } from '../operations/index.mjs';
 
 export async function runCommand(ctx, configFile) {
   let processed;
@@ -57,66 +47,36 @@ export async function runCommand(ctx, configFile) {
   }
 }
 
-async function previewOperations(ctx, operations) {
+async function previewOperations(operations) {
   for (let op of operations) {
     printOp(op);
+
+    if (!hasHandler(op)) {
+      throw new Error(
+        `Unsupported configuration option ${c.strong(
+          op.id,
+        )}. Check your configuration file and fix any issues before running again`,
+      );
+    }
   }
 }
 
 async function executeOperations(ctx, operations) {
-  // Promise.all(
-  // operations.map(op => {
   for (const op of operations) {
     printOp(op);
-
-    switch (op.id) {
-      case 'ios.plist':
-        await executeIosPlist(ctx, op);
-        break;
-      case 'ios.bundleId':
-        await executeIosBundleId(ctx, op);
-        break;
-      case 'ios.version':
-        await executeIosBuildVersion(ctx, op);
-        break;
-      case 'ios.buildSettings':
-        await executeIosBuildSettings(ctx, op);
-        break;
-      case 'ios.build':
-        await executeIosBuildVersion(ctx, op);
-        break;
-      case 'ios.frameworks':
-        await executeIosFrameworks(ctx, op);
-        break;
-      case 'ios.entitlements':
-        await executeIosEntitlements(ctx, op);
-        break;
-      case 'ios.build.gradle':
-        await executeAndroidGradle(ctx, op);
-        break;
-      case 'android.manifest':
-        await executeAndroidManifest(ctx, op);
-        break;
-      case 'android.res':
-        await executeAndroidRes(ctx, op);
-        break;
-      case 'android.packageName':
-        await executeAndroidPackageName(ctx, op);
-        break;
-      case 'android.versionName':
-        await executeAndroidVersion(ctx, op);
-        break;
-      case 'android.versionCode':
-        await executeAndroidVersion(ctx, op);
-        break;
+    if (!hasHandler(op)) {
+      logger.warn(
+        `Unsupported configuration option ${c.strong(op.id)}. Skipping`,
+      );
+      continue;
     }
+    await runOperation(ctx, op);
   }
-  // );
 }
 
 function printOp(op) {
   // const env = c.weak(`[${op.env}]`);
-  const platform = c.success(c.strong(`[${op.platform}]`));
+  const platform = c.success(c.strong(`${op.platform}`));
   const opName = c.strong(op.name);
   const opDisplay = op.displayText;
   log(platform, opName, opDisplay);

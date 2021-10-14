@@ -40,11 +40,14 @@ function createOperation(platform, op, opEntry) {
   };
 }
 
+// TODO: Move this to per-operation for more powerful display
 function createOpDisplayText(op) {
   switch (op.id) {
     // ios
     case 'ios.bundleId':
       return op.value;
+    case 'ios.productName':
+      return op.productName;
     case 'ios.version':
       return op.value;
     case 'ios.buildNumber':

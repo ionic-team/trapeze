@@ -5,13 +5,18 @@ import { clone, each } from 'lodash-es';
 import ionicFs from '@ionic/utils-fs';
 
 import { debug } from './util/log.mjs';
+import { logPrompt } from './util/cli.mjs';
 import { str } from './ctx.mjs';
+import c from './colors.mjs';
+import { initVarsFromEnv } from './ctx.mjs';
 
 export async function loadConfig(ctx, filename) {
   const contents = await ionicFs.readFile(filename, { encoding: 'utf-8' });
   const parsed = yaml.parse(contents, {
     prettyErrors: true,
   });
+
+  await initVarsFromEnv(ctx, parsed.vars);
 
   await ensureVars(ctx, parsed);
 
@@ -28,10 +33,26 @@ async function ensureVars(ctx, yaml) {
 
   for (const v in vars) {
     const vk = vars[v];
-    console.log(vk);
 
     if (!vk || (!ctx.vars[v] && !vk.default)) {
-      console.error('Must provide value for var', v);
+      const answers = await logPrompt(
+        `Required variable: ${c.strong(v)}\n` +
+          (vk.description
+            ? `${c.strong('Description:')} ${vk.description}`
+            : ''),
+        {
+          type: 'text',
+          name: 'value',
+          message: `${v} =`,
+          validate: input => !!input,
+        },
+      );
+
+      if (answers.value) {
+        ctx.vars[v] = {
+          value: answers.value,
+        };
+      }
     }
   }
 }

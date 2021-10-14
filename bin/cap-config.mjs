@@ -6,12 +6,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-"use strict";
+'use strict';
 
-process.on("unhandledRejection", (err) => {
+process.on('unhandledRejection', err => {
+  console.error('Unhandled Rejection', err);
   throw err;
 });
 
-import { run } from "../cli/index.mjs";
+import { run } from '../cli/index.mjs';
 
 run();

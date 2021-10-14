@@ -3,10 +3,23 @@ import { join } from 'path';
 import ionicFs from '@ionic/utils-fs';
 import { updatePlist } from '../../util/plist.mjs';
 
+const defaultEntitlementsPlist = `
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+</dict>
+</plist>
+`;
+
 export default async function execute(ctx, op) {
   const entitlements = op.value;
 
   const filename = join(ctx.rootDir, 'ios', 'App', 'App', 'app.entitlements');
+
+  if (!(await ionicFs.pathExists(filename))) {
+    await writeFile(filename, defaultEntitlementsPlist);
+  }
 
   const parsed = await parsePlist(ctx, op, filename);
 

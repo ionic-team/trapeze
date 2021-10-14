@@ -2,7 +2,7 @@
 
 A utility for automatically configuring native [Capacitor](https://capacitorjs.com/) projects in a predictable and safe way.
 
-__Note:__ This project is currently in active development and should not be considered stable (As of October '21). I'm currently collecting feedback on the different use cases you need a configuration tool for here: https://github.com/ionic-team/capacitor-configure/issues/1
+**Note:** This project is currently in active development and should not be considered stable (As of October '21). I'm currently collecting feedback on the different use cases you need a configuration tool for here: https://github.com/ionic-team/capacitor-configure/issues/1
 
 ## Installation
 
@@ -28,19 +28,19 @@ See an [Example Yaml Configuration](https://github.com/ionic-team/capacitor-conf
 
 | Platform | Operation                  | Supported          |
 | -------- | -------------------------- | ------------------ |
-| ios      | Bundle ID                  | :white_check_mark: |
+| ios      | Bundle ID and Product Name | :white_check_mark: |
 | ios      | version and buildNumber    | :white_check_mark: |
-| ios  | Increment buildNumber              | WIP |
+| ios      | Increment buildNumber      | WIP                |
 | ios      | Build Settings             | :white_check_mark: |
 | ios      | Plist Modifications        | :white_check_mark: |
 | ios      | Add Frameworks             | :white_check_mark: |
 | ios      | Set Entitlements           | :white_check_mark: |
-| ios      | Add Source/Header files          | WIP |
+| ios      | Add Source/Header files    | WIP                |
 | android  | Package Name               | :white_check_mark: |
 | android  | Version Name and Code      | :white_check_mark: |
 | android  | Version Code               | :white_check_mark: |
-| android  | Increment Version Code               | WIP |
-| android  | Gradle Config              | WIP |
+| android  | Increment Version Code     | WIP                |
+| android  | Gradle Config              | WIP                |
 | android  | Resource Files             | :white_check_mark: |
 | android  | Manifest File Modification | :white_check_mark: |
-| android      | Add Source/Header files          | WIP |
+| android  | Add Source/Header files    | WIP                |

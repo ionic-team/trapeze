@@ -4,15 +4,21 @@ vars:
   PACKAGE_NAME:
     default: io.ionic.wowzaStarter
   INTUNE_CLIENT_ID:
+    description: The Azure AD Client ID for your registered app
   INTUNE_ADAL_AUTHORITY:
+    description: The Azure ADAL Authority for your registered app
   INTUNE_REDIRECT_URI_IOS:
+    description: The redirect uri for your registered iOS app in Azure AD
   INTUNE_SIGNATURE_HASH:
+    description: The signature has for your signing certificate for Android
 
 platforms:
   ios:
     bundleId: $BUNDLE_ID
     version: 16.4
-    buildNumber: 1337
+    incrementBuild: true
+    productName: Awesome App
+    displayName: My Awesome App
 
     buildSettings:
       ENABLE_BITCODE: false
@@ -151,7 +157,7 @@ platforms:
         file: auth_config.json
         text: |
           {
-            "client_id": "f80e2e59-01b2-4f88-be80-4895a63eae7e",
+            "client_id": "$INTUNE_CLIENT_ID",
             "authorization_user_agent": "DEFAULT",
             "redirect_uri": "msauth://$PACKAGE_NAME/uHU%2BUi09K1zPjWX4mZFggrgz%2Brk%3D",
             "broker_redirect_uri_registered": true,
@@ -160,7 +166,7 @@ platforms:
                 "type": "AAD",
                 "audience": {
                   "type": "AzureADMyOrg",
-                  "tenant_id": "453daf0a-cd18-4085-bfd7-fb9431630f11"
+                  "tenant_id": "$INTUNE_TENANT_ID"
                 }
               }
             ]

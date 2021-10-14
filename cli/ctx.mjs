@@ -9,7 +9,7 @@ export async function loadContext() {
   const argv = yargs(hideBin(process.argv)).argv;
   return {
     args: argv,
-    vars: getInitialVars(),
+    vars: {},
     nodePackageRoot: url.fileURLToPath(join(import.meta.url, '../../')),
     rootDir,
   };
@@ -36,6 +36,19 @@ export function str(ctx, s) {
   });
 
   return s;
+}
+
+// Given a list of vars from our configuration, initialize
+// any that are already found in the process env
+export function initVarsFromEnv(ctx, vars) {
+  for (const v in vars) {
+    const existing = process.env[v];
+    if (existing) {
+      ctx.vars[v] = {
+        value: existing,
+      };
+    }
+  }
 }
 
 function getInitialVars() {
