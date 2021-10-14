@@ -2,7 +2,7 @@
 
 A utility for automatically configuring native [Capacitor](https://capacitorjs.com/) projects in a predictable and safe way.
 
-__Note:__ This project is currently in active development and should not be considered stable (As of October '21). 
+__Note:__ This project is currently in active development and should not be considered stable (As of October '21). I'm currently collecting feedback on the different use cases you need a configuration tool for here: https://github.com/ionic-team/capacitor-configure/issues/1
 
 ## Installation
 
