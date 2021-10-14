@@ -5,12 +5,16 @@ vars:
     default: io.ionic.wowzaStarter
   INTUNE_CLIENT_ID:
     description: The Azure AD Client ID for your registered app
+    default: blah
   INTUNE_ADAL_AUTHORITY:
     description: The Azure ADAL Authority for your registered app
+    default: bleh
   INTUNE_REDIRECT_URI_IOS:
     description: The redirect uri for your registered iOS app in Azure AD
+    default: foo
   INTUNE_SIGNATURE_HASH:
     description: The signature has for your signing certificate for Android
+    default: bar
 
 platforms:
   ios:
@@ -85,7 +89,7 @@ platforms:
   android:
     packageName: $PACKAGE_NAME
     versionName: 1.2.3
-    versionCode: 45
+    incrementVersionCode: true
 
     manifest:
       - file: AndroidManifest.xml

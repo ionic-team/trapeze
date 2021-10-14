@@ -26,6 +26,7 @@ const operations = {
   'android.packageName': executeAndroidPackageName,
   'android.versionName': executeAndroidVersion,
   'android.versionCode': executeAndroidVersion,
+  'android.incrementVersionCode': executeAndroidVersion,
 };
 
 const enabled = null; //['ios.plist'];

@@ -4,6 +4,8 @@ import ionicFs from '@ionic/utils-fs';
 export default async function execute(ctx, op) {
   const filename = join(ctx.rootDir, 'android', 'app', 'build.gradle');
 
+  console.log(filename);
+
   let contents = await ionicFs.readFile(filename, { encoding: 'utf-8' });
 
   if (op.id === 'android.versionCode') {
@@ -20,5 +22,15 @@ export default async function execute(ctx, op) {
       `$1"${op.value}"`,
     );
     await ionicFs.writeFile(filename, contents);
+  } else if (op.id === 'android.incrementVersionCode') {
+    const versionCode = contents.match(/versionCode\s+(\w+)/);
+    const num = parseInt(versionCode[1]);
+
+    console.log('Incrementing', num);
+
+    if (!isNaN(num)) {
+      contents = contents.replace(/(versionCode\s+)\w+/, `$1${num + 1}`);
+      await ionicFs.writeFile(filename, contents);
+    }
   }
 }
