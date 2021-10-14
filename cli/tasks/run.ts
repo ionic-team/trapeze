@@ -1,10 +1,10 @@
-import c from '../colors.mjs';
-import { processOperations } from '../op.mjs';
-import { debug, logger, log } from '../util/log.mjs';
-import { logPrompt } from '../util/cli.mjs';
-import { loadConfig } from '../config.mjs';
+import c from '../colors';
+import { processOperations } from '../op';
+import { debug, logger, log, error } from '../util/log';
+import { logPrompt } from '../util/cli';
+import { loadConfig } from '../config';
 
-import { hasHandler, runOperation } from '../operations/index.mjs';
+import { hasHandler, runOperation } from '../operations/index';
 
 export async function runCommand(ctx, configFile) {
   let processed;
@@ -13,7 +13,7 @@ export async function runCommand(ctx, configFile) {
 
     processed = processOperations(config);
   } catch (e) {
-    logger.error('Unable to load config file', e);
+    logger.error(`Unable to load config file: ${e.message}`);
     throw e;
   }
 
@@ -21,10 +21,10 @@ export async function runCommand(ctx, configFile) {
     // If not -y, confirm
 
     if (!ctx.args.dryRun && !ctx.args.y) {
-      await previewOperations(ctx, processed);
+      await previewOperations(processed);
       const answers = await logPrompt(
         c.strong(`Apply changes?\n`) +
-          `Applying these changes will modify your source files. We recommend committing any changes before running this operation.`,
+        `Applying these changes will modify your source files. We recommend committing any changes before running this operation.`,
         {
           type: 'confirm',
           name: 'apply',
@@ -42,7 +42,7 @@ export async function runCommand(ctx, configFile) {
       await executeOperations(ctx, processed);
     }
   } catch (e) {
-    logger.error('Unable to apply changes', e);
+    error('Unable to apply changes', e);
     throw e;
   }
 }

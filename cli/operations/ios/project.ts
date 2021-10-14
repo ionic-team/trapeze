@@ -1,9 +1,9 @@
 import plist from 'plist';
 import xcode from 'xcode';
 import { join } from 'path';
-import ionicFs from '@ionic/utils-fs';
+import { readFile, writeFile } from '@ionic/utils-fs';
 
-import { logger } from '../../util/log.mjs';
+import { logger } from '../../util/log';
 
 export default async function execute(ctx, op) {
   const filename = join(
@@ -37,10 +37,10 @@ export default async function execute(ctx, op) {
     proj.updateProductName(ctx, op.value);
   }
 
-  await ionicFs.writeFile(filename, proj.writeSync());
+  await writeFile(filename, proj.writeSync());
 }
 
-function parseProject(filename) {
+function parseProject(filename): Promise<any> {
   const proj = xcode.project(filename);
   return new Promise((resolve, reject) => {
     proj.parse(err => {
@@ -63,12 +63,12 @@ async function setDisplayName(ctx, displayName) {
 async function parsePlist(ctx) {
   const filename = join(ctx.rootDir, 'ios', 'App', 'App', 'Info.plist');
 
-  const contents = await ionicFs.readFile(filename, { encoding: 'utf-8' });
+  const contents = await readFile(filename, { encoding: 'utf-8' });
 
   return plist.parse(contents);
 }
 
 function writePlist(ctx, generated) {
   const filename = join(ctx.rootDir, 'ios', 'App', 'App', 'Info.plist');
-  return ionicFs.writeFile(filename, generated);
+  return writeFile(filename, generated);
 }

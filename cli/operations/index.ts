@@ -1,14 +1,14 @@
-import executeAndroidPackageName from '../operations/android/packageName.mjs';
-import executeAndroidGradle from '../operations/android/gradle.mjs';
-import executeAndroidRes from '../operations/android/res.mjs';
-import executeAndroidManifest from '../operations/android/manifest.mjs';
-import executeAndroidVersion from '../operations/android/version.mjs';
-import executeIosProject from '../operations/ios/project.mjs';
-import executeIosFrameworks from '../operations/ios/frameworks.mjs';
-import executeIosEntitlements from '../operations/ios/entitlements.mjs';
-import executeIosPlist from '../operations/ios/plist.mjs';
-import executeIosBuildVersion from '../operations/ios/buildVersion.mjs';
-import executeIosBuildSettings from '../operations/ios/buildSettings.mjs';
+import executeAndroidPackageName from './android/packageName';
+import executeAndroidGradle from './android/gradle';
+import executeAndroidRes from './android/res';
+import executeAndroidManifest from './android/manifest';
+import executeAndroidVersion from './android/version';
+import executeIosProject from './ios/project';
+import executeIosFrameworks from './ios/frameworks';
+import executeIosEntitlements from './ios/entitlements';
+import executeIosPlist from './ios/plist';
+import executeIosBuildVersion from './ios/buildVersion';
+import executeIosBuildSettings from './ios/buildSettings';
 
 const operations = {
   'ios.plist': executeIosPlist,

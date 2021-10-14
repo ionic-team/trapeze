@@ -1,9 +1,9 @@
 import plist from 'plist';
 import { join } from 'path';
-import ionicFs from '@ionic/utils-fs';
+import { readFile, writeFile } from '@ionic/utils-fs';
 
-import { mergeWith, union } from 'lodash-es';
-import { updatePlist } from '../../util/plist.mjs';
+import { mergeWith, union } from 'lodash';
+import { updatePlist } from '../../util/plist';
 
 export default async function execute(ctx, op) {
   const entries = op.value;
@@ -25,11 +25,11 @@ export default async function execute(ctx, op) {
 }
 
 async function parsePlist(_ctx, _op, filename) {
-  const contents = await ionicFs.readFile(filename, { encoding: 'utf-8' });
+  const contents = await readFile(filename, { encoding: 'utf-8' });
 
   return plist.parse(contents);
 }
 
 function writePlist(_ctx, filename, generated) {
-  return ionicFs.writeFile(filename, generated);
+  return writeFile(filename, generated);
 }

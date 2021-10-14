@@ -10,10 +10,10 @@ vars:
     description: The Azure ADAL Authority for your registered app
     default: bleh
   INTUNE_REDIRECT_URI_IOS:
-    description: The redirect uri for your registered iOS app in Azure AD
+    description: The redirect URI for your registered iOS app in Azure AD
     default: foo
   INTUNE_SIGNATURE_HASH:
-    description: The signature has for your signing certificate for Android
+    description: The signature hash for your signing certificate for Android
     default: bar
 
 platforms:

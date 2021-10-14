@@ -1,8 +1,8 @@
 import { join } from 'path';
 import xpath from 'xpath';
-import { difference } from 'lodash-es';
+import { difference } from 'lodash';
 
-import { parseXml, parseXmlString, writeXml } from '../../util/xml.mjs';
+import { parseXml, parseXmlString, writeXml } from '../../util/xml';
 
 export default async function execute(ctx, op) {
   const filename = join(

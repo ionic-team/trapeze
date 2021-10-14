@@ -1,7 +1,7 @@
-import program from 'commander';
-import { loadContext, setArguments } from './ctx.mjs';
-import { logger } from './util/log.mjs';
-import { wrapAction } from './util/cli.mjs';
+import { Command } from 'commander';
+import { loadContext, setArguments } from './ctx';
+import { logger } from './util/log';
+import { wrapAction } from './util/cli';
 
 export async function run() {
   try {
@@ -16,6 +16,7 @@ export async function run() {
 
 export function runProgram(ctx) {
   // program.version(env.package.version);
+  const program = new Command();
 
   program
     .command('run [configFile]')
@@ -27,7 +28,7 @@ export function runProgram(ctx) {
       wrapAction(async (configFile, args = {}) => {
         setArguments(ctx, args);
 
-        const { runCommand } = await import('./tasks/run.mjs');
+        const { runCommand } = await import('./tasks/run');
         await runCommand(ctx, configFile);
       }),
     );

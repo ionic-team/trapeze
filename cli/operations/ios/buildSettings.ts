@@ -1,7 +1,7 @@
 import { join } from 'path';
-import ionicFs from '@ionic/utils-fs';
+import { writeFile } from '@ionic/utils-fs';
 
-import { parsePbxProject } from '../../util/pbx.mjs';
+import { parsePbxProject } from '../../util/pbx';
 
 export default async function execute(ctx, op) {
   const filename = join(
@@ -23,5 +23,5 @@ export default async function execute(ctx, op) {
     proj.addBuildProperty(key, v, 'Release');
   }
 
-  await ionicFs.writeFile(filename, proj.writeSync());
+  await writeFile(filename, proj.writeSync());
 }

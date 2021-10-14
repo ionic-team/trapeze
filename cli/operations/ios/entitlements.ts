@@ -1,7 +1,7 @@
 import plist from 'plist';
 import { join } from 'path';
-import ionicFs from '@ionic/utils-fs';
-import { updatePlist } from '../../util/plist.mjs';
+import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
+import { updatePlist } from '../../util/plist';
 
 const defaultEntitlementsPlist = `
 <?xml version="1.0" encoding="UTF-8"?>
@@ -17,7 +17,7 @@ export default async function execute(ctx, op) {
 
   const filename = join(ctx.rootDir, 'ios', 'App', 'App', 'app.entitlements');
 
-  if (!(await ionicFs.pathExists(filename))) {
+  if (!(await pathExists(filename))) {
     await writeFile(filename, defaultEntitlementsPlist);
   }
 
@@ -32,15 +32,15 @@ export default async function execute(ctx, op) {
 }
 
 async function parsePlist(_ctx, _op, filename) {
-  const contents = await ionicFs.readFile(filename, { encoding: 'utf-8' });
+  const contents = await readFile(filename, { encoding: 'utf-8' });
 
   return plist.parse(contents);
 }
 
 function addEntitlement(ctx, entitlement, parsed) {
-  return updatePlist(ctx, entitlement, parsed);
+  return updatePlist(entitlement, parsed);
 }
 
 function writePlist(filename, generated) {
-  return ionicFs.writeFile(filename, generated);
+  return writeFile(filename, generated);
 }

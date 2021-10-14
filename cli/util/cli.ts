@@ -4,14 +4,13 @@ import {
   TTYOutputStrategy,
   createDefaultLogger,
 } from '@ionic/cli-framework-output';
-import CliFrameworkOutput from '@ionic/cli-framework-output';
-const { LoggerLevelWeight } = CliFrameworkOutput;
+import { LoggerLevelWeight } from '@ionic/cli-framework-output';
 import Prompts from 'prompts';
 const { Answers, PromptObject } = Prompts;
 
-import { logger } from './log.mjs';
-import { isInteractive } from './term.mjs';
-import c from '../colors.mjs';
+import { logger } from './log';
+import { isInteractive } from './term';
+import c from '../colors';
 
 export function wrapAction(action) {
   return async (...args) => {

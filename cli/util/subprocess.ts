@@ -1,6 +1,6 @@
 import { Subprocess, SubprocessError } from '@ionic/utils-subprocess';
 
-import c from '../colors.mjs';
+import c from '../colors';
 
 export async function runCommand(command, args, options = {}) {
   console.log(c.strong(`> ${command} ${args.join(' ')}`));
@@ -16,10 +16,10 @@ export async function runCommand(command, args, options = {}) {
       throw e.output
         ? e.output
         : e.code
-        ? e.code
-        : e.error
-        ? e.error.message
-        : 'Unknown error';
+          ? e.code
+          : e.error
+            ? e.error.message
+            : 'Unknown error';
     }
 
     throw e;

@@ -1,7 +1,7 @@
-import { mergeWith, union } from 'lodash-es';
-import { str } from '../ctx.mjs';
+import { mergeWith, union } from 'lodash';
+import { str } from '../ctx';
 
-export function updatePlist(ctx, entries, parsed) {
+export function updatePlist(entries, parsed) {
   // const converted = toPlistFormat({ ...opData });
   const merged = mergeWith(entries, parsed, (objValue, srcValue) => {
     // Override the default merge behavior for arrays of objects that have the

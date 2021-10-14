@@ -10,14 +10,15 @@ export async function loadContext() {
   return {
     args: argv,
     vars: {},
-    nodePackageRoot: url.fileURLToPath(join(import.meta.url, '../../')),
+    // nodePackageRoot: url.fileURLToPath(join(import.meta.url, '../../')),
+    nodePackageRoot: join(__dirname, '../'),
     rootDir,
   };
 }
 
 export function setArguments(ctx, args) {
   ctx.args = args;
-  process.env.VERBOSE = !!args.verbose;
+  process.env.VERBOSE = '' + !!args.verbose;
 }
 
 // Given a variable of the form $VARIABLE, resolve the

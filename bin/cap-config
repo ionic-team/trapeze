@@ -13,6 +13,7 @@ process.on('unhandledRejection', err => {
   throw err;
 });
 
-import { run } from '../cli/index.mjs';
+// import { run } from '../dist/cli';
+const { run } = require('../dist/index');
 
 run();

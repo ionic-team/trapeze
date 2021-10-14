@@ -1,17 +1,17 @@
 import yaml from 'yaml';
 
-import { clone, each } from 'lodash-es';
+import { clone, each } from 'lodash';
 
-import ionicFs from '@ionic/utils-fs';
+import { readFile } from '@ionic/utils-fs';
 
-import { debug } from './util/log.mjs';
-import { logPrompt } from './util/cli.mjs';
-import { str } from './ctx.mjs';
-import c from './colors.mjs';
-import { initVarsFromEnv } from './ctx.mjs';
+import { debug } from './util/log';
+import { logPrompt } from './util/cli';
+import { str } from './ctx';
+import c from './colors';
+import { initVarsFromEnv } from './ctx';
 
 export async function loadConfig(ctx, filename) {
-  const contents = await ionicFs.readFile(filename, { encoding: 'utf-8' });
+  const contents = await readFile(filename, { encoding: 'utf-8' });
   const parsed = yaml.parse(contents, {
     prettyErrors: true,
   });
@@ -37,9 +37,9 @@ async function ensureVars(ctx, yaml) {
     if (!vk || (!ctx.vars[v] && !vk.default)) {
       const answers = await logPrompt(
         `Required variable: ${c.strong(v)}\n` +
-          (vk.description
-            ? `${c.strong('Description:')} ${vk.description}`
-            : ''),
+        (vk.description
+          ? `${c.strong('Description:')} ${vk.description}`
+          : ''),
         {
           type: 'text',
           name: 'value',
@@ -83,7 +83,7 @@ function interpolateVarsInTree(ctx, yaml) {
   each(yaml, (val, key) => {
     if (typeof val === 'string') {
       newObject[key] = str(ctx, val);
-    } else if (typeof val === 'object' || typeof val === 'array') {
+    } else if (typeof val === 'object' || Array.isArray(val)) {
       newObject[key] = interpolateVarsInTree(ctx, val);
     }
   });

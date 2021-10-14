@@ -2,7 +2,7 @@ import gradleToJs from 'gradle-to-js/lib/parser.js';
 
 import { join } from 'path';
 
-import { logger } from '../../util/log.mjs';
+import { debug, logger } from '../../util/log';
 
 export default async function execute(ctx, op) {
   const filename =
@@ -18,11 +18,11 @@ export default async function execute(ctx, op) {
   const modifications = [];
   updateTree(parsed, op.value, modifications);
 
-  outputGradle(ctx, config, parsed);
+  outputGradle(ctx, parsed);
 }
 
 function updateTree(parsedNode, node, modifications) {
-  logger.debug('Modifying gradle', parsedNode, node);
+  debug('Modifying gradle', parsedNode, node);
 
   // Once we get to an array, assume we're modifying lines
   if (Array.isArray(node)) {
@@ -36,7 +36,7 @@ function updateTree(parsedNode, node, modifications) {
 }
 
 function modifyNode(parsedNode, node, modifications) {
-  logger.debug('Modify the node', parsedNode, node);
+  debug('Modify the node', parsedNode, node);
 }
 
-async function outputGradle(ctx, config, parsed) {}
+async function outputGradle(ctx, parsed) { }

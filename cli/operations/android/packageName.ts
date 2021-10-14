@@ -1,9 +1,7 @@
 import { join } from 'path';
-import ionicFs from '@ionic/utils-fs';
 
-import { logger } from '../../util/log.mjs';
-import { parseXml } from '../../util/xml.mjs';
-import { writeXml } from '../../util/xml.mjs';
+import { parseXml } from '../../util/xml';
+import { writeXml } from '../../util/xml';
 
 export default async function execute(ctx, op) {
   const filename = join(
