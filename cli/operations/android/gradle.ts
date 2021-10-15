@@ -1,10 +1,13 @@
 import gradleToJs from 'gradle-to-js/lib/parser.js';
 
 import { join } from 'path';
+import { Change } from '../../../lib/change';
+import { Context } from '../../ctx';
+import { Operation } from '../../op';
 
 import { debug, logger } from '../../util/log';
 
-export default async function execute(ctx, op) {
+export default async function execute(ctx: Context, op: Operation): Promise<Change[]> {
   const filename =
     op.name == 'build.gradle'
       ? join(ctx.rootDir, 'android', 'build.gradle')
@@ -19,6 +22,8 @@ export default async function execute(ctx, op) {
   updateTree(parsed, op.value, modifications);
 
   outputGradle(ctx, parsed);
+
+  return [];
 }
 
 function updateTree(parsedNode, node, modifications) {

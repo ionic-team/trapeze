@@ -2,6 +2,9 @@ import plist from 'plist';
 import { join } from 'path';
 import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
 import { updatePlist } from '../../util/plist';
+import { Context } from '../../ctx';
+import { Operation } from '../../op';
+import { Change } from '../../../lib/change';
 
 const defaultEntitlementsPlist = `
 <?xml version="1.0" encoding="UTF-8"?>
@@ -12,7 +15,7 @@ const defaultEntitlementsPlist = `
 </plist>
 `;
 
-export default async function execute(ctx, op) {
+export default async function execute(ctx: Context, op: Operation): Promise<Change[]> {
   const entitlements = op.value;
 
   const filename = join(ctx.rootDir, 'ios', 'App', 'App', 'app.entitlements');
@@ -29,6 +32,8 @@ export default async function execute(ctx, op) {
   }
   const generated = plist.build(modified);
   await writePlist(filename, generated);
+
+  return [];
 }
 
 async function parsePlist(_ctx, _op, filename) {

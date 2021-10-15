@@ -1,5 +1,13 @@
+export interface Operation {
+  id: string;
+  platform: string;
+  name: string;
+  value: any;
+  displayText: string;
+}
+
 // Given the parsed yaml file, generate a set of operations to perform against the project
-export function processOperations(yaml) {
+export function processOperations(yaml: any) {
   // return processEnvironments(yaml.environments).flat();
   return Object.keys(yaml.platforms)
     .map(p => createPlatform(p, yaml.platforms[p]))
@@ -26,7 +34,7 @@ function createPlatform(platform, platformEntry) {
   );
 }
 
-function createOperation(platform, op, opEntry) {
+function createOperation(platform, op, opEntry): Operation {
   const opRet = {
     id: `${platform}.${op}`,
     platform,

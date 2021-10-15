@@ -69,8 +69,12 @@ async function executeOperations(ctx, operations) {
       );
       continue;
     }
-    const changes = await runOperation(ctx, op);
-    // TODO: Apply changes
+    const changes = await runOperation(ctx, op) || [];
+    console.log(`Applying ${changes.length} changes`);
+    // TODO: Apply changes interactively
+    for (let change of changes) {
+      await change.commit();
+    }
     // console.log('CHANGES', changes);
   }
 }

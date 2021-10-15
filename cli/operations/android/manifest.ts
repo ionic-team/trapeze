@@ -3,8 +3,11 @@ import xpath from 'xpath';
 import { difference } from 'lodash';
 
 import { parseXml, parseXmlString, writeXml } from '../../../lib/util/xml';
+import { Context } from '../../ctx';
+import { Operation } from '../../op';
+import { Change } from '../../../lib/change';
 
-export default async function execute(ctx, op) {
+export default async function execute(ctx: Context, op: Operation): Promise<Change[]> {
   const filename = join(
     ctx.rootDir,
     'android',
@@ -21,6 +24,8 @@ export default async function execute(ctx, op) {
 
     await writeXml(ctx, doc, filename);
   }
+
+  return [];
 }
 
 function applyOp(doc, opData) {

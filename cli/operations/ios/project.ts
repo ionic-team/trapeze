@@ -4,8 +4,11 @@ import { join } from 'path';
 import { readFile, writeFile } from '@ionic/utils-fs';
 
 import { logger } from '../../util/log';
+import { Context } from '../../ctx';
+import { Operation } from '../../op';
+import { Change } from '../../../lib/change';
 
-export default async function execute(ctx, op) {
+export default async function execute(ctx: Context, op: Operation): Promise<Change[]> {
   const filename = join(
     ctx.rootDir,
     'ios',
@@ -38,6 +41,8 @@ export default async function execute(ctx, op) {
   }
 
   await writeFile(filename, proj.writeSync());
+
+  return [];
 }
 
 function parseProject(filename): Promise<any> {

@@ -1,7 +1,8 @@
 import { join } from 'path';
 import { readFile, writeFile } from '@ionic/utils-fs';
+import { Change } from '../../../lib/change';
 
-export default async function execute(ctx, op) {
+export default async function execute(ctx, op): Promise<Change[]> {
   const filename = join(ctx.rootDir, 'android', 'app', 'build.gradle');
 
   let contents = await readFile(filename, { encoding: 'utf-8' });
@@ -10,7 +11,10 @@ export default async function execute(ctx, op) {
     // Match entries of the form
     // versionCode 12
     contents = contents.replace(/(versionCode\s+)\w+/, `$1${op.value}`);
-    await writeFile(filename, contents);
+    return [new Change({
+      file: filename,
+      data: contents
+    })];
   } else if (op.id === 'android.versionName') {
     // Match entries of the form
     // versionName "1.0.1"
@@ -19,14 +23,21 @@ export default async function execute(ctx, op) {
       /(versionName\s+)["'][^"']+["']/,
       `$1"${op.value}"`,
     );
-    await writeFile(filename, contents);
+
+    return [new Change({
+      file: filename,
+      data: contents
+    })];
   } else if (op.id === 'android.incrementVersionCode') {
     const versionCode = contents.match(/versionCode\s+(\w+)/);
     const num = parseInt(versionCode[1]);
 
     if (!isNaN(num)) {
       contents = contents.replace(/(versionCode\s+)\w+/, `$1${num + 1}`);
-      await writeFile(filename, contents);
+      return [new Change({
+        file: filename,
+        data: contents
+      })];
     }
   }
 }

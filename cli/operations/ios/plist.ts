@@ -4,8 +4,11 @@ import { readFile, writeFile } from '@ionic/utils-fs';
 
 import { mergeWith, union } from 'lodash';
 import { updatePlist } from '../../util/plist';
+import { Context } from '../../ctx';
+import { Operation } from '../../op';
+import { Change } from '../../../lib/change';
 
-export default async function execute(ctx, op) {
+export default async function execute(ctx: Context, op: Operation): Promise<Change[]> {
   const entries = op.value;
 
   for (const entry of entries) {
@@ -22,6 +25,8 @@ export default async function execute(ctx, op) {
       throw new Error(`Unknown plist file ${file}`);
     }
   }
+
+  return [];
 }
 
 async function parsePlist(_ctx, _op, filename) {

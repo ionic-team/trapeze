@@ -9,8 +9,16 @@ import executeIosEntitlements from './ios/entitlements';
 import executeIosPlist from './ios/plist';
 import executeIosBuildVersion from './ios/buildVersion';
 import executeIosBuildSettings from './ios/buildSettings';
+import { Change } from '../../lib/change';
+import { Context } from '../ctx';
+import { Operation } from '../op';
 
-const operations = {
+type OperationHandler = (ctx: Context, op: Operation) => Promise<Change[]>;
+interface OperationHandlers {
+  [id: string]: OperationHandler;
+}
+
+const operations: OperationHandlers = {
   'ios.plist': executeIosPlist,
   'ios.bundleId': executeIosProject,
   'ios.displayName': executeIosProject,
