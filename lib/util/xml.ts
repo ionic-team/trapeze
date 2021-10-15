@@ -11,6 +11,10 @@ export function parseXmlString(contents) {
   return new xmldom.DOMParser().parseFromString(contents);
 }
 
+export function serializeXml(doc) {
+  return new XMLSerializer().serializeToString(doc);
+}
+
 export async function writeXml(ctx, doc, filename) {
   var xml = new XMLSerializer().serializeToString(doc);
 

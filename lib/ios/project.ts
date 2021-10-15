@@ -10,7 +10,10 @@ export interface IosBuildSettings {
 
 export type IosFramework = string;
 
-export class IosProject extends CapacitorProject {
+export class IosProject {
+  constructor(private project: CapacitorProject) {
+  }
+
   async setBundleId(bundleId: string) {
   }
 

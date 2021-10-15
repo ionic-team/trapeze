@@ -1,9 +1,8 @@
 import { join } from 'path';
+import { Change } from '../../../lib/change';
+import { Context } from '../../ctx';
 
-import { parseXml } from '../../util/xml';
-import { writeXml } from '../../util/xml';
-
-export default async function execute(ctx, op) {
+export default async function execute(ctx: Context, op): Promise<Change[]> {
   const filename = join(
     ctx.rootDir,
     'android',
@@ -13,9 +12,7 @@ export default async function execute(ctx, op) {
     'AndroidManifest.xml',
   );
 
-  const doc = await parseXml(filename);
+  const change = await ctx.project.android.setPackageName(op.value);
 
-  doc.documentElement.setAttribute('package', op.value);
-
-  await writeXml(ctx, doc, filename);
+  return [change];
 }

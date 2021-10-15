@@ -2,7 +2,7 @@ import { join } from 'path';
 import xpath from 'xpath';
 import { difference } from 'lodash';
 
-import { parseXml, parseXmlString, writeXml } from '../../util/xml';
+import { parseXml, parseXmlString, writeXml } from '../../../lib/util/xml';
 
 export default async function execute(ctx, op) {
   const filename = join(

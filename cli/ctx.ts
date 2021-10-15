@@ -5,7 +5,6 @@ import { hideBin } from 'yargs/helpers';
 import { loadProject } from './project';
 
 import { CapacitorProject } from '../lib';
-import { fatal } from './util/log';
 
 export interface Context {
   project: CapacitorProject;

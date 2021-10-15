@@ -7,13 +7,8 @@ export class CapacitorProject {
   ios: IosProject | null;
   android: AndroidProject | null;
 
-  constructor() {
-  }
-
-  /**
-   * Load projects from Capacitor project root.
-   */
-  async load(config: CapacitorConfig) {
-    console.log('Loading from config', config);
+  constructor(public config: CapacitorConfig) {
+    this.ios = new IosProject(this);
+    this.android = new AndroidProject(this);
   }
 }
