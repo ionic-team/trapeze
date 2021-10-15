@@ -1,6 +1,6 @@
 import { join } from 'path';
 import { writeFile } from '@ionic/utils-fs';
-import { parsePbxProject } from '../../util/pbx';
+import { parsePbxProject } from '../../../lib/util/pbx';
 import { Context } from '../../ctx';
 import { Operation } from '../../op';
 import { Change } from '../../../lib/change';

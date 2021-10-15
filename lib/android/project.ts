@@ -20,7 +20,7 @@ export class AndroidProject {
     return new Change({
       file: manifestFilename,
       data: serialized
-    });
+    }, Change.WriteFileChangeCommitStrategy);
   }
 
   async setVersionName(versionName: string) {

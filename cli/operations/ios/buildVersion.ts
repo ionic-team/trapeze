@@ -1,46 +1,16 @@
-import { join } from 'path';
-import { writeFile } from '@ionic/utils-fs';
-
-import { parsePbxProject } from '../../util/pbx';
 import { Context } from '../../ctx';
 import { Operation } from '../../op';
 import { Change } from '../../../lib/change';
 
-export default async function execute(ctx: Context, op: Operation): Promise<Change[]> {
-  const filename = join(
-    ctx.rootDir,
-    'ios',
-    'App',
-    'App.xcodeproj',
-    'project.pbxproj',
-  );
-
-  const proj = await parsePbxProject(filename);
-
+export default async function execute(ctx: Context, op: Operation): Promise<Change> {
+  // TODO: Don't hard code the build names
   if (op.id === 'ios.version') {
-    proj.addBuildProperty('MARKETING_VERSION', op.value, 'Debug');
-    proj.addBuildProperty('MARKETING_VERSION', op.value, 'Release');
+    return ctx.project.ios.setVersion(op.value, 'Debug');
   }
-
   if (op.id === 'ios.buildNumber') {
-    proj.addBuildProperty('CURRENT_PROJECT_VERSION', op.value, 'Debug');
-    proj.addBuildProperty('CURRENT_PROJECT_VERSION', op.value, 'Release');
+    return ctx.project.ios.setBuild(op.value, 'Debug');
   }
-
   if (op.id === 'ios.incrementBuild' && op.value === true) {
-    const num = proj.getBuildProperty('CURRENT_PROJECT_VERSION', 'Debug');
-    const num2 = proj.getBuildProperty('CURRENT_PROJECT_VERSION', 'Release');
-
-    if (num) {
-      proj.addBuildProperty('CURRENT_PROJECT_VERSION', num + 1, 'Debug');
-      proj.addBuildProperty('CURRENT_PROJECT_VERSION', num + 1, 'Release');
-    } else {
-      proj.addBuildProperty('CURRENT_PROJECT_VERSION', 1, 'Debug');
-      proj.addBuildProperty('CURRENT_PROJECT_VERSION', 1, 'Release');
-    }
+    return ctx.project.ios.incrementBuild('Debug');
   }
-
-  await writeFile(filename, proj.writeSync());
-
-  return [];
 }
