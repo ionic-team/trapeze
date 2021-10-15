@@ -73,6 +73,7 @@ platforms:
     entitlements:
       - keychain-access-groups:
           ['$BUNDLE_ID', 'com.microsoft.intune.mam', 'com.microsoft.adalcache']
+
     frameworks:
       - AudioToolbox.framework
       - CoreServices.framework

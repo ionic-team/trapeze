@@ -13,7 +13,6 @@ export function parseXmlString(contents) {
 
 export async function writeXml(ctx, doc, filename) {
   var xml = new XMLSerializer().serializeToString(doc);
-  console.log('Parsing ctx', ctx.nodePackageRoot);
 
   const formatted = prettier.format(xml, {
     parser: 'xml',

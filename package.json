@@ -32,6 +32,7 @@
   "main": "dist/index.js",
   "typings": "dist/esm/index.d.ts",
   "dependencies": {
+    "@capacitor/cli": "^3.2.5",
     "@ionic/cli-framework-output": "^2.2.2",
     "@ionic/utils-fs": "^3.1.5",
     "@ionic/utils-subprocess": "^2.1.8",

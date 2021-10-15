@@ -1,9 +1,8 @@
 import c from '../colors';
 import { processOperations } from '../op';
-import { debug, logger, log, error } from '../util/log';
+import { logger, log, error } from '../util/log';
 import { logPrompt } from '../util/cli';
 import { loadConfig } from '../config';
-
 import { hasHandler, runOperation } from '../operations/index';
 
 export async function runCommand(ctx, configFile) {

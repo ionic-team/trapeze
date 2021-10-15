@@ -50,7 +50,7 @@ export function error(...args) {
   console.warn(...args);
 }
 
-export function fatal(msg, exc) {
+export function fatal(msg, exc): never {
   console.error(c.failure(`Fatal error: ${msg}`));
   if (exc) {
     console.error(exc);

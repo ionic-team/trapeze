@@ -1,29 +1,61 @@
 import yargs from 'yargs';
 import { join } from 'path';
 import { hideBin } from 'yargs/helpers';
-import url from 'url';
 
-export async function loadContext() {
+import { loadProject } from './project';
+
+import { CapacitorProject } from '../lib';
+import { fatal } from './util/log';
+
+export interface Context {
+  project: CapacitorProject;
+  args: any;
+  vars: Variables;
+  nodePackageRoot: string;
+  rootDir: string;
+}
+
+export interface Variable {
+  value: string;
+}
+
+export interface Variables {
+  [variable: string]: Variable;
+}
+
+export async function loadContext(): Promise<Context> {
   const rootDir = process.cwd();
 
   const argv = yargs(hideBin(process.argv)).argv;
+
+  let project: CapacitorProject | null;
+
+  try {
+    project = await loadProject(rootDir);
+  } catch (e) {
+    throw new Error('Unable to load Capacitor project');
+  }
+
+  console.log('Loaded project', project);
+
   return {
+    project,
     args: argv,
     vars: {},
-    // nodePackageRoot: url.fileURLToPath(join(import.meta.url, '../../')),
-    nodePackageRoot: join(__dirname, '../'),
+    // Important for resolving custom prettier plugin
+    nodePackageRoot: join(__dirname, '../../'),
     rootDir,
   };
 }
 
-export function setArguments(ctx, args) {
+export function setArguments(ctx: Context, args: any) {
   ctx.args = args;
   process.env.VERBOSE = '' + !!args.verbose;
 }
 
 // Given a variable of the form $VARIABLE, resolve the
 // actual value from the environment
-export function str(ctx, s) {
+export function str(ctx: Context, s: string) {
   // Replace any variables in the string, ignoring
   // ones of the type $(blah) which are handled by the platform (i.e. iOS)
   s = s.replace(/\$[^\(][\w]+/g, m => {
@@ -41,7 +73,7 @@ export function str(ctx, s) {
 
 // Given a list of vars from our configuration, initialize
 // any that are already found in the process env
-export function initVarsFromEnv(ctx, vars) {
+export function initVarsFromEnv(ctx: Context, vars: Variables) {
   for (const v in vars) {
     const existing = process.env[v];
     if (existing) {
@@ -50,8 +82,4 @@ export function initVarsFromEnv(ctx, vars) {
       };
     }
   }
-}
-
-function getInitialVars() {
-  return {};
 }
