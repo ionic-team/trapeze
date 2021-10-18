@@ -76,6 +76,13 @@ describe('project', () => {
     expect(fwks.every(f => frameworks.indexOf(f) >= 0)).toBe(true);
   });
 
+  it('should add frameworks to non-app targets', async () => {
+    const fwks = ['WebKit.framework', 'QuartzCore.framework'];
+    fwks.forEach(f => project.ios.addFramework('\"My App Clip\"', f));
+    const frameworks = project.ios.getFrameworks('\"My App Clip\"');
+    expect(fwks.every(f => frameworks.indexOf(f) >= 0)).toBe(true);
+  });
+
   it('should commit changes and reflect in fs', async () => {
   });
 });
