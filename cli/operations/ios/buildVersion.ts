@@ -1,6 +1,5 @@
 import { Context } from '../../ctx';
 import { Operation } from '../../op';
-import { Change } from '../../../lib/change';
 
 export default async function execute(ctx: Context, op: Operation) {
   // TODO: Don't hard code the build names

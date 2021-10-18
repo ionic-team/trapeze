@@ -3,7 +3,6 @@ import { join } from 'path';
 import { CapacitorProject } from "../project";
 
 import { parseXml, serializeXml, writeXml } from '../util/xml';
-import { Change } from '../change';
 
 export class AndroidProject {
   constructor(private project: CapacitorProject) {
@@ -16,11 +15,6 @@ export class AndroidProject {
     doc.documentElement.setAttribute('package', packageName);
 
     const serialized = serializeXml(doc);
-
-    return new Change({
-      file: manifestFilename,
-      data: serialized
-    }, Change.WriteFileChangeCommitStrategy);
   }
 
   async setVersionName(versionName: string) {

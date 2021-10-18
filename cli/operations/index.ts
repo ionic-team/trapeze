@@ -9,7 +9,6 @@ import executeIosEntitlements from './ios/entitlements';
 import executeIosPlist from './ios/plist';
 import executeIosBuildVersion from './ios/buildVersion';
 import executeIosBuildSettings from './ios/buildSettings';
-import { Change } from '../../lib/change';
 import { Context } from '../ctx';
 import { Operation } from '../op';
 

@@ -1,6 +1,5 @@
 import { join } from 'path';
 import { readFile, writeFile } from '@ionic/utils-fs';
-import { Change } from '../../../lib/change';
 
 export default async function execute(ctx, op) {
   const filename = join(ctx.rootDir, 'android', 'app', 'build.gradle');

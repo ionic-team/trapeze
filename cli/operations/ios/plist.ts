@@ -6,7 +6,6 @@ import { mergeWith, union } from 'lodash';
 import { updatePlist } from '../../util/plist';
 import { Context } from '../../ctx';
 import { Operation } from '../../op';
-import { Change } from '../../../lib/change';
 
 export default async function execute(ctx: Context, op: Operation) {
   const entries = op.value;

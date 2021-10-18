@@ -1,7 +1,6 @@
 import gradleToJs from 'gradle-to-js/lib/parser.js';
 
 import { join } from 'path';
-import { Change } from '../../../lib/change';
 import { Context } from '../../ctx';
 import { Operation } from '../../op';
 

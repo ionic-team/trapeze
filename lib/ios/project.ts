@@ -2,7 +2,6 @@ import plist from 'plist';
 import { join } from 'path';
 import { parsePbxProject } from "../util/pbx";
 import { parsePlist } from "../util/plist";
-import { Change } from "../change";
 import { CapacitorProject } from "../project";
 import { IosPbxProject, IosEntitlements, IosFramework, IosProjectName, IosBuildName, IosTarget, IosTargetName, IosTargetBuildConfiguration, IosFrameworkOpts } from '../definitions';
 
@@ -24,14 +23,27 @@ export class IosProject {
     return this.pbxProject;
   }
 
+  /**
+   * Get all targets in the project
+   */
   getTargets(): IosTarget[] {
     const pbxNative = this.pbxProject.pbxNativeTargetSection();
 
     return this.makeTargets(this.pbxProject, pbxNative);
   }
 
+  /**
+   * Get the target with the given name
+   */
   getTarget(name: string): IosTarget | null {
     return this.getTargets().find(t => t.name === name);
+  }
+
+  /**
+   * Get the main app target in the project.
+   */
+  getAppTarget(): IosTarget | null {
+    return this.getTargets().find(t => t.productType === '"com.apple.product-type.application"');
   }
 
   getBundleId(targetName: IosTargetName, buildName: string): string | null {
@@ -161,12 +173,6 @@ export class IosProject {
     return parsePlist(filename);
   }
 
-  // Create a change to write the project pbx file
-  private plistChange = (parsedPlist: any, projectName: IosProjectName = null) => new Change({
-    file: this.plistFilename(projectName),
-    data: plist.build(parsedPlist)
-  }, Change.WriteFileChangeCommitStrategy)
-
   // Get the filename of the pbxproj
   private pbxFilename() {
     return join(
@@ -181,10 +187,4 @@ export class IosProject {
   private pbx() {
     return parsePbxProject(this.pbxFilename());
   }
-
-  // Create a change to write the project pbx file
-  private pbxChange = (proj: IosPbxProject) => new Change({
-    file: this.pbxFilename(),
-    data: proj.writeSync()
-  }, Change.WriteFileChangeCommitStrategy)
 }

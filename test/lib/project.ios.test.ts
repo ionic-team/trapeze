@@ -33,6 +33,12 @@ describe('project', () => {
     expect(target).toBeDefined();
   });
 
+  it('should get main app target', async () => {
+    const target = project.ios.getAppTarget();
+    expect(target).toBeDefined();
+    expect(target.productName).toBe('App');
+  });
+
   it('should get target bundle id', async () => {
     expect(project.ios.getBundleId('App', 'Debug')).toBe('io.ionic.wowzaStarter');
     expect(project.ios.getBundleId('\"My App Clip\"', 'Debug')).toBe('io.ionic.wowzaStarter.Clip');

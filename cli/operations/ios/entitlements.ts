@@ -4,7 +4,6 @@ import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
 import { updatePlist } from '../../util/plist';
 import { Context } from '../../ctx';
 import { Operation } from '../../op';
-import { Change } from '../../../lib/change';
 
 const defaultEntitlementsPlist = `
 <?xml version="1.0" encoding="UTF-8"?>

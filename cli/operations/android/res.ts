@@ -2,7 +2,6 @@ import { join } from 'path';
 import { mkdir, pathExists, readFile, writeFile } from '@ionic/utils-fs';
 import { Context } from '../../ctx';
 import { Operation } from '../../op';
-import { Change } from '../../../lib/change';
 
 export default async function execute(ctx: Context, op: Operation) {
   const resRoot = join(ctx.rootDir, 'android', 'app', 'src', 'main', 'res');

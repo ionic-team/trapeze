@@ -4,9 +4,9 @@ import { writeFile } from '@ionic/utils-fs';
 import { parsePbxProject } from '../../../lib/util/pbx';
 import { Context } from '../../ctx';
 import { Operation } from '../../op';
-import { Change } from '../../../lib/change';
 
 export default async function execute(ctx: Context, op: Operation) {
+  /*
   const iosProject = ctx.project.ios;
 
   const changes: Change[] = [];
@@ -16,9 +16,7 @@ export default async function execute(ctx: Context, op: Operation) {
       v = v ? 'YES' : 'NO';
     }
 
-    const change = await iosProject.setBuildProperty(key, v, 'Debug');
-    changes.push(change);
+    await iosProject.setBuildProperty(key, v, 'Debug');
   }
-
-  return changes;
+  */
 }

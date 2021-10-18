@@ -5,7 +5,6 @@ import { difference } from 'lodash';
 import { parseXml, parseXmlString, writeXml } from '../../../lib/util/xml';
 import { Context } from '../../ctx';
 import { Operation } from '../../op';
-import { Change } from '../../../lib/change';
 
 export default async function execute(ctx: Context, op: Operation) {
   const filename = join(
