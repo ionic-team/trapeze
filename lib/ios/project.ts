@@ -4,7 +4,7 @@ import { parsePbxProject } from "../util/pbx";
 import { parsePlist } from "../util/plist";
 import { Change } from "../change";
 import { CapacitorProject } from "../project";
-import { IosPbxProject, IosEntitlements, IosFramework, IosProjectName, IosBuildName, IosTarget, IosTargetName, IosTargetBuildConfiguration } from '../definitions';
+import { IosPbxProject, IosEntitlements, IosFramework, IosProjectName, IosBuildName, IosTarget, IosTargetName, IosTargetBuildConfiguration, IosFrameworkOpts } from '../definitions';
 
 export class IosProject {
   private pbxProject: IosPbxProject;
@@ -96,6 +96,32 @@ export class IosProject {
     return this.pbxProject?.getBuildProperty(key, buildName, targetName);
   }
 
+  addFramework(targetName: IosTargetName, framework: IosFramework, opts: IosFrameworkOpts = {}) {
+    const target = this.getTarget(targetName);
+    this.pbxProject?.addFramework(framework, {
+      target: target?.id,
+      ...opts
+    });
+  }
+
+  getFrameworks(targetName: IosTargetName): IosFramework[] {
+    const target = this.getTarget(targetName);
+    if (!target) {
+      return [];
+    }
+    return this.pbxProject?.pbxFrameworksBuildPhaseObj(target.id)?.files?.map(f => f.comment.split(' ')[0]);
+  }
+
+  /*
+  async setDisplayName(displayName: string, projectName: IosProjectName = null) {
+    const parsed = await this.plist(projectName);
+    plist['CFBundleDisplayName'] = displayName;
+
+    return this.plistChange(parsed, projectName);
+  }
+  */
+
+
   private makeTargets(proj: IosPbxProject, pbxNativeSection: any): IosTarget[] {
     return Object.keys(pbxNativeSection).filter(k => k.indexOf('_comment') < 0).map(k => {
       const n = pbxNativeSection[k];
@@ -124,36 +150,6 @@ export class IosProject {
       }
     });
   }
-
-
-  /*
-  async setBundleId(bundleId: string, targetName: IosTargetName = null) {
-    const proj = await this.pbx();
-
-    let target = targetName ? proj.pbxTargetByName(targetName) : proj.getFirstTarget();
-
-    if (!target) {
-      throw new Error(`No native target found with the name ${targetName}`);
-    }
-
-    proj.updateBuildProperty(
-      'PRODUCT_BUNDLE_IDENTIFIER',
-      bundleId,
-      null,
-      target.name,
-    );
-
-    return this.pbxChange(proj);
-  }
-  */
-
-  async setDisplayName(displayName: string, projectName: IosProjectName = null) {
-    const parsed = await this.plist(projectName);
-    plist['CFBundleDisplayName'] = displayName;
-
-    return this.plistChange(parsed, projectName);
-  }
-
 
   // TODO: Support project name
   private plistFilename(projectName = null) {

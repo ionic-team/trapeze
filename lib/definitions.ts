@@ -16,6 +16,10 @@ export interface IosBuildSettings {
 }
 
 export interface IosTarget {
+  id: string;
+  name: string;
+  productName: string;
+  productType: string;
   buildConfigurations: IosTargetBuildConfiguration[];
   [key: string]: any;
 }
@@ -26,6 +30,18 @@ export interface IosTargetBuildConfiguration {
 }
 
 export type IosFramework = string;
+
+export interface IosFrameworkOpts {
+  customFramework?: boolean;
+  /**
+   * Default: true
+   */
+  link?: boolean;
+  /**
+   * Whether to embed the framework. Default: false
+   */
+  embed?: boolean;
+}
 
 export type IosBuildName = 'Debug' | 'Release' | string;
 

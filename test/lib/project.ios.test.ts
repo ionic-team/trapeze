@@ -63,6 +63,13 @@ describe('project', () => {
     expect(project.ios.getBuildProperty('App', 'Debug', 'FAKE_PROPERTY')).toBe('YES');
   });
 
+  it('should add frameworks', async () => {
+    const fwks = ['ImageIO.framework', 'AudioToolbox.framework'];
+    fwks.forEach(f => project.ios.addFramework('App', f));
+    const frameworks = project.ios.getFrameworks('App');
+    expect(fwks.every(f => frameworks.indexOf(f) >= 0)).toBe(true);
+  });
+
   it('should commit changes and reflect in fs', async () => {
   });
 });
