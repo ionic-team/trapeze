@@ -7,19 +7,19 @@ import { Context } from '../../ctx';
 import { Operation } from '../../op';
 import { Change } from '../../../lib/change';
 
-export default async function execute(ctx: Context, op: Operation): Promise<Change> {
+export default async function execute(ctx: Context, op: Operation) {
   const iosProject = ctx.project.ios;
 
   if (op.id === 'ios.bundleId') {
-    return iosProject.setBundleId(op.value);
+    // return iosProject.setBundleId(op.value);
   }
 
   if (op.id === 'ios.displayName') {
     // proj.updateProductName(op.value);
-    return iosProject.setDisplayName(op.value);
+    // return iosProject.setDisplayName(op.value);
   }
 
   if (op.id === 'ios.productName') {
-    return iosProject.setProductName(op.value);
+    // return iosProject.setProductName(op.value);
   }
 }

@@ -2,7 +2,7 @@ import { join } from 'path';
 import { Change } from '../../../lib/change';
 import { Context } from '../../ctx';
 
-export default async function execute(ctx: Context, op): Promise<Change[]> {
+export default async function execute(ctx: Context, op) {
   const filename = join(
     ctx.rootDir,
     'android',

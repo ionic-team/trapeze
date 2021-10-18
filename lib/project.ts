@@ -11,4 +11,7 @@ export class CapacitorProject {
     this.ios = new IosProject(this);
     this.android = new AndroidProject(this);
   }
+
+  async load(): Promise<void> { }
+  async commit(): Promise<void> { }
 }

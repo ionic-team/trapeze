@@ -15,7 +15,7 @@ const defaultEntitlementsPlist = `
 </plist>
 `;
 
-export default async function execute(ctx: Context, op: Operation): Promise<Change[]> {
+export default async function execute(ctx: Context, op: Operation) {
   const entitlements = op.value;
 
   const filename = join(ctx.rootDir, 'ios', 'App', 'App', 'app.entitlements');

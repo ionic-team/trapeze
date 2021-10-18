@@ -66,6 +66,7 @@
     "url": "git+https://github.com/ionic-team/capacitor-configure.git"
   },
   "jest": {
+    "preset": "ts-jest",
     "moduleFileExtensions": [
       "ts",
       "tsx",
@@ -73,13 +74,15 @@
       "mjs"
     ],
     "testMatch": [
-      "**/test/*.test.(ts|tsx|js|mjs)"
+      "**/test/**/*.test.(ts|tsx|js|mjs)"
     ]
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.13",
+    "@types/jest": "^27.0.2",
     "jest": "^27.2.5",
     "rimraf": "^3.0.2",
+    "ts-jest": "^27.0.7",
     "typescript": "^4.4.4"
   }
 }

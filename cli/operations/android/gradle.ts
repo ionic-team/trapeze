@@ -7,7 +7,7 @@ import { Operation } from '../../op';
 
 import { debug, logger } from '../../util/log';
 
-export default async function execute(ctx: Context, op: Operation): Promise<Change[]> {
+export default async function execute(ctx: Context, op: Operation) {
   const filename =
     op.name == 'build.gradle'
       ? join(ctx.rootDir, 'android', 'build.gradle')

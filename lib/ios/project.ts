@@ -4,31 +4,129 @@ import { parsePbxProject } from "../util/pbx";
 import { parsePlist } from "../util/plist";
 import { Change } from "../change";
 import { CapacitorProject } from "../project";
-
-export interface IosEntitlements {
-  [key: string]: any;
-}
-
-export interface IosBuildSettings {
-  [key: string]: any;
-}
-
-export type IosFramework = string;
-
-export type IosBuildName = 'Debug' | 'Release' | string;
-
-export type IosTargetName = string;
-export type IosProjectName = string;
-
-export interface PbxProject {
-  writeSync: () => string;
-  [key: string]: any;
-}
+import { IosPbxProject, IosEntitlements, IosFramework, IosProjectName, IosBuildName, IosTarget, IosTargetName, IosTargetBuildConfiguration } from '../definitions';
 
 export class IosProject {
+  private pbxProject: IosPbxProject;
+
   constructor(private project: CapacitorProject) {
   }
 
+  async load() {
+    const proj = await this.pbx();
+
+    this.pbxProject = proj;
+
+    const targets = proj.pbxNativeTargetSection();
+  }
+
+  getPbxProject() {
+    return this.pbxProject;
+  }
+
+  getTargets(): IosTarget[] {
+    const pbxNative = this.pbxProject.pbxNativeTargetSection();
+
+    return this.makeTargets(this.pbxProject, pbxNative);
+  }
+
+  getTarget(name: string): IosTarget | null {
+    return this.getTargets().find(t => t.name === name);
+  }
+
+  getBundleId(targetName: IosTargetName, buildName: string): string | null {
+    return this.getTarget(targetName)?.buildConfigurations.find(c => c.name === buildName)?.buildSettings?.['PRODUCT_BUNDLE_IDENTIFIER'];
+  }
+
+  setBundleId(targetName: IosTargetName, buildName: IosBuildName, bundleId: string) {
+    this.pbxProject?.updateBuildProperty('PRODUCT_BUNDLE_IDENTIFIER', bundleId, buildName, targetName);
+  }
+
+  getBuildConfigurations(targetName: IosTargetName): IosTargetBuildConfiguration[] {
+    return this.getTarget(targetName)?.buildConfigurations ?? [];
+  }
+
+  setProductName(targetName: IosTargetName, productName: string) {
+    this.pbxProject?.updateBuildProperty('PRODUCT_NAME', productName, null, targetName);
+  }
+
+  getProductName(targetName: IosTargetName): string | null {
+    return this.getTarget(targetName)?.productName;
+  }
+
+
+  setBuild(targetName: IosTargetName, buildName: IosBuildName, buildNumber: number) {
+    this.pbxProject?.updateBuildProperty('CURRENT_PROJECT_VERSION', buildNumber, buildName, targetName);
+  }
+
+  getBuild(targetName: IosTargetName, buildName: IosBuildName) {
+    return this.pbxProject?.getBuildProperty('CURRENT_PROJECT_VERSION', buildName, targetName);
+  }
+
+  /**
+   * Increment the build number for the given build name. If the build
+   * name is not specified, both Debug and Release builds are incremented.
+   */
+  incrementBuild(targetName: IosTargetName, buildName: IosBuildName) {
+    const num = this.getBuild(targetName, buildName);
+
+    if (num) {
+      this.setBuild(targetName, buildName, num + 1);
+    } else {
+      this.setBuild(targetName, buildName, 1);
+    }
+  }
+
+  /**
+   * Set the version for the given build (Debug/Release/etc)
+   */
+  setVersion(targetName: IosTargetName, buildName: IosBuildName, version: string) {
+    this.pbxProject?.updateBuildProperty('MARKETING_VERSION', version, buildName, targetName);
+  }
+
+  getVersion(targetName: IosTargetName, buildName: IosBuildName) {
+    return this.pbxProject?.getBuildProperty('CURRENT_PROJECT_VERSION', buildName, targetName);
+  }
+
+  setBuildProperty(targetName: IosTargetName, buildName: IosBuildName, key: string, value: string) {
+    this.pbxProject?.updateBuildProperty(key, value, buildName, targetName);
+  }
+
+  getBuildProperty(targetName: IosTargetName, buildName: IosBuildName, key: string) {
+    return this.pbxProject?.getBuildProperty(key, buildName, targetName);
+  }
+
+  private makeTargets(proj: IosPbxProject, pbxNativeSection: any): IosTarget[] {
+    return Object.keys(pbxNativeSection).filter(k => k.indexOf('_comment') < 0).map(k => {
+      const n = pbxNativeSection[k];
+      return {
+        id: k,
+        name: n.name,
+        productName: n.productName,
+        productType: n.productType,
+        buildConfigurations: this.makeBuildConfigurations(proj, n)
+      }
+    });
+  }
+
+  private makeBuildConfigurations(proj: IosPbxProject, pbxNativeEntry: any) {
+    // const config = proj.pbxXCBuildConfigurationSection();
+    const config = proj.pbxXCConfigurationList();
+    const buildConfigs = proj.pbxXCBuildConfigurationSection();
+    const buildConfiguration = config[pbxNativeEntry.buildConfigurationList];
+
+    return buildConfiguration.buildConfigurations.map(bc => {
+      const c = buildConfigs[bc.value];
+
+      return {
+        name: c.name,
+        buildSettings: c.buildSettings,
+      }
+    });
+  }
+
+
+  /*
   async setBundleId(bundleId: string, targetName: IosTargetName = null) {
     const proj = await this.pbx();
 
@@ -47,13 +145,7 @@ export class IosProject {
 
     return this.pbxChange(proj);
   }
-
-  async setProductName(productName: string) {
-    const proj = await this.pbx();
-    proj.updateProductName(productName);
-
-    return this.pbxChange(proj);
-  }
+  */
 
   async setDisplayName(displayName: string, projectName: IosProjectName = null) {
     const parsed = await this.plist(projectName);
@@ -62,71 +154,6 @@ export class IosProject {
     return this.plistChange(parsed, projectName);
   }
 
-  /**
-   * Set the version for the given build (Debug/Release/etc)
-   */
-  async setVersion(version: string, build: IosBuildName) {
-    const proj = await this.pbx();
-    proj.addBuildProperty('MARKETING_VERSION', version, build);
-
-    return this.pbxChange(proj);
-  }
-
-  async getVersion(build: IosBuildName, proj: PbxProject = null) {
-    if (!proj) {
-      proj = await this.pbx();
-    }
-
-    return proj.getBuildProperty('CURRENT_PROJECT_VERSION', build);
-  }
-
-  async setBuild(buildNumber: number, buildName: IosBuildName) {
-    const proj = await this.pbx();
-    proj.addBuildProperty('CURRENT_PROJECT_VERSION', buildNumber, buildName);
-
-    return this.pbxChange(proj);
-  }
-
-  async getBuild(build: IosBuildName, proj: PbxProject = null) {
-    if (!proj) {
-      proj = await this.pbx();
-    }
-
-    return proj.getBuildProperty('CURRENT_PROJECT_VERSION', build);
-  }
-
-  /**
-   * Increment the build number for the given build name. If the build
-   * name is not specified, both Debug and Release builds are incremented.
-   */
-  async incrementBuild(build: IosBuildName) {
-    const proj = await this.pbx();
-
-    const num = await this.getBuild(build, proj);
-
-    if (num) {
-      proj.addBuildProperty('CURRENT_PROJECT_VERSION', num + 1, build);
-    } else {
-      proj.addBuildProperty('CURRENT_PROJECT_VERSION', 1, build);
-    }
-
-    return this.pbxChange(proj);
-  }
-  async setEntitlements(entitlements: IosEntitlements) {
-  }
-
-  async addFramework(framework: IosFramework) {
-  }
-
-  async addFrameworks(frameworks: IosFramework[]) {
-  }
-
-  async setBuildProperty(key: string, value: string, buildName: IosBuildName) {
-    const proj = await this.pbx();
-    proj.addBuildProperty(key, value, buildName);
-
-    return this.pbxChange(proj);
-  }
 
   // TODO: Support project name
   private plistFilename(projectName = null) {
@@ -160,7 +187,7 @@ export class IosProject {
   }
 
   // Create a change to write the project pbx file
-  private pbxChange = (proj: PbxProject) => new Change({
+  private pbxChange = (proj: IosPbxProject) => new Change({
     file: this.pbxFilename(),
     data: proj.writeSync()
   }, Change.WriteFileChangeCommitStrategy)

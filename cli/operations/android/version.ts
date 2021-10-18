@@ -2,7 +2,7 @@ import { join } from 'path';
 import { readFile, writeFile } from '@ionic/utils-fs';
 import { Change } from '../../../lib/change';
 
-export default async function execute(ctx, op): Promise<Change[]> {
+export default async function execute(ctx, op) {
   const filename = join(ctx.rootDir, 'android', 'app', 'build.gradle');
 
   let contents = await readFile(filename, { encoding: 'utf-8' });

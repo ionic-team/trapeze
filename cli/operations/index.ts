@@ -13,7 +13,8 @@ import { Change } from '../../lib/change';
 import { Context } from '../ctx';
 import { Operation } from '../op';
 
-type OperationHandler = (ctx: Context, op: Operation) => Promise<Change[] | Change>;
+type OperationHandler = (ctx: Context, op: Operation) => any;
+
 interface OperationHandlers {
   [id: string]: OperationHandler;
 }
