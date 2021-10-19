@@ -141,6 +141,17 @@ export class IosProject {
     this.project.vfs.set(filename, updated);
   }
 
+  async getEntitlements(targetName: IosTargetName, buildName: IosBuildName) {
+    const file = this.getEntitlementsFile(targetName, buildName);
+    if (!file) {
+      return;
+    }
+
+    const filename = join(this.project.config.ios.path, 'App', file);
+
+    return this.plist(filename);
+  }
+
   getInfoPlist(targetName: IosTargetName, buildName: IosBuildName) {
     return this.getBuildProperty(targetName, buildName, 'INFOPLIST_FILE');
   }

@@ -98,6 +98,13 @@ describe.only('project - ios', () => {
         'group1', 'group2'
       ]
     });
+
+    const entitlements = await project.ios.getEntitlements('App', 'Debug');
+    expect(entitlements).toEqual({
+      'keychain-access-groups': [
+        'group1', 'group2'
+      ]
+    });
   });
 
   it('should get info.plist for each target', async () => {
