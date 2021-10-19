@@ -10,15 +10,14 @@ export default async function execute(ctx: Context, op: Operation) {
   const iosProject = ctx.project.ios;
 
   if (op.id === 'ios.bundleId') {
-    // return iosProject.setBundleId(op.value);
+    // return ctx.project.ios.setBundleId(op.value);
   }
 
   if (op.id === 'ios.displayName') {
-    // proj.updateProductName(op.value);
-    // return iosProject.setDisplayName(op.value);
+    // return ctx.project.ios.setDisplayName(op.value);
   }
 
   if (op.id === 'ios.productName') {
-    // return iosProject.setProductName(op.value);
+    // return ctx.project.ios.setProductName(op.value);
   }
 }

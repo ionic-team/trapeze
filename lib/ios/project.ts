@@ -1,7 +1,7 @@
 import plist from 'plist';
 import { join } from 'path';
 import { parsePbxProject } from "../util/pbx";
-import { parsePlist } from "../util/plist";
+import { parsePlist, updatePlist } from "../util/plist";
 import { CapacitorProject } from "../project";
 import { IosPbxProject, IosEntitlements, IosFramework, IosProjectName, IosBuildName, IosTarget, IosTargetName, IosTargetBuildConfiguration, IosFrameworkOpts } from '../definitions';
 
@@ -36,7 +36,7 @@ export class IosProject {
    * Get the target with the given name
    */
   getTarget(name: string): IosTarget | null {
-    return this.getTargets().find(t => t.name === name);
+    return this.getTargets().find(t => t.name === name || t.name === `\"${name}\"`);
   }
 
   /**
@@ -105,7 +105,7 @@ export class IosProject {
   }
 
   getBuildProperty(targetName: IosTargetName, buildName: IosBuildName, key: string) {
-    return this.pbxProject?.getBuildProperty(key, buildName, targetName);
+    return this.pbxProject?.getBuildProperty(key, buildName, targetName)?.replace(/(^")+|("$)+/g, '');
   }
 
   addFramework(targetName: IosTargetName, framework: IosFramework, opts: IosFrameworkOpts = {}) {
@@ -124,22 +124,49 @@ export class IosProject {
     return this.pbxProject?.pbxFrameworksBuildPhaseObj(target.id)?.files?.map(f => f.comment.split(' ')[0]);
   }
 
-  /*
-  async setDisplayName(displayName: string, projectName: IosProjectName = null) {
-    const parsed = await this.plist(projectName);
-    plist['CFBundleDisplayName'] = displayName;
-
-    return this.plistChange(parsed, projectName);
+  getEntitlementsFile(targetName: IosTargetName, buildName: IosBuildName) {
+    return this.getBuildProperty(targetName, buildName, 'CODE_SIGN_ENTITLEMENTS');
   }
-  */
 
+  async addEntitlements(targetName: IosTargetName, buildName: IosBuildName, entitlements: IosEntitlements) {
+    const file = this.getEntitlementsFile(targetName, buildName);
+    if (!file) {
+      return;
+    }
+
+    const filename = join(this.project.config.ios.path, 'App', file);
+
+    const parsed = await this.plist(filename);
+    const updated = updatePlist(entitlements, parsed);
+    this.project.vfs.set(filename, updated);
+  }
+
+  getInfoPlist(targetName: IosTargetName, buildName: IosBuildName) {
+    return this.getBuildProperty(targetName, buildName, 'INFOPLIST_FILE');
+  }
+
+  async setDisplayName(targetName: IosTargetName, buildName: IosBuildName, displayName: string) {
+    const file = this.getInfoPlist(targetName, buildName);
+    const filename = join(this.project.config.ios.path, 'App', file);
+
+    const parsed = await this.plist(filename);
+    parsed['CFBundleDisplayName'] = displayName;
+  }
+
+  async getDisplayName(targetName: IosTargetName, buildName: IosBuildName) {
+    const file = this.getInfoPlist(targetName, buildName);
+    const filename = join(this.project.config.ios.path, 'App', file);
+
+    const parsed = await this.plist(filename);
+    return parsed['CFBundleDisplayName'];
+  }
 
   private makeTargets(proj: IosPbxProject, pbxNativeSection: any): IosTarget[] {
     return Object.keys(pbxNativeSection).filter(k => k.indexOf('_comment') < 0).map(k => {
       const n = pbxNativeSection[k];
       return {
         id: k,
-        name: n.name,
+        name: n.name.replace(/"/g, ''),
         productName: n.productName,
         productType: n.productType,
         buildConfigurations: this.makeBuildConfigurations(proj, n)
@@ -157,20 +184,21 @@ export class IosProject {
       const c = buildConfigs[bc.value];
 
       return {
-        name: c.name,
+        name: c.name.replace(/"/g, ''),
         buildSettings: c.buildSettings,
       }
     });
   }
 
-  // TODO: Support project name
-  private plistFilename(projectName = null) {
-    return join(this.project.config.ios.path, 'App', 'App', 'Info.plist');
-  }
+  private async plist(filename) {
+    const open = this.project.vfs.get(filename);
 
-  private async plist(projectName = null) {
-    const filename = this.plistFilename(projectName);
-    return parsePlist(filename);
+    if (open) {
+      return open.getData();
+    }
+    const parsed = await parsePlist(filename);
+    this.project.vfs.open(filename, parsed);
+    return parsed;
   }
 
   // Get the filename of the pbxproj
@@ -185,6 +213,8 @@ export class IosProject {
 
   // Parse and return a pbx project
   private pbx() {
-    return parsePbxProject(this.pbxFilename());
+    const pbxParsed = parsePbxProject(this.pbxFilename());
+    this.project.vfs.open(this.pbxFilename(), pbxParsed);
+    return pbxParsed;
   }
 }
