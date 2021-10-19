@@ -5,7 +5,7 @@ import { AndroidOperation, IosOperation, processOperations } from '../../cli/op'
 describe('operation processing', () => {
   let ctx;
   beforeEach(async () => {
-    ctx = await loadContext();
+    ctx = await loadContext('test/fixtures');
   });
 
   it('should process android operations', async () => {

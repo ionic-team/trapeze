@@ -15,6 +15,9 @@ export class CapacitorProject {
     this.vfs = new VFS();
   }
 
-  async load(): Promise<void> { }
+  async load(): Promise<void> {
+    await this.ios.load();
+    await this.android.load();
+  }
   async commit(): Promise<void> { }
 }

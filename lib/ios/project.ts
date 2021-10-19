@@ -233,8 +233,8 @@ export class IosProject {
   }
 
   // Parse and return a pbx project
-  private pbx() {
-    const pbxParsed = parsePbxProject(this.pbxFilename());
+  private async pbx() {
+    const pbxParsed = await parsePbxProject(this.pbxFilename());
     this.project.vfs.open(this.pbxFilename(), pbxParsed);
     return pbxParsed;
   }

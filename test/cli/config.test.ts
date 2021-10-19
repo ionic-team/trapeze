@@ -4,7 +4,7 @@ import { loadConfig } from '../../cli/config';
 describe('config loading', () => {
   let ctx;
   beforeEach(async () => {
-    ctx = await loadContext();
+    ctx = await loadContext('test/fixtures');
   });
 
   it('should load config file', async () => {

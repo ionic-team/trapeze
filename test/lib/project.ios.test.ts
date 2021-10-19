@@ -15,7 +15,7 @@ describe.only('project - ios', () => {
     }
 
     project = new CapacitorProject(config);
-    await project.ios.load();
+    await project.load();
   });
 
   it('should load project', async () => {

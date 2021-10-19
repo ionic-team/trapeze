@@ -8,6 +8,8 @@ import { CapacitorProject } from '../lib';
 
 export interface Context {
   project: CapacitorProject;
+  // Path the to the root of the capacitor project, if needed
+  projectRootPath?: string;
   args: any;
   vars: Variables;
   nodePackageRoot: string;
@@ -22,7 +24,7 @@ export interface Variables {
   [variable: string]: Variable;
 }
 
-export async function loadContext(): Promise<Context> {
+export async function loadContext(projectRootPath?: string): Promise<Context> {
   const rootDir = process.cwd();
 
   const argv = yargs(hideBin(process.argv)).argv;
@@ -30,7 +32,7 @@ export async function loadContext(): Promise<Context> {
   let project: CapacitorProject | null;
 
   try {
-    project = await loadProject(rootDir);
+    project = await loadProject(projectRootPath);
   } catch (e) {
     throw new Error('Unable to load Capacitor project');
   }
@@ -39,6 +41,7 @@ export async function loadContext(): Promise<Context> {
     project,
     args: argv,
     vars: {},
+    projectRootPath,
     // Important for resolving custom prettier plugin
     nodePackageRoot: join(__dirname, '../../'),
     rootDir,
