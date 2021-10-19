@@ -1,7 +1,12 @@
 import { readFile } from '@ionic/utils-fs';
 
+/**
+ * Reference to a file and its data (which can be of any type) in the VFS
+ */
 export class VFSRef {
   buffer: Buffer | null;
+
+  modified = false;
 
   constructor(private filename, private data) { }
 
@@ -17,11 +22,20 @@ export class VFSRef {
     return this.data;
   }
 
+  isModified() {
+    return this.modified;
+  }
+
   setData(data: any) {
     this.data = data;
+    this.modified = true;
   }
 }
 
+/**
+ * Simple virtual filesystem to share files across operations and
+ * keep track of modifications over time
+ */
 export class VFS {
   private openFiles: { [path: string]: VFSRef } = {};
 
