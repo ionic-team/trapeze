@@ -83,4 +83,15 @@ describe('project - ios', () => {
 
     expect(Buffer.compare(srcContents, destContents)).toBe(0);
   });
+
+  /*
+  it('should add to gradle', async () => {
+    await project.android.injectGradle('app/build.gradle', {
+      dependencies: [
+        { implementation: 'files("./src/main/libs/Microsoft.Intune.MAM.SDK.aar")' },
+        { implementation: 'com.microsoft.identity.client:msal:1.5.5' }
+      ]
+    });
+  });
+  */
 });

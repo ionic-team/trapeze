@@ -22,8 +22,8 @@ export async function loadConfig(ctx, filename) {
 
   const resolved = interpolateVars(ctx, parsed);
 
-  debug('Parsed YAML');
-  debug(JSON.stringify(resolved, null, 2));
+  // debug('Parsed YAML');
+  // debug(JSON.stringify(resolved, null, 2));
 
   return resolved;
 }

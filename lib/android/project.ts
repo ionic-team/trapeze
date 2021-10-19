@@ -1,9 +1,10 @@
 import { join } from 'path';
+import gradleToJs from 'gradle-to-js/lib/parser.js'
+import { pathExists, mkdir, readFile, writeFile } from '@ionic/utils-fs';
+
 
 import { CapacitorProject } from "../project";
 import { AndroidManifest } from './manifest';
-
-import { pathExists, mkdir, readFile, writeFile } from '@ionic/utils-fs';
 
 import { parseXml, serializeXml, writeXml } from '../util/xml';
 import { AndroidResDir } from '../definitions';
@@ -106,6 +107,14 @@ export class AndroidProject {
 
     const sourceData = await readFile(source);
     return writeFile(join(dir, file), sourceData);
+  }
+
+  async injectGradle(path: string, gradleObject: any) {
+    const filename = join(this.project.config.android?.path, path);
+    const parsed = await gradleToJs.parseFile(filename);
+    console.log(`----GRADLE-----`);
+    console.log(JSON.stringify(parsed, null, 2));
+    console.log(`----------------------`);
   }
 
   private getAndroidManifestPath() {

@@ -5,6 +5,16 @@ import { parsePlist, updatePlist } from "../util/plist";
 import { CapacitorProject } from "../project";
 import { IosPbxProject, IosEntitlements, IosFramework, IosProjectName, IosBuildName, IosTarget, IosTargetName, IosTargetBuildConfiguration, IosFrameworkOpts } from '../definitions';
 
+const defaultEntitlementsPlist = `
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+</dict>
+</plist>
+`;
+
+
 export class IosProject {
   private pbxProject: IosPbxProject;
 

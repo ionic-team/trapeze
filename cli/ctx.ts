@@ -35,8 +35,6 @@ export async function loadContext(): Promise<Context> {
     throw new Error('Unable to load Capacitor project');
   }
 
-  console.log('Loaded project', project);
-
   return {
     project,
     args: argv,
