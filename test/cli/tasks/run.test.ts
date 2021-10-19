@@ -11,7 +11,12 @@ describe('task: run', () => {
   it.only('should run operations', async () => {
     await runCommand(ctx, 'test/fixtures/basic.yml');
 
-    const modified = ctx.project.vfs.all();
-    console.log(modified);
+    const files = ctx.project.vfs.all();
+    console.log(files);
+
+    expect(files).toMatchObject({
+      'test/fixtures/ios/App/App.xcodeproj/project.pbxproj': expect.anything(),
+      'test/fixtures/ios/App/App/App.entitlements': expect.anything(),
+    });
   });
 });
