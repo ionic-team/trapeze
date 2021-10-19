@@ -1,11 +1,30 @@
 import { loadContext } from '../../cli/ctx';
 import { loadConfig } from '../../cli/config';
-import { IosOperation, Operation, processOperations } from '../../cli/op';
+import { AndroidOperation, IosOperation, processOperations } from '../../cli/op';
 
 describe('operation processing', () => {
   let ctx;
   beforeEach(async () => {
     ctx = await loadContext();
+  });
+
+  it('should process android operations', async () => {
+    const makeOp = (name, value): AndroidOperation => ({
+      id: `android.${name}`,
+      platform: 'android',
+      name,
+      value,
+      displayText: expect.anything()
+    });
+    const parsed = await loadConfig(ctx, 'test/fixtures/android.basic.yml');
+
+    const processed = processOperations(parsed);
+
+    expect(processed).toMatchObject([
+      makeOp('packageName', 'com.ionicframework.awesomePackage'),
+      makeOp('versionName', '1.2.3'),
+      makeOp('incrementVersionCode', true),
+    ] as IosOperation[]);
   });
 
   it('should process ios operations with targets and build', async () => {

@@ -95,96 +95,96 @@ platforms:
               - SystemConfiguration.framework
               - WebKit.framework
 
-        android:
-          packageName: $PACKAGE_NAME
-          versionName: 1.2.3
-          incrementVersionCode: true
+  android:
+    packageName: $PACKAGE_NAME
+    versionName: 1.2.3
+    incrementVersionCode: true
 
-          manifest:
-            - file: AndroidManifest.xml
-              target: manifest/application
-              attrs:
-                android:name: com.ionicframework.intune.IntuneApplication
+    manifest:
+      - file: AndroidManifest.xml
+        target: manifest/application
+        attrs:
+          android:name: com.ionicframework.intune.IntuneApplication
 
-            - file: AndroidManifest.xml
-              target: manifest
-              append: |
-                <queries>
-                    <package android:name="com.azure.authenticator" />
-                    <package android:name="$PACKAGE_NAME" />
-                    <package android:name="com.microsoft.windowsintune.companyportal" />
-                    <!-- Required for API Level 30 to make sure the app detect browsers
-                        (that don't support custom tabs) -->
-                    <intent>
-                        <action android:name="android.intent.action.VIEW" />
-                        <category android:name="android.intent.category.BROWSABLE" />
-                        <data android:scheme="https" />
-                    </intent>
-                    <!-- Required for API Level 30 to make sure the app can detect browsers that support custom tabs -->
-                    <!-- https://developers.google.com/web/updates/2020/07/custom-tabs-android-11#detecting_browsers_that_support_custom_tabs -->
-                    <intent>
-                        <action android:name="android.support.customtabs.action.CustomTabsService" />
-                    </intent>
-                </queries>
+      - file: AndroidManifest.xml
+        target: manifest
+        append: |
+          <queries>
+              <package android:name="com.azure.authenticator" />
+              <package android:name="$PACKAGE_NAME" />
+              <package android:name="com.microsoft.windowsintune.companyportal" />
+              <!-- Required for API Level 30 to make sure the app detect browsers
+                  (that don't support custom tabs) -->
+              <intent>
+                  <action android:name="android.intent.action.VIEW" />
+                  <category android:name="android.intent.category.BROWSABLE" />
+                  <data android:scheme="https" />
+              </intent>
+              <!-- Required for API Level 30 to make sure the app can detect browsers that support custom tabs -->
+              <!-- https://developers.google.com/web/updates/2020/07/custom-tabs-android-11#detecting_browsers_that_support_custom_tabs -->
+              <intent>
+                  <action android:name="android.support.customtabs.action.CustomTabsService" />
+              </intent>
+          </queries>
 
-            - file: AndroidManifest.xml
-              target: manifest/application
-              append: |
-                <activity android:name="com.microsoft.identity.client.BrowserTabActivity">
-                    <intent-filter>
-                        <action android:name="android.intent.action.VIEW" />
+      - file: AndroidManifest.xml
+        target: manifest/application
+        append: |
+          <activity android:name="com.microsoft.identity.client.BrowserTabActivity">
+              <intent-filter>
+                  <action android:name="android.intent.action.VIEW" />
 
-                        <category android:name="android.intent.category.DEFAULT" />
-                        <category android:name="android.intent.category.BROWSABLE" />
+                  <category android:name="android.intent.category.DEFAULT" />
+                  <category android:name="android.intent.category.BROWSABLE" />
 
-                        <!--
-                            Add in your scheme/host from registered redirect URI
-                            note that the leading "/" is required for android:path
-                        -->
-                        <data
-                            android:host="$PACKAGE_NAME"
-                            android:path="/$INTUNE_SIGNATURE_HASH"
-                            android:scheme="msauth" />
-                    </intent-filter>
-                </activity>
+                  <!--
+                      Add in your scheme/host from registered redirect URI
+                      note that the leading "/" is required for android:path
+                  -->
+                  <data
+                      android:host="$PACKAGE_NAME"
+                      android:path="/$INTUNE_SIGNATURE_HASH"
+                      android:scheme="msauth" />
+              </intent-filter>
+          </activity>
 
-          build.gradle:
-            buildscript:
-              dependencies:
-                - classpath: 'org.javassist:javassist:3.27.0-GA'
-                - classpath: files("./app/src/main/libs/com.microsoft.intune.mam.build.jar")
+    build.gradle:
+      buildscript:
+        dependencies:
+          - classpath: 'org.javassist:javassist:3.27.0-GA'
+          - classpath: files("./app/src/main/libs/com.microsoft.intune.mam.build.jar")
 
-          app.build.gradle:
-            dependencies:
-              - implementation: files("./src/main/libs/Microsoft.Intune.MAM.SDK.aar")
-              - implementation: 'com.microsoft.identity.client:msal:1.5.5'
+    app.build.gradle:
+      dependencies:
+        - implementation: files("./src/main/libs/Microsoft.Intune.MAM.SDK.aar")
+        - implementation: 'com.microsoft.identity.client:msal:1.5.5'
 
-            apply plugin: 'com.microsoft.intune.mam'
-            intunemam:
-              includeExternalLibraries:
-                - 'androidx.*'
-                - 'com.getcapacitor.*'
+      apply plugin: 'com.microsoft.intune.mam'
+      intunemam:
+        includeExternalLibraries:
+          - 'androidx.*'
+          - 'com.getcapacitor.*'
 
-          res:
-            - path: raw
-              file: auth_config.json
-              text: |
-                {
-                  "client_id": "$INTUNE_CLIENT_ID",
-                  "authorization_user_agent": "DEFAULT",
-                  "redirect_uri": "msauth://$PACKAGE_NAME/uHU%2BUi09K1zPjWX4mZFggrgz%2Brk%3D",
-                  "broker_redirect_uri_registered": true,
-                  "authorities": [
-                    {
-                      "type": "AAD",
-                      "audience": {
-                        "type": "AzureADMyOrg",
-                        "tenant_id": "$INTUNE_TENANT_ID"
-                      }
-                    }
-                  ]
+    res:
+      - path: raw
+        file: auth_config.json
+        text: |
+          {
+            "client_id": "$INTUNE_CLIENT_ID",
+            "authorization_user_agent": "DEFAULT",
+            "redirect_uri": "msauth://$PACKAGE_NAME/uHU%2BUi09K1zPjWX4mZFggrgz%2Brk%3D",
+            "broker_redirect_uri_registered": true,
+            "authorities": [
+              {
+                "type": "AAD",
+                "audience": {
+                  "type": "AzureADMyOrg",
+                  "tenant_id": "$INTUNE_TENANT_ID"
                 }
+              }
+            ]
+          }
 
-            - path: drawable
-              file: logo.png
-              source: logo.png
+      - path: drawable
+        file: logo.png
+        source: logo.png

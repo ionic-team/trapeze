@@ -6,6 +6,9 @@ export interface Operation {
   displayText: string;
 }
 
+export interface AndroidOperation extends Operation {
+}
+
 export interface IosOperation extends Operation {
   target?: string;
   build?: string;
@@ -14,31 +17,20 @@ export interface IosOperation extends Operation {
 
 // Given the parsed yaml file, generate a set of operations to perform against the project
 export function processOperations(yaml: any) {
-  // return processEnvironments(yaml.environments).flat();
   return Object.keys(yaml.platforms)
     .map(p => createPlatform(p, yaml.platforms[p]))
     .flat();
 }
 
-/*
-function processEnvironments(envs) {
-  return Object.keys(envs)
-    .map(env => createEnvironment(env, envs[env]))
-    .flat();
-}
-
-function createEnvironment(env, envEntry) {
-  return Object.keys(envEntry || {}).map(platform =>
-    createPlatform(env, platform, envEntry[platform]),
-  );
-}
-*/
-
 function createPlatform(platform, platformEntry) {
-  if (platform === 'ios') {
+  if (platform === 'android') {
+    return createAndroidPlatform(platform, platformEntry);
+  } else if (platform === 'ios') {
     return createIosPlatform(platform, platformEntry);
   }
+}
 
+function createAndroidPlatform(platform, platformEntry) {
   return Object.keys(platformEntry || {}).map(op =>
     createOperation(platform, op, platformEntry[op]),
   ).flat();
