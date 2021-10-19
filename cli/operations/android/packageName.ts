@@ -11,7 +11,5 @@ export default async function execute(ctx: Context, op) {
     'AndroidManifest.xml',
   );
 
-  const change = await ctx.project.android.setPackageName(op.value);
-
-  return [change];
+  ctx.project.android.setPackageName(op.value);
 }

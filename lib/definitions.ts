@@ -47,3 +47,9 @@ export type IosBuildName = 'Debug' | 'Release' | string;
 
 export type IosTargetName = string;
 export type IosProjectName = string;
+
+/**
+ * Android definitions
+ */
+
+export type AndroidResDir = 'anim' | 'animator' | 'color' | 'drawable' | 'font' | 'interpolator' | 'layout' | 'menu' | 'mipmap' | 'navigation' | 'raw' | 'transition' | 'values' | 'xml' | string;

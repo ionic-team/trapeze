@@ -4,22 +4,15 @@ import { Context } from '../../ctx';
 import { Operation } from '../../op';
 
 export default async function execute(ctx: Context, op: Operation) {
-  const resRoot = join(ctx.rootDir, 'android', 'app', 'src', 'main', 'res');
-
   const resOps = op.value;
 
   for (let resOp of resOps) {
-    const resDir = join(resRoot, resOp.path);
-    if (!(await pathExists(resDir))) {
-      await mkdir(resDir);
-    }
-
-    // Raw text supplied, write it
     if (resOp.text) {
-      await writeFile(join(resDir, resOp.file), resOp.text);
+      const { path, file, text } = resOp;
+      await ctx.project.android.addResource(path, file, text);
     } else if (resOp.source) {
-      const sourceData = await readFile(resOp.source);
-      await writeFile(join(resDir, resOp.file), sourceData);
+      const { path, file, source } = resOp;
+      await ctx.project.android.copyToResources(path, file, source);
     }
   }
 
