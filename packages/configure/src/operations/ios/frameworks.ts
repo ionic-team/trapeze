@@ -1,8 +1,8 @@
 import { Context } from '../../ctx';
-import { IosOperation } from '../../op';
+import { Operation } from '../../definitions';
 
-export default async function execute(ctx: Context, op: IosOperation) {
+export default async function execute(ctx: Context, op: Operation) {
   for (let framework of op.value) {
-    ctx.project.ios.addFramework(op.target, framework);
+    ctx.project.ios.addFramework(op.iosTarget, framework);
   }
 }

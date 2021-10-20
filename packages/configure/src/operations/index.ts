@@ -10,9 +10,9 @@ import executeIosPlist from './ios/plist';
 import executeIosBuildVersion from './ios/buildVersion';
 import executeIosBuildSettings from './ios/buildSettings';
 import { Context } from '../ctx';
-import { Operation } from '../op';
+import { Operation } from '../definitions';
 
-type OperationHandler = (ctx: Context, op: Operation) => any;
+type OperationHandler = (ctx: Context, op: Operation) => Promise<any>;
 
 interface OperationHandlers {
   [id: string]: OperationHandler;

@@ -1,19 +1,4 @@
-export interface Operation {
-  id: string;
-  platform: string;
-  name: string;
-  value: any;
-  displayText: string;
-}
-
-export interface AndroidOperation extends Operation {
-}
-
-export interface IosOperation extends Operation {
-  target: string | null;
-  build: string | null;
-}
-
+import { Operation } from './definitions';
 
 // Given the parsed yaml file, generate a set of operations to perform against the project
 export function processOperations(yaml: any): Operation[] {
@@ -83,13 +68,13 @@ interface CreateIosOperation {
   op: string;
   opEntry: any;
 }
-function createIosOperation({ platform, target, build, op, opEntry }: CreateIosOperation): IosOperation {
+function createIosOperation({ platform, target, build, op, opEntry }: CreateIosOperation): Operation {
   const opRet = {
     id: `${platform}.${op}`,
     platform,
     name: op,
-    target,
-    build,
+    iosTarget: target,
+    iosBuild: build,
     value: opEntry,
   };
 
@@ -105,6 +90,8 @@ function createOperation(platform: string, op: string, opEntry: any): Operation 
     platform,
     name: op,
     value: opEntry,
+    iosTarget: null,
+    iosBuild: null
   };
 
   return {

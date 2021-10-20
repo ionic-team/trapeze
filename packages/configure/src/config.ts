@@ -11,7 +11,7 @@ import { initVarsFromEnv } from './ctx';
 
 export type YamlFile = any;
 
-export async function loadConfig(ctx: Context, filename): Promise<YamlFile> {
+export async function loadConfig(ctx: Context, filename: string): Promise<YamlFile> {
   const contents = await readFile(filename, { encoding: 'utf-8' });
   const parsed = yaml.parse(contents, {
     prettyErrors: true,
@@ -45,7 +45,7 @@ async function ensureVars(ctx: Context, yaml: YamlFile) {
           type: 'text',
           name: 'value',
           message: `${v} =`,
-          validate: input => !!input,
+          validate: (input: any) => !!input,
         },
       );
 

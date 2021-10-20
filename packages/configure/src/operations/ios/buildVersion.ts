@@ -1,14 +1,14 @@
 import { Context } from '../../ctx';
-import { IosOperation } from '../../op';
+import { Operation } from '../../definitions';
 
-export default async function execute(ctx: Context, op: IosOperation) {
+export default async function execute(ctx: Context, op: Operation) {
   if (op.id === 'ios.version') {
-    ctx.project.ios.setVersion(op.target, op.build, op.value);
+    ctx.project.ios.setVersion(op.iosTarget, op.iosBuild, op.value);
   }
   if (op.id === 'ios.buildNumber') {
-    ctx.project.ios.setBuild(op.target, op.build, op.value);
+    ctx.project.ios.setBuild(op.iosTarget, op.iosBuild, op.value);
   }
   if (op.id === 'ios.incrementBuild' && op.value === true) {
-    ctx.project.ios.incrementBuild(op.target, op.build);
+    ctx.project.ios.incrementBuild(op.iosTarget, op.iosBuild);
   }
 }

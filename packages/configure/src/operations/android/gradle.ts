@@ -1,7 +1,7 @@
 import { Context } from "../../ctx";
-import { AndroidOperation } from "../../op";
+import { Operation } from "../../definitions";
 
-export default async function execute(_ctx: Context, _op: AndroidOperation) {
+export default async function execute(_ctx: Context, _op: Operation) {
   /*
   const filename =
     op.name == 'build.gradle'

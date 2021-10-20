@@ -1,10 +1,11 @@
 import c from '../colors';
-import { Operation, processOperations } from '../op';
+import { processOperations } from '../op';
 import { logger, log, error } from '../util/log';
 import { logPrompt } from '../util/cli';
 import { loadConfig, YamlFile } from '../config';
 import { hasHandler, runOperation } from '../operations/index';
 import { Context } from '../ctx';
+import { Operation } from '../definitions';
 
 export async function runCommand(ctx: Context, configFile: YamlFile) {
   let processed: Operation[];
