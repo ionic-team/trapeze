@@ -114,7 +114,7 @@ export class IosProject {
     this.pbxProject?.updateBuildProperty('CURRENT_PROJECT_VERSION', buildNumber, buildName, targetName);
   }
 
-  getBuild(targetName: IosTargetName | null, buildName?: IosBuildName | undefined) {
+  getBuild(targetName: IosTargetName | null, buildName?: IosBuildName | null | undefined) {
     return this.pbxProject?.getBuildProperty('CURRENT_PROJECT_VERSION', buildName, targetName);
   }
 
@@ -122,7 +122,9 @@ export class IosProject {
    * Increment the build number for the given build name. If the build
    * name is not specified, both Debug and Release builds are incremented.
    */
-  incrementBuild(targetName?: IosTargetName | undefined, buildName?: IosBuildName | undefined) {
+  incrementBuild(targetName?: IosTargetName | undefined | null, buildName?: IosBuildName | null | undefined) {
+    targetName = this.assertTargetName(targetName || null);
+
     const num = this.getBuild(targetName ?? null, buildName);
 
     if (num) {
@@ -135,23 +137,32 @@ export class IosProject {
   /**
    * Set the version for the given build (Debug/Release/etc)
    */
-  setVersion(targetName: IosTargetName, buildName: IosBuildName, version: string) {
+  setVersion(targetName: IosTargetName | null, buildName: IosBuildName | null, version: string) {
+    targetName = this.assertTargetName(targetName || null);
+
     this.pbxProject?.updateBuildProperty('MARKETING_VERSION', version, buildName, targetName);
   }
 
-  getVersion(targetName: IosTargetName, buildName: IosBuildName) {
+  getVersion(targetName: IosTargetName | null, buildName: IosBuildName | null) {
+    targetName = this.assertTargetName(targetName || null);
+
     return this.pbxProject?.getBuildProperty('CURRENT_PROJECT_VERSION', buildName, targetName);
   }
 
-  setBuildProperty(targetName: IosTargetName, buildName: IosBuildName | null, key: string, value: string) {
+  setBuildProperty(targetName: IosTargetName | null, buildName: IosBuildName | null, key: string, value: string) {
+    targetName = this.assertTargetName(targetName || null);
+
     this.pbxProject?.updateBuildProperty(key, value, buildName ? buildName : undefined /* must use undefined if null */, targetName);
   }
 
-  getBuildProperty(targetName: IosTargetName, buildName: IosBuildName | null, key: string) {
+  getBuildProperty(targetName: IosTargetName | null, buildName: IosBuildName | null, key: string) {
+    targetName = this.assertTargetName(targetName || null);
     return this.pbxProject?.getBuildProperty(key, buildName ? buildName : undefined /* must use undefined if null */, targetName)?.replace(/(^")+|("$)+/g, '');
   }
 
-  addFramework(targetName: IosTargetName, framework: IosFramework, opts: IosFrameworkOpts = {}) {
+  addFramework(targetName: IosTargetName | null, framework: IosFramework, opts: IosFrameworkOpts = {}) {
+    targetName = this.assertTargetName(targetName || null);
+
     const target = this.getTarget(targetName);
     this.pbxProject?.addFramework(framework, {
       target: target?.id,
@@ -159,7 +170,9 @@ export class IosProject {
     });
   }
 
-  getFrameworks(targetName: IosTargetName): IosFramework[] {
+  getFrameworks(targetName: IosTargetName | null): IosFramework[] {
+    targetName = this.assertTargetName(targetName || null);
+
     const target = this.getTarget(targetName);
     if (!target) {
       return [];
@@ -167,11 +180,15 @@ export class IosProject {
     return this.pbxProject?.pbxFrameworksBuildPhaseObj(target.id)?.files?.map((f: any) => f.comment.split(' ')[0]);
   }
 
-  getEntitlementsFile(targetName: IosTargetName, buildName?: IosBuildName | undefined) {
+  getEntitlementsFile(targetName: IosTargetName | null, buildName?: IosBuildName | undefined) {
+    targetName = this.assertTargetName(targetName || null);
+
     return this.getBuildProperty(targetName, buildName ?? null, 'CODE_SIGN_ENTITLEMENTS');
   }
 
-  async addEntitlements(targetName: IosTargetName, buildName: IosBuildName, entitlements: IosEntitlements) {
+  async addEntitlements(targetName: IosTargetName | null, buildName: IosBuildName, entitlements: IosEntitlements) {
+    targetName = this.assertTargetName(targetName || null);
+
     const file = this.getEntitlementsFile(targetName, buildName);
     if (!file || !this.project?.config?.ios?.path) {
       return;
@@ -184,7 +201,9 @@ export class IosProject {
     this.project.vfs.set(filename, updated);
   }
 
-  async getEntitlements(targetName: IosTargetName, buildName?: IosBuildName | undefined) {
+  async getEntitlements(targetName: IosTargetName | null, buildName?: IosBuildName | undefined) {
+    targetName = this.assertTargetName(targetName || null);
+
     const file = this.getEntitlementsFile(targetName, buildName);
     if (!file || !this.project?.config?.ios?.path) {
       return;
@@ -198,7 +217,9 @@ export class IosProject {
   /**
    * Gets the relative Info plist file from the build settings.
    */
-  getInfoPlist(targetName: IosTargetName, buildName?: IosBuildName | undefined) {
+  getInfoPlist(targetName: IosTargetName | null, buildName?: IosBuildName | null | undefined) {
+    targetName = this.assertTargetName(targetName || null);
+
     return this.getBuildProperty(targetName, buildName ?? null, 'INFOPLIST_FILE');
   }
 
@@ -206,7 +227,7 @@ export class IosProject {
    * Gets the full relative path to the Info plist after getting the relative path
    * from the build settings and resolving it with the app path
    */
-  getInfoPlistFilename(targetName: IosTargetName, buildName?: IosBuildName | undefined): string | null {
+  getInfoPlistFilename(targetName: IosTargetName, buildName?: IosBuildName | null | undefined): string | null {
     const file = this.getInfoPlist(targetName, buildName);
     if (!this.project?.config.ios?.path) {
       return null;
@@ -215,7 +236,9 @@ export class IosProject {
     return join(this.project.config.ios.path, 'App', file);
   }
 
-  async setDisplayName(targetName: IosTargetName, buildName: IosBuildName | null, displayName: string) {
+  async setDisplayName(targetName: IosTargetName | null, buildName: IosBuildName | null, displayName: string) {
+    targetName = this.assertTargetName(targetName || null);
+
     const file = this.getInfoPlist(targetName, buildName ?? undefined);
     if (!file || !this.project?.config.ios?.path) {
       throw new Error('Unable to load plist file');
@@ -227,7 +250,9 @@ export class IosProject {
     parsed['CFBundleDisplayName'] = displayName;
   }
 
-  async getDisplayName(targetName: IosTargetName, buildName?: IosBuildName | undefined): Promise<string | null> {
+  async getDisplayName(targetName: IosTargetName | null, buildName?: IosBuildName | null | undefined): Promise<string | null> {
+    targetName = this.assertTargetName(targetName || null);
+
     const filename = this.getInfoPlistFilename(targetName, buildName);
     if (!filename) {
       return null;
@@ -239,9 +264,13 @@ export class IosProject {
 
   /**
    * Update the Info plist for the given target and build. The entries will be merged
-   * into the existing plist file
+   * into the existing plist file.
+   * 
+   * Pass null as the `targetName` to use the main app target
    */
-  async updateInfoPlist(targetName: IosTargetName, buildName: IosBuildName | null, entries: any) {
+  async updateInfoPlist(targetName: IosTargetName | null, buildName: IosBuildName | null, entries: any) {
+    targetName = this.assertTargetName(targetName || null);
+
     const filename = this.getInfoPlistFilename(targetName, buildName ?? undefined);
     if (!filename) {
       throw new Error('Unable to get plist filename to update');
