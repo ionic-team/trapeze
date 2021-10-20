@@ -1,0 +1,13 @@
+{
+  "version": "5.0.0",
+  "packages": ["packages/project", "packages/configure"],
+  "npmClient": "npm",
+  "command": {
+    "bootstrap": {
+      "hoist": true
+    },
+    "version": {
+      "message": "chore(release): %v"
+    }
+  }
+}

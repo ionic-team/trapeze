@@ -1,88 +1,22 @@
 {
-  "name": "@capacitor/configure",
-  "version": "0.0.2",
-  "description": "Capacitor Configuration Tool",
-  "author": "Ionic Team <hi@ionic.io> (https://ionicframework.com) ",
-  "license": "SEE LICENSE",
-  "private": false,
-  "files": [
-    "bin",
-    "cli",
-    "README.md"
-  ],
-  "bin": {
-    "cap-config": "./bin/cap-config"
+  "name": "root",
+  "private": true,
+  "devDependencies": {
+    "lerna": "^4.0.0",
+    "sync-cordova-xml2": "^0.0.3"
   },
   "scripts": {
-    "clean": "rimraf ./dist",
-    "build": "npm run clean && tsc",
-    "watch": "tsc -w",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
-  },
-  "watch": {
-    "transpile": {
-      "patterns": [
-        "src"
-      ],
-      "extensions": "ts,js",
-      "quite": false
-    },
-    "rollup": "dist/esm/**/*.*"
-  },
-  "main": "dist/index.js",
-  "typings": "dist/esm/index.d.ts",
-  "dependencies": {
-    "@capacitor/cli": "^3.2.5",
-    "@ionic/cli-framework-output": "^2.2.2",
-    "@ionic/utils-fs": "^3.1.5",
-    "@ionic/utils-subprocess": "^2.1.8",
-    "@ionic/utils-terminal": "^2.3.1",
-    "@prettier/plugin-xml": "^1.1.0",
-    "@rollup/plugin-commonjs": "^17.1.0",
-    "@rollup/plugin-node-resolve": "^11.2.0",
-    "@xmldom/xmldom": "^0.7.5",
-    "adm-zip": "^0.5.6",
-    "chromedriver": "^94.0.0",
-    "commander": "^8.2.0",
-    "conventional-changelog": "^3.1.4",
-    "env-paths": "^3.0.0",
-    "gradle-to-js": "^2.0.0",
-    "kleur": "^4.1.4",
-    "lodash": "^4.17.21",
-    "npm-watch": "^0.9.0",
-    "plist": "^3.0.4",
-    "prettier": "^2.4.1",
-    "prompts": "^2.4.2",
-    "replace": "^1.1.0",
-    "tmp": "^0.2.1",
-    "ts-node": "^10.2.1",
-    "xcode": "^3.0.1",
-    "xpath": "^0.0.32",
-    "yaml": "^1.10.2",
-    "yargs": "^17.2.1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ionic-team/capacitor-configure.git"
-  },
-  "jest": {
-    "preset": "ts-jest",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "mjs"
-    ],
-    "testMatch": [
-      "**/test/**/*.test.(ts|tsx|js|mjs)"
-    ]
-  },
-  "devDependencies": {
-    "@types/fs-extra": "^9.0.13",
-    "@types/jest": "^27.0.2",
-    "jest": "^27.2.5",
-    "rimraf": "^3.0.2",
-    "ts-jest": "^27.0.7",
-    "typescript": "^4.4.4"
+    "clean-change-log": "node ./scripts/clean-changelog.js && lerna run clean-change-log",
+    "lerna:publish": "lerna publish --conventional-commits --conventional-graduate --create-release github",
+    "lerna:publish:beta": "lerna publish --conventional-commits --conventional-prerelease --preid beta --dist-tag next --force-publish --create-release github",
+    "lerna:publish:dev": "lerna publish prerelease --conventional-commits --conventional-prerelease --no-changelog --preid dev-$(git rev-parse --short HEAD) --dist-tag dev --force-publish --no-git-tag-version --no-push",
+    "lerna:publish:rc": "lerna publish --conventional-commits --conventional-prerelease --preid rc --dist-tag next --force-publish --create-release github",
+    "postinstall": "lerna bootstrap",
+    "release": "lerna run test && lerna run build && npm run lerna:publish",
+    "release:beta": "lerna run test && lerna run build && npm run lerna:publish:beta",
+    "release:dev": "lerna run test && lerna run build && npm run lerna:publish:dev",
+    "release:rc": "lerna run test && lerna run build && npm run lerna:publish:rc",
+    "version": "./scripts/bump-pluginsxml.sh && git add .",
+    "version:backup-with-changelog": "npm run clean-change-log && lerna run docs && git add ."
   }
 }

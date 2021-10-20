@@ -1,0 +1,86 @@
+{
+  "name": "@capacitor/configure",
+  "version": "0.0.2",
+  "description": "Capacitor configuration tool for automatically configuring projects",
+  "author": "Ionic Team <hi@ionic.io> (https://ionicframework.com) ",
+  "license": "SEE LICENSE",
+  "private": false,
+  "files": [
+    "bin",
+    "cli",
+    "README.md"
+  ],
+  "bin": {
+    "cap-config": "./bin/cap-config"
+  },
+  "scripts": {
+    "clean": "rimraf ./dist",
+    "build": "npm run clean && tsc",
+    "watch": "tsc -w",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
+  },
+  "watch": {
+    "transpile": {
+      "patterns": [
+        "src"
+      ],
+      "extensions": "ts,js",
+      "quite": false
+    },
+    "rollup": "dist/esm/**/*.*"
+  },
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "dependencies": {
+    "@capacitor/cli": "^3.2.5",
+    "@capacitor/project": "file:../project",
+    "@ionic/cli-framework-output": "^2.2.2",
+    "@ionic/utils-fs": "^3.1.5",
+    "@ionic/utils-subprocess": "^2.1.8",
+    "@ionic/utils-terminal": "^2.3.1",
+    "@prettier/plugin-xml": "^1.1.0",
+    "@rollup/plugin-commonjs": "^17.1.0",
+    "@rollup/plugin-node-resolve": "^11.2.0",
+    "commander": "^8.2.0",
+    "conventional-changelog": "^3.1.4",
+    "env-paths": "^3.0.0",
+    "kleur": "^4.1.4",
+    "lodash": "^4.17.21",
+    "npm-watch": "^0.9.0",
+    "plist": "^3.0.4",
+    "prompts": "^2.4.2",
+    "replace": "^1.1.0",
+    "tmp": "^0.2.1",
+    "ts-node": "^10.2.1",
+    "yaml": "^1.10.2",
+    "yargs": "^17.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ionic-team/capacitor-configure.git"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "mjs"
+    ],
+    "testMatch": [
+      "**/test/**/*.test.(ts|tsx|js|mjs)"
+    ]
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^9.0.13",
+    "@types/jest": "^27.0.2",
+    "@types/lodash": "^4.14.175",
+    "@types/plist": "^3.0.2",
+    "@types/prompts": "^2.0.14",
+    "@types/slice-ansi": "^5.0.0",
+    "jest": "^27.2.5",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^27.0.7",
+    "typescript": "^4.4.4"
+  }
+}
