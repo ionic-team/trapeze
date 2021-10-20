@@ -791,7 +791,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "My App Clip/Info.plist";
+				INFOPLIST_FILE = "My App Clip/AppClip.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Awesome App";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -825,7 +825,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "My App Clip/Info.plist";
+				INFOPLIST_FILE = "My App Clip/AppClip.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Awesome App";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;

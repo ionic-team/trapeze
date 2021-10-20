@@ -51,6 +51,9 @@ platforms:
           - Security.framework
           - SystemConfiguration.framework
           - WebKit.framework
+      My App Clip:
+        bundleId: com.ionicframework.awesomeAppClip
+        displayName: Really Cool App Clip
 
   android:
     packageName: $PACKAGE_NAME

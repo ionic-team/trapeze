@@ -17,6 +17,8 @@ describe('task: run', () => {
     expect(files).toMatchObject({
       'test/fixtures/ios/App/App.xcodeproj/project.pbxproj': expect.anything(),
       'test/fixtures/ios/App/App/App.entitlements': expect.anything(),
+      'test/fixtures/ios/App/App/Info.plist': expect.anything(),
+      'test/fixtures/ios/App/My App Clip/AppClip.plist': expect.anything(),
     });
   });
 });

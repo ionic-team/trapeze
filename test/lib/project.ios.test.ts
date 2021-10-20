@@ -41,17 +41,33 @@ describe.only('project - ios', () => {
 
   it('should get target bundle id', async () => {
     expect(project.ios.getBundleId('App', 'Debug')).toBe('io.ionic.wowzaStarter');
+    expect(project.ios.getBundleId('App')).toBe('io.ionic.wowzaStarter');
     expect(project.ios.getBundleId('My App Clip', 'Debug')).toBe('io.ionic.wowzaStarter.Clip');
   });
 
   it('should get target build configurations', async () => {
-    expect(project.ios.getBuildConfigurations('App').length).toBe(2);
+    const configs = project.ios.getBuildConfigurations('App');
+    expect(configs.length).toBe(2);
+  });
+
+  it('should get target build configuration names', async () => {
+    const configs = project.ios.getBuildConfigurationNames('App');
+    expect(configs).toMatchObject(['Debug', 'Release']);
   });
 
   it('should set target bundle id', async () => {
     project.ios.setBundleId('App', 'Debug', 'io.ionic.betterBundleId');
-    const newBundleId = project.ios.getBundleId('App', 'Debug');
-    expect(newBundleId).toBe('io.ionic.betterBundleId');
+    let debugBundleId = project.ios.getBundleId('App', 'Debug');
+    let releaseBundleId = project.ios.getBundleId('App', 'Release');
+    expect(debugBundleId).toBe('io.ionic.betterBundleId');
+    expect(releaseBundleId).not.toBe('io.ionic.betterBundleId');
+
+    // Test if passing null as a build sets the value for both release and debug
+    project.ios.setBundleId('App', null, 'io.ionic.betterBundleId');
+    debugBundleId = project.ios.getBundleId('App', 'Debug');
+    releaseBundleId = project.ios.getBundleId('App', 'Release');
+    expect(debugBundleId).toBe('io.ionic.betterBundleId');
+    expect(releaseBundleId).toBe('io.ionic.betterBundleId');
   });
 
   it('should get target product name', async () => {
@@ -60,13 +76,23 @@ describe.only('project - ios', () => {
 
   it('should get build number', async () => {
     expect(project.ios.getBuild('App', 'Debug')).toBe(1);
+    expect(project.ios.getBuild('App', 'Release')).toBe(1);
     expect(project.ios.incrementBuild('App', 'Debug'));
     expect(project.ios.getBuild('App', 'Debug')).toBe(2);
+    expect(project.ios.getBuild('App', 'Release')).toBe(1);
+    expect(project.ios.incrementBuild('App'));
+    expect(project.ios.getBuild('App', 'Debug')).toBe(2);
+    expect(project.ios.getBuild('App', 'Release')).toBe(2);
   });
 
   it('should update build settings', async () => {
     project.ios.setBuildProperty('App', 'Debug', 'FAKE_PROPERTY', 'YES');
     expect(project.ios.getBuildProperty('App', 'Debug', 'FAKE_PROPERTY')).toBe('YES');
+    project.ios.setBuildProperty('App', 'Release', 'FAKE_PROPERTY', 'YES');
+    expect(project.ios.getBuildProperty('App', 'Release', 'FAKE_PROPERTY')).toBe('YES');
+    project.ios.setBuildProperty('App', null, 'THING', 'THIS');
+    expect(project.ios.getBuildProperty('App', 'Debug', 'THING')).toBe('THIS');
+    expect(project.ios.getBuildProperty('App', 'Release', 'THING')).toBe('THIS');
   });
 
   it('should add frameworks', async () => {
@@ -99,10 +125,23 @@ describe.only('project - ios', () => {
       ]
     });
 
-    const entitlements = await project.ios.getEntitlements('App', 'Debug');
+    let entitlements = await project.ios.getEntitlements('App', 'Debug');
     expect(entitlements).toEqual({
       'keychain-access-groups': [
         'group1', 'group2'
+      ]
+    });
+
+    await project.ios.addEntitlements('App', null, {
+      'keychain-access-groups': [
+        'group3', 'group4'
+      ]
+    });
+
+    entitlements = await project.ios.getEntitlements('App');
+    expect(entitlements).toEqual({
+      'keychain-access-groups': [
+        'group3', 'group4', 'group1', 'group2'
       ]
     });
   });
@@ -110,8 +149,9 @@ describe.only('project - ios', () => {
   it('should get info.plist for each target', async () => {
     expect(project.ios.getInfoPlist('App', 'Debug')).toBe('App/Info.plist');
     expect(project.ios.getInfoPlist('App', 'Release')).toBe('App/Info.plist');
-    expect(project.ios.getInfoPlist('My App Clip', 'Debug')).toBe('My App Clip/Info.plist');
-    expect(project.ios.getInfoPlist('My App Clip', 'Release')).toBe('My App Clip/Info.plist');
+    expect(project.ios.getInfoPlist('App')).toBe('App/Info.plist');
+    expect(project.ios.getInfoPlist('My App Clip', 'Debug')).toBe('My App Clip/AppClip.plist');
+    expect(project.ios.getInfoPlist('My App Clip', 'Release')).toBe('My App Clip/AppClip.plist');
     expect(project.ios.getInfoPlist('My Share Extension', 'Debug')).toBe('My Share Extension/Info.plist');
     expect(project.ios.getInfoPlist('My Share Extension', 'Release')).toBe('My Share Extension/Info.plist');
   });
