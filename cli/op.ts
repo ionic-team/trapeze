@@ -125,7 +125,7 @@ function createOpDisplayText(op) {
       return op.value.map(v => Object.keys(v)).join(', ');
     case 'ios.frameworks':
       return op.value.join(', ');
-    case 'ios.plist':
+    case 'ios.infoPlist':
       return `${op.value.length} modifications`;
     // android
     case 'android.packageName':

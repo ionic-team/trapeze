@@ -161,6 +161,16 @@ describe.only('project - ios', () => {
     expect(await project.ios.getDisplayName('App', 'Debug')).toBe('Super App');
   });
 
+  it('should update plist with entries', async () => {
+    await project.ios.updateInfoPlist('App', 'Debug', {
+      NSFaceIDUsageDescription: 'The better to see you with'
+    });
+
+    const filename = project.ios.getInfoPlistFilename('App', 'Debug');
+    const updated = project.vfs.get(filename).getData();
+    expect(updated['NSFaceIDUsageDescription']).toBe('The better to see you with');
+  });
+
   it('should commit changes and reflect in fs', async () => {
   });
 });

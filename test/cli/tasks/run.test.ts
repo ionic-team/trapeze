@@ -12,7 +12,6 @@ describe('task: run', () => {
     await runCommand(ctx, 'test/fixtures/basic.yml');
 
     const files = ctx.project.vfs.all();
-    console.log(files);
 
     expect(files).toMatchObject({
       'test/fixtures/ios/App/App.xcodeproj/project.pbxproj': expect.anything(),

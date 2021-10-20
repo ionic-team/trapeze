@@ -174,8 +174,21 @@ export class IosProject {
     return this.plist(filename);
   }
 
+  /**
+   * Gets the relative Info plist file from the build settings.
+   */
   getInfoPlist(targetName: IosTargetName, buildName?: IosBuildName | undefined) {
     return this.getBuildProperty(targetName, buildName, 'INFOPLIST_FILE');
+  }
+
+  /**
+   * Gets the full relative path to the Info plist after getting the relative path
+   * from the build settings and resolving it with the app path
+   */
+  getInfoPlistFilename(targetName: IosTargetName, buildName?: IosBuildName | undefined) {
+    const file = this.getInfoPlist(targetName, buildName);
+    // TODO: Don't hardcode the 'App' folder
+    return join(this.project.config.ios.path, 'App', file);
   }
 
   async setDisplayName(targetName: IosTargetName, buildName: IosBuildName | null, displayName: string) {
@@ -188,11 +201,22 @@ export class IosProject {
   }
 
   async getDisplayName(targetName: IosTargetName, buildName?: IosBuildName | undefined) {
-    const file = this.getInfoPlist(targetName, buildName);
-    const filename = join(this.project.config.ios.path, 'App', file);
+    const filename = this.getInfoPlistFilename(targetName, buildName);
 
     const parsed = await this.plist(filename);
     return parsed['CFBundleDisplayName'];
+  }
+
+  /**
+   * Update the Info plist for the given target and build. The entries will be merged
+   * into the existing plist file
+   */
+  async updateInfoPlist(targetName: IosTargetName, buildName: IosBuildName | null, entries: any) {
+    const filename = this.getInfoPlistFilename(targetName, buildName);
+
+    const parsed = await this.plist(filename);
+    const updated = updatePlist(entries, parsed);
+    this.project.vfs.set(filename, updated);
   }
 
   private makeTargets(proj: IosPbxProject, pbxNativeSection: any): IosTarget[] {

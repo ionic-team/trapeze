@@ -4,7 +4,7 @@ import { CapacitorProject } from "../../lib";
 import { join } from 'path';
 import { readFile } from '@ionic/utils-fs';
 
-describe('project - ios', () => {
+describe('project - android', () => {
   let config: CapacitorConfig;
   let project: CapacitorProject;
   beforeEach(async () => {
