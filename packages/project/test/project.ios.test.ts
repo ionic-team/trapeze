@@ -1,5 +1,5 @@
 import { CapacitorConfig } from '@capacitor/cli';
-import { CapacitorProject } from '../../lib';
+import { CapacitorProject } from '../src';
 
 describe.only('project - ios', () => {
   let config: CapacitorConfig;
@@ -7,10 +7,10 @@ describe.only('project - ios', () => {
   beforeEach(async () => {
     config = {
       ios: {
-        path: 'test/fixtures/ios'
+        path: '../common/test/fixtures/ios'
       },
       android: {
-        path: 'test/fixtures/android'
+        path: '../common/test/fixtures/android'
       }
     }
 
@@ -24,8 +24,8 @@ describe.only('project - ios', () => {
 
   it('should load targets', async () => {
     const targets = project.ios.getTargets();
-    expect(targets.length).toBe(5);
-    expect(targets.every(t => t.buildConfigurations.length > 0)).toBe(true);
+    expect(targets?.length).toBe(5);
+    expect(targets?.every(t => t.buildConfigurations.length > 0)).toBe(true);
   });
 
   it('should get target by name', async () => {
@@ -36,7 +36,7 @@ describe.only('project - ios', () => {
   it('should get main app target', async () => {
     const target = project.ios.getAppTarget();
     expect(target).toBeDefined();
-    expect(target.productName).toBe('App');
+    expect(target?.productName).toBe('App');
   });
 
   it('should get target bundle id', async () => {
@@ -167,7 +167,7 @@ describe.only('project - ios', () => {
     });
 
     const filename = project.ios.getInfoPlistFilename('App', 'Debug');
-    const updated = project.vfs.get(filename).getData();
+    const updated = project.vfs.get(filename!).getData();
     expect(updated['NSFaceIDUsageDescription']).toBe('The better to see you with');
   });
 

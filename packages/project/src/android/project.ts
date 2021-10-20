@@ -83,7 +83,7 @@ export class AndroidProject {
    * Add a new file to the given resources directory with the given contents and
    * given file name
    **/
-  getResource(resDir: AndroidResDir, file: string, options = { encoding: 'utf-8' }) {
+  getResource(resDir: AndroidResDir, file: string, options: { encoding: 'utf-8' | string } | null = { encoding: 'utf-8' }) {
     const root = this.getResourcesRoot();
     if (!root) {
       return;

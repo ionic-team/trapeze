@@ -1,4 +1,4 @@
-import { VFS } from "../../src/vfs";
+import { VFS } from "../src/vfs";
 
 describe('vfs', () => {
   let vfs: VFS;

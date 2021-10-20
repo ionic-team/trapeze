@@ -1,5 +1,5 @@
 import { CapacitorConfig } from "@capacitor/cli";
-import { CapacitorProject } from "../../lib";
+import { CapacitorProject } from '../src';
 
 import { join } from 'path';
 import { readFile } from '@ionic/utils-fs';
@@ -10,10 +10,10 @@ describe('project - android', () => {
   beforeEach(async () => {
     config = {
       ios: {
-        path: 'test/fixtures/ios'
+        path: '../common/test/fixtures/ios'
       },
       android: {
-        path: 'test/fixtures/android'
+        path: '../common/test/fixtures/android'
       }
     }
 
@@ -35,7 +35,7 @@ describe('project - android', () => {
       'android:name': 'com.ionicframework.test.CoolApplication'
     });
 
-    const applicationNode = project.android.getAndroidManifest().find('manifest/application')[0];
+    const applicationNode = project.android.getAndroidManifest().find('manifest/application')?.[0];
     expect(applicationNode.getAttribute('android:name')).toBe('com.ionicframework.test.CoolApplication');
   });
 
@@ -48,10 +48,10 @@ describe('project - android', () => {
     </queries>
     `);
 
-    const queriesNode = project.android.getAndroidManifest().find('manifest/queries')[0];
+    const queriesNode = project.android.getAndroidManifest().find('manifest/queries')?.[0];
     expect(queriesNode).toBeDefined();
     expect(queriesNode.nodeName).toBe('queries');
-    const intentNode = project.android.getAndroidManifest().find('manifest/queries/intent')[0];
+    const intentNode = project.android.getAndroidManifest().find('manifest/queries/intent')?.[0];
     expect(intentNode).toBeDefined();
     expect(intentNode.nodeName).toBe('intent');
   });
@@ -76,7 +76,7 @@ describe('project - android', () => {
   });
 
   it('should copy resources file', async () => {
-    const src = join('test', 'fixtures', 'icon.png');
+    const src = join('../', 'common', 'test', 'fixtures', 'icon.png');
     const srcContents = await readFile(src);
     await project.android.copyToResources('drawable', 'icon.png', src);
     const destContents = await project.android.getResource('drawable', 'icon.png', null) as Buffer;

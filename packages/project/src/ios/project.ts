@@ -19,7 +19,13 @@ const defaultEntitlementsPlist = `
 `;
 */
 
+/* Some of the types are unwieldy in this file but the
+  pbxProject methods are sensitive to null vs undefined
+  so I've tried to accurately map what it expects. */
 
+/**
+ * An instance of an IosProject in a Capacitor project
+ */
 export class IosProject {
   private pbxProject: IosPbxProject | null = null;
 
@@ -186,10 +192,10 @@ export class IosProject {
     return this.getBuildProperty(targetName, buildName ?? null, 'CODE_SIGN_ENTITLEMENTS');
   }
 
-  async addEntitlements(targetName: IosTargetName | null, buildName: IosBuildName, entitlements: IosEntitlements) {
+  async addEntitlements(targetName: IosTargetName | null, buildName: IosBuildName | null, entitlements: IosEntitlements) {
     targetName = this.assertTargetName(targetName || null);
 
-    const file = this.getEntitlementsFile(targetName, buildName);
+    const file = this.getEntitlementsFile(targetName, buildName ?? undefined);
     if (!file || !this.project?.config?.ios?.path) {
       return;
     }

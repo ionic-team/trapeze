@@ -1,5 +1,0 @@
-platforms:
-  android:
-    packageName: com.ionicframework.awesomePackage
-    versionName: 1.2.3
-    incrementVersionCode: true
