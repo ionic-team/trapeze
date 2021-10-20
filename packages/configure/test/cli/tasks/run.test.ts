@@ -1,5 +1,5 @@
-import { Context, loadContext } from '../../../cli/ctx';
-import { runCommand } from '../../../cli/tasks/run';
+import { Context, loadContext } from '../../../src/ctx';
+import { runCommand } from '../../../src/tasks/run';
 
 describe('task: run', () => {
   it.only('should run operations', async () => {

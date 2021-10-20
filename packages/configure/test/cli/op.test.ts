@@ -1,19 +1,22 @@
-import { loadContext } from '../../cli/ctx';
-import { loadConfig } from '../../cli/config';
-import { AndroidOperation, IosOperation, processOperations } from '../../cli/op';
+import { Context, loadContext } from '../../src/ctx';
+import { loadConfig } from '../../src/config';
+import { processOperations } from '../../src/op';
+import { Operation } from '../../src/definitions';
 
 describe('operation processing', () => {
-  let ctx;
+  let ctx: Context;
   beforeEach(async () => {
     ctx = await loadContext('test/fixtures');
   });
 
   it('should process android operations', async () => {
-    const makeOp = (name, value): AndroidOperation => ({
+    const makeOp = (name: string, value: any): Operation => ({
       id: `android.${name}`,
       platform: 'android',
       name,
       value,
+      iosTarget: null,
+      iosBuild: null,
       displayText: expect.anything()
     });
     const parsed = await loadConfig(ctx, 'test/fixtures/android.basic.yml');
@@ -24,16 +27,16 @@ describe('operation processing', () => {
       makeOp('packageName', 'com.ionicframework.awesomePackage'),
       makeOp('versionName', '1.2.3'),
       makeOp('incrementVersionCode', true),
-    ] as IosOperation[]);
+    ] as Operation[]);
   });
 
   it('should process ios operations with targets and build', async () => {
-    const makeOp = (name, value): IosOperation => ({
+    const makeOp = (name: string, value: any): Operation => ({
       id: `ios.${name}`,
       platform: 'ios',
       name,
-      target: 'App',
-      build: 'Debug',
+      iosTarget: 'App',
+      iosBuild: 'Debug',
       value,
       displayText: expect.anything()
     });
@@ -47,15 +50,16 @@ describe('operation processing', () => {
       makeOp('incrementBuild', true),
       makeOp('productName', 'Awesome App'),
       makeOp('displayName', 'My Awesome App')
-    ] as IosOperation[]);
+    ] as Operation[]);
   });
 
   it('should process ios operations with targets and no builds', async () => {
-    const makeOp = (name, value): IosOperation => ({
+    const makeOp = (name: string, value: any): Operation => ({
       id: `ios.${name}`,
       platform: 'ios',
       name,
-      target: 'App',
+      iosTarget: 'App',
+      iosBuild: null,
       value,
       displayText: expect.anything()
     });
@@ -69,15 +73,17 @@ describe('operation processing', () => {
       makeOp('incrementBuild', true),
       makeOp('productName', 'Awesome App'),
       makeOp('displayName', 'My Awesome App')
-    ] as IosOperation[]);
+    ] as Operation[]);
   });
 
   it('should process ios operations with no targets and no builds', async () => {
-    const makeOp = (name, value): IosOperation => ({
+    const makeOp = (name: string, value: any): Operation => ({
       id: `ios.${name}`,
       platform: 'ios',
       name,
       value,
+      iosTarget: null,
+      iosBuild: null,
       displayText: expect.anything()
     });
     const parsed = await loadConfig(ctx, 'test/fixtures/ios.notargets.nobuilds.yml');
@@ -90,6 +96,6 @@ describe('operation processing', () => {
       makeOp('incrementBuild', true),
       makeOp('productName', 'Awesome App'),
       makeOp('displayName', 'My Awesome App')
-    ] as IosOperation[]);
+    ] as Operation[]);
   });
 });

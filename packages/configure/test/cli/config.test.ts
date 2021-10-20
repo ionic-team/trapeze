@@ -1,8 +1,8 @@
-import { loadContext } from '../../cli/ctx';
-import { loadConfig } from '../../cli/config';
+import { Context, loadContext } from '../../src/ctx';
+import { loadConfig } from '../../src/config';
 
 describe('config loading', () => {
-  let ctx;
+  let ctx: Context;
   beforeEach(async () => {
     ctx = await loadContext('test/fixtures');
   });
