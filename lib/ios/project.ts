@@ -1,9 +1,12 @@
 import plist from 'plist';
 import { join } from 'path';
+import { writeFile } from '@ionic/utils-fs';
+
 import { parsePbxProject } from "../util/pbx";
 import { parsePlist, updatePlist } from "../util/plist";
 import { CapacitorProject } from "../project";
 import { IosPbxProject, IosEntitlements, IosFramework, IosProjectName, IosBuildName, IosTarget, IosTargetName, IosTargetBuildConfiguration, IosFrameworkOpts } from '../definitions';
+import { VFSRef } from '../vfs';
 
 const defaultEntitlementsPlist = `
 <?xml version="1.0" encoding="UTF-8"?>
@@ -193,7 +196,6 @@ export class IosProject {
 
   async setDisplayName(targetName: IosTargetName, buildName: IosBuildName | null, displayName: string) {
     const file = this.getInfoPlist(targetName, buildName);
-    console.log('Got plist', file);
     const filename = join(this.project.config.ios.path, 'App', file);
 
     const parsed = await this.plist(filename);
@@ -255,7 +257,7 @@ export class IosProject {
       return open.getData();
     }
     const parsed = await parsePlist(filename);
-    this.project.vfs.open(filename, parsed);
+    this.project.vfs.open(filename, parsed, this.plistCommitFn);
     return parsed;
   }
 
@@ -272,7 +274,17 @@ export class IosProject {
   // Parse and return a pbx project
   private async pbx() {
     const pbxParsed = await parsePbxProject(this.pbxFilename());
-    this.project.vfs.open(this.pbxFilename(), pbxParsed);
+    this.project.vfs.open(this.pbxFilename(), pbxParsed, this.pbxCommitFn);
     return pbxParsed;
+  }
+
+  private pbxCommitFn = async (file: VFSRef) => {
+    this.pbxProject?.writeSync();
+  }
+
+  private plistCommitFn = async (file: VFSRef) => {
+    const data = file.getData();
+    const xml = plist.build(data);
+    return writeFile(file.getFilename(), xml);
   }
 }

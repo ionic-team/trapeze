@@ -8,7 +8,7 @@ export class VFSRef {
 
   modified = false;
 
-  constructor(private filename, private data) { }
+  constructor(private filename, private data, private commitFn: (file: VFSRef) => Promise<void>) { }
 
   async read() {
     this.buffer = await readFile(this.filename);
@@ -30,6 +30,10 @@ export class VFSRef {
     this.data = data;
     this.modified = true;
   }
+
+  commit() {
+    return this.commitFn(this);
+  }
 }
 
 /**
@@ -41,8 +45,8 @@ export class VFS {
 
   constructor() { }
 
-  open(filename: string, data: any) {
-    const ref = new VFSRef(filename, data);
+  open(filename: string, data: any, commitFn: (file: VFSRef) => Promise<void>) {
+    const ref = new VFSRef(filename, data, commitFn);
     this.openFiles[filename] = ref;
     return ref;
   }
@@ -56,6 +60,10 @@ export class VFS {
       files[fname] = this.openFiles[fname];
       return files;
     }, {});
+  }
+
+  commitAll() {
+    return Promise.all(Object.values(this.openFiles).map(file => file.commit()));
   }
 
   set(filename: string, data: any) {

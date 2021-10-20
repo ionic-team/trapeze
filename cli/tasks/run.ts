@@ -37,7 +37,6 @@ export async function runCommand(ctx, configFile) {
       }
     } else if (!ctx.args.dryRun && ctx.args.y) {
       logger.info('-y provided, automatically applying configuration');
-      console.log(processed.length);
       await executeOperations(ctx, processed);
     }
   } catch (e) {
@@ -62,25 +61,22 @@ async function previewOperations(operations) {
 
 async function executeOperations(ctx, operations) {
   for (const op of operations) {
-    printOp(op);
+    if (!ctx.args.quiet) {
+      printOp(op);
+    }
+
     if (!hasHandler(op)) {
       logger.warn(
         `Unsupported configuration option ${c.strong(op.id)}. Skipping`,
       );
       continue;
     }
-    const changes = await runOperation(ctx, op) || [];
 
-    if (Array.isArray(changes)) {
-      console.log(`Applying ${changes.length} changes`);
-      // TODO: Apply changes interactively
-      for (let change of changes) {
-        await change.commit();
-      }
-    } else {
-      await changes.commit();
+    await runOperation(ctx, op) || [];
+
+    if (!ctx.args.noCommit) {
+      ctx.project.vfs.commitAll();
     }
-    // console.log('CHANGES', changes);
   }
 }
 

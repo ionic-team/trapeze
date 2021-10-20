@@ -10,7 +10,7 @@ describe('vfs', () => {
   it('should open file', () => {
     vfs.open('f1', {
       thing: 'what'
-    });
+    }, async () => { });
 
     expect(vfs.get('f1').getData()).toStrictEqual({
       thing: 'what'
@@ -20,13 +20,13 @@ describe('vfs', () => {
   it('should get all open files', () => {
     vfs.open('f1', {
       thing: 'f1'
-    });
+    }, async () => { });
     vfs.open('f2', {
       thing: 'f2'
-    });
+    }, async () => { });
     vfs.open('f3', {
       thing: 'f3'
-    });
+    }, async () => { });
 
     expect(vfs.all()).toEqual({
       f1: vfs.get('f1'),
