@@ -23,10 +23,22 @@ jobs:
         with:
           node-version: 14
 
-      - name: Install
-        run: npm install
+      - name: Install and Test @capacitor/configure
+        run: |
+          cd packages/configure
+          npm ci && npm run build && npm test
+
+      - name: Install and Test @capacitor/project
+        run: |
+          cd packages/project
+          npm ci && npm run build && npm test
 
       - uses: JS-DevTools/npm-publish@v1
         with:
           token: ${{ secrets.NPM_TOKEN }}
-          package: package.json
+          package: packages/configure/package.json
+
+      - uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+          package: packages/project/package.json
