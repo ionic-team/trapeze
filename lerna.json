@@ -1,6 +1,10 @@
 {
   "version": "5.0.0",
-  "packages": ["packages/project", "packages/configure"],
+  "packages": [
+    "packages/project",
+    "packages/configure",
+    "packages/gradle-parse"
+  ],
   "npmClient": "npm",
   "command": {
     "bootstrap": {
