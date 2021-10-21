@@ -1,18 +1,14 @@
 {
   "name": "@capacitor/project",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Capacitor Project API for managing projects through code",
   "author": "Ionic Team <hi@ionic.io> (https://ionicframework.com) ",
   "license": "SEE LICENSE",
   "private": false,
   "files": [
-    "bin",
-    "cli",
+    "dist",
     "README.md"
   ],
-  "bin": {
-    "cap-config": "./bin/cap-config"
-  },
   "scripts": {
     "clean": "rimraf ./dist",
     "build": "npm run clean && tsc",
