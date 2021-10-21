@@ -63,7 +63,7 @@ platforms:
 
       - file: AndroidManifest.xml
         target: manifest
-        append: |
+        inject: |
           <queries>
               <package android:name="com.azure.authenticator" />
               <package android:name="$PACKAGE_NAME" />
