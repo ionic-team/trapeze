@@ -125,4 +125,4 @@ platforms:
 
       - path: drawable
         file: icon.png
-        source: test/fixtures/icon.png
+        source: ../common/test/fixtures/icon.png

@@ -1,12 +1,12 @@
-import { Context, loadContext } from '../../src/ctx';
-import { loadConfig } from '../../src/config';
-import { processOperations } from '../../src/op';
-import { Operation } from '../../src/definitions';
+import { Context, loadContext } from '../src/ctx';
+import { loadConfig } from '../src/config';
+import { processOperations } from '../src/op';
+import { Operation } from '../src/definitions';
 
 describe('operation processing', () => {
   let ctx: Context;
   beforeEach(async () => {
-    ctx = await loadContext('test/fixtures');
+    ctx = await loadContext('../common/test/fixtures');
   });
 
   it('should process android operations', async () => {
@@ -19,7 +19,7 @@ describe('operation processing', () => {
       iosBuild: null,
       displayText: expect.anything()
     });
-    const parsed = await loadConfig(ctx, 'test/fixtures/android.basic.yml');
+    const parsed = await loadConfig(ctx, '../common/test/fixtures/android.basic.yml');
 
     const processed = processOperations(parsed);
 
@@ -40,7 +40,7 @@ describe('operation processing', () => {
       value,
       displayText: expect.anything()
     });
-    const parsed = await loadConfig(ctx, 'test/fixtures/ios.targets.builds.yml');
+    const parsed = await loadConfig(ctx, '../common/test/fixtures/ios.targets.builds.yml');
 
     const processed = processOperations(parsed);
 
@@ -63,7 +63,7 @@ describe('operation processing', () => {
       value,
       displayText: expect.anything()
     });
-    const parsed = await loadConfig(ctx, 'test/fixtures/ios.targets.nobuilds.yml');
+    const parsed = await loadConfig(ctx, '../common/test/fixtures/ios.targets.nobuilds.yml');
 
     const processed = processOperations(parsed);
 
@@ -86,7 +86,7 @@ describe('operation processing', () => {
       iosBuild: null,
       displayText: expect.anything()
     });
-    const parsed = await loadConfig(ctx, 'test/fixtures/ios.notargets.nobuilds.yml');
+    const parsed = await loadConfig(ctx, '../common/test/fixtures/ios.notargets.nobuilds.yml');
 
     const processed = processOperations(parsed);
 
