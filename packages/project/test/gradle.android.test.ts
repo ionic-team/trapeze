@@ -38,7 +38,7 @@ describe('project - android - gradle', () => {
     await expect(gradle.parse()).rejects.toThrow();
   });
 
-  it('Should find target element in parsed Gradle', async () => {
+  it.only('Should find target element in parsed Gradle', async () => {
     const gradle = new Gradle(join(project.config.android!.path!, 'build.gradle'), vfs);
     await gradle.parse();
 
@@ -58,21 +58,19 @@ describe('project - android - gradle', () => {
     expect(nodes.length).not.toBe(0);
   });
 
-  it('Should inject at spot', async () => {
+  it.only('Should inject at spot', async () => {
     const gradle = new Gradle(join(project.config.android!.path!, 'app', 'build.gradle'), vfs);
     await gradle.parse();
 
     await gradle.injectProperties({
       dependencies: {}
     }, [
-      { classpath: "'com.super.cool'" },
-      { classpath: "'com.super.amazing'" },
+      { implementation: "'com.super.cool'" },
+      { implementation: "'com.super.amazing'" },
     ]);
-
-
   });
 
-  it('Should inject at root', async () => {
+  it.only('Should inject at root', async () => {
     const gradle = new Gradle(join(project.config.android!.path!, 'app', 'build.gradle'), vfs);
     await gradle.parse();
 
@@ -86,13 +84,20 @@ describe('project - android - gradle', () => {
     await gradle.parse();
 
     await gradle.injectProperties({
+      dependencies: {}
+    }, [
+      { classpath: "'com.super.cool'" },
+      { classpath: "'com.super.amazing'" },
+    ]);
+
+    await gradle.injectProperties({
       allprojects: {
         repositories: {}
       }
     }, [{
       maven: [{
-        url: 'https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1',
-        name: 'Duo-SDK-Feed'
+        url: "'https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1'",
+        name: "'Duo-SDK-Feed'"
       }]
     }]);
   });
