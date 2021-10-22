@@ -73,6 +73,7 @@ class Visitor {
     }
 
     jsonNode.put("type", "block");
+    addSourceInfo(block, jsonNode);
     jsonNode.put("children", jsonChildren);
     return jsonNode;
   }
