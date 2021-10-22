@@ -28,6 +28,7 @@ public class Parse {
     } catch (Exception ex) {
       System.err.println("Unable to parse file");
       ex.printStackTrace();
+      System.exit(1);
     }
   }
 }

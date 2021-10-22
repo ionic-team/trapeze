@@ -4,6 +4,10 @@
   "description": "Extremely basic but accurate Gradle parsing tool for tool modifications to Gradle files",
   "author": "Ionic Team <hi@ionic.io> (https://ionicframework.com) ",
   "license": "SEE LICENSE",
+  "main": "index.js",
+  "bin": {
+    "gradle-parse": "bin/gradle-parse.js"
+  },
   "files": [
     "lib",
     "capacitor-gradle-parse.jar"

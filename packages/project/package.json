@@ -29,7 +29,9 @@
   "typings": "dist/index.d.ts",
   "dependencies": {
     "@capacitor/cli": "^3.2.5",
+    "@capacitor/gradle-parse": "file:../gradle-parse",
     "@ionic/utils-fs": "^3.1.5",
+    "@ionic/utils-subprocess": "^2.1.8",
     "@prettier/plugin-xml": "^1.1.0",
     "@rollup/plugin-commonjs": "^17.1.0",
     "@rollup/plugin-node-resolve": "^11.2.0",
