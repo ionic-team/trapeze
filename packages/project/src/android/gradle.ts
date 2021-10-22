@@ -54,18 +54,72 @@ export class Gradle {
 
     const target = this.find(pathObject)?.[0];
 
-    const lines = toInject.map((o: any) => {
+    const lines: string[] = [];
+    this.createGradleSource(toInject, lines);
+
+    console.log('Injecting lines', lines);
+    return this.injectIntoGradleFile(lines, target);
+  }
+
+  /*
+  A gradle edit will be of the form:
+
+  [
+    {
+      maven: [{
+        url: 'https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1',
+        name: 'Duo-SDK-Feed'
+      }]
+    }
+  ]
+  */
+  createGradleSource(injectObj: any[], lines: string[], depth = 0) {
+    /*
+    const lines = injectObj.map((o: any) => {
       const key = Object.keys(o)[0];
       if (!key) {
         return null;
       }
 
       return `${key} ${o[key]}`;
-    }).filter(o => !!o) as string[];
+    }).filter((o: any) => !!o) as string[];
 
-    console.log('Injecting lines', lines);
-    return this.injectIntoGradleFile(lines, target);
+    return lines;
+    */
+    console.log(injectObj);
+
+    for (const entry of injectObj) {
+
+      const keys = Object.keys(entry);
+
+      for (const key of keys) {
+        const editEntry = entry[key];
+
+        if (Array.isArray(editEntry)) {
+          lines.push(`${key} {`);
+          this.createGradleSource(editEntry, lines, depth + 1);
+          lines.push('}');
+        } else if (typeof editEntry === 'string') {
+          lines.push(indent(`${key} ${editEntry}`, ' ', depth));
+        } else {
+          const fields = Object.keys(editEntry);
+
+          for (const fieldKey of fields) {
+            const fieldEntry = editEntry[fieldKey];
+
+            if (typeof fieldEntry === 'string') {
+              lines.push(indent(`${fieldKey} ${fieldEntry}`, ' ', depth));
+            } else if (Array.isArray(fieldEntry)) {
+              lines.push('{');
+              this.createGradleSource(fieldEntry, lines, depth + 1);
+              lines.push('}');
+            }
+          }
+        }
+      }
+    }
   }
+
 
   async injectIntoGradleFile(lines: string[], targetNode: GradleASTNode) {
     const { line, column, lastLine, lastColumn } = targetNode.source;
@@ -82,6 +136,8 @@ export class Gradle {
     const formatted = '\n' + lines.join('\n') + '\n';
     const indented = indent(formatted, ' ', indentation?.length || 0);
     const newSource = sourceLines.slice(0, Math.max(0, resolvedLastLine - 1)).join('\n') + indented + sourceLines.slice(Math.max(0, resolvedLastLine - 1), sourceLines.length).join('\n');
+
+    console.log(newSource);
 
     vfsRef.setData(newSource);
   }

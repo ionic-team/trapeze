@@ -38,17 +38,15 @@ describe('project - android - gradle', () => {
     await expect(gradle.parse()).rejects.toThrow();
   });
 
-  it.only('Should find target element in parsed Gradle', async () => {
+  it('Should find target element in parsed Gradle', async () => {
     const gradle = new Gradle(join(project.config.android!.path!, 'build.gradle'), vfs);
-    console.log(JSON.stringify(await gradle.parse(), null, 2));
+    await gradle.parse();
 
     let nodes = gradle.find({
       buildscript: {
         dependencies: {}
       }
     });
-
-    console.log('Nodes', JSON.stringify(nodes, null, 2));
 
     expect(nodes.length).not.toBe(0);
     expect(nodes[0].type).toBe('method');
@@ -57,16 +55,12 @@ describe('project - android - gradle', () => {
     // Should find the root node
     nodes = gradle.find({});
 
-    console.log('Nodes', JSON.stringify(nodes, null, 2));
-
     expect(nodes.length).not.toBe(0);
-    console.log(nodes);
-    // expect(nodes[0].type).toBe('root');
   });
 
   it('Should inject at spot', async () => {
     const gradle = new Gradle(join(project.config.android!.path!, 'app', 'build.gradle'), vfs);
-    console.log(JSON.stringify(await gradle.parse(), null, 2));
+    await gradle.parse();
 
     await gradle.injectProperties({
       dependencies: {}
@@ -80,10 +74,26 @@ describe('project - android - gradle', () => {
 
   it('Should inject at root', async () => {
     const gradle = new Gradle(join(project.config.android!.path!, 'app', 'build.gradle'), vfs);
-    console.log(JSON.stringify(await gradle.parse(), null, 2));
+    await gradle.parse();
 
     await gradle.injectProperties({}, [
       { 'apply from:': "'my.cool.package'" }
     ]);
+  });
+
+  it.only('Should inject nested Gradle statements', async () => {
+    const gradle = new Gradle(join(project.config.android!.path!, 'build.gradle'), vfs);
+    await gradle.parse();
+
+    await gradle.injectProperties({
+      allprojects: {
+        repositories: {}
+      }
+    }, [{
+      maven: [{
+        url: 'https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1',
+        name: 'Duo-SDK-Feed'
+      }]
+    }]);
   });
 });
