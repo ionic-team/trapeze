@@ -1,0 +1,17 @@
+dependencies {}
+
+buildscript {
+    thing {
+    }
+    dependencies {
+        implementation 'fake thing'
+    }
+}
+
+allprojects {
+    nest1 {
+        nest2 {
+            dependencies {}
+        }
+    }
+}

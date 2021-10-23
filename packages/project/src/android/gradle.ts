@@ -1,8 +1,10 @@
 import { dirname, join } from 'path';
-import { readFile } from '@ionic/utils-fs';
+import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
 import { runCommand } from '../util/subprocess';
 import { getIndentation, indent } from '../util/text';
 import { VFS, VFSRef } from '../vfs';
+import detectIndent from '../util/detect-indent';
+import tempy from 'tempy';
 
 export type GradleAST = any;
 export interface GradleASTNode {
@@ -18,11 +20,31 @@ export interface GradleASTNode {
 
 export class Gradle {
   private parsed: GradleAST | null = null;
+  private tempFile: string | null = null;
 
-  constructor(private filename: string, private vfs: VFS) {
+  constructor(public filename: string, private vfs: VFS) {
   }
 
   async parse() {
+    if (!await pathExists(this.filename)) {
+      throw new Error(`Unable to locate file at ${this.filename}`);
+    }
+
+    const vfsRef = this.vfs.get(this.filename);
+
+    // We keep a temp file updated with the latest source so the parser can operate
+    // on the current state of the file so we can handle multiple modifications to it
+    // in sequence
+    if (!this.tempFile) {
+      // If the temp file doesn't exist yet, create it and write the current file source to it
+      const gradleContents = await readFile(this.filename, { encoding: 'utf-8' });
+      this.tempFile = tempy.file({ extension: 'gradle' });
+      await writeFile(this.tempFile, gradleContents);
+    } else if (vfsRef) {
+      // Otherwise if it already exists then write the current vfs data to it
+      await writeFile(this.tempFile, vfsRef.getData());
+    }
+
     const parserRoot = this.getGradleParserPath();
     const java = this.getJava();
 
@@ -30,19 +52,25 @@ export class Gradle {
       throw new Error(this.gradleParseError());
     }
 
-    const json = await runCommand(java, ['-cp', 'lib/*:capacitor-gradle-parse.jar:.', 'com.capacitorjs.gradle.Parse', this.filename], {
-      cwd: parserRoot
-    });
+    try {
+      const json = await runCommand(java, ['-cp', 'lib/*:capacitor-gradle-parse.jar:.', 'com.capacitorjs.gradle.Parse', this.tempFile], {
+        cwd: parserRoot
+      });
 
-    this.parsed = JSON.parse(json || '{}');
+      this.parsed = JSON.parse(json || '{}');
 
-    return this.parsed;
+      return this.parsed;
+    } catch (e: any) {
+      throw new Error(`Unable to load or parse gradle file: ${e}`);
+    }
   }
 
   /**
    * Inject the given properties at the specified point in the Gradle file.
    **/
-  injectProperties(pathObject: any, toInject: any[]): Promise<void> {
+  async injectProperties(pathObject: any, toInject: any[]): Promise<void> {
+    await this.parse();
+
     if (!this.parsed) {
       throw new Error('Call parse() first to load Gradle file');
     }
@@ -54,92 +82,66 @@ export class Gradle {
 
     const target = this.find(pathObject)?.[0];
 
-    const lines: string[] = [];
-    this.createGradleSource(toInject, lines);
-
-    console.log('Injecting lines', lines);
-    return this.injectIntoGradleFile(lines, target);
+    return this.injectIntoGradleFile(toInject, target);
   }
 
-  /*
-  A gradle edit will be of the form:
+  /**
+   * Inject a modification into the gradle file
+   */
 
-  [
-    {
-      maven: [{
-        url: 'https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1',
-        name: 'Duo-SDK-Feed'
-      }]
-    }
-  ]
-  */
-  createGradleSource(injectObj: any[], lines: string[], depth = 0) {
-    /*
-    const lines = injectObj.map((o: any) => {
-      const key = Object.keys(o)[0];
-      if (!key) {
-        return null;
-      }
+  // This is a beast, sorry
+  private async injectIntoGradleFile(toInject: any[], targetNode: GradleASTNode) {
 
-      return `${key} ${o[key]}`;
-    }).filter((o: any) => !!o) as string[];
-
-    return lines;
-    */
-    console.log(injectObj);
-
-    for (const entry of injectObj) {
-
-      const keys = Object.keys(entry);
-
-      for (const key of keys) {
-        const editEntry = entry[key];
-
-        if (Array.isArray(editEntry)) {
-          lines.push(`${key} {`);
-          this.createGradleSource(editEntry, lines, depth + 1);
-          lines.push('}');
-        } else if (typeof editEntry === 'string') {
-          lines.push(indent(`${key} ${editEntry}`, ' ', depth));
-        } else {
-          const fields = Object.keys(editEntry);
-
-          for (const fieldKey of fields) {
-            const fieldEntry = editEntry[fieldKey];
-
-            if (typeof fieldEntry === 'string') {
-              lines.push(indent(`${fieldKey} ${fieldEntry}`, ' ', depth));
-            } else if (Array.isArray(fieldEntry)) {
-              lines.push('{');
-              this.createGradleSource(fieldEntry, lines, depth + 1);
-              lines.push('}');
-            }
-          }
-        }
-      }
-    }
-  }
-
-
-  async injectIntoGradleFile(lines: string[], targetNode: GradleASTNode) {
+    // These values are 1-indexed not 0-indexed
     const { line, column, lastLine, lastColumn } = targetNode.source;
-    console.log('Injecting', line, column, lastLine, lastColumn);
 
-    const source = await readFile(this.filename, { encoding: 'utf-8' });
-    const vfsRef = this.vfs.open(this.filename, source, this.gradleCommitFn);
+    const source = await this.getGradleSource();
     const sourceLines = source.split(/\r?\n/);
+
+    const detectedIndent = detectIndent(source);
+
+    const lines: string[] = [];
+    this.createGradleSource(toInject, lines, detectedIndent.indent);
 
     const resolvedLine = line < 0 ? 0 : line;
     const resolvedLastLine = lastLine < 0 ? sourceLines.length : lastLine;
 
-    const indentation = getIndentation(sourceLines[resolvedLine]);
+    const indentation = getIndentation(sourceLines[resolvedLine - 1]);
+    // Indentation will come back as the string of whitespace at the beginning of the line,
+    // we naively just count a 4 spaces-per-tab indent:
+    const indentAmount = Math.floor((indentation ?? '').length / detectedIndent.amount);
     const formatted = '\n' + lines.join('\n') + '\n';
-    const indented = indent(formatted, ' ', indentation?.length || 0);
-    const newSource = sourceLines.slice(0, Math.max(0, resolvedLastLine - 1)).join('\n') + indented + sourceLines.slice(Math.max(0, resolvedLastLine - 1), sourceLines.length).join('\n');
+
+    let newSource: string | null = null;
+
+    if (line === lastLine) {
+      // Block is empty, like dependencies {}
+
+      const indented = indent(formatted, detectedIndent.indent, indentAmount + 1);
+      const sourceLine = sourceLines[line - 1];
+
+      // The new line is the slice from the start of the line to one character before the end (remember,
+      // the lines and columns are 1-indexed so lastColumn - 2 is one character before the end
+      const newLine = sourceLine.slice(0, Math.max(0, lastColumn - 2)) +
+        indented + indent(sourceLine.slice(Math.max(0, lastColumn - 2)).trim(), detectedIndent.indent, indentAmount);
+
+      newSource = sourceLines.slice(0, Math.max(0, resolvedLastLine - 1))
+        .join('\n') +
+        '\n' + newLine + '\n' +
+        sourceLines.slice(Math.max(0, resolvedLastLine), sourceLines.length)
+          .join('\n');
+    } else {
+      const indented = indent(formatted, detectedIndent.indent, indentAmount + 1);
+      newSource = sourceLines.slice(0, Math.max(0, resolvedLastLine - 1))
+        .join('\n') +
+        indented +
+        sourceLines.slice(Math.max(0, resolvedLastLine - 1), sourceLines.length)
+          .join('\n');
+    }
 
     console.log(newSource);
 
-    vfsRef.setData(newSource);
+    this.vfs.get(this.filename).setData(newSource);
   }
 
   find(pathObject: any | null): GradleASTNode[] {
@@ -197,10 +199,68 @@ export class Gradle {
     return dirname(require.resolve('@capacitor/gradle-parse'));
   }
 
+  /*
+  Generate a fragment of Gradle/Groovy code given the inject object
+
+  A gradle edit will be of the form:
+
+  [
+    {
+      maven: [{
+        url: 'https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1',
+        name: 'Duo-SDK-Feed'
+      }]
+    }
+  ]
+  */
+  private createGradleSource(injectObj: any[], lines: string[], indentation: string, depth = 0) {
+    for (const entry of injectObj) {
+
+      const keys = Object.keys(entry);
+
+      for (const key of keys) {
+        const editEntry = entry[key];
+
+        if (Array.isArray(editEntry)) {
+          lines.push(`${key} {`);
+          this.createGradleSource(editEntry, lines, indentation, depth + 1);
+          lines.push('}');
+        } else if (typeof editEntry === 'string') {
+          lines.push(indent(`${key} ${editEntry}`, indentation, depth));
+        } else {
+          const fields = Object.keys(editEntry);
+
+          for (const fieldKey of fields) {
+            const fieldEntry = editEntry[fieldKey];
+
+            if (typeof fieldEntry === 'string') {
+              lines.push(indent(`${fieldKey} ${fieldEntry}`, indentation, depth));
+            } else if (Array.isArray(fieldEntry)) {
+              lines.push('{');
+              this.createGradleSource(fieldEntry, lines, indentation, depth + 1);
+              lines.push('}');
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+  private async getGradleSource() {
+    const ref = this.vfs.get(this.filename);
+    if (ref) {
+      return ref.getData();
+    }
+    const contents = await readFile(this.filename, { encoding: 'utf-8' });
+    this.vfs.open(this.filename, contents, this.gradleCommitFn);
+    return contents;
+  }
   private gradleParseError() {
     return `JAVA_HOME not set or set incorrectly. Please set JAVA_HOME to the root of your Java installation.\n\nGradle parse functionality depends on a local Java install for accurate Gradle file modification.`
   }
 
-  private gradleCommitFn = async (_file: VFSRef) => {
+  private gradleCommitFn = async (file: VFSRef) => {
+    return writeFile(file.getFilename(), file.getData());
   }
 }

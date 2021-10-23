@@ -58,9 +58,8 @@ describe('project - android - gradle', () => {
     expect(nodes.length).not.toBe(0);
   });
 
-  it.only('Should inject at spot', async () => {
+  it('Should inject at spot', async () => {
     const gradle = new Gradle(join(project.config.android!.path!, 'app', 'build.gradle'), vfs);
-    await gradle.parse();
 
     await gradle.injectProperties({
       dependencies: {}
@@ -70,18 +69,16 @@ describe('project - android - gradle', () => {
     ]);
   });
 
-  it.only('Should inject at root', async () => {
+  it('Should inject at root', async () => {
     const gradle = new Gradle(join(project.config.android!.path!, 'app', 'build.gradle'), vfs);
-    await gradle.parse();
 
     await gradle.injectProperties({}, [
       { 'apply from:': "'my.cool.package'" }
     ]);
   });
 
-  it.only('Should inject nested Gradle statements', async () => {
+  it('Should inject nested Gradle statements', async () => {
     const gradle = new Gradle(join(project.config.android!.path!, 'build.gradle'), vfs);
-    await gradle.parse();
 
     await gradle.injectProperties({
       dependencies: {}
@@ -100,5 +97,110 @@ describe('project - android - gradle', () => {
         name: "'Duo-SDK-Feed'"
       }]
     }]);
+  });
+
+  it.only('Should inject Gradle statements in empty method blocks', async () => {
+    const gradle = new Gradle(join('../common/test/fixtures/inject.gradle'), vfs);
+
+    await gradle.injectProperties({
+      dependencies: {}
+    }, [
+      { implementation: "'com.whatever.cool'" }
+    ]);
+
+    let source = vfs.get(gradle.filename).getData();
+    expect(source).toBe(`
+dependencies {
+    implementation 'com.whatever.cool'
+}
+
+buildscript {
+    thing {
+    }
+    dependencies {
+        implementation 'fake thing'
+    }
+}
+
+allprojects {
+    nest1 {
+        nest2 {
+            dependencies {}
+        }
+    }
+}
+`.trim());
+
+
+    await gradle.injectProperties({
+      buildscript: {
+        dependencies: {}
+      }
+    }, [
+      { classpath: "files('path/to/thing')" }
+    ]);
+
+    source = vfs.get(gradle.filename).getData();
+
+    expect(source).toBe(`
+dependencies {
+    implementation 'com.whatever.cool'
+}
+
+buildscript {
+    thing {
+    }
+    dependencies {
+        implementation 'fake thing'
+        classpath files('path/to/thing')
+    }
+}
+
+allprojects {
+    nest1 {
+        nest2 {
+            dependencies {}
+        }
+    }
+}
+`.trim());
+
+    await gradle.injectProperties({
+      allprojects: {
+        nest1: {
+          nest2: {
+            dependencies: {}
+          }
+        }
+      }
+    }, [
+      { thing: "'here'" }
+    ]);
+
+    source = vfs.get(gradle.filename).getData();
+    expect(source).toBe(`
+dependencies {
+    implementation 'com.whatever.cool'
+}
+
+buildscript {
+    thing {
+    }
+    dependencies {
+        implementation 'fake thing'
+        classpath files('path/to/thing')
+    }
+}
+
+allprojects {
+    nest1 {
+        nest2 {
+            dependencies {
+                thing: 'here'
+            }
+        }
+    }
+}
+`.trim());
   });
 });
