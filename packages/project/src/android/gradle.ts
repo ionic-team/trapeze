@@ -107,8 +107,6 @@ export class Gradle {
     const resolvedLastLine = lastLine < 0 ? sourceLines.length : lastLine;
 
     const indentation = getIndentation(sourceLines[resolvedLine - 1]);
-    // Indentation will come back as the string of whitespace at the beginning of the line,
-    // we naively just count a 4 spaces-per-tab indent:
     const indentAmount = Math.floor((indentation ?? '').length / detectedIndent.amount);
     const formatted = '\n' + lines.join('\n') + '\n';
 
