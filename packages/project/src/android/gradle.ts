@@ -66,9 +66,9 @@ export class Gradle {
   }
 
   /**
-   * Inject the given properties at the specified point in the Gradle file.
+   * Insert the given properties at the specified point in the Gradle file.
    **/
-  async injectProperties(pathObject: any, toInject: any[]): Promise<void> {
+  async insertProperties(pathObject: any, toInject: any[]): Promise<void> {
     await this.parse();
 
     if (!this.parsed) {
@@ -82,32 +82,65 @@ export class Gradle {
 
     const target = this.find(pathObject)?.[0];
 
-    return this.injectIntoGradleFile(toInject, target);
+    return this.insertIntoGradleFile(toInject, target);
+  }
+
+  /**
+   * Inject the given properties at the specified point in the Gradle file.
+   **/
+  async insertFragment(pathObject: any, toInject: string): Promise<void> {
+    await this.parse();
+
+    if (!this.parsed) {
+      throw new Error('Call parse() first to load Gradle file');
+    }
+
+    const nodes = this.find(pathObject);
+    if (!nodes.length) {
+      throw new Error('Unable to find method in Gradle file to inject');
+    }
+
+    const target = this.find(pathObject)?.[0];
+
+    return this.insertIntoGradleFile(toInject, target);
   }
 
   /**
    * Inject a modification into the gradle file
    */
 
-  // This is a beast, sorry
-  private async injectIntoGradleFile(toInject: any[], targetNode: GradleASTNode) {
-
+  // This is a beast, sorry. Hey, at least there's tests
+  private async insertIntoGradleFile(toInject: any[] | string, targetNode: GradleASTNode) {
     // These values are 1-indexed not 0-indexed
-    const { line, column, lastLine, lastColumn } = targetNode.source;
+    let { line, column, lastLine, lastColumn } = targetNode.source;
 
     const source = await this.getGradleSource();
     const sourceLines = source.split(/\r?\n/);
 
+    if (line == -1) {
+      // Set to first line (remember, 1-indexed)
+      line = 1;
+    }
+    if (lastLine === -1) {
+      // Set to last line (remember, 1-indexed)
+      lastLine = sourceLines.length + 1;
+    }
+
     const detectedIndent = detectIndent(source);
 
-    const lines: string[] = [];
-    this.createGradleSource(toInject, lines, detectedIndent.indent);
+    let lines: string[] = [];
+
+    if (Array.isArray(toInject)) {
+      this.createGradleSource(toInject, lines /* out */, detectedIndent.indent);
+    } else {
+      lines = toInject.split(/\r?\n/);
+    }
 
     const resolvedLine = line < 0 ? 0 : line;
     const resolvedLastLine = lastLine < 0 ? sourceLines.length : lastLine;
 
     const indentation = getIndentation(sourceLines[resolvedLine - 1]);
-    const indentAmount = Math.floor((indentation ?? '').length / detectedIndent.amount);
+    const indentAmount = typeof indentation !== 'undefined' ? Math.floor((indentation ?? '').length / detectedIndent.amount) : -1;
     const formatted = '\n' + lines.join('\n') + '\n';
 
     let newSource: string | null = null;
@@ -121,7 +154,14 @@ export class Gradle {
       // The new line is the slice from the start of the line to one character before the end (remember,
       // the lines and columns are 1-indexed so lastColumn - 2 is one character before the end
       const newLine = sourceLine.slice(0, Math.max(0, lastColumn - 2)) +
-        indented + indent(sourceLine.slice(Math.max(0, lastColumn - 2)).trim(), detectedIndent.indent, indentAmount);
+        indented +
+        indent(
+          sourceLine.slice(
+            Math.max(0, lastColumn - 2)
+          ).trim(),
+          detectedIndent.indent,
+          Math.max(0, indentAmount)
+        );
 
       newSource = sourceLines.slice(0, Math.max(0, resolvedLastLine - 1))
         .join('\n') +

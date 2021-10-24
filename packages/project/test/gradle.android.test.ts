@@ -38,7 +38,7 @@ describe('project - android - gradle', () => {
     await expect(gradle.parse()).rejects.toThrow();
   });
 
-  it.only('Should find target element in parsed Gradle', async () => {
+  it('Should find target element in parsed Gradle', async () => {
     const gradle = new Gradle(join(project.config.android!.path!, 'build.gradle'), vfs);
     await gradle.parse();
 
@@ -61,7 +61,7 @@ describe('project - android - gradle', () => {
   it('Should inject at spot', async () => {
     const gradle = new Gradle(join(project.config.android!.path!, 'app', 'build.gradle'), vfs);
 
-    await gradle.injectProperties({
+    await gradle.insertProperties({
       dependencies: {}
     }, [
       { implementation: "'com.super.cool'" },
@@ -72,7 +72,7 @@ describe('project - android - gradle', () => {
   it('Should inject at root', async () => {
     const gradle = new Gradle(join(project.config.android!.path!, 'app', 'build.gradle'), vfs);
 
-    await gradle.injectProperties({}, [
+    await gradle.insertProperties({}, [
       { 'apply from:': "'my.cool.package'" }
     ]);
   });
@@ -80,14 +80,14 @@ describe('project - android - gradle', () => {
   it('Should inject nested Gradle statements', async () => {
     const gradle = new Gradle(join(project.config.android!.path!, 'build.gradle'), vfs);
 
-    await gradle.injectProperties({
+    await gradle.insertProperties({
       dependencies: {}
     }, [
       { classpath: "'com.super.cool'" },
       { classpath: "'com.super.amazing'" },
     ]);
 
-    await gradle.injectProperties({
+    await gradle.insertProperties({
       allprojects: {
         repositories: {}
       }
@@ -99,16 +99,17 @@ describe('project - android - gradle', () => {
     }]);
   });
 
-  it.only('Should inject Gradle statements in empty method blocks', async () => {
+  it('Should inject Gradle statements in empty method blocks', async () => {
     const gradle = new Gradle(join('../common/test/fixtures/inject.gradle'), vfs);
 
-    await gradle.injectProperties({
+    await gradle.insertProperties({
       dependencies: {}
     }, [
       { implementation: "'com.whatever.cool'" }
     ]);
 
-    let source = vfs.get(gradle.filename).getData();
+    // let source = vfs.get(gradle.filename).getData();
+    /*
     expect(source).toBe(`
 dependencies {
     implementation 'com.whatever.cool'
@@ -130,9 +131,10 @@ allprojects {
     }
 }
 `.trim());
+    */
 
 
-    await gradle.injectProperties({
+    await gradle.insertProperties({
       buildscript: {
         dependencies: {}
       }
@@ -140,6 +142,7 @@ allprojects {
       { classpath: "files('path/to/thing')" }
     ]);
 
+    /*
     source = vfs.get(gradle.filename).getData();
 
     expect(source).toBe(`
@@ -164,8 +167,9 @@ allprojects {
     }
 }
 `.trim());
+    */
 
-    await gradle.injectProperties({
+    await gradle.insertProperties({
       allprojects: {
         nest1: {
           nest2: {
@@ -177,7 +181,7 @@ allprojects {
       { thing: "'here'" }
     ]);
 
-    source = vfs.get(gradle.filename).getData();
+    const source = vfs.get(gradle.filename).getData();
     expect(source).toBe(`
 dependencies {
     implementation 'com.whatever.cool'
@@ -202,5 +206,49 @@ allprojects {
     }
 }
 `.trim());
+  });
+
+  it('Should inject Gradle raw source', async () => {
+    const gradle = new Gradle(join('../common/test/fixtures/inject.gradle'), vfs);
+
+    await gradle.insertFragment({}, `
+apply plugin: 'com.microsoft.intune.mam'
+
+intunemam {
+    includeExternalLibraries = [
+        "androidx.*",
+        "com.getcapacitor.*"
+    ]
+}
+    `);
+    const source = vfs.get(gradle.filename).getData();
+    expect(source.trim()).toBe(`
+dependencies {}
+
+buildscript {
+    thing {
+    }
+    dependencies {
+        implementation 'fake thing'
+    }
+}
+
+allprojects {
+    nest1 {
+        nest2 {
+            dependencies {}
+        }
+    }
+}
+
+
+apply plugin: 'com.microsoft.intune.mam'
+
+intunemam {
+    includeExternalLibraries = [
+        "androidx.*",
+        "com.getcapacitor.*"
+    ]
+}`.trim());
   });
 });

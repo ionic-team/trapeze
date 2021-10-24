@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 import { CapacitorProject } from '../src';
 
-describe.only('project - ios', () => {
+describe('project - ios', () => {
   let config: CapacitorConfig;
   let project: CapacitorProject;
   beforeEach(async () => {

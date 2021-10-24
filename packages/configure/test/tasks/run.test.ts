@@ -2,7 +2,7 @@ import { loadContext } from '../../src/ctx';
 import { runCommand } from '../../src/tasks/run';
 
 describe('task: run', () => {
-  it.only('should run operations', async () => {
+  it('should run operations', async () => {
     const ctx = await loadContext('../common/test/fixtures');
     ctx.args.y = true;
     ctx.args.quiet = true;
