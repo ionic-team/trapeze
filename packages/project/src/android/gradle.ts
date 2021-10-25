@@ -114,8 +114,6 @@ export class Gradle {
     // These values are 1-indexed not 0-indexed
     let { line, column, lastLine, lastColumn } = targetNode.node.source;
 
-    console.log('Inserting at', targetNode);
-
     const source = await this.getGradleSource();
     const sourceLines = source.split(/\r?\n/);
 
@@ -155,8 +153,6 @@ export class Gradle {
 
       // The new line is the slice from the start of the line to one character before the end (remember,
       // the lines and columns are 1-indexed so lastColumn - 2 is one character before the end
-      console.log('LINE: ', sourceLine.slice(0, Math.max(0, lastColumn - 2)).replace(/ /g, '_'));
-      console.log(indented.replace(/ /g, '_'));
       const newLine = sourceLine.slice(0, Math.max(0, lastColumn - 2)) +
         '\n' +
         indented +
@@ -184,8 +180,6 @@ export class Gradle {
         sourceLines.slice(Math.max(0, resolvedLastLine - 1), sourceLines.length)
           .join('\n');
     }
-
-    console.log(newSource);
 
     this.vfs.get(this.filename).setData(newSource);
   }

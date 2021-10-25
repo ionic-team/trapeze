@@ -2,7 +2,7 @@ import { Subprocess, SubprocessError } from "@ionic/utils-subprocess";
 import chalk from "chalk";
 
 export async function runCommand(command: string, args: string[], options = {}): Promise<string> {
-  console.log(chalk`> {bold ${command} ${args.join(" ")}}`);
+  // console.log(chalk`> {bold ${command} ${args.join(" ")}}`);
 
   const p = new Subprocess(command, args, options);
 
