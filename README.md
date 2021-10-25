@@ -4,7 +4,19 @@ A utility for automatically configuring native [Capacitor](https://capacitorjs.c
 
 **Note:** This project is currently in active development and should not be considered stable (As of October '21). I'm currently collecting feedback on the different use cases you need a configuration tool for here: https://github.com/ionic-team/capacitor-configure/issues/1
 
-## Installation
+## Project API Installation
+
+To write custom scripts and code that manage iOS and Android targets in your Capacitor project, install the `@capacitor/project` package:
+
+```bash
+npm install @capacitor/project
+```
+
+More docs coming soon
+
+## Tool Installation
+
+To configure projects using configuration and the configuration tool, install the `@capacitor/configure` package. This package uses the `@capacitor/project` API under the hood:
 
 ```bash
 npm install @capacitor/configure
