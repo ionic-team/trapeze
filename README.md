@@ -1,8 +1,12 @@
-# Capacitor Configure
+# Capacitor Project API and Configuration Tool
 
-A utility for automatically configuring native [Capacitor](https://capacitorjs.com/) projects in a predictable and safe way.
+This project has two utilities for automatically configuring native [Capacitor](https://capacitorjs.com/) projects in a predictable and safe way.
 
-**Note:** This project is currently in active development and should not be considered stable (As of October '21). I'm currently collecting feedback on the different use cases you need a configuration tool for here: https://github.com/ionic-team/capacitor-configure/issues/1
+The first is the Project API which provides a fully-typed JavaScript API for writing custom project configuration scripts and modifying underlying iOS and Android configuration, build, and project files. 
+
+The second is a tool for configuration-based modifications which is useful for plugins and other scripts that need to apply certain settings to a file in a way that fits the configuration approach.
+
+**Note:** This project is currently in active development and does not have an official first release (As of October '21). I'm currently collecting feedback on the different use cases you need a configuration tool for here: https://github.com/ionic-team/capacitor-configure/issues/1
 
 ## Project API Installation
 
