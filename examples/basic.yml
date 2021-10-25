@@ -3,97 +3,52 @@ vars:
     default: io.ionic.wowzaStarter
   PACKAGE_NAME:
     default: io.ionic.wowzaStarter
-  INTUNE_CLIENT_ID:
-    description: The Azure AD Client ID for your registered app
-    default: blah
-  INTUNE_ADAL_AUTHORITY:
-    description: The Azure ADAL Authority for your registered app
-    default: bleh
-  INTUNE_REDIRECT_URI_IOS:
-    description: The redirect URI for your registered iOS app in Azure AD
-    default: foo
-  INTUNE_SIGNATURE_HASH:
-    description: The signature hash for your signing certificate for Android
-    default: bar
 
 platforms:
   ios:
     targets:
       App:
-        builds:
-          Debug:
-            bundleId: $BUNDLE_ID
-            version: 16.4
-            incrementBuild: true
-            productName: Awesome App
-            displayName: My Awesome App
+        bundleId: $BUNDLE_ID
+        version: 16.4
+        incrementBuild: true
+        productName: Awesome App
+        displayName: My Awesome App
 
-            buildSettings:
-              ENABLE_BITCODE: false
-              STRIP_SWIFT_SYMBOLS: false
+        buildSettings:
+          ENABLE_BITCODE: false
+          STRIP_SWIFT_SYMBOLS: false
 
-            plist:
-              - target: 'App'
-                entries:
-                  NSFaceIDUsageDescription: Use Face ID to authenticate yourself and login
+        infoPlist:
+          - NSFaceIDUsageDescription: Use Face ID to authenticate yourself and login
+          - CFBundleURLTypes:
+              - CFBundleURLSchemes:
+                  - msauth.$(PRODUCT_BUNDLE_IDENTIFIER)
+                  - msauth.$(PRODUCT_BUNDLE_IDENTIFIER)-intunemam
+                  - msauth.com.microsoft.intunemam
 
-              - file: Info.plist
-                entries:
-                  CFBundleURLTypes:
-                    - CFBundleURLSchemes:
-                        - msauth.$(PRODUCT_BUNDLE_IDENTIFIER)
-                        - msauth.$(PRODUCT_BUNDLE_IDENTIFIER)-intunemam
-                        - msauth.com.microsoft.intunemam
+        entitlements:
+          - keychain-access-groups:
+              [
+                '$BUNDLE_ID',
+                'com.microsoft.intune.mam',
+                'com.microsoft.adalcache',
+              ]
 
-              - file: Info.plist
-                entries:
-                  LSApplicationQueriesSchemes:
-                    - mvisionmobile
-                    - msauthv2
-                    - scmx
-                    - lookoutwork-ase
-                    - msauthv3
-                    - lacoonsecurity
-                    - zips
-                    - skycure
-                    - smart-ns
-                    - smsec
-                    - betteractiveshield
-                    - companyportal
-                    - wandera
-                    - https-intunemam
-                    - http-intunemam
-                    - microsoft-edge-https-intunemam
-                    - microsoft-edge-http-intunemam
-                    - ms-outlook-intunemam
-
-              - file: Info.plist
-                entries:
-                  IntuneMAMSettings:
-                    ADALClientId: $INTUNE_CLIENT_ID
-                    ADALAuthority: $INTUNE_ADAL_AUTHORITY
-                    ADALRedirectUri: $INTUNE_REDIRECT_URI_IOS
-
-            entitlements:
-              - keychain-access-groups:
-                  [
-                    '$BUNDLE_ID',
-                    'com.microsoft.intune.mam',
-                    'com.microsoft.adalcache',
-                  ]
-
-            frameworks:
-              - AudioToolbox.framework
-              - CoreServices.framework
-              - ImageIO.framework
-              - libc++.tbd
-              - libqslite3.tbd
-              - LocalAuthentication.framework
-              - MessageUI.framework
-              - QuartzCore.framework
-              - Security.framework
-              - SystemConfiguration.framework
-              - WebKit.framework
+        frameworks:
+          - AudioToolbox.framework
+          - CoreServices.framework
+          - ImageIO.framework
+          - libc++.tbd
+          - libqslite3.tbd
+          - LocalAuthentication.framework
+          - MessageUI.framework
+          - QuartzCore.framework
+          - Security.framework
+          - SystemConfiguration.framework
+          - WebKit.framework
+      My App Clip:
+        bundleId: com.ionicframework.awesomeAppClip
+        displayName: Really Cool App Clip
 
   android:
     packageName: $PACKAGE_NAME
@@ -108,7 +63,7 @@ platforms:
 
       - file: AndroidManifest.xml
         target: manifest
-        append: |
+        inject: |
           <queries>
               <package android:name="com.azure.authenticator" />
               <package android:name="$PACKAGE_NAME" />
@@ -148,23 +103,32 @@ platforms:
               </intent-filter>
           </activity>
 
-    build.gradle:
-      buildscript:
-        dependencies:
-          - classpath: 'org.javassist:javassist:3.27.0-GA'
-          - classpath: files("./app/src/main/libs/com.microsoft.intune.mam.build.jar")
+    gradle:
+      - file: build.gradle
+        target:
+          buildscript:
+        insert:
+          - classpath: "'org.javassist:javassist:3.27.0-GA'"
+          - classpath: files("../node_modules/@ionic-enterprise/intune/android/ms-intune-app-sdk-android/GradlePlugin/com.microsoft.intune.mam.build.jar")
 
-    app.build.gradle:
-      dependencies:
-        - implementation: files("./src/main/libs/Microsoft.Intune.MAM.SDK.aar")
-        - implementation: 'com.microsoft.identity.client:msal:1.5.5'
+      - file: build.gradle
+        target:
+          allprojects:
+            repositories:
+        insert:
+          maven:
+            - url: 'https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1'
+            - name: 'Duo-SDK-Feed'
 
-      apply plugin: 'com.microsoft.intune.mam'
-      intunemam:
-        includeExternalLibraries:
-          - 'androidx.*'
-          - 'com.getcapacitor.*'
+      - file: app/build.gradle
+        target:
+        insert: |
+        apply plugin: 'com.microsoft.intune.mam'
+        intunemam {
+          includeExternalLibraries = ["androidx.*", "com.getcapacitor.*"]
+        }
 
+    
     res:
       - path: raw
         file: auth_config.json
@@ -186,5 +150,5 @@ platforms:
           }
 
       - path: drawable
-        file: logo.png
-        source: logo.png
+        file: icon.png
+        source: ../common/test/fixtures/icon.png
