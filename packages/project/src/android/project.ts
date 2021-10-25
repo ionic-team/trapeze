@@ -7,10 +7,12 @@ import { CapacitorProject } from "../project";
 import { AndroidManifest } from './manifest';
 
 import { AndroidResDir } from '../definitions';
+import { GradleFile } from './gradle-file';
 
 export class AndroidProject {
   private manifest: AndroidManifest;
-  private appBuildGradle: string | null = null;
+  private buildGradle: GradleFile | null = null;
+  private appBuildGradle: GradleFile | null = null;
 
   constructor(private project: CapacitorProject) {
     const manifestPath = this.getAndroidManifestPath();
@@ -22,15 +24,21 @@ export class AndroidProject {
 
   async load() {
     await this.manifest.load();
-    this.appBuildGradle = await this.loadAppBuildGradle();
-  }
-
-  async commit() {
-    // TODO: Do this  
+    this.buildGradle = await this.loadGradle('build.gradle');
+    this.appBuildGradle = await this.loadGradle('app/build.gradle');
   }
 
   getAndroidManifest() {
     return this.manifest;
+  }
+
+  getGradleFile(path: string) {
+    if (path === 'build.gradle') {
+      return this.buildGradle;
+    } else if (path === 'app/build.gradle') {
+      return this.appBuildGradle;
+    }
+    return null;
   }
 
   async setPackageName(packageName: string) {
@@ -41,42 +49,24 @@ export class AndroidProject {
     return this.manifest.getDocumentElement()?.getAttribute('package');
   }
 
-  async setVersionCode(versionCode: number) {
-    this.appBuildGradle = this.appBuildGradle?.replace(/(versionCode\s+)\w+/, `$1${versionCode}`) || null;
+  setVersionCode(versionCode: number) {
+    return this.appBuildGradle?.setVersionCode(versionCode);
   }
 
-  getVersionCode(): number | null {
-    const versionCode = this.appBuildGradle?.match(/versionCode\s+(\w+)/);
-    if (!versionCode) {
-      return null;
-    }
-    return parseInt(versionCode[1]);
+  async getVersionCode(): Promise<number | null> {
+    return (await this.appBuildGradle?.getVersionCode()) ?? null;
   }
 
-  incrementVersionCode() {
-    const versionCode = this.appBuildGradle?.match(/versionCode\s+(\w+)/);
-    if (!versionCode) {
-      return;
-    }
-    const num = parseInt(versionCode[1]);
-    if (!isNaN(num)) {
-      this.appBuildGradle = this.appBuildGradle?.replace(/(versionCode\s+)\w+/, `$1${num + 1}`) || null;
-    }
+  incrementVersionCode(): Promise<void> {
+    return this.appBuildGradle?.incrementVersionCode() ?? Promise.resolve();
   }
 
   setVersionName(versionName: string) {
-    this.appBuildGradle = this.appBuildGradle?.replace(
-      /(versionName\s+)["'][^"']+["']/,
-      `$1"${versionName}"`,
-    ) || null;
+    return this.appBuildGradle?.setVersionName(versionName);
   }
 
-  getVersionName(): string | null {
-    const versionName = this.appBuildGradle?.match(/versionName\s+["']([^"']+)["']/) || null;
-    if (!versionName) {
-      return null;
-    }
-    return versionName[1];
+  getVersionName(): Promise<string | null> {
+    return this.appBuildGradle?.getVersionName() ?? Promise.resolve(null);
   }
 
   /**
@@ -161,11 +151,12 @@ export class AndroidProject {
     return join(this.project.config.android?.path, 'app', 'src', 'main', 'res');
   }
 
-  private async loadAppBuildGradle(): Promise<string | null> {
+  private async loadGradle(path: string): Promise<GradleFile | null> {
     if (!this.project.config.android?.path) {
       return null;
     }
-    const filename = join(this.project.config.android?.path, 'app', 'build.gradle');
-    return readFile(filename, { encoding: 'utf-8' });
+    const filename = join(this.project.config.android?.path, path);
+
+    return new GradleFile(filename, this.project.vfs);
   }
 }

@@ -123,12 +123,11 @@ platforms:
       - file: app/build.gradle
         target:
         insert: |
-        apply plugin: 'com.microsoft.intune.mam'
-        intunemam {
-          includeExternalLibraries = ["androidx.*", "com.getcapacitor.*"]
-        }
+          apply plugin: 'com.microsoft.intune.mam'
+          intunemam {
+            includeExternalLibraries = ["androidx.*", "com.getcapacitor.*"]
+          }
 
-    
     res:
       - path: raw
         file: auth_config.json

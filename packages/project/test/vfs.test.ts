@@ -12,7 +12,7 @@ describe('vfs', () => {
       thing: 'what'
     }, async () => { });
 
-    expect(vfs.get('f1').getData()).toStrictEqual({
+    expect(vfs.get('f1')?.getData()).toStrictEqual({
       thing: 'what'
     });
   });

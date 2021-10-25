@@ -18,51 +18,11 @@ export interface GradleASTNode {
   };
 }
 
-export class Gradle {
+export class GradleFile {
   private parsed: GradleAST | null = null;
   private tempFile: string | null = null;
 
   constructor(public filename: string, private vfs: VFS) {
-  }
-
-  async parse() {
-    if (!await pathExists(this.filename)) {
-      throw new Error(`Unable to locate file at ${this.filename}`);
-    }
-
-    const vfsRef = this.vfs.get(this.filename);
-
-    // We keep a temp file updated with the latest source so the parser can operate
-    // on the current state of the file so we can handle multiple modifications to it
-    // in sequence
-    if (!this.tempFile) {
-      // If the temp file doesn't exist yet, create it and write the current file source to it
-      const gradleContents = await readFile(this.filename, { encoding: 'utf-8' });
-      this.tempFile = tempy.file({ extension: 'gradle' });
-      await writeFile(this.tempFile, gradleContents);
-    } else if (vfsRef) {
-      // Otherwise if it already exists then write the current vfs data to it
-      await writeFile(this.tempFile, vfsRef.getData());
-    }
-
-    const parserRoot = this.getGradleParserPath();
-    const java = this.getJava();
-
-    if (!java) {
-      throw new Error(this.gradleParseError());
-    }
-
-    try {
-      const json = await runCommand(java, ['-cp', 'lib/*:capacitor-gradle-parse.jar:.', 'com.capacitorjs.gradle.Parse', this.tempFile], {
-        cwd: parserRoot
-      });
-
-      this.parsed = JSON.parse(json || '{}');
-
-      return this.parsed;
-    } catch (e: any) {
-      throw new Error(`Unable to load or parse gradle file: ${e}`);
-    }
   }
 
   /**
@@ -105,6 +65,47 @@ export class Gradle {
     return this.insertIntoGradleFile(toInject, target);
   }
 
+  private async parse() {
+    if (!await pathExists(this.filename)) {
+      throw new Error(`Unable to locate file at ${this.filename}`);
+    }
+
+    const vfsRef = this.vfs.get(this.filename);
+
+    // We keep a temp file updated with the latest source so the parser can operate
+    // on the current state of the file so we can handle multiple modifications to it
+    // in sequence
+    if (!this.tempFile) {
+      // If the temp file doesn't exist yet, create it and write the current file source to it
+      const gradleContents = await this.getGradleSource();
+      this.tempFile = tempy.file({ extension: 'gradle' });
+      await writeFile(this.tempFile, gradleContents);
+    } else if (vfsRef) {
+      // Otherwise if it already exists then write the current vfs data to it
+      await writeFile(this.tempFile, vfsRef.getData());
+    }
+
+    const parserRoot = this.getGradleParserPath();
+    const java = this.getJava();
+
+    if (!java) {
+      throw new Error(this.gradleParseError());
+    }
+
+    try {
+      const json = await runCommand(java, ['-cp', 'lib/*:capacitor-gradle-parse.jar:.', 'com.capacitorjs.gradle.Parse', this.tempFile], {
+        cwd: parserRoot
+      });
+
+      this.parsed = JSON.parse(json || '{}');
+
+      return this.parsed;
+    } catch (e: any) {
+      throw new Error(`Unable to load or parse gradle file: ${e}`);
+    }
+  }
+
+
   /**
    * Inject a modification into the gradle file
    */
@@ -114,7 +115,7 @@ export class Gradle {
     // These values are 1-indexed not 0-indexed
     let { line, column, lastLine, lastColumn } = targetNode.node.source;
 
-    const source = await this.getGradleSource();
+    const source = await this.getGradleSource() ?? '';
     const sourceLines = source.split(/\r?\n/);
 
     if (line == -1) {
@@ -181,7 +182,7 @@ export class Gradle {
           .join('\n');
     }
 
-    this.vfs.get(this.filename).setData(newSource);
+    this.vfs.get(this.filename)?.setData(newSource);
   }
 
   find(pathObject: any | null): { node: GradleASTNode, depth: number }[] {
@@ -204,6 +205,10 @@ export class Gradle {
   }
 
   private _find(pathObject: any, node: any, pathNode: any, found: any[], depth = 0) {
+    if (!pathNode) {
+      return;
+    }
+
     const targetKey = Object.keys(pathNode)?.[0];
     if (!targetKey) {
       return;
@@ -237,6 +242,67 @@ export class Gradle {
 
   getGradleParserPath() {
     return dirname(require.resolve('@capacitor/gradle-parse'));
+  }
+
+  async setVersionCode(versionCode: number) {
+    const source = await this.getGradleSource();
+
+    if (source) {
+      this.vfs.set(this.filename, source.replace(/(versionCode\s+)\w+/, `$1${versionCode}`));
+    }
+  }
+
+  async getVersionCode(): Promise<number | null> {
+    const source = await this.getGradleSource();
+
+    if (source) {
+      const versionCode = source.match(/versionCode\s+(\w+)/);
+      if (!versionCode) {
+        return null;
+      }
+      return parseInt(versionCode[1]);
+    }
+    return null;
+  }
+
+  async incrementVersionCode() {
+    const source = await this.getGradleSource();
+
+    if (source) {
+      const versionCode = source.match(/versionCode\s+(\w+)/);
+      if (!versionCode) {
+        return;
+      }
+      const num = parseInt(versionCode[1]);
+      if (!isNaN(num)) {
+        this.vfs.set(this.filename, source.replace(/(versionCode\s+)\w+/, `$1${num + 1}`));
+      }
+    }
+  }
+
+  async setVersionName(versionName: string) {
+    const source = await this.getGradleSource();
+
+    if (source) {
+      this.vfs.set(this.filename, source.replace(
+        /(versionName\s+)["'][^"']+["']/,
+        `$1"${versionName}"`,
+      ));
+    }
+  }
+
+  async getVersionName(): Promise<string | null> {
+    const source = await this.getGradleSource();
+
+    if (source) {
+      const versionName = source.match(/versionName\s+["']([^"']+)["']/) || null;
+      if (!versionName) {
+        return null;
+      }
+      return versionName[1];
+    }
+
+    return null;
   }
 
   /*
@@ -287,7 +353,7 @@ export class Gradle {
   }
 
 
-  private async getGradleSource() {
+  private async getGradleSource(): Promise<string | null> {
     const ref = this.vfs.get(this.filename);
     if (ref) {
       return ref.getData();

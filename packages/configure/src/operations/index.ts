@@ -31,6 +31,7 @@ const operations: OperationHandlers = {
   'ios.build.gradle': executeAndroidGradle,
   'android.manifest': executeAndroidManifest,
   'android.res': executeAndroidRes,
+  'android.gradle': executeAndroidGradle,
   'android.packageName': executeAndroidPackageName,
   'android.versionName': executeAndroidVersion,
   'android.versionCode': executeAndroidVersion,

@@ -167,7 +167,7 @@ describe('project - ios', () => {
     });
 
     const filename = project.ios.getInfoPlistFilename('App', 'Debug');
-    const updated = project.vfs.get(filename!).getData();
+    const updated = project.vfs.get(filename!)?.getData();
     expect(updated['NSFaceIDUsageDescription']).toBe('The better to see you with');
   });
 

@@ -45,8 +45,8 @@ export class VFS {
     return ref;
   }
 
-  get(filename: string) {
-    return this.openFiles[filename];
+  get(filename: string): VFSRef | null {
+    return this.openFiles[filename] ?? null;
   }
 
   all() {

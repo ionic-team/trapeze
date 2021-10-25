@@ -116,19 +116,18 @@ platforms:
           allprojects:
             repositories:
         insert:
-          maven:
-            - url: 'https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1'
-            - name: 'Duo-SDK-Feed'
+          - maven:
+              - url: 'https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1'
+              - name: 'Duo-SDK-Feed'
 
       - file: app/build.gradle
         target:
         insert: |
-        apply plugin: 'com.microsoft.intune.mam'
-        intunemam {
-          includeExternalLibraries = ["androidx.*", "com.getcapacitor.*"]
-        }
+          apply plugin: 'com.microsoft.intune.mam'
+          intunemam {
+            includeExternalLibraries = ["androidx.*", "com.getcapacitor.*"]
+          }
 
-    
     res:
       - path: raw
         file: auth_config.json

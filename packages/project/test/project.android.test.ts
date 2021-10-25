@@ -57,11 +57,11 @@ describe('project - android', () => {
   });
 
   it('should set version', async () => {
-    project.android.setVersionName('1.0.2');
-    expect(project.android.getVersionName()).toBe('1.0.2');
+    await project.android.setVersionName('1.0.2');
+    expect(await project.android.getVersionName()).toBe('1.0.2');
 
-    project.android.setVersionCode(11);
-    expect(project.android.getVersionCode()).toBe(11);
+    await project.android.setVersionCode(11);
+    expect(await project.android.getVersionCode()).toBe(11);
   });
 
   it('should add resources file', async () => {

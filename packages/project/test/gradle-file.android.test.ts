@@ -1,6 +1,6 @@
 import { CapacitorConfig } from "@capacitor/cli";
 import { CapacitorProject } from '../src';
-import { Gradle, GradleASTNode, GradleAST } from '../src/android/gradle';
+import { GradleFile } from '../src/android/gradle-file';
 
 import { join } from 'path';
 import { VFS } from "../src/vfs";
@@ -25,7 +25,7 @@ describe('project - android - gradle', () => {
   });
 
   it('Should find path to gradle parse', async () => {
-    const gradle = new Gradle(join(project.config.android!.path!, 'build.gradle'), vfs);
+    const gradle = new GradleFile(join(project.config.android!.path!, 'build.gradle'), vfs);
     expect(gradle.getGradleParserPath()).not.toBeUndefined();
 
     const output = await gradle.parse();
@@ -34,12 +34,12 @@ describe('project - android - gradle', () => {
 
   it.skip('Should throw an exception if no JAVA_HOME set', async () => {
     process.env.JAVA_HOME = '';
-    const gradle = new Gradle(join(project.config.android!.path!, 'build.gradle'), vfs);
+    const gradle = new GradleFile(join(project.config.android!.path!, 'build.gradle'), vfs);
     await expect(gradle.parse()).rejects.toThrow();
   });
 
   it('Should find target element in parsed Gradle', async () => {
-    const gradle = new Gradle(join(project.config.android!.path!, 'build.gradle'), vfs);
+    const gradle = new GradleFile(join(project.config.android!.path!, 'build.gradle'), vfs);
     await gradle.parse();
 
     let nodes = gradle.find({
@@ -59,7 +59,7 @@ describe('project - android - gradle', () => {
   });
 
   it('Should inject at spot', async () => {
-    const gradle = new Gradle(join(project.config.android!.path!, 'app', 'build.gradle'), vfs);
+    const gradle = new GradleFile(join(project.config.android!.path!, 'app', 'build.gradle'), vfs);
 
     await gradle.insertProperties({
       dependencies: {}
@@ -70,7 +70,7 @@ describe('project - android - gradle', () => {
   });
 
   it('Should inject at root', async () => {
-    const gradle = new Gradle(join(project.config.android!.path!, 'app', 'build.gradle'), vfs);
+    const gradle = new GradleFile(join(project.config.android!.path!, 'app', 'build.gradle'), vfs);
 
     await gradle.insertProperties({}, [
       { 'apply from:': "'my.cool.package'" }
@@ -78,7 +78,7 @@ describe('project - android - gradle', () => {
   });
 
   it('Should inject nested Gradle statements', async () => {
-    const gradle = new Gradle(join(project.config.android!.path!, 'build.gradle'), vfs);
+    const gradle = new GradleFile(join(project.config.android!.path!, 'build.gradle'), vfs);
 
     await gradle.insertProperties({
       dependencies: {}
@@ -100,7 +100,7 @@ describe('project - android - gradle', () => {
   });
 
   it('Should inject Gradle statements in empty method blocks', async () => {
-    const gradle = new Gradle(join('../common/test/fixtures/inject.gradle'), vfs);
+    const gradle = new GradleFile(join('../common/test/fixtures/inject.gradle'), vfs);
 
     await gradle.insertProperties({
       dependencies: {}
@@ -128,7 +128,7 @@ describe('project - android - gradle', () => {
       { thing: "'here'" }
     ]);
 
-    const source = vfs.get(gradle.filename).getData();
+    const source = vfs.get(gradle.filename)?.getData();
     expect(source.trim()).toBe(`
 dependencies {
     implementation 'com.whatever.cool'
@@ -156,7 +156,7 @@ allprojects {
   });
 
   it('Should inject Gradle raw source', async () => {
-    const gradle = new Gradle(join('../common/test/fixtures/inject.gradle'), vfs);
+    const gradle = new GradleFile(join('../common/test/fixtures/inject.gradle'), vfs);
 
     await gradle.insertFragment({}, `
 apply plugin: 'com.microsoft.intune.mam'
@@ -168,7 +168,7 @@ intunemam {
     ]
 }
     `);
-    const source = vfs.get(gradle.filename).getData();
+    const source = vfs.get(gradle.filename)?.getData();
     expect(source.trim()).toBe(`
 dependencies {}
 
