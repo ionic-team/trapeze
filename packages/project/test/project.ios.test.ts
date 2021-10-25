@@ -85,6 +85,16 @@ describe('project - ios', () => {
     expect(project.ios.getBuild('App', 'Release')).toBe(2);
   });
 
+  it('should set build number', async () => {
+    project.ios.setBuild('App', 'Debug', 42);
+    expect(project.ios.getBuild('App', 'Debug')).toBe(42);
+  });
+
+  it('should set project version', async () => {
+    project.ios.setVersion('App', 'Debug', '1.4.5');
+    expect(project.ios.getVersion('App', 'Debug')).toBe('1.4.5');
+  });
+
   it('should update build settings', async () => {
     project.ios.setBuildProperty('App', 'Debug', 'FAKE_PROPERTY', 'YES');
     expect(project.ios.getBuildProperty('App', 'Debug', 'FAKE_PROPERTY')).toBe('YES');

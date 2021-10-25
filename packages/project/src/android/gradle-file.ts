@@ -65,7 +65,16 @@ export class GradleFile {
     return this.insertIntoGradleFile(toInject, target);
   }
 
-  private async parse() {
+  /**
+   * Parse the underlying Gradle file and build the AST. Note: this calls out to
+   * a Java process which incurs some overhead and requires JAVA_HOME be correctly
+   * set. This is because Gradle is actually a DSL for the Groovy language, which is
+   * a JVM language. Additionally, the Groovy parser is based on a modified version
+   * of the Antlr project that is tightly bound to the JVM. Ultimatley, this means
+   * the only safe, accurate way to feasibly build a Gradle AST is to use the Groovy
+   * parser API which this uses under the hood.
+   */
+  async parse() {
     if (!await pathExists(this.filename)) {
       throw new Error(`Unable to locate file at ${this.filename}`);
     }
@@ -107,10 +116,11 @@ export class GradleFile {
 
 
   /**
-   * Inject a modification into the gradle file
+   * Inject a modification into the gradle file.
    */
-
   // This is a beast, sorry. Hey, at least there's tests
+  // In the future, this could be moved to the Java `gradle-parse` package provided in this monorepo
+  // along with modifying the AST to inject our script but this works fine forn ow
   private async insertIntoGradleFile(toInject: any[] | string, targetNode: { node: GradleASTNode, depth: number }) {
     // These values are 1-indexed not 0-indexed
     let { line, column, lastLine, lastColumn } = targetNode.node.source;
@@ -137,7 +147,6 @@ export class GradleFile {
       lines = toInject.split(/\r?\n/);
     }
 
-    const resolvedLine = line < 0 ? 0 : line;
     const resolvedLastLine = lastLine < 0 ? sourceLines.length : lastLine;
 
     const formatted = lines.join('\n');

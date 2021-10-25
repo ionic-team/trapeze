@@ -69,10 +69,18 @@ export class IosProject {
     return this.getTargets()?.find(t => t.productType === '"com.apple.product-type.application"') || null;
   }
 
+  /**
+   * Get the name of the main app target in the project
+   */
   getAppTargetName(): string | null {
     return this.getTargets()?.find(t => t.productType === '"com.apple.product-type.application"')?.name || null;
   }
 
+  /**
+   * Get the bundle id (aka the PRODUCT_BUNDLE_IDENTIFIER) for the given target and build. If build is null
+   * the value for all build targets (Debug and Release) will be set to the same value. If target is null
+   * the default app target will be used.
+   */
   getBundleId(targetName: IosTargetName | null, buildName?: string): string | null {
     targetName = this.assertTargetName(targetName);
 
@@ -83,14 +91,15 @@ export class IosProject {
     return this.getTarget(targetName)?.buildConfigurations[0]?.buildSettings?.['PRODUCT_BUNDLE_IDENTIFIER'];
   }
 
+  /**
+   * Set the bundle id (aka the PRODUCT_BUNDLE_IDENTIFIER) for the given target and build. If build is null
+   * the value for all build targets (Debug and Release) will be set to the same value. If target is null
+   * the default app target will be used.
+   */
   setBundleId(targetName: IosTargetName | null, buildName: IosBuildName | null, bundleId: string) {
     targetName = this.assertTargetName(targetName);
 
-    console.log('Setting bundle id', targetName, buildName, bundleId);
-
     this.pbxProject?.updateBuildProperty('PRODUCT_BUNDLE_IDENTIFIER', bundleId, buildName, targetName);
-
-    console.log('Is it updated?', this.getBundleId(targetName, buildName ?? undefined));
   }
 
   /**
@@ -109,21 +118,36 @@ export class IosProject {
     return this.getBuildConfigurations(targetName).map(c => c.name);
   }
 
+  /**
+   * Set the product name for the given target. If the `targetName` is null the main app target is used.
+   */
   setProductName(targetName: IosTargetName | null, productName: string) {
+    targetName = this.assertTargetName(targetName);
+
     this.pbxProject?.updateBuildProperty('PRODUCT_NAME', productName, null, targetName);
   }
 
+  /**
+   * Get the product name for the given target. If the `targetName` is null the main app target is used.
+   */
   getProductName(targetName?: IosTargetName | undefined): string | null {
     targetName = this.assertTargetName(targetName || null);
 
     return this.getTarget(targetName)?.productName || null;
   }
 
-
+  /**
+   * Set the build number (aka the `CURRENT_PROJECT_VERSION`) for the given target and build.
+   * If the `targetName` is null the main app target is used. If the `buildName` is null the value is set for both builds (Debug/Release);
+   */
   setBuild(targetName: IosTargetName | null, buildName: IosBuildName | null, buildNumber: number) {
     this.pbxProject?.updateBuildProperty('CURRENT_PROJECT_VERSION', buildNumber, buildName, targetName);
   }
 
+  /**
+   * Get the build number (aka the `CURRENT_PROJECT_VERSION`) for the given target and build.
+   * If the `targetName` is null the main app target is used. If the `buildName` is null the value is set for both builds (Debug/Release);
+   */
   getBuild(targetName: IosTargetName | null, buildName?: IosBuildName | null | undefined) {
     return this.pbxProject?.getBuildProperty('CURRENT_PROJECT_VERSION', buildName, targetName);
   }
@@ -145,7 +169,7 @@ export class IosProject {
   }
 
   /**
-   * Set the version for the given build (Debug/Release/etc)
+   * Set the version (aka `MARKETING_VERSION`) for the given build (Debug/Release/etc)
    */
   setVersion(targetName: IosTargetName | null, buildName: IosBuildName | null, version: string) {
     targetName = this.assertTargetName(targetName || null);
@@ -153,23 +177,40 @@ export class IosProject {
     this.pbxProject?.updateBuildProperty('MARKETING_VERSION', version, buildName, targetName);
   }
 
+  /**
+   * Get the version (aka the `MARKETING_VERSION`) for the given target and build.
+   * If the `targetName` is null the main app target is used. If the `buildName` is null the value is set for both builds (Debug/Release);
+   */
   getVersion(targetName: IosTargetName | null, buildName: IosBuildName | null) {
     targetName = this.assertTargetName(targetName || null);
 
-    return this.pbxProject?.getBuildProperty('CURRENT_PROJECT_VERSION', buildName, targetName);
+    return this.pbxProject?.getBuildProperty('MARKETING_VERSION', buildName, targetName);
   }
 
+  /**
+   * Set the build property for the given target and build.
+   * If the `targetName` is null the main app target is used. If the `buildName` is null the value is set for both builds (Debug/Release);
+   */
   setBuildProperty(targetName: IosTargetName | null, buildName: IosBuildName | null, key: string, value: string) {
     targetName = this.assertTargetName(targetName || null);
 
     this.pbxProject?.updateBuildProperty(key, value, buildName ? buildName : undefined /* must use undefined if null */, targetName);
   }
 
+  /**
+   * Get the build property for the given target and build.
+   * If the `targetName` is null the main app target is used. If the `buildName` is null the value is set for both builds (Debug/Release);
+   */
   getBuildProperty(targetName: IosTargetName | null, buildName: IosBuildName | null, key: string) {
     targetName = this.assertTargetName(targetName || null);
+
     return this.pbxProject?.getBuildProperty(key, buildName ? buildName : undefined /* must use undefined if null */, targetName)?.replace(/(^")+|("$)+/g, '');
   }
 
+  /**
+   * Add a framework for the given target.
+   * If the `targetName` is null the main app target is used.
+   */
   addFramework(targetName: IosTargetName | null, framework: IosFramework, opts: IosFrameworkOpts = {}) {
     targetName = this.assertTargetName(targetName || null);
 
@@ -180,6 +221,10 @@ export class IosProject {
     });
   }
 
+  /**
+   * Get the frameworks for the given target
+   * If the `targetName` is null the main app target is used.
+   */
   getFrameworks(targetName: IosTargetName | null): IosFramework[] {
     targetName = this.assertTargetName(targetName || null);
 
@@ -190,12 +235,22 @@ export class IosProject {
     return this.pbxProject?.pbxFrameworksBuildPhaseObj(target.id)?.files?.map((f: any) => f.comment.split(' ')[0]);
   }
 
+  /**
+   * Get the path to the entitlements file for the given target and build.
+   * If the `targetName` is null the main app target is used. If the `buildName` is null the first
+   * build name is used.
+   */
   getEntitlementsFile(targetName: IosTargetName | null, buildName?: IosBuildName | undefined) {
     targetName = this.assertTargetName(targetName || null);
 
     return this.getBuildProperty(targetName, buildName ?? null, 'CODE_SIGN_ENTITLEMENTS');
   }
 
+  /**
+   * Add entitlements for the given target and build.
+   * If the `targetName` is null the main app target is used. If the `buildName` is null the first
+   * build name is used.
+   */
   async addEntitlements(targetName: IosTargetName | null, buildName: IosBuildName | null, entitlements: IosEntitlements) {
     targetName = this.assertTargetName(targetName || null);
 
@@ -211,6 +266,11 @@ export class IosProject {
     this.project.vfs.set(filename, updated);
   }
 
+  /**
+   * Get the parsed plist of the entitlements for the given target and build.
+   * If the `targetName` is null the main app target is used. If the `buildName` is null the first
+   * build name is used.
+   */
   async getEntitlements(targetName: IosTargetName | null, buildName?: IosBuildName | undefined) {
     targetName = this.assertTargetName(targetName || null);
 
@@ -246,6 +306,11 @@ export class IosProject {
     return join(this.project.config.ios.path, 'App', file);
   }
 
+  /**
+   * Set the display name for the given target and build.
+   * If the `targetName` is null the main app target is used. If the `buildName` is null the first
+   * build name is used.
+   */
   async setDisplayName(targetName: IosTargetName | null, buildName: IosBuildName | null, displayName: string) {
     targetName = this.assertTargetName(targetName || null);
 
@@ -260,6 +325,11 @@ export class IosProject {
     parsed['CFBundleDisplayName'] = displayName;
   }
 
+  /**
+   * Get the display name for the given target and build.
+   * If the `targetName` is null the main app target is used. If the `buildName` is null the first
+   * build name is used.
+   */
   async getDisplayName(targetName: IosTargetName | null, buildName?: IosBuildName | null | undefined): Promise<string | null> {
     targetName = this.assertTargetName(targetName || null);
 

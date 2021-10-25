@@ -62,6 +62,13 @@ describe('task: run', () => {
 
     const pbxProj = await readFile(join(dir, 'ios/App/App.xcodeproj/project.pbxproj'), { encoding: 'utf-8' });
     expect(pbxProj).toContain('PRODUCT_BUNDLE_IDENTIFIER = io.ionic.fixtureTest');
+
+    const entitlements = await readFile(join(dir, 'ios/App/App/App.entitlements'), { encoding: 'utf-8' });
+    expect(entitlements).toContain('keychain-access-groups');
+
+    const plist = await readFile(join(dir, 'ios/App/App/Info.plist'), { encoding: 'utf-8' });
+    expect(plist).toContain('msauth.com.microsoft.intunemam');
+
     // Cleanup temp dir
     await rm(dir, { force: true, recursive: true });
   });
