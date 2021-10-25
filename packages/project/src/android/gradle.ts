@@ -75,12 +75,12 @@ export class Gradle {
       throw new Error('Call parse() first to load Gradle file');
     }
 
-    const nodes = this.find(pathObject);
-    if (!nodes.length) {
+    const found = this.find(pathObject);
+    if (!found.length) {
       throw new Error('Unable to find method in Gradle file to inject');
     }
 
-    const target = this.find(pathObject)?.[0];
+    const target = found[0];
 
     return this.insertIntoGradleFile(toInject, target);
   }
@@ -95,12 +95,12 @@ export class Gradle {
       throw new Error('Call parse() first to load Gradle file');
     }
 
-    const nodes = this.find(pathObject);
-    if (!nodes.length) {
+    const found = this.find(pathObject);
+    if (!found.length) {
       throw new Error('Unable to find method in Gradle file to inject');
     }
 
-    const target = this.find(pathObject)?.[0];
+    const target = found[0];
 
     return this.insertIntoGradleFile(toInject, target);
   }
@@ -110,9 +110,11 @@ export class Gradle {
    */
 
   // This is a beast, sorry. Hey, at least there's tests
-  private async insertIntoGradleFile(toInject: any[] | string, targetNode: GradleASTNode) {
+  private async insertIntoGradleFile(toInject: any[] | string, targetNode: { node: GradleASTNode, depth: number }) {
     // These values are 1-indexed not 0-indexed
-    let { line, column, lastLine, lastColumn } = targetNode.source;
+    let { line, column, lastLine, lastColumn } = targetNode.node.source;
+
+    console.log('Inserting at', targetNode);
 
     const source = await this.getGradleSource();
     const sourceLines = source.split(/\r?\n/);
@@ -139,28 +141,32 @@ export class Gradle {
     const resolvedLine = line < 0 ? 0 : line;
     const resolvedLastLine = lastLine < 0 ? sourceLines.length : lastLine;
 
-    const indentation = getIndentation(sourceLines[resolvedLine - 1]);
-    const indentAmount = typeof indentation !== 'undefined' ? Math.floor((indentation ?? '').length / detectedIndent.amount) : -1;
-    const formatted = '\n' + lines.join('\n') + '\n';
+    const formatted = lines.join('\n');
+
+    const indentAmount = targetNode.depth;
 
     let newSource: string | null = null;
 
     if (line === lastLine) {
       // Block is empty, like dependencies {}
 
-      const indented = indent(formatted, detectedIndent.indent, indentAmount + 1);
+      const indented = indent(formatted, detectedIndent.indent, indentAmount);
       const sourceLine = sourceLines[line - 1];
 
       // The new line is the slice from the start of the line to one character before the end (remember,
       // the lines and columns are 1-indexed so lastColumn - 2 is one character before the end
+      console.log('LINE: ', sourceLine.slice(0, Math.max(0, lastColumn - 2)).replace(/ /g, '_'));
+      console.log(indented.replace(/ /g, '_'));
       const newLine = sourceLine.slice(0, Math.max(0, lastColumn - 2)) +
+        '\n' +
         indented +
+        '\n' +
         indent(
           sourceLine.slice(
             Math.max(0, lastColumn - 2)
           ).trim(),
           detectedIndent.indent,
-          Math.max(0, indentAmount)
+          Math.max(0, indentAmount - 1)
         );
 
       newSource = sourceLines.slice(0, Math.max(0, resolvedLastLine - 1))
@@ -169,10 +175,12 @@ export class Gradle {
         sourceLines.slice(Math.max(0, resolvedLastLine), sourceLines.length)
           .join('\n');
     } else {
-      const indented = indent(formatted, detectedIndent.indent, indentAmount + 1);
+      const indented = indent(formatted, detectedIndent.indent, indentAmount);
       newSource = sourceLines.slice(0, Math.max(0, resolvedLastLine - 1))
         .join('\n') +
+        '\n' +
         indented +
+        '\n' +
         sourceLines.slice(Math.max(0, resolvedLastLine - 1), sourceLines.length)
           .join('\n');
     }
@@ -182,7 +190,7 @@ export class Gradle {
     this.vfs.get(this.filename).setData(newSource);
   }
 
-  find(pathObject: any | null): GradleASTNode[] {
+  find(pathObject: any | null): { node: GradleASTNode, depth: number }[] {
     if (!this.parsed) {
       throw new Error('Call parse() first to load Gradle file');
     }
@@ -191,17 +199,17 @@ export class Gradle {
     if (!pathObject || !Object.keys(pathObject).length) {
       const firstChild = this.parsed.children?.[0];
       if (firstChild) {
-        return [firstChild];
+        return [{ node: firstChild, depth: 0 }];
       }
       return [];
     }
 
-    const found: any[] = [];
+    const found: { node: GradleASTNode, depth: number }[] = [];
     this._find(pathObject, this.parsed, pathObject, found);
     return found;
   }
 
-  private _find(pathObject: any, node: any, pathNode: any, found: any[]) {
+  private _find(pathObject: any, node: any, pathNode: any, found: any[], depth = 0) {
     const targetKey = Object.keys(pathNode)?.[0];
     if (!targetKey) {
       return;
@@ -212,10 +220,10 @@ export class Gradle {
         pathNode = pathNode[targetKey];
         if (!pathNode || Object.keys(pathNode).length == 0) {
           // We've run out of path nodes to match
-          found.push(c);
+          found.push({ node: c, depth });
         }
       }
-      this._find(pathObject, c, pathNode, found);
+      this._find(pathObject, c, pathNode, found, c.type === 'block' ? depth + 1 : depth);
     }
   }
 

@@ -49,8 +49,8 @@ describe('project - android - gradle', () => {
     });
 
     expect(nodes.length).not.toBe(0);
-    expect(nodes[0].type).toBe('method');
-    expect(nodes[0].name).toBe('dependencies');
+    expect(nodes[0].node.type).toBe('method');
+    expect(nodes[0].node.name).toBe('dependencies');
 
     // Should find the root node
     nodes = gradle.find({});
@@ -108,32 +108,6 @@ describe('project - android - gradle', () => {
       { implementation: "'com.whatever.cool'" }
     ]);
 
-    // let source = vfs.get(gradle.filename).getData();
-    /*
-    expect(source).toBe(`
-dependencies {
-    implementation 'com.whatever.cool'
-}
-
-buildscript {
-    thing {
-    }
-    dependencies {
-        implementation 'fake thing'
-    }
-}
-
-allprojects {
-    nest1 {
-        nest2 {
-            dependencies {}
-        }
-    }
-}
-`.trim());
-    */
-
-
     await gradle.insertProperties({
       buildscript: {
         dependencies: {}
@@ -141,33 +115,6 @@ allprojects {
     }, [
       { classpath: "files('path/to/thing')" }
     ]);
-
-    /*
-    source = vfs.get(gradle.filename).getData();
-
-    expect(source).toBe(`
-dependencies {
-    implementation 'com.whatever.cool'
-}
-
-buildscript {
-    thing {
-    }
-    dependencies {
-        implementation 'fake thing'
-        classpath files('path/to/thing')
-    }
-}
-
-allprojects {
-    nest1 {
-        nest2 {
-            dependencies {}
-        }
-    }
-}
-`.trim());
-    */
 
     await gradle.insertProperties({
       allprojects: {
@@ -182,7 +129,7 @@ allprojects {
     ]);
 
     const source = vfs.get(gradle.filename).getData();
-    expect(source).toBe(`
+    expect(source.trim()).toBe(`
 dependencies {
     implementation 'com.whatever.cool'
 }
@@ -200,7 +147,7 @@ allprojects {
     nest1 {
         nest2 {
             dependencies {
-                thing: 'here'
+                thing 'here'
             }
         }
     }
