@@ -56,8 +56,8 @@ export class VFS {
     }, {} as { [key: string]: VFSRef });
   }
 
-  commitAll() {
-    return Promise.all(Object.values(this.openFiles).map(file => file.commit()));
+  async commitAll() {
+    await Promise.all(Object.values(this.openFiles).map(file => file.commit()));
   }
 
   set(filename: string, data: any) {

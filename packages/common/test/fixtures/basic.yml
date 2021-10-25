@@ -1,8 +1,8 @@
 vars:
   BUNDLE_ID:
-    default: io.ionic.wowzaStarter
+    default: io.ionic.fixtureTest
   PACKAGE_NAME:
-    default: io.ionic.wowzaStarter
+    default: io.ionic.fixtureTest
 
 platforms:
   ios:

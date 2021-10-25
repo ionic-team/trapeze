@@ -19,5 +19,8 @@ export class CapacitorProject {
     await this.ios.load();
     await this.android.load();
   }
-  async commit(): Promise<void> { }
+
+  commit(): Promise<void> {
+    return this.vfs.commitAll();
+  }
 }

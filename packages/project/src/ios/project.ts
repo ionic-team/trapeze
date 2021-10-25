@@ -86,7 +86,11 @@ export class IosProject {
   setBundleId(targetName: IosTargetName | null, buildName: IosBuildName | null, bundleId: string) {
     targetName = this.assertTargetName(targetName);
 
+    console.log('Setting bundle id', targetName, buildName, bundleId);
+
     this.pbxProject?.updateBuildProperty('PRODUCT_BUNDLE_IDENTIFIER', bundleId, buildName, targetName);
+
+    console.log('Is it updated?', this.getBundleId(targetName, buildName ?? undefined));
   }
 
   /**
@@ -363,8 +367,10 @@ export class IosProject {
     return pbxParsed;
   }
 
-  private pbxCommitFn = async (_file: VFSRef) => {
-    this.pbxProject?.writeSync();
+  private pbxCommitFn = async (file: VFSRef) => {
+    if (this.pbxProject) {
+      await writeFile(file.getFilename(), this.pbxProject.writeSync());
+    }
   }
 
   private plistCommitFn = async (file: VFSRef) => {

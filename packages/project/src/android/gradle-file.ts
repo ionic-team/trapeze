@@ -352,7 +352,6 @@ export class GradleFile {
     }
   }
 
-
   private async getGradleSource(): Promise<string | null> {
     const ref = this.vfs.get(this.filename);
     if (ref) {
