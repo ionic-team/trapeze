@@ -2,7 +2,7 @@
 
 This project has two utilities for automatically configuring native [Capacitor](https://capacitorjs.com/) projects in a predictable and safe way.
 
-The first is the Project API which provides a fully-typed JavaScript API for writing custom project configuration scripts and modifying underlying iOS and Android configuration, build, and project files. 
+The first is the Project API which provides a fully-typed JavaScript API for writing custom project configuration scripts and modifying underlying iOS and Android configuration, build, and project files.
 
 The second is a tool for configuration-based modifications which is useful for plugins and other scripts that need to apply certain settings to a file in a way that fits the configuration approach.
 
@@ -30,11 +30,11 @@ import { CapacitorConfig } from '@capacitor/cli';
 // to know where the ios and android projects are
 const config: CapacitorConfig = {
   ios: {
-    path: 'ios'
+    path: 'ios',
   },
   android: {
-    path: 'android'
-  }
+    path: 'android',
+  },
 };
 
 const project = new CapacitorProject(config);
@@ -45,11 +45,13 @@ Once the project is loaded, iOS and Android operations can be performed on the p
 
 ## iOS
 
-iOS Supports multiple targets and build names (i.e. `Debug` or `Release`). 
+iOS Supports multiple targets and build names (i.e. `Debug` or `Release`).
 
 ### Targets
 
 For apps that use multiple targets, such as an App Clip or Watch app, operations on the project can be isolated to specific targets and also build names (`Debug` or `Release`). However, most methods allow you to pass `null` as the `targetName` which will then default to using the main App target in the app, which is useful for apps that only have one main App target.
+
+Additionally, `buildName` can be set to `null` in all methods or, if it's the last argument, left out entirely, however the behavior here is less well defined. Sometimes this uses the first build (such as `Debug` or `Release`), and sometimes it uses both. Documentation on which scenarios occur when is forthcoming.
 
 To get the Targets in the app, use:
 
@@ -69,42 +71,93 @@ const appTarget = project.ios.getAppTarget();
 ```typescript
 // Get the bundle id for the given target, pass the build name as an optional second parameter
 project.ios.getBundleId(appTarget.name);
-project.ios.setBundleId('App', 'Debug', 'io.ionic.betterBundleId');
-project.ios.setBundleId('App', null, 'io.ionic.betterBundleId');
+project.ios.setBundleId(targetName, buildName, 'io.ionic.betterBundleId');
+project.ios.setBundleId(targetName, null, 'io.ionic.betterBundleId');
+```
+
+#### Version and Build Number
+
+The version and build number can be managed, including incrementing the build number which is useful for automated builds:
+
+```typescript
+// Get the numeric build number (aka CURRENT_PROJECT_VERSION) for the given target and build name
+project.ios.getBuild(targetName, buildName);
+// Get the version name (aka the MARKETING_VERSION)
+project.ios.getVersion(targetName, buildName);
+
+// Set the numeric build number
+project.ios.setBuild(targetName, buildName, 42);
+// Increment the build number
+project.ios.incrementBuild(targetName, buildName);
+// Set the marketing version
+project.ios.setVersion(targetName, buildName, '1.2.3');
+```
+
+#### Display Name
+
+The display name can be managed:
+
+```typescript
+project.ios.getDisplayName(targetName, buildName);
+project.ios.setDisplayName(targetName, buildName, 'Really Awesome App');
+```
+
+#### Info.plist
+
+Modifications to the `Info.plist` for the given target and build can be made by passing in an object corresponding to entries in the plist.
+
+Note: this method will use the registered `INFOPLIST_FILE` for the given target and build so make sure that is set correctly if you've renamed the `Info.plist` file.
+
+```typescript
+await project.ios.updateInfoPlist(targetName, buildName, {
+  NSFaceIDUsageDescription: 'The better to see you with',
+});
+```
+
+#### Frameworks
+
+Frameworks, Libraries, and Embedded Content can be managed:
+
+```typescript
+project.ios.addFramework(targetName, 'ImageIO.framework');
+
+// Complex framework setups can pass options. Boolean fields supported:
+// embed, link, customFramework
+project.ios.addFramework(targetName, 'Custom.framework', {
+  embed: true,
+});
+project.ios.getFrameworks(targetName);
+```
+
+#### Entitlements
+
+Entitlements can be managed:
+
+```typescript
+// The key for the key/value entries should be the low-level entitlement key,
+// which can be found on the Apple docs: https://developer.apple.com/documentation/bundleresources/entitlements?language=objc
+await project.ios.addEntitlements(targetName, buildName, {
+  'keychain-access-groups': ['group1', 'group2'],
+});
+await project.ios.getEntitlements(targetName);
 ```
 
 #### Build Configurations
+
+Build settings for targets and specific builds can be managed:
 
 ```typescript
 // Configurations will be an array of object with fields name and buildSettings which is an object
 // containing all build varibles for the build in the target, such as compiler options like
 // ENABLE_BITCODE
-project.ios.getBuildConfigurations(target)
+project.ios.getBuildConfigurations(target);
 
 // Individual build properties can be read or written:
-project.ios.setBuildProperty('App', 'Debug', 'FAKE_PROPERTY', 'YES');
-expect(project.ios.getBuildProperty('App', 'Debug', 'FAKE_PROPERTY')).toBe('YES');
+project.ios.setBuildProperty(targetName, buildName, 'FAKE_PROPERTY', 'YES');
+expect(
+  project.ios.getBuildProperty(targetName, buildName, 'FAKE_PROPERTY'),
+).toBe('YES');
 ```
-
-#### Display Name
-
-More soon
-
-#### Version and Build Number
-
-More soon
-
-#### Info.plist
-
-More soon
-
-#### Frameworks
-
-More soon
-
-#### Entitlements
-
-More soon
 
 ## Android
 
@@ -152,3 +205,7 @@ See an [Example Yaml Configuration](https://github.com/ionic-team/capacitor-conf
 | android  | Resource Files             | :white_check_mark: |
 | android  | Manifest File Modification | :white_check_mark: |
 | android  | Add Source/Header files    | WIP                |
+
+## Thank yous
+
+Thank you to Cordova for the lower-level [corodva-node-xcode](https://github.com/apache/cordova-node-xcode) project used to parse and manage the `pbxproj` file in Xcode projects.

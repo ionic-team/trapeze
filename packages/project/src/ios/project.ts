@@ -361,6 +361,8 @@ export class IosProject {
     this.project.vfs.set(filename, updated);
   }
 
+  // Used to get the target name for operations, defaulting to the main app target
+  // if no targetName was provided
   private assertTargetName(targetName: string | null) {
     if (!targetName) {
       const appTargetName = this.getAppTargetName();
