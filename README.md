@@ -16,9 +16,30 @@ To write custom scripts and code that manage iOS and Android targets in your Cap
 npm install @capacitor/project
 ```
 
-### API Usage
+## Requirements
 
-Note: `JAVA_HOME` must be set to use Gradle configuration.
+For iOS: the tool currently expects your iOS project to be in an `App` folder inside of the Capacitor platform project folder. For example: `ios/App`.
+
+For Android: `JAVA_HOME` must be set to use Gradle configuration. This is because the Gradle modification functionality uses a Java utility under the hood for accuracy, as Gradle is a Groovy DSL and Groovy is a JVM language. If you have Android Studio installed, you can use [the JDK bundled with it](https://stackoverflow.com/questions/43211282/using-jdk-that-is-bundled-inside-android-studio-as-java-home-on-mac).
+
+## Committing Changes
+
+The API works by updating files in a virtual filesystem, and no changes are actually committed to the filesystem until `project.commit()` is called. When your changes are ready to be saved, run
+
+```typescript
+project.commit();
+```
+
+To get a preview of changes that will be committed, the `VFS` object can be accessed on the project:
+
+```typescript
+const changedFiles = project.vfs.all();
+changedFiles.forEach(f => {
+  console.log(f.getFilename(), f.getData());
+});
+```
+
+### API Usage
 
 To initialize the project, set the config and initialize a new `CapacitorProject` instance:
 
@@ -112,6 +133,11 @@ Note: this method will use the registered `INFOPLIST_FILE` for the given target 
 await project.ios.updateInfoPlist(targetName, buildName, {
   NSFaceIDUsageDescription: 'The better to see you with',
 });
+
+// Get the relative path to the Info.plist for the target and build
+await project.ios.getInfoPlist(targetName, buildName);
+// Get the full path to the Info.plist
+await project.ios.getInfoPlistFilename(targetName, buildName);
 ```
 
 #### Frameworks
@@ -161,7 +187,108 @@ expect(
 
 ## Android
 
-More soon
+Android functionality currently supported includes making modifications to `AndroidManifest.xml` (attributes and new elements), updating package name, updating version name/code, adding resources files, and making Gradle modifications.
+
+### Project Settings
+
+#### Package Name
+
+```typescript
+project.android.setPackageName('com.ionicframework.awesome');
+project.android.getPackageName();
+```
+
+#### Version Name and Code
+
+```typescript
+await project.android.setVersionName('1.0.2');
+await project.android.getVersionName();
+await project.android.setVersionCode(11);
+await project.android.getVersionCode();
+```
+
+#### Android Manifest
+
+Attributes can be added/modified on target elements, and new XML fragments can be injected. Note: if an XPath selector returns multiple elements, the operation will be applied to each.
+
+```typescript
+// Set attributes on a target element:
+project.android.getAndroidManifest().setAttrs('manifest/application', {
+  'android:name': 'com.ionicframework.test.CoolApplication',
+});
+
+// Inject fragment at target:
+project.android.getAndroidManifest().injectFragment(
+  'manifest',
+  `
+<queries>
+  <package />
+  <intent>
+  </intent>
+</queries>
+`,
+);
+```
+
+There is also a method for querying the manifest using an XPath selector:
+
+```typescript
+project.android.getAndroidManifest().find('manifest/application');
+```
+
+#### Resource Files
+
+Resource files can be created or existing files copied to:
+
+```typescript
+// Add a resource to the given resource directory with the given name and contents
+await project.android.addResource('raw', 'test.json', `{}`);
+// Existing files can also be copied, passing the source of the file as the last argument
+await project.android.copyToResources('drawable', 'icon.png', source);
+
+// To load an existing resource:
+const data = await project.android.getResource('raw', 'test.json');
+```
+
+#### Gradle
+
+Gradle modifications are the most complicated and powerful of the capabilities in this library. Remember, `JAVA_HOME` must be set before using these methods.
+
+First, get a reference to the `GradleFile` from the project. There are two possible options currently supported when referenced from the project: `build.gradle` or `app/build.gradle`. To modify other Gradle files use GradleFile directly.
+
+```typescript
+const buildGradleFile = project.android.getGradleFile('build.gradle');
+const appBuildGradleFile = project.android.getGradleFile('app/build.gradle');
+```
+
+Gradle fragment strings can be injected at specific locations in the Gradle file, or new properties can be added using an object syntax.
+
+To add properties:
+
+```typescript
+// The first argument is the target element. This uses a nested syntax where the terminal method/property name should have an empty object. The second element is an array of new gradle properties to insert:
+buildGradleFile.insertProperties(
+  {
+    buildscript: {},
+  },
+  [{ classpath: 'com.my.custom.gradle.plugin' }],
+);
+```
+
+To add raw Gradle strings:
+
+```typescript
+appBuildGradleFile.insertFragment({
+  allprojects: {
+    repositories: {}
+  }
+}, [{
+  maven: [
+    { url: 'https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1' },
+    { name: 'Duo-SDK-Feed }
+  ]
+}]
+```
 
 # Configuration Tool
 
@@ -206,6 +333,6 @@ See an [Example Yaml Configuration](https://github.com/ionic-team/capacitor-conf
 | android  | Manifest File Modification | :white_check_mark: |
 | android  | Add Source/Header files    | WIP                |
 
-## Thank yous
+## Thank you's
 
 Thank you to Cordova for the lower-level [corodva-node-xcode](https://github.com/apache/cordova-node-xcode) project used to parse and manage the `pbxproj` file in Xcode projects.
