@@ -64,12 +64,51 @@ const appTarget = project.ios.getAppTarget();
 
 ### Project Settings
 
+#### Bundle ID
+
 ```typescript
 // Get the bundle id for the given target, pass the build name as an optional second parameter
 project.ios.getBundleId(appTarget.name);
 project.ios.setBundleId('App', 'Debug', 'io.ionic.betterBundleId');
 project.ios.setBundleId('App', null, 'io.ionic.betterBundleId');
 ```
+
+#### Build Configurations
+
+```typescript
+// Configurations will be an array of object with fields name and buildSettings which is an object
+// containing all build varibles for the build in the target, such as compiler options like
+// ENABLE_BITCODE
+project.ios.getBuildConfigurations(target)
+
+// Individual build properties can be read or written:
+project.ios.setBuildProperty('App', 'Debug', 'FAKE_PROPERTY', 'YES');
+expect(project.ios.getBuildProperty('App', 'Debug', 'FAKE_PROPERTY')).toBe('YES');
+```
+
+#### Display Name
+
+More soon
+
+#### Version and Build Number
+
+More soon
+
+#### Info.plist
+
+More soon
+
+#### Frameworks
+
+More soon
+
+#### Entitlements
+
+More soon
+
+## Android
+
+More soon
 
 # Configuration Tool
 
