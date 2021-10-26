@@ -8,7 +8,7 @@ The second is a tool for configuration-based modifications which is useful for p
 
 **Note:** This project is currently in active development and does not have an official first release (As of October '21). I'm currently collecting feedback on the different use cases you need a configuration tool for here: https://github.com/ionic-team/capacitor-configure/issues/1
 
-## Project API Installation
+# Project API
 
 To write custom scripts and code that manage iOS and Android targets in your Capacitor project, install the `@capacitor/project` package:
 
@@ -16,9 +16,62 @@ To write custom scripts and code that manage iOS and Android targets in your Cap
 npm install @capacitor/project
 ```
 
-More docs coming soon
+### API Usage
 
-## Tool Installation
+Note: `JAVA_HOME` must be set to use Gradle configuration.
+
+To initialize the project, set the config and initialize a new `CapacitorProject` instance:
+
+```typescript
+import { CapacitorProject } from '@capacitor/project';
+import { CapacitorConfig } from '@capacitor/cli';
+
+// This takes a CapacitorConfig, such as the one in capacitor.config.ts, but only needs a few properties
+// to know where the ios and android projects are
+const config: CapacitorConfig = {
+  ios: {
+    path: 'ios'
+  },
+  android: {
+    path: 'android'
+  }
+};
+
+const project = new CapacitorProject(config);
+await project.load();
+```
+
+Once the project is loaded, iOS and Android operations can be performed on the project, as shown below:
+
+## iOS
+
+iOS Supports multiple targets and build names (i.e. `Debug` or `Release`). 
+
+### Targets
+
+For apps that use multiple targets, such as an App Clip or Watch app, operations on the project can be isolated to specific targets and also build names (`Debug` or `Release`). However, most methods allow you to pass `null` as the `targetName` which will then default to using the main App target in the app, which is useful for apps that only have one main App target.
+
+To get the Targets in the app, use:
+
+```typescript
+// Get all targets in the project
+project.ios.getTargets();
+// Targets have properties like id, name, productName, productType, and a list of buildConfigurations
+
+// Get the main app target in the project
+const appTarget = project.ios.getAppTarget();
+```
+
+### Project Settings
+
+```typescript
+// Get the bundle id for the given target, pass the build name as an optional second parameter
+project.ios.getBundleId(appTarget.name);
+project.ios.setBundleId('App', 'Debug', 'io.ionic.betterBundleId');
+project.ios.setBundleId('App', null, 'io.ionic.betterBundleId');
+```
+
+# Configuration Tool
 
 To configure projects using configuration and the configuration tool, install the `@capacitor/configure` package. This package uses the `@capacitor/project` API under the hood:
 
@@ -45,7 +98,7 @@ See an [Example Yaml Configuration](https://github.com/ionic-team/capacitor-conf
 | Platform | Operation                  | Supported          |
 | -------- | -------------------------- | ------------------ |
 | ios      | Bundle ID and Product Name | :white_check_mark: |
-| ios      | version and Build Number   | :white_check_mark: |
+| ios      | Version and Build Number   | :white_check_mark: |
 | ios      | Increment Build Number     | :white_check_mark: |
 | ios      | Build Settings             | :white_check_mark: |
 | ios      | Plist Modifications        | :white_check_mark: |
@@ -56,7 +109,7 @@ See an [Example Yaml Configuration](https://github.com/ionic-team/capacitor-conf
 | android  | Version Name and Code      | :white_check_mark: |
 | android  | Version Code               | :white_check_mark: |
 | android  | Increment Version Code     | :white_check_mark: |
-| android  | Gradle Config              | WIP                |
+| android  | Gradle Config              | :white_check_mark: |
 | android  | Resource Files             | :white_check_mark: |
 | android  | Manifest File Modification | :white_check_mark: |
 | android  | Add Source/Header files    | WIP                |
