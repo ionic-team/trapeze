@@ -62,6 +62,8 @@ describe('project - android', () => {
 
     await project.android.setVersionCode(11);
     expect(await project.android.getVersionCode()).toBe(11);
+    await project.android.incrementVersionCode();
+    expect(await project.android.getVersionCode()).toBe(12);
   });
 
   it('should add resources file', async () => {
@@ -83,15 +85,4 @@ describe('project - android', () => {
 
     expect(Buffer.compare(srcContents, destContents)).toBe(0);
   });
-
-  /*
-  it('should add to gradle', async () => {
-    await project.android.injectGradle('app/build.gradle', {
-      dependencies: [
-        { implementation: 'files("./src/main/libs/Microsoft.Intune.MAM.SDK.aar")' },
-        { implementation: 'com.microsoft.identity.client:msal:1.5.5' }
-      ]
-    });
-  });
-  */
 });

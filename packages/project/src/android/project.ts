@@ -126,17 +126,6 @@ export class AndroidProject {
     return writeFile(join(dir, file), sourceData);
   }
 
-  async injectGradle(path: string, _gradleObject: any) {
-    if (!this.project.config.android?.path) {
-      return;
-    }
-    const filename = join(this.project.config.android?.path, path);
-    const parsed = await gradleToJs.parseFile(filename);
-    console.log(`----GRADLE-----`);
-    console.log(JSON.stringify(parsed, null, 2));
-    console.log(`----------------------`);
-  }
-
   private getAndroidManifestPath(): string | null {
     if (!this.project.config.android?.path) {
       return null;
