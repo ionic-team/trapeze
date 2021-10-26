@@ -300,6 +300,12 @@ npm install @capacitor/configure
 
 Add to your npm scripts:
 
+```json
+"scripts": {
+  "cap-config": "cap-config"
+}
+```
+
 ## Usage
 
 ```bash
