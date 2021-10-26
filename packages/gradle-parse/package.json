@@ -5,9 +5,6 @@
   "author": "Ionic Team <hi@ionic.io> (https://ionicframework.com) ",
   "license": "SEE LICENSE",
   "main": "index.js",
-  "bin": {
-    "gradle-parse": "bin/gradle-parse.js"
-  },
   "files": [
     "lib",
     "capacitor-gradle-parse.jar"
