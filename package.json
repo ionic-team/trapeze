@@ -1,9 +1,7 @@
 {
   "name": "root",
-  "private": true,
   "devDependencies": {
-    "lerna": "^4.0.0",
-    "sync-cordova-xml2": "^0.0.3"
+    "lerna": "^4.0.0"
   },
   "scripts": {
     "clean-change-log": "node ./scripts/clean-changelog.js && lerna run clean-change-log",
@@ -15,8 +13,6 @@
     "release": "lerna run test && lerna run build && npm run lerna:publish",
     "release:beta": "lerna run test && lerna run build && npm run lerna:publish:beta",
     "release:dev": "lerna run test && lerna run build && npm run lerna:publish:dev",
-    "release:rc": "lerna run test && lerna run build && npm run lerna:publish:rc",
-    "version": "./scripts/bump-pluginsxml.sh && git add .",
-    "version:backup-with-changelog": "npm run clean-change-log && lerna run docs && git add ."
+    "release:rc": "lerna run test && lerna run build && npm run lerna:publish:rc"
   }
 }
