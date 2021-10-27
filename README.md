@@ -20,23 +20,6 @@ For iOS: the tool currently expects your iOS project to be in an `App` folder in
 
 For Android: `JAVA_HOME` must be set to use Gradle configuration. This is because the Gradle modification functionality uses a Java utility under the hood for accuracy, as Gradle is a Groovy DSL and Groovy is a JVM language. If you have Android Studio installed, you can use [the JDK bundled with it](https://stackoverflow.com/questions/43211282/using-jdk-that-is-bundled-inside-android-studio-as-java-home-on-mac).
 
-## Committing Changes
-
-The API works by updating files in a virtual filesystem, and no changes are actually committed to the filesystem until `project.commit()` is called. When your changes are ready to be saved, run
-
-```typescript
-project.commit();
-```
-
-To get a preview of changes that will be committed, the `VFS` object can be accessed on the project:
-
-```typescript
-const changedFiles = project.vfs.all();
-changedFiles.forEach(f => {
-  console.log(f.getFilename(), f.getData());
-});
-```
-
 ### API Usage
 
 To initialize the project, set the config and initialize a new `CapacitorProject` instance:
@@ -58,6 +41,23 @@ const config: CapacitorConfig = {
 
 const project = new CapacitorProject(config);
 await project.load();
+```
+
+## Committing Changes
+
+The API works by updating files in a virtual filesystem, and no changes are actually committed to the filesystem until `project.commit()` is called. When your changes are ready to be saved, run
+
+```typescript
+project.commit();
+```
+
+To get a preview of changes that will be committed, the `VFS` object can be accessed on the project:
+
+```typescript
+const changedFiles = project.vfs.all();
+changedFiles.forEach(f => {
+  console.log(f.getFilename(), f.getData());
+});
 ```
 
 Once the project is loaded, iOS and Android operations can be performed on the project, as shown below:
@@ -201,6 +201,7 @@ await project.android.setVersionName('1.0.2');
 await project.android.getVersionName();
 await project.android.setVersionCode(11);
 await project.android.getVersionCode();
+await project.android.incrementVersionCode();
 ```
 
 #### Android Manifest
