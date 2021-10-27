@@ -6,8 +6,6 @@ The first is the Project API which provides a fully-typed JavaScript API for wri
 
 The second is a tool for configuration-based modifications which is useful for plugins and other scripts that need to apply certain settings to a file in a way that fits the configuration approach.
 
-**Note:** This project is currently in active development and does not have an official first release (As of October '21). I'm currently collecting feedback on the different use cases you need a configuration tool for here: https://github.com/ionic-team/capacitor-configure/issues/1
-
 # Project API
 
 To write custom scripts and code that manage iOS and Android targets in your Capacitor project, install the `@capacitor/project` package:
