@@ -5,7 +5,7 @@ export default async function execute(ctx: Context, op: Operation) {
   const entries = (op as AndroidGradleOperation).value;
 
   for (let entry of entries) {
-    const gradleFile = ctx.project.android.getGradleFile(entry.file);
+    const gradleFile = ctx.project.android?.getGradleFile(entry.file);
     if (!gradleFile) {
       throw new Error(`Unable to modify gradle file ${entry.file}. Options are build.gradle or app/build.gradle`);
     }

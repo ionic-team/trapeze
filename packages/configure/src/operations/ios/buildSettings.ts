@@ -7,6 +7,6 @@ export default async function execute(ctx: Context, op: Operation) {
     if (typeof v === 'boolean') {
       v = v ? 'YES' : 'NO';
     }
-    ctx.project.ios.setBuildProperty(op.iosTarget, op.iosBuild, key, v);
+    ctx.project.ios?.setBuildProperty(op.iosTarget, op.iosBuild, key, v);
   }
 }

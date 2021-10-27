@@ -76,11 +76,11 @@ To get the Targets in the app, use:
 
 ```typescript
 // Get all targets in the project
-project.ios.getTargets();
+project.ios?.getTargets();
 // Targets have properties like id, name, productName, productType, and a list of buildConfigurations
 
 // Get the main app target in the project
-const appTarget = project.ios.getAppTarget();
+const appTarget = project.ios?.getAppTarget();
 ```
 
 ### Project Settings
@@ -89,9 +89,9 @@ const appTarget = project.ios.getAppTarget();
 
 ```typescript
 // Get the bundle id for the given target, pass the build name as an optional second parameter
-project.ios.getBundleId(appTarget.name);
-project.ios.setBundleId(targetName, buildName, 'io.ionic.betterBundleId');
-project.ios.setBundleId(targetName, null, 'io.ionic.betterBundleId');
+project.ios?.getBundleId(appTarget.name);
+project.ios?.setBundleId(targetName, buildName, 'io.ionic.betterBundleId');
+project.ios?.setBundleId(targetName, null, 'io.ionic.betterBundleId');
 ```
 
 #### Version and Build Number
@@ -100,16 +100,16 @@ The version and build number can be managed, including incrementing the build nu
 
 ```typescript
 // Get the numeric build number (aka CURRENT_PROJECT_VERSION) for the given target and build name
-project.ios.getBuild(targetName, buildName);
+project.ios?.getBuild(targetName, buildName);
 // Get the version name (aka the MARKETING_VERSION)
-project.ios.getVersion(targetName, buildName);
+project.ios?.getVersion(targetName, buildName);
 
 // Set the numeric build number
-project.ios.setBuild(targetName, buildName, 42);
+project.ios?.setBuild(targetName, buildName, 42);
 // Increment the build number
-project.ios.incrementBuild(targetName, buildName);
+project.ios?.incrementBuild(targetName, buildName);
 // Set the marketing version
-project.ios.setVersion(targetName, buildName, '1.2.3');
+project.ios?.setVersion(targetName, buildName, '1.2.3');
 ```
 
 #### Display Name
@@ -117,8 +117,8 @@ project.ios.setVersion(targetName, buildName, '1.2.3');
 The display name can be managed:
 
 ```typescript
-project.ios.getDisplayName(targetName, buildName);
-project.ios.setDisplayName(targetName, buildName, 'Really Awesome App');
+project.ios?.getDisplayName(targetName, buildName);
+project.ios?.setDisplayName(targetName, buildName, 'Really Awesome App');
 ```
 
 #### Info.plist
@@ -128,14 +128,14 @@ Modifications to the `Info.plist` for the given target and build can be made by 
 Note: this method will use the registered `INFOPLIST_FILE` for the given target and build so make sure that is set correctly if you've renamed the `Info.plist` file.
 
 ```typescript
-await project.ios.updateInfoPlist(targetName, buildName, {
+await project.ios?.updateInfoPlist(targetName, buildName, {
   NSFaceIDUsageDescription: 'The better to see you with',
 });
 
 // Get the relative path to the Info.plist for the target and build
-await project.ios.getInfoPlist(targetName, buildName);
+await project.ios?.getInfoPlist(targetName, buildName);
 // Get the full path to the Info.plist
-await project.ios.getInfoPlistFilename(targetName, buildName);
+await project.ios?.getInfoPlistFilename(targetName, buildName);
 ```
 
 #### Frameworks
@@ -143,14 +143,14 @@ await project.ios.getInfoPlistFilename(targetName, buildName);
 Frameworks, Libraries, and Embedded Content can be managed:
 
 ```typescript
-project.ios.addFramework(targetName, 'ImageIO.framework');
+project.ios?.addFramework(targetName, 'ImageIO.framework');
 
 // Complex framework setups can pass options. Boolean fields supported:
 // embed, link, customFramework
-project.ios.addFramework(targetName, 'Custom.framework', {
+project.ios?.addFramework(targetName, 'Custom.framework', {
   embed: true,
 });
-project.ios.getFrameworks(targetName);
+project.ios?.getFrameworks(targetName);
 ```
 
 #### Entitlements
@@ -160,10 +160,10 @@ Entitlements can be managed:
 ```typescript
 // The key for the key/value entries should be the low-level entitlement key,
 // which can be found on the Apple docs: https://developer.apple.com/documentation/bundleresources/entitlements?language=objc
-await project.ios.addEntitlements(targetName, buildName, {
+await project.ios?.addEntitlements(targetName, buildName, {
   'keychain-access-groups': ['group1', 'group2'],
 });
-await project.ios.getEntitlements(targetName);
+await project.ios?.getEntitlements(targetName);
 ```
 
 #### Build Configurations
@@ -174,11 +174,11 @@ Build settings for targets and specific builds can be managed:
 // Configurations will be an array of object with fields name and buildSettings which is an object
 // containing all build varibles for the build in the target, such as compiler options like
 // ENABLE_BITCODE
-project.ios.getBuildConfigurations(target);
+project.ios?.getBuildConfigurations(target);
 
 // Individual build properties can be read or written:
-project.ios.setBuildProperty(targetName, buildName, 'FAKE_PROPERTY', 'YES');
-project.ios.getBuildProperty(targetName, buildName, 'FAKE_PROPERTY');
+project.ios?.setBuildProperty(targetName, buildName, 'FAKE_PROPERTY', 'YES');
+project.ios?.getBuildProperty(targetName, buildName, 'FAKE_PROPERTY');
 ```
 
 ## Android
@@ -190,18 +190,18 @@ Android functionality currently supported includes making modifications to `Andr
 #### Package Name
 
 ```typescript
-project.android.setPackageName('com.ionicframework.awesome');
-project.android.getPackageName();
+project.android?.setPackageName('com.ionicframework.awesome');
+project.android?.getPackageName();
 ```
 
 #### Version Name and Code
 
 ```typescript
-await project.android.setVersionName('1.0.2');
-await project.android.getVersionName();
-await project.android.setVersionCode(11);
-await project.android.getVersionCode();
-await project.android.incrementVersionCode();
+await project.android?.setVersionName('1.0.2');
+await project.android?.getVersionName();
+await project.android?.setVersionCode(11);
+await project.android?.getVersionCode();
+await project.android?.incrementVersionCode();
 ```
 
 #### Android Manifest
@@ -210,12 +210,12 @@ Attributes can be added/modified on target elements, and new XML fragments can b
 
 ```typescript
 // Set attributes on a target element:
-project.android.getAndroidManifest().setAttrs('manifest/application', {
+project.android?.getAndroidManifest().setAttrs('manifest/application', {
   'android:name': 'com.ionicframework.test.CoolApplication',
 });
 
 // Inject fragment at target:
-project.android.getAndroidManifest().injectFragment(
+project.android?.getAndroidManifest().injectFragment(
   'manifest',
   `
 <queries>
@@ -230,7 +230,7 @@ project.android.getAndroidManifest().injectFragment(
 There is also a method for querying the manifest using an XPath selector:
 
 ```typescript
-project.android.getAndroidManifest().find('manifest/application');
+project.android?.getAndroidManifest().find('manifest/application');
 ```
 
 #### Resource Files
@@ -239,12 +239,12 @@ Resource files can be created or existing files copied to:
 
 ```typescript
 // Add a resource to the given resource directory with the given name and contents
-await project.android.addResource('raw', 'test.json', `{}`);
+await project.android?.addResource('raw', 'test.json', `{}`);
 // Existing files can also be copied, passing the source of the file as the last argument
-await project.android.copyToResources('drawable', 'icon.png', source);
+await project.android?.copyToResources('drawable', 'icon.png', source);
 
 // To load an existing resource:
-const data = await project.android.getResource('raw', 'test.json');
+const data = await project.android?.getResource('raw', 'test.json');
 ```
 
 #### Gradle
@@ -256,8 +256,8 @@ Note: this feature only supports Groovy-based Gradle files.
 First, get a reference to the `GradleFile` from the project. There are two possible options currently supported when referenced from the project: `build.gradle` or `app/build.gradle`. To modify other Gradle files use GradleFile directly.
 
 ```typescript
-const buildGradleFile = project.android.getGradleFile('build.gradle');
-const appBuildGradleFile = project.android.getGradleFile('app/build.gradle');
+const buildGradleFile = project.android?.getGradleFile('build.gradle');
+const appBuildGradleFile = project.android?.getGradleFile('app/build.gradle');
 ```
 
 Gradle fragment strings can be injected at specific locations in the Gradle file, or new properties can be added using an object syntax.

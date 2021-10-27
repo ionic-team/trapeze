@@ -8,6 +8,7 @@ import { logPrompt } from './util/cli';
 import { Context, str } from './ctx';
 import c from './colors';
 import { initVarsFromEnv } from './ctx';
+import { warn } from './util/log';
 
 export type YamlFile = any;
 
@@ -16,6 +17,11 @@ export async function loadConfig(ctx: Context, filename: string): Promise<YamlFi
   const parsed = yaml.parse(contents, {
     prettyErrors: true,
   });
+
+  if (!parsed) {
+    warn('Empty config file, exiting...');
+    process.exit(0);
+  }
 
   await initVarsFromEnv(ctx, parsed.vars);
 
@@ -33,7 +39,7 @@ async function ensureVars(ctx: Context, yaml: YamlFile) {
   const { vars } = yaml;
 
   for (const v in vars) {
-    const vk = vars[v];
+    const vk = vars[v] || {};
 
     if (!vk || (!ctx.vars[v] && !vk.default)) {
       const answers = await logPrompt(

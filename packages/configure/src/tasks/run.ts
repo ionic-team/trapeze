@@ -1,6 +1,6 @@
 import c from '../colors';
 import { processOperations } from '../op';
-import { logger, log, error } from '../util/log';
+import { logger, log, error, warn } from '../util/log';
 import { logPrompt } from '../util/cli';
 import { loadConfig, YamlFile } from '../config';
 import { hasHandler, runOperation } from '../operations/index';
@@ -16,6 +16,11 @@ export async function runCommand(ctx: Context, configFile: YamlFile) {
   } catch (e: any) {
     logger.error(`Unable to load config file: ${e.message}`);
     throw e;
+  }
+
+  if (!processed.length) {
+    warn('No operations to apply, exiting...');
+    process.exit(0);
   }
 
   try {

@@ -32,8 +32,8 @@ export async function loadContext(projectRootPath?: string): Promise<Context> {
 
   try {
     project = await loadProject(projectRootPath);
-  } catch (e) {
-    throw new Error('Unable to load Capacitor project');
+  } catch (e: any) {
+    throw new Error(`Unable to load Capacitor project: ${e.message}`);
   }
 
   return {
@@ -73,6 +73,10 @@ export function str(ctx: Context, s: string) {
 // Given a list of vars from our configuration, initialize
 // any that are already found in the process env
 export function initVarsFromEnv(ctx: Context, vars: Variables) {
+  if (!vars) {
+    return;
+  }
+
   for (const v in vars) {
     const existing = process.env[v];
     if (existing) {

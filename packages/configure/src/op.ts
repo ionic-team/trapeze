@@ -2,7 +2,7 @@ import { Operation } from './definitions';
 
 // Given the parsed yaml file, generate a set of operations to perform against the project
 export function processOperations(yaml: any): Operation[] {
-  return Object.keys(yaml.platforms)
+  return Object.keys(yaml.platforms || {})
     .map(p => createPlatform(p, yaml.platforms[p]))
     .flat();
 }
@@ -17,13 +17,21 @@ function createPlatform(platform: string, platformEntry: any) {
 }
 
 function createAndroidPlatform(platform: string, platformEntry: any) {
+  if (!platformEntry) {
+    return [];
+  }
+
   return Object.keys(platformEntry || {}).map(op =>
     createOperation(platform, op, platformEntry[op]),
   ).flat();
 }
 
 function createIosPlatform(platform: string, platformEntry: any) {
-  if (platformEntry.targets) {
+  if (!platformEntry) {
+    return [];
+  }
+
+  if (typeof platformEntry.targets !== 'undefined') {
     return createIosPlatformTargets(platform, platformEntry);
   } else {
     return Object.keys(platformEntry || {}).map(op =>
@@ -39,7 +47,7 @@ function createIosPlatformTargets(platform: string, platformEntry: any) {
 }
 
 function createIosPlatformTarget(platform: string, target: string, targetEntry: any) {
-  if (targetEntry.builds) {
+  if (typeof targetEntry.builds !== 'undefined') {
     return createIosPlatformBuilds(platform, target, targetEntry);
   } else {
     return Object.keys(targetEntry || {}).map(op =>
