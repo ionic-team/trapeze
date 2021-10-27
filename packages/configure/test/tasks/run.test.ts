@@ -7,7 +7,7 @@ import { runCommand } from '../../src/tasks/run';
 
 describe('task: run', () => {
   it('should run operations', async () => {
-    const ctx = await loadContext('../common/test/fixtures');
+    const ctx = await loadContext('../common/test/fixtures/ios-and-android');
     ctx.args.y = true;
     ctx.args.quiet = true;
     ctx.args.noCommit = true;
@@ -17,19 +17,20 @@ describe('task: run', () => {
     const files = ctx.project.vfs.all();
 
     expect(files).toEqual({
-      '../common/test/fixtures/android/build.gradle': expect.anything(),
-      '../common/test/fixtures/android/app/build.gradle': expect.anything(),
-      '../common/test/fixtures/ios/App/App.xcodeproj/project.pbxproj': expect.anything(),
-      '../common/test/fixtures/ios/App/App/App.entitlements': expect.anything(),
-      '../common/test/fixtures/ios/App/App/Info.plist': expect.anything(),
-      '../common/test/fixtures/ios/App/My App Clip/AppClip.plist': expect.anything(),
+      '../common/test/fixtures/ios-and-android/android/build.gradle': expect.anything(),
+      '../common/test/fixtures/ios-and-android/android/app/build.gradle': expect.anything(),
+      '../common/test/fixtures/ios-and-android/ios/App/App.xcodeproj/project.pbxproj': expect.anything(),
+      '../common/test/fixtures/ios-and-android/ios/App/App/App.entitlements': expect.anything(),
+      '../common/test/fixtures/ios-and-android/ios/App/App/Info.plist': expect.anything(),
+      '../common/test/fixtures/ios-and-android/ios/App/My App Clip/AppClip.plist': expect.anything(),
     });
   });
 
   it('should commit operations to filesystem', async () => {
     const dir = tempy.directory();
 
-    await copy('../common/test/fixtures', dir);
+    await copy('../common/test/fixtures/ios-and-android', dir);
+    await copy('../common/test/fixtures/basic.yml', join(dir, 'basic.yml'));
 
     const ctx = await loadContext(dir);
     ctx.args.y = true;

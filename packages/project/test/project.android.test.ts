@@ -10,10 +10,10 @@ describe('project - android', () => {
   beforeEach(async () => {
     config = {
       ios: {
-        path: '../common/test/fixtures/ios'
+        path: '../common/test/fixtures/ios-and-android/ios'
       },
       android: {
-        path: '../common/test/fixtures/android'
+        path: '../common/test/fixtures/ios-and-android/android'
       }
     }
 

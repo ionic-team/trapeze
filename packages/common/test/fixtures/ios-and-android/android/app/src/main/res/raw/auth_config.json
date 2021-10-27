@@ -1,0 +1,15 @@
+{
+  "client_id": "",
+  "authorization_user_agent": "DEFAULT",
+  "redirect_uri": "msauth://io.ionic.fixtureTest/uHU%2BUi09K1zPjWX4mZFggrgz%2Brk%3D",
+  "broker_redirect_uri_registered": true,
+  "authorities": [
+    {
+      "type": "AAD",
+      "audience": {
+        "type": "AzureADMyOrg",
+        "tenant_id": ""
+      }
+    }
+  ]
+}
