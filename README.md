@@ -250,6 +250,8 @@ const data = await project.android.getResource('raw', 'test.json');
 
 Gradle modifications are the most complicated and powerful of the capabilities in this library. Remember, `JAVA_HOME` must be set before using these methods.
 
+Note: this feature only supports Groovy-based Gradle files.
+
 First, get a reference to the `GradleFile` from the project. There are two possible options currently supported when referenced from the project: `build.gradle` or `app/build.gradle`. To modify other Gradle files use GradleFile directly.
 
 ```typescript
