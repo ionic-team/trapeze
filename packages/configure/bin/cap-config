@@ -14,6 +14,6 @@ process.on('unhandledRejection', err => {
 });
 
 // import { run } from '../dist/cli';
-const { run } = require('../dist/cli/index');
+const { run } = require('../dist/index');
 
 run();
