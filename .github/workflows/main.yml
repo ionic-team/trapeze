@@ -24,5 +24,10 @@ jobs:
           node-version: 14
 
       - name: Install and Test
+        env:
+          CI: true
         run: |
-          npm ci && lerna run test
+          npm ci
+          npm run lerna:bootstrap
+          npm run build
+          npm test
