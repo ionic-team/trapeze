@@ -178,9 +178,7 @@ project.ios.getBuildConfigurations(target);
 
 // Individual build properties can be read or written:
 project.ios.setBuildProperty(targetName, buildName, 'FAKE_PROPERTY', 'YES');
-expect(
-  project.ios.getBuildProperty(targetName, buildName, 'FAKE_PROPERTY'),
-).toBe('YES');
+project.ios.getBuildProperty(targetName, buildName, 'FAKE_PROPERTY');
 ```
 
 ## Android
