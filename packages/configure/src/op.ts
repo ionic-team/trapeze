@@ -116,6 +116,8 @@ function createOpDisplayText(op: Partial<Operation>) {
       return op.value;
     case 'ios.productName':
       return op.value;
+    case 'ios.displayName':
+      return op.value;
     case 'ios.version':
       return op.value;
     case 'ios.buildNumber':
