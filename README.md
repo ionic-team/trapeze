@@ -340,4 +340,4 @@ See an [Example Yaml Configuration](https://github.com/ionic-team/capacitor-conf
 
 ## Thank you's
 
-Thank you to Cordova for the lower-level [corodva-node-xcode](https://github.com/apache/cordova-node-xcode) project used to parse and manage the `pbxproj` file in Xcode projects.
+Thank you to Cordova for the lower-level [cordova-node-xcode](https://github.com/apache/cordova-node-xcode) project used to parse and manage the `pbxproj` file in Xcode projects.
