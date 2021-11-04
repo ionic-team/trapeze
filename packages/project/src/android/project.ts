@@ -126,6 +126,20 @@ export class AndroidProject {
     return writeFile(join(dir, file), sourceData);
   }
 
+  /**
+   * Copy the given source into the given top level directory with the
+   * given file name
+   **/
+     async copyFile(resDir: AndroidResDir, file: string, source: string) {
+      const root = this.getAppRoot();
+      if (!root) {
+        return;
+      }
+  
+      const sourceData = await readFile(source);
+      return writeFile(join(root, file), sourceData);
+    }
+
   private getAndroidManifestPath(): string | null {
     if (!this.project.config.android?.path) {
       return null;
@@ -138,6 +152,13 @@ export class AndroidProject {
       return null;
     }
     return join(this.project.config.android?.path, 'app', 'src', 'main', 'res');
+  }
+
+  private getAppRoot(): string | null {
+    if (!this.project.config.android?.path) {
+      return null;
+    }
+    return join(this.project.config.android?.path, 'app');
   }
 
   private async loadGradle(path: string): Promise<GradleFile | null> {
