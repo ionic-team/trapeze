@@ -19,7 +19,7 @@ export class AndroidProject {
     if (!manifestPath) {
       throw new Error('Unable to load AndroidManifest.xml for project');
     }
-    this.manifest = new AndroidManifest(manifestPath);
+    this.manifest = new AndroidManifest(manifestPath, project.vfs);
   }
 
   async load() {

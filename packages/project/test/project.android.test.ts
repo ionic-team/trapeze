@@ -37,6 +37,9 @@ describe('project - android', () => {
 
     const applicationNode = project.android?.getAndroidManifest().find('manifest/application')?.[0];
     expect(applicationNode.getAttribute('android:name')).toBe('com.ionicframework.test.CoolApplication');
+
+    const manifestFile = project.vfs.get((project.android as any).getAndroidManifestPath());
+    expect(manifestFile).not.toBeNull();
   });
 
   it('should inject an XML fragment', async () => {
@@ -54,6 +57,9 @@ describe('project - android', () => {
     const intentNode = project.android?.getAndroidManifest().find('manifest/queries/intent')?.[0];
     expect(intentNode).toBeDefined();
     expect(intentNode.nodeName).toBe('intent');
+
+    const manifestFile = project.vfs.get((project.android as any).getAndroidManifestPath());
+    expect(manifestFile).not.toBeNull();
   });
 
   it('should set version', async () => {

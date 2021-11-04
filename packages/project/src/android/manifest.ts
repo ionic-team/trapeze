@@ -1,21 +1,27 @@
-import { parseXml, parseXmlString } from "../util/xml";
+import { parseXml, parseXmlString, serializeXml } from "../util/xml";
+import { writeFile } from '@ionic/utils-fs';
 import xpath from 'xpath';
 import { difference } from 'lodash';
+import { VFS, VFSRef } from "../vfs";
 
 const toArray = (o: any[]) => Array.prototype.slice.call(o || []);
 
 export class AndroidManifest {
   private doc: Document | null = null;
 
-  constructor(private path: string) {
+  constructor(private path: string, private vfs: VFS) {
   }
 
   async load() {
     this.doc = await parseXml(this.path);
+    this.vfs.open(this.path, this.doc, this.manifestCommitFn);
   }
 
   getDocumentElement() {
     return this.doc?.documentElement;
+  }
+
+  toString() {
   }
 
   find(target: string): any[] | null {
@@ -44,6 +50,8 @@ export class AndroidManifest {
         n.appendChild(doc);
       }
     });
+
+    this.vfs.set(this.path, this.toString());
   }
 
   /**
@@ -62,6 +70,9 @@ export class AndroidManifest {
         n.setAttribute(attr, attrs[attr]);
       });
     });
+
+
+    this.vfs.set(this.path, this.toString());
   }
 
   /**
@@ -85,4 +96,8 @@ export class AndroidManifest {
     return false;
   }
 
+  private manifestCommitFn = async (file: VFSRef) => {
+    const xmlStr = serializeXml(file.getData());
+    return writeFile(file.getFilename(), xmlStr);
+  }
 }

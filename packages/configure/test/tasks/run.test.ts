@@ -19,6 +19,7 @@ describe('task: run', () => {
     expect(files).toEqual({
       '../common/test/fixtures/ios-and-android/android/build.gradle': expect.anything(),
       '../common/test/fixtures/ios-and-android/android/app/build.gradle': expect.anything(),
+      '../common/test/fixtures/ios-and-android/android/app/src/main/AndroidManifest.xml': expect.anything(),
       '../common/test/fixtures/ios-and-android/ios/App/App.xcodeproj/project.pbxproj': expect.anything(),
       '../common/test/fixtures/ios-and-android/ios/App/App/App.entitlements': expect.anything(),
       '../common/test/fixtures/ios-and-android/ios/App/App/Info.plist': expect.anything(),
@@ -43,6 +44,7 @@ describe('task: run', () => {
     expect(files).toEqual({
       [join(dir, 'android/build.gradle')]: expect.anything(),
       [join(dir, 'android/app/build.gradle')]: expect.anything(),
+      [join(dir, 'android/app/src/main/AndroidManifest.xml')]: expect.anything(),
       [join(dir, 'ios/App/App.xcodeproj/project.pbxproj')]: expect.anything(),
       [join(dir, 'ios/App/App/App.entitlements')]: expect.anything(),
       [join(dir, 'ios/App/App/Info.plist')]: expect.anything(),

@@ -84,7 +84,7 @@ platforms:
 
       - file: AndroidManifest.xml
         target: manifest/application
-        append: |
+        inject: |
           <activity android:name="com.microsoft.identity.client.BrowserTabActivity">
               <intent-filter>
                   <action android:name="android.intent.action.VIEW" />
