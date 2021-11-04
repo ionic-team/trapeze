@@ -24,6 +24,7 @@ const operations: OperationHandlers = {
   'ios.displayName': executeIosProject,
   'ios.productName': executeIosProject,
   'ios.version': executeIosBuildVersion,
+  'ios.buildNumber': executeIosBuildVersion,
   'ios.incrementBuild': executeIosBuildVersion,
   'ios.buildSettings': executeIosBuildSettings,
   'ios.frameworks': executeIosFrameworks,
