@@ -130,15 +130,15 @@ export class AndroidProject {
    * Copy the given source into the given top level directory with the
    * given file name
    **/
-     async copyFile(resDir: AndroidResDir, file: string, source: string) {
-      const root = this.getAppRoot();
-      if (!root) {
-        return;
-      }
-  
-      const sourceData = await readFile(source);
-      return writeFile(join(root, file), sourceData);
+  async copyFile(file: string, source: string) {
+    const root = this.getAppRoot();
+    if (!root) {
+      return;
     }
+
+    const sourceData = await readFile(source);
+    return writeFile(join(root, file), sourceData);
+  }
 
   private getAndroidManifestPath(): string | null {
     if (!this.project.config.android?.path) {
