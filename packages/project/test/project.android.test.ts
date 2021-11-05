@@ -50,6 +50,9 @@ describe('project - android', () => {
 
     const manifestFile = project.vfs.get((project.android as any).getAndroidManifestPath());
     expect(manifestFile).not.toBeNull();
+
+    // Make sure the updated file hasn't been destroyed
+    expect(serializeXml(manifestFile?.getData())).toContain('<manifest');
   });
 
   it('should inject an XML fragment', async () => {
