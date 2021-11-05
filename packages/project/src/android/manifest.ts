@@ -21,9 +21,6 @@ export class AndroidManifest {
     return this.doc?.documentElement;
   }
 
-  toString() {
-  }
-
   find(target: string): any[] | null {
     if (!this.doc) {
       return null;
@@ -51,7 +48,7 @@ export class AndroidManifest {
       }
     });
 
-    this.vfs.set(this.path, this.toString());
+    this.vfs.set(this.path, this.doc);
   }
 
   /**
@@ -72,7 +69,7 @@ export class AndroidManifest {
     });
 
 
-    this.vfs.set(this.path, this.toString());
+    this.vfs.set(this.path, this.doc);
   }
 
   /**

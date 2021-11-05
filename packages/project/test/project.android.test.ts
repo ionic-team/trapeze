@@ -3,6 +3,7 @@ import { CapacitorProject } from '../src';
 
 import { join } from 'path';
 import { readFile } from '@ionic/utils-fs';
+import { serializeXml } from "../src/util/xml";
 
 describe('project - android', () => {
   let config: CapacitorConfig;
@@ -37,6 +38,15 @@ describe('project - android', () => {
 
     const applicationNode = project.android?.getAndroidManifest().find('manifest/application')?.[0];
     expect(applicationNode.getAttribute('android:name')).toBe('com.ionicframework.test.CoolApplication');
+
+    project.android?.getAndroidManifest().setAttrs("/manifest/application/meta-data[@*='com.google.android.geo.API_KEY']",
+      {
+        'android:value': '---API-KEY---',
+      }
+    );
+
+    const metadataNode = project.android?.getAndroidManifest().find("/manifest/application/meta-data[@*='com.google.android.geo.API_KEY']")?.[0];
+    expect(metadataNode.getAttribute('android:value')).toBe('---API-KEY---');
 
     const manifestFile = project.vfs.get((project.android as any).getAndroidManifestPath());
     expect(manifestFile).not.toBeNull();
