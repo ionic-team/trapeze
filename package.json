@@ -8,7 +8,7 @@
     "lerna:bootstrap": "lerna bootstrap",
     "test": "lerna run test",
     "build": "lerna run build",
-    "lerna:publish": "lerna publish --conventional-commits --conventional-graduate --create-release github",
+    "lerna:publish": "npm run build && lerna publish --conventional-commits --conventional-graduate --create-release github",
     "lerna:publish:beta": "lerna publish --conventional-commits --conventional-prerelease --preid beta --dist-tag next --force-publish --create-release github",
     "lerna:publish:dev": "lerna publish prerelease --conventional-commits --conventional-prerelease --no-changelog --preid dev-$(git rev-parse --short HEAD) --dist-tag dev --force-publish --no-git-tag-version --no-push",
     "lerna:publish:rc": "lerna publish --conventional-commits --conventional-prerelease --preid rc --dist-tag next --force-publish --create-release github",
