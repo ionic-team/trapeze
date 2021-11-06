@@ -14,6 +14,10 @@ To write custom scripts and code that manage iOS and Android targets in your Cap
 npm install @capacitor/project
 ```
 
+## TypeScript Note
+
+Make sure the `dom` lib is enabled in your `tsconfig.json` in the `lib` entry under `compilerOptions`.
+
 ## Requirements
 
 For iOS: the tool currently expects your iOS project to be in an `App` folder inside of the Capacitor platform project folder. For example: `ios/App`.
