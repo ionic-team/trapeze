@@ -323,6 +323,7 @@ export class IosProject {
 
     const parsed = await this.plist(filename);
     parsed['CFBundleDisplayName'] = displayName;
+    this.project.vfs.set(filename, parsed);
   }
 
   /**

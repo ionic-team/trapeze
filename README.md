@@ -316,7 +316,7 @@ Add to your npm scripts:
 ## Usage
 
 ```bash
-npx cap-config run config.yaml
+npm run cap-config run config.yaml
 ```
 
 ## Writing Configuration Files

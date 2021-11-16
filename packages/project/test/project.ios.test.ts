@@ -167,8 +167,11 @@ describe('project - ios', () => {
   });
 
   it('should set display name for target', async () => {
-    await project.ios?.setDisplayName('App', 'Debug', 'Super App');
-    expect(await project.ios?.getDisplayName('App', 'Debug')).toBe('Super App');
+    await project.ios?.setDisplayName('App', 'Debug', 'Super Duper App');
+    expect(await project.ios?.getDisplayName('App', 'Debug')).toBe('Super Duper App');
+    const filename = project.ios?.getInfoPlistFilename('App', 'Debug');
+    const updated = project.vfs.get(filename!)?.getData();
+    expect(updated['CFBundleDisplayName']).toBe('Super Duper App');
   });
 
   it('should update plist with entries', async () => {
