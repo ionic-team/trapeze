@@ -53,8 +53,8 @@ platforms:
 
   android:
     packageName: $PACKAGE_NAME
-    versionName: 1.2.3
-    incrementVersionCode: true
+    versionCode: 197
+    versionName: 5.2.1
 
     manifest:
       - file: AndroidManifest.xml
