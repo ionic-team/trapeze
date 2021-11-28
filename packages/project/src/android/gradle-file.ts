@@ -370,6 +370,7 @@ export class GradleFile {
     this.vfs.open(this.filename, contents, this.gradleCommitFn);
     return contents;
   }
+
   private gradleParseError() {
     return `JAVA_HOME not set or set incorrectly. Please set JAVA_HOME to the root of your Java installation.\n\nGradle parse functionality depends on a local Java install for accurate Gradle file modification.`
   }

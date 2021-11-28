@@ -24,6 +24,8 @@ describe('project - android', () => {
 
   it('should load project', async () => {
     expect(project.android?.getAndroidManifest()).not.toBe(null);
+    expect(project.android?.getBuildGradle()).not.toBe(null);
+    expect(project.android?.getAppBuildGradle()).not.toBe(null);
   });
 
   it('should set package name', async () => {
@@ -75,7 +77,7 @@ describe('project - android', () => {
     expect(manifestFile).not.toBeNull();
   });
 
-  it('should set version', async () => {
+  it.only('should set version', async () => {
     await project.android?.setVersionName('1.0.2');
     expect(await project.android?.getVersionName()).toBe('1.0.2');
 
@@ -83,6 +85,63 @@ describe('project - android', () => {
     expect(await project.android?.getVersionCode()).toBe(11);
     await project.android?.incrementVersionCode();
     expect(await project.android?.getVersionCode()).toBe(12);
+
+    const appBuildGradle = project.android?.getAppBuildGradle();
+    expect(appBuildGradle).not.toBe(null);
+    const appBuildGradleSource = project.vfs.get(appBuildGradle?.filename!);
+    expect(appBuildGradleSource).not.toBe(null);
+    expect(appBuildGradleSource!.getData()).toBe(`apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "io.ionic.starter"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 12
+        versionName "1.0.2"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.warn("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}
+`);
   });
 
   it('should add resources file', async () => {

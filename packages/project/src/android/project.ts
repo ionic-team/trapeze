@@ -28,6 +28,14 @@ export class AndroidProject {
     this.appBuildGradle = await this.loadGradle('app/build.gradle');
   }
 
+  getBuildGradle() {
+    return this.buildGradle;
+  }
+
+  getAppBuildGradle() {
+    return this.appBuildGradle;
+  }
+
   getAndroidManifest() {
     return this.manifest;
   }
