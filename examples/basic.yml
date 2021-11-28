@@ -52,8 +52,8 @@ platforms:
 
   android:
     packageName: $PACKAGE_NAME
-    versionName: 1.2.3
-    incrementVersionCode: true
+    versionName: 5.2.1
+    versionCode: 197
 
     manifest:
       - file: AndroidManifest.xml
@@ -116,9 +116,9 @@ platforms:
           allprojects:
             repositories:
         insert:
-          maven:
-            - url: 'https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1'
-            - name: 'Duo-SDK-Feed'
+          - maven:
+              - url: 'https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1'
+              - name: 'Duo-SDK-Feed'
 
       - file: app/build.gradle
         target:

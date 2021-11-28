@@ -99,12 +99,12 @@ async function checkModifiedFiles(ctx: Context) {
     );
 
     if (answers.apply) {
-      ctx.project.vfs.commitAll();
+      return ctx.project.vfs.commitAll();
     } else {
       log('Not applying changes. Exiting');
     }
   } else if (!ctx.args.dryRun && ctx.args.y) {
     logger.info('-y provided, automatically applying configuration');
-    ctx.project.vfs.commitAll();
+    return ctx.project.vfs.commitAll();
   }
 }

@@ -77,14 +77,17 @@ describe('project - android', () => {
     expect(manifestFile).not.toBeNull();
   });
 
-  it.only('should set version', async () => {
-    await project.android?.setVersionName('1.0.2');
-    expect(await project.android?.getVersionName()).toBe('1.0.2');
+  it('should set version', async () => {
+    await project.android?.setVersionName('5.0.2');
+    expect(await project.android?.getVersionName()).toBe('5.0.2');
 
-    await project.android?.setVersionCode(11);
-    expect(await project.android?.getVersionCode()).toBe(11);
+    await project.android?.setVersionCode(123);
+    expect(await project.android?.getVersionCode()).toBe(123);
+    expect(await project.android?.getVersionName()).toBe('5.0.2');
+
     await project.android?.incrementVersionCode();
-    expect(await project.android?.getVersionCode()).toBe(12);
+    expect(await project.android?.getVersionCode()).toBe(124);
+    expect(await project.android?.getVersionName()).toBe('5.0.2');
 
     const appBuildGradle = project.android?.getAppBuildGradle();
     expect(appBuildGradle).not.toBe(null);
@@ -98,8 +101,8 @@ android {
         applicationId "io.ionic.starter"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 12
-        versionName "1.0.2"
+        versionCode 124
+        versionName "5.0.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
