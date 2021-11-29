@@ -203,8 +203,8 @@ project.android?.getPackageName();
 ```typescript
 await project.ios?.setVersion('App', 'Debug', '1.4.5');
 await project.ios?.incrementBuild('App');
-await project.ios?.getBuild('App', 'Debug');
-await project.ios?.getBuild('App', 'Release');
+project.ios?.getBuild('App', 'Debug');
+project.ios?.getBuild('App', 'Release');
 await project.android?.setVersionName('1.0.2');
 await project.android?.getVersionName();
 await project.android?.setVersionCode(11);

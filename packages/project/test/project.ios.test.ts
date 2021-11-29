@@ -99,8 +99,12 @@ describe('project - ios', () => {
   });
 
   it('should set project version', async () => {
-    project.ios?.setVersion('App', 'Debug', '1.4.5');
+    await project.ios?.setVersion('App', 'Debug', '1.4.5');
     expect(project.ios?.getVersion('App', 'Debug')).toBe('1.4.5');
+    // Make sure the info plist is updated to use the MARKETING_VERSION
+    const filename = project.ios?.getInfoPlistFilename('App', 'Debug');
+    const updated = project.vfs.get(filename!)?.getData();
+    expect(updated['CFBundleShortVersionString']).toBe('$(MARKETING_VERSION)');
   });
 
   it('should update build settings', async () => {

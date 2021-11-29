@@ -182,10 +182,21 @@ export class IosProject {
   /**
    * Set the version (aka `MARKETING_VERSION`) for the given build (Debug/Release/etc)
    */
-  setVersion(targetName: IosTargetName | null, buildName: IosBuildName | null, version: string) {
+  async setVersion(targetName: IosTargetName | null, buildName: IosBuildName | null, version: string) {
     targetName = this.assertTargetName(targetName || null);
 
     this.pbxProject?.updateBuildProperty('MARKETING_VERSION', version, buildName, targetName);
+
+    const file = this.getInfoPlist(targetName, buildName ?? undefined);
+    if (!file || !this.project?.config.ios?.path) {
+      throw new Error('Unable to load plist file');
+    }
+
+    const filename = join(this.project.config.ios.path, 'App', file);
+
+    const parsed = await this.plist(filename);
+    parsed['CFBundleShortVersionString'] = '$(MARKETING_VERSION)';
+    this.project.vfs.set(filename, parsed);
   }
 
   /**
