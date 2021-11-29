@@ -1,6 +1,6 @@
 {
   "name": "@capacitor/gradle-parse",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "Simple, acurrent Gradle parsing tool for tool modifications to Gradle files",
   "author": "Ionic Team <hi@ionic.io> (https://ionicframework.com) ",
   "license": "SEE LICENSE",
