@@ -23,14 +23,16 @@ export async function loadConfig(ctx: Context, filename: string): Promise<YamlFi
     process.exit(0);
   }
 
+  console.log('Defining vars', parsed.vars);
   await initVarsFromEnv(ctx, parsed.vars);
+  console.log('After vars', ctx);
 
   await ensureVars(ctx, parsed);
 
   const resolved = interpolateVars(ctx, parsed);
 
-  // debug('Parsed YAML');
-  // debug(JSON.stringify(resolved, null, 2));
+  console.log('Parsed YAML');
+  console.log(JSON.stringify(resolved, null, 2));
 
   return resolved;
 }
@@ -77,8 +79,8 @@ function interpolateVars(ctx: Context, yaml: YamlFile) {
   }
 
   ctx.vars = {
-    ...ctx.vars,
     ...vars,
+    ...ctx.vars,
   };
 
   return interpolateVarsInTree(ctx, yaml);
