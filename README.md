@@ -109,11 +109,11 @@ project.ios?.getBuild(targetName, buildName);
 project.ios?.getVersion(targetName, buildName);
 
 // Set the numeric build number
-project.ios?.setBuild(targetName, buildName, 42);
+await project.ios?.setBuild(targetName, buildName, 42);
 // Increment the build number
-project.ios?.incrementBuild(targetName, buildName);
+await project.ios?.incrementBuild(targetName, buildName);
 // Set the marketing version
-project.ios?.setVersion(targetName, buildName, '1.2.3');
+await project.ios?.setVersion(targetName, buildName, '1.2.3');
 ```
 
 #### Display Name

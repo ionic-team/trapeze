@@ -140,8 +140,19 @@ export class IosProject {
    * Set the build number (aka the `CURRENT_PROJECT_VERSION`) for the given target and build.
    * If the `targetName` is null the main app target is used. If the `buildName` is null the value is set for both builds (Debug/Release);
    */
-  setBuild(targetName: IosTargetName | null, buildName: IosBuildName | null, buildNumber: number) {
+  async setBuild(targetName: IosTargetName | null, buildName: IosBuildName | null, buildNumber: number) {
     this.pbxProject?.updateBuildProperty('CURRENT_PROJECT_VERSION', buildNumber, buildName, targetName);
+
+    const file = this.getInfoPlist(targetName, buildName ?? undefined);
+    if (!file || !this.project?.config.ios?.path) {
+      throw new Error('Unable to load plist file');
+    }
+
+    const filename = join(this.project.config.ios.path, 'App', file);
+
+    const parsed = await this.plist(filename);
+    parsed['CFBundleVersion'] = '$(CURRENT_PROJECT_VERSION)';
+    this.project.vfs.set(filename, parsed);
   }
 
   /**
@@ -156,15 +167,15 @@ export class IosProject {
    * Increment the build number for the given build name. If the build
    * name is not specified, both Debug and Release builds are incremented.
    */
-  incrementBuild(targetName?: IosTargetName | undefined | null, buildName?: IosBuildName | null | undefined) {
+  async incrementBuild(targetName?: IosTargetName | undefined | null, buildName?: IosBuildName | null | undefined) {
     targetName = this.assertTargetName(targetName || null);
 
-    const num = this.getBuild(targetName ?? null, buildName);
+    const num = await this.getBuild(targetName ?? null, buildName);
 
     if (num) {
-      this.setBuild(targetName ?? null, buildName ?? null, num + 1);
+      return this.setBuild(targetName ?? null, buildName ?? null, num + 1);
     } else {
-      this.setBuild(targetName ?? null, buildName ?? null, 1);
+      return this.setBuild(targetName ?? null, buildName ?? null, 1);
     }
   }
 

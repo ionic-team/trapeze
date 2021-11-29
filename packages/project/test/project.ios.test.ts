@@ -77,17 +77,25 @@ describe('project - ios', () => {
   it('should get build number', async () => {
     expect(project.ios?.getBuild('App', 'Debug')).toBe(1);
     expect(project.ios?.getBuild('App', 'Release')).toBe(1);
-    expect(project.ios?.incrementBuild('App', 'Debug'));
+    expect(await project.ios?.incrementBuild('App', 'Debug'));
     expect(project.ios?.getBuild('App', 'Debug')).toBe(2);
     expect(project.ios?.getBuild('App', 'Release')).toBe(1);
-    expect(project.ios?.incrementBuild('App'));
+    expect(await project.ios?.incrementBuild('App'));
     expect(project.ios?.getBuild('App', 'Debug')).toBe(2);
     expect(project.ios?.getBuild('App', 'Release')).toBe(2);
+
+    // Make sure the info plist is updated to use the CURRENT_PROJECT_VERSION
+    const filename = project.ios?.getInfoPlistFilename('App', 'Debug');
+    const updated = project.vfs.get(filename!)?.getData();
+    expect(updated['CFBundleVersion']).toBe('$(CURRENT_PROJECT_VERSION)');
   });
 
   it('should set build number', async () => {
-    project.ios?.setBuild('App', 'Debug', 42);
+    await project.ios?.setBuild('App', 'Debug', 42);
     expect(project.ios?.getBuild('App', 'Debug')).toBe(42);
+    const filename = project.ios?.getInfoPlistFilename('App', 'Debug');
+    const updated = project.vfs.get(filename!)?.getData();
+    expect(updated['CFBundleVersion']).toBe('$(CURRENT_PROJECT_VERSION)');
   });
 
   it('should set project version', async () => {

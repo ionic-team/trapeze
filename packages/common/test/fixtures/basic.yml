@@ -10,8 +10,7 @@ platforms:
       App:
         bundleId: $BUNDLE_ID
         version: 16.4
-        buildNumber: 100
-        incrementBuild: true
+        buildNumber: 195
         productName: Awesome App
         displayName: My Awesome App
 

@@ -115,6 +115,7 @@ describe('task: run', () => {
 
     const pbxProj = await readFile(join(dir, 'ios/App/App.xcodeproj/project.pbxproj'), { encoding: 'utf-8' });
     expect(pbxProj).toContain('PRODUCT_BUNDLE_IDENTIFIER = io.ionic.fixtureTest');
+    expect(pbxProj).toContain('CURRENT_PROJECT_VERSION = 195');
 
     const entitlements = await readFile(join(dir, 'ios/App/App/App.entitlements'), { encoding: 'utf-8' });
     expect(entitlements).toContain('keychain-access-groups');
