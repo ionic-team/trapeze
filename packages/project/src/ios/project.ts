@@ -394,6 +394,11 @@ export class IosProject {
       }
       return appTargetName;
     }
+
+    if (!this.getTarget(targetName)) {
+      throw new Error(`Target '${targetName}' not found in project`);
+    }
+
     return targetName;
   }
 

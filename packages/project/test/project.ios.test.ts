@@ -196,6 +196,13 @@ describe('project - ios', () => {
     expect(updated['NSFaceIDUsageDescription']).toBe('The better to see you with');
   });
 
-  it('should commit changes and reflect in fs', async () => {
+  it('should gracefully error when targets not found in project', async () => {
+    expect.assertions(1);
+
+    try {
+      await project.ios?.setDisplayName('Invalid Target', 'Invalid Build', 'Nothing');
+    } catch (e) {
+      expect((e as any).message).toBe(`Target 'Invalid Target' not found in project`);
+    }
   });
 });
