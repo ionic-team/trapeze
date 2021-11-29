@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { Context, loadContext, setArguments } from './ctx';
-import { logger } from './util/log';
+import { fatal, logger } from './util/log';
 import { wrapAction } from './util/cli';
 
 export async function run() {
@@ -29,7 +29,11 @@ export function runProgram(ctx: Context) {
         setArguments(ctx, args);
 
         const { runCommand } = await import('./tasks/run');
-        await runCommand(ctx, configFile);
+        try {
+          await runCommand(ctx, configFile);
+        } catch (e) {
+          fatal('Error running command', e as Error);
+        }
       }),
     );
 

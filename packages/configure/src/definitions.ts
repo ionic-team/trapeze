@@ -1,6 +1,6 @@
 export interface Operation {
   id: string;
-  platform: string;
+  platform: 'ios' | 'android' | 'web' | 'windows' | string;
   name: string;
   value: any;
   displayText: string;
