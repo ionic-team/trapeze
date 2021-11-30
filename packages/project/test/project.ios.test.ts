@@ -163,7 +163,7 @@ describe('project - ios', () => {
     entitlements = await project.ios?.getEntitlements('App');
     expect(entitlements).toEqual({
       'keychain-access-groups': [
-        'group3', 'group4', 'group1', 'group2'
+        'group1', 'group2', 'group3', 'group4'
       ]
     });
   });
@@ -194,6 +194,20 @@ describe('project - ios', () => {
     const filename = project.ios?.getInfoPlistFilename('App', 'Debug');
     const updated = project.vfs.get(filename!)?.getData();
     expect(updated['NSFaceIDUsageDescription']).toBe('The better to see you with');
+  });
+
+  it('should overwrite existing keys in plist', async () => {
+    // https://github.com/ionic-team/capacitor-configure/issues/14
+    await project.ios?.updateInfoPlist('App', 'Debug', {
+      NSFaceIDUsageDescription: 'The better to see you with'
+    });
+    await project.ios?.updateInfoPlist('App', 'Debug', {
+      NSFaceIDUsageDescription: 'This is new'
+    });
+
+    const filename = project.ios?.getInfoPlistFilename('App', 'Debug');
+    const updated = project.vfs.get(filename!)?.getData();
+    expect(updated['NSFaceIDUsageDescription']).toBe('This is new');
   });
 
   it('should gracefully error when targets not found in project', async () => {
