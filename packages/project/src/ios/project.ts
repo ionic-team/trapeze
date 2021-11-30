@@ -8,7 +8,6 @@ import { CapacitorProject } from "../project";
 import { IosPbxProject, IosEntitlements, IosFramework, IosBuildName, IosTarget, IosTargetName, IosTargetBuildConfiguration, IosFrameworkOpts } from '../definitions';
 import { VFSRef } from '../vfs';
 
-/*
 const defaultEntitlementsPlist = `
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -17,7 +16,6 @@ const defaultEntitlementsPlist = `
 </dict>
 </plist>
 `;
-*/
 
 /* Some of the types are unwieldy in this file but the
   pbxProject methods are sensitive to null vs undefined
@@ -276,7 +274,25 @@ export class IosProject {
   async addEntitlements(targetName: IosTargetName | null, buildName: IosBuildName | null, entitlements: IosEntitlements) {
     targetName = this.assertTargetName(targetName || null);
 
-    const file = this.getEntitlementsFile(targetName, buildName ?? undefined);
+    let file = this.getEntitlementsFile(targetName, buildName ?? undefined);
+
+    if (!file) {
+      if (this.project?.config?.ios?.path) {
+        const targetDir = targetName || 'App';
+        const fname = `${(targetName || 'App').split(/\s+/).join('_')}.entitlements`;
+
+        // Create the default entitlements file
+        const target = join(this.project.config.ios.path, 'App', targetDir, fname)
+        await writeFile(target, defaultEntitlementsPlist);
+
+        file = join(targetDir, fname);
+
+        this.setBuildProperty(targetName, buildName, 'CODE_SIGN_ENTITLEMENTS', file);
+      } else {
+        return;
+      }
+    }
+
     if (!file || !this.project?.config?.ios?.path) {
       return;
     }
