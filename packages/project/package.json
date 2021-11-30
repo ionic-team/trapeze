@@ -1,6 +1,6 @@
 {
   "name": "@capacitor/project",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "Capacitor Project API for managing projects through code",
   "author": "Ionic Team <hi@ionic.io> (https://ionicframework.com) ",
   "license": "SEE LICENSE",
@@ -29,7 +29,7 @@
   "typings": "dist/index.d.ts",
   "dependencies": {
     "@capacitor/cli": "^3.2.5",
-    "@capacitor/gradle-parse": "^1.0.19",
+    "@capacitor/gradle-parse": "^1.0.20",
     "@ionic/utils-fs": "^3.1.5",
     "@ionic/utils-subprocess": "^2.1.8",
     "@prettier/plugin-xml": "^1.1.0",
@@ -80,5 +80,5 @@
     "ts-jest": "^27.0.7",
     "typescript": "^4.4.4"
   },
-  "gitHead": "6a4894835345e44f2984619dc683d8838c30f43c"
+  "gitHead": "3b4f9f02d6a74247a5606fe1c0688c9a1ec3fd4b"
 }
