@@ -1,6 +1,6 @@
 {
   "name": "@capacitor/project",
-  "version": "1.0.20",
+  "version": "1.0.21",
   "description": "Capacitor Project API for managing projects through code",
   "author": "Ionic Team <hi@ionic.io> (https://ionicframework.com) ",
   "license": "SEE LICENSE",
