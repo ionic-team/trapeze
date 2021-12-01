@@ -1,6 +1,6 @@
 import plist from 'plist';
 import { readFile } from '@ionic/utils-fs';
-import { mergeWith, union } from 'lodash';
+import { mergeWith, union, isEmpty } from 'lodash';
 
 export async function parsePlist(filename: string) {
   const contents = await readFile(filename, { encoding: 'utf-8' });
@@ -9,7 +9,7 @@ export async function parsePlist(filename: string) {
 
   // If the plist is empty an empty array will come back
   // which is not what we want
-  if (!(parsed as any[]).length) {
+  if (isEmpty(parsed)) {
     return {};
   }
 
