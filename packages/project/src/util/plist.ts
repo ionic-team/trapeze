@@ -17,11 +17,14 @@ export async function parsePlist(filename: string) {
 }
 
 
-export function updatePlist(entries: any, parsed: any) {
+export function updatePlist(entries: any, parsed: any, replace = false) {
   const merged = mergeWith(parsed, entries, (objValue, srcValue) => {
     // Override the default merge behavior for arrays of objects that have the
     // same sub-key. Otherwise lodash merge doesn't work how we need it to
     if (Array.isArray(objValue)) {
+      if (replace) {
+        return srcValue;
+      }
       return union(objValue, srcValue);
     }
   });

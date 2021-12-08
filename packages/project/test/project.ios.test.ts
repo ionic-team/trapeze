@@ -210,6 +210,33 @@ describe('project - ios', () => {
     expect(updated['NSFaceIDUsageDescription']).toBe('This is new');
   });
 
+  it('should support replacing items to arrays in plist', async () => {
+    await project.ios?.updateInfoPlist('App', 'Debug', {
+      UISupportedInterfaceOrientations: [
+        'AppendThis'
+      ]
+    });
+    let filename = project.ios?.getInfoPlistFilename('App', 'Debug');
+    let updated = project.vfs.get(filename!)?.getData();
+    expect(updated['UISupportedInterfaceOrientations']).toEqual([
+      'UIInterfaceOrientationPortrait',
+      'UIInterfaceOrientationLandscapeLeft',
+      'UIInterfaceOrientationLandscapeRight',
+      'AppendThis'
+    ]);
+
+    await project.ios?.updateInfoPlist('App', 'Debug', {
+      UISupportedInterfaceOrientations: [
+        'UIInterfaceOrientationPortrait'
+      ]
+    }, {
+      replace: true
+    });
+    filename = project.ios?.getInfoPlistFilename('App', 'Debug');
+    updated = project.vfs.get(filename!)?.getData();
+    expect(updated['UISupportedInterfaceOrientations']).toEqual(['UIInterfaceOrientationPortrait']);
+  });
+
   it('should gracefully error when targets not found in project', async () => {
     expect.assertions(1);
 

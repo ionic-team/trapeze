@@ -387,7 +387,9 @@ export class IosProject {
    * 
    * Pass null as the `targetName` to use the main app target
    */
-  async updateInfoPlist(targetName: IosTargetName | null, buildName: IosBuildName | null, entries: any) {
+  async updateInfoPlist(targetName: IosTargetName | null, buildName: IosBuildName | null, entries: any, mergeMode?: {
+    replace: boolean
+  }) {
     targetName = this.assertTargetName(targetName || null);
 
     const filename = this.getInfoPlistFilename(targetName, buildName ?? undefined);
@@ -396,7 +398,7 @@ export class IosProject {
     }
 
     const parsed = await this.plist(filename);
-    const updated = updatePlist(entries, parsed);
+    const updated = updatePlist(entries, parsed, mergeMode?.replace ?? false);
     this.project.vfs.set(filename, updated);
   }
 
