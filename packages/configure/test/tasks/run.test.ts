@@ -1,6 +1,7 @@
 import { copy, readFile, rm } from '@ionic/utils-fs';
 import tempy from 'tempy';
 import { join } from 'path';
+import plist from 'plist';
 
 import { loadContext } from '../../src/ctx';
 import { runCommand } from '../../src/tasks/run';
@@ -120,8 +121,13 @@ describe('task: run', () => {
     const entitlements = await readFile(join(dir, 'ios/App/App/App.entitlements'), { encoding: 'utf-8' });
     expect(entitlements).toContain('keychain-access-groups');
 
-    const plist = await readFile(join(dir, 'ios/App/App/Info.plist'), { encoding: 'utf-8' });
-    expect(plist).toContain('msauth.com.microsoft.intunemam');
+    const plistContents = await readFile(join(dir, 'ios/App/App/Info.plist'), { encoding: 'utf-8' });
+    const plistParsed = plist.parse(plistContents) as any;
+    console.log(plistParsed);
+    expect(plistParsed['UISupportedInterfaceOrientations']).toEqual([
+      'UIInterfaceOrientationPortrait'
+    ]);
+    expect(plistContents).toContain('msauth.com.microsoft.intunemam');
 
     // Cleanup temp dir
     await rm(dir, { force: true, recursive: true });
