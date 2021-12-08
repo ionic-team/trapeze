@@ -77,35 +77,53 @@ interface CreateIosOperation {
   opEntry: any;
 }
 function createIosOperation({ platform, target, build, op, opEntry }: CreateIosOperation): Operation {
-  const opRet = {
+  const opRet = getOpIdAlias({
     id: `${platform}.${op}`,
     platform,
     name: op,
     iosTarget: target,
     iosBuild: build,
     value: opEntry,
-  };
+  });
 
   return {
-    ...opRet,
+    ...(opRet as Operation),
     displayText: createOpDisplayText(opRet),
   };
 }
 
 function createOperation(platform: string, op: string, opEntry: any): Operation {
-  const opRet = {
+  const opRet = getOpIdAlias({
     id: `${platform}.${op}`,
     platform,
     name: op,
     value: opEntry,
     iosTarget: null,
     iosBuild: null
-  };
+  });
 
   return {
-    ...opRet,
+    ...(opRet as Operation),
     displayText: createOpDisplayText(opRet),
   };
+}
+
+function getOpIdAlias(op: Partial<Operation>) {
+  switch (op.id) {
+    case 'ios.infoPlist':
+      // Transform the old infoPlist format to new plist format
+      return {
+        ...op,
+        id: 'ios.plist',
+        value: {
+          entries: [
+            ...op.value
+          ]
+        }
+      }
+  }
+
+  return op;
 }
 
 // TODO: Move this to per-operation for more powerful display
@@ -130,8 +148,8 @@ function createOpDisplayText(op: Partial<Operation>) {
       return op.value.map((v: any) => Object.keys(v)).join(', ');
     case 'ios.frameworks':
       return op.value.join(', ');
-    case 'ios.infoPlist':
-      return `${op.value.length} modifications`;
+    case 'ios.plist':
+      return `${op.value.entries.length} modifications`;
     // android
     case 'android.packageName':
       return op.value;

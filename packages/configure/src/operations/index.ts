@@ -19,7 +19,7 @@ interface OperationHandlers {
 }
 
 const operations: OperationHandlers = {
-  'ios.infoPlist': executeIosPlist,
+  'ios.plist': executeIosPlist,
   'ios.bundleId': executeIosProject,
   'ios.displayName': executeIosProject,
   'ios.productName': executeIosProject,

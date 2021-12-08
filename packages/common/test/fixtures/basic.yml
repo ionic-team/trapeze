@@ -18,6 +18,7 @@ platforms:
           ENABLE_BITCODE: false
           STRIP_SWIFT_SYMBOLS: false
 
+        # Old format
         infoPlist:
           - NSFaceIDUsageDescription: Use Face ID to authenticate yourself and login
           - CFBundleURLTypes:
@@ -25,6 +26,13 @@ platforms:
                   - msauth.$(PRODUCT_BUNDLE_IDENTIFIER)
                   - msauth.$(PRODUCT_BUNDLE_IDENTIFIER)-intunemam
                   - msauth.com.microsoft.intunemam
+
+        # New format
+        plist:
+          replace: true
+          entries:
+            - UISupportedInterfaceOrientations:
+                - UIInterfaceOrientationPortrait
 
         entitlements:
           - keychain-access-groups:

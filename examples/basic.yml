@@ -18,13 +18,15 @@ platforms:
           ENABLE_BITCODE: false
           STRIP_SWIFT_SYMBOLS: false
 
-        infoPlist:
-          - NSFaceIDUsageDescription: Use Face ID to authenticate yourself and login
-          - CFBundleURLTypes:
-              - CFBundleURLSchemes:
-                  - msauth.$(PRODUCT_BUNDLE_IDENTIFIER)
-                  - msauth.$(PRODUCT_BUNDLE_IDENTIFIER)-intunemam
-                  - msauth.com.microsoft.intunemam
+        plist:
+          replace: false
+          entries:
+            - NSFaceIDUsageDescription: Use Face ID to authenticate yourself and login
+            - CFBundleURLTypes:
+                - CFBundleURLSchemes:
+                    - msauth.$(PRODUCT_BUNDLE_IDENTIFIER)
+                    - msauth.$(PRODUCT_BUNDLE_IDENTIFIER)-intunemam
+                    - msauth.com.microsoft.intunemam
 
         entitlements:
           - keychain-access-groups:
