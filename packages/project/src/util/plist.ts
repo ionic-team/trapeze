@@ -26,6 +26,10 @@ export function updatePlist(entries: any, parsed: any, replace = false) {
         return srcValue;
       }
       return union(objValue, srcValue);
+    } else if (typeof objValue === 'object' && objValue !== null) {
+      if (replace) {
+        return srcValue;
+      }
     }
   });
 

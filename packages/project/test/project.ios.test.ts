@@ -237,6 +237,34 @@ describe('project - ios', () => {
     expect(updated['UISupportedInterfaceOrientations']).toEqual(['UIInterfaceOrientationPortrait']);
   });
 
+  it('should support merging objects in plist', async () => {
+    await project.ios?.updateInfoPlist('App', 'Debug', {
+      TestDict: {
+        'AppendThis': false
+      }
+    });
+    let filename = project.ios?.getInfoPlistFilename('App', 'Debug');
+    let updated = project.vfs.get(filename!)?.getData();
+    expect(updated['TestDict']).toEqual({
+      'Item1': 'String1',
+      'Item2': true,
+      'AppendThis': false
+    });
+
+    await project.ios?.updateInfoPlist('App', 'Debug', {
+      TestDict: {
+        'AppendThis': false
+      }
+    }, {
+      replace: true
+    });
+    filename = project.ios?.getInfoPlistFilename('App', 'Debug');
+    updated = project.vfs.get(filename!)?.getData();
+    expect(updated['TestDict']).toEqual({
+      'AppendThis': false
+    });
+  });
+
   it('should gracefully error when targets not found in project', async () => {
     expect.assertions(1);
 
