@@ -25,7 +25,18 @@ export function updatePlist(entries: any, parsed: any, replace = false) {
       if (replace) {
         return srcValue;
       }
-      return union(objValue, srcValue);
+
+      const firstObjValue = objValue[0];
+      const firstSrcValue = srcValue[0];
+
+      // https://github.com/ionic-team/capacitor-configure/issues/32
+      // When merging an array of dicts, like when modifying
+      // CFBundleURLTypes, we don't want to union the two arrays because that
+      // would result in duplicated array of dicts. Instead, we want to merge as-is.
+      // This check makes sure we're not trying to union an array of dicts
+      if (typeof firstObjValue !== 'object' && typeof firstSrcValue !== 'object') {
+        return union(objValue, srcValue);
+      }
     } else if (typeof objValue === 'object' && objValue !== null) {
       if (replace) {
         return srcValue;

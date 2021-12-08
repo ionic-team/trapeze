@@ -265,6 +265,37 @@ describe('project - ios', () => {
     });
   });
 
+  it('should not add duplicates to plist when applied multiple times', async () => {
+    await project.ios?.updateInfoPlist('App', 'Debug', {
+      CFBundleURLTypes: [
+        {
+          CFBundleURLSchemes: [
+            'MyApp'
+          ]
+        }
+      ]
+    });
+    await project.ios?.updateInfoPlist('App', 'Debug', {
+      CFBundleURLTypes: [
+        {
+          CFBundleURLSchemes: [
+            'MyApp'
+          ]
+        }
+      ]
+    });
+    let filename = project.ios?.getInfoPlistFilename('App', 'Debug');
+    let updated = project.vfs.get(filename!)?.getData();
+    expect(updated['CFBundleURLTypes']).toEqual([
+      {
+        CFBundleURLSchemes: [
+          'MyApp'
+        ]
+      }
+    ]);
+
+  });
+
   it('should gracefully error when targets not found in project', async () => {
     expect.assertions(1);
 
