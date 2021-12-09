@@ -253,6 +253,28 @@ export class GradleFile {
     return dirname(require.resolve('@capacitor/gradle-parse'));
   }
 
+  async setApplicationId(applicationId: string) {
+    const source = await this.getGradleSource();
+    if (source) {
+      this.vfs.set(this.filename, source.replace(/(applicationId\s+)["'][^"']+["']/, `$1"${applicationId}"`));
+    }
+  }
+
+  async getApplicationId(): Promise<string | null> {
+    const source = await this.getGradleSource();
+
+    if (source) {
+      const applicationId = source.match(/applicationId\s+["']([^"']+)["']/);
+
+      if (!applicationId) {
+        return null;
+      }
+      
+      return applicationId[1];
+    }
+    return null;
+  }
+
   async setVersionCode(versionCode: number) {
     const source = await this.getGradleSource();
 
