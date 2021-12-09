@@ -51,6 +51,7 @@ export class AndroidProject {
 
   async setPackageName(packageName: string) {
     this.manifest.getDocumentElement()?.setAttribute('package', packageName);
+    await this.appBuildGradle?.setApplicationId(packageName);
   }
 
   getPackageName() {

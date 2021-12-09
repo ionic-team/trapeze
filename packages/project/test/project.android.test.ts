@@ -29,8 +29,9 @@ describe('project - android', () => {
   });
 
   it('should set package name', async () => {
-    project.android?.setPackageName('com.ionicframework.awesome');
+    await project.android?.setPackageName('com.ionicframework.awesome');
     expect(project.android?.getPackageName()).toBe('com.ionicframework.awesome');
+    expect(await project.android?.getAppBuildGradle()?.getApplicationId()).toBe('com.ionicframework.awesome');
   });
 
   it('should add an attribute on a manifest node', async () => {
