@@ -62,6 +62,9 @@ platforms:
       My App Clip:
         bundleId: com.ionicframework.awesomeAppClip
         displayName: Really Cool App Clip
+        entitlements:
+          - keychain-access-groups:
+              - app-clip-group
 
   android:
     packageName: $PACKAGE_NAME

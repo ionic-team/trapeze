@@ -101,6 +101,7 @@ describe('task: run', () => {
       [join(dir, 'ios/App/App/App.entitlements')]: expect.anything(),
       [join(dir, 'ios/App/App/Info.plist')]: expect.anything(),
       [join(dir, 'ios/App/My App Clip/AppClip.plist')]: expect.anything(),
+      [join(dir, 'ios/App/My App Clip/My_App_Clip.entitlements')]: expect.anything(),
     });
 
     const buildGradleContents = await readFile(join(dir, 'android/build.gradle'), { encoding: 'utf-8' });
@@ -119,8 +120,21 @@ describe('task: run', () => {
     expect(pbxProj).toContain('PRODUCT_BUNDLE_IDENTIFIER = io.ionic.fixtureTest');
     expect(pbxProj).toContain('CURRENT_PROJECT_VERSION = 195');
 
-    const entitlements = await readFile(join(dir, 'ios/App/App/App.entitlements'), { encoding: 'utf-8' });
-    expect(entitlements).toContain('keychain-access-groups');
+    const entitlements = await ctx.project.ios?.getEntitlements('App');
+    expect(entitlements).toMatchObject({
+      'keychain-access-groups': [
+        'io.ionic.fixtureTest',
+        'com.microsoft.intune.mam',
+        'com.microsoft.adalcache',
+      ]
+    });
+
+    const appClipEntitlements = await ctx.project.ios?.getEntitlements('My App Clip');
+    expect(appClipEntitlements).toMatchObject({
+      'keychain-access-groups': [
+        'app-clip-group'
+      ]
+    });
 
     const plistContents = await readFile(join(dir, 'ios/App/App/Info.plist'), { encoding: 'utf-8' });
     const plistParsed = plist.parse(plistContents) as any;
