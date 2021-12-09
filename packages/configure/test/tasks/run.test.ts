@@ -79,6 +79,7 @@ describe('task: run', () => {
     await rm(dir, { force: true, recursive: true });
   });
 
+  // TODO: Separate this out into multiple sub-tests
   it.only('should commit operations to filesystem directly with y', async () => {
     const dir = tempy.directory();
 
@@ -123,10 +124,10 @@ describe('task: run', () => {
 
     const plistContents = await readFile(join(dir, 'ios/App/App/Info.plist'), { encoding: 'utf-8' });
     const plistParsed = plist.parse(plistContents) as any;
-    console.log(plistParsed);
     expect(plistParsed['UISupportedInterfaceOrientations']).toEqual([
       'UIInterfaceOrientationPortrait'
     ]);
+    expect(plistParsed['NSFaceIDUsageDescription']).toBe('Use Face ID to authenticate yourself and login');
     expect(plistContents).toContain('msauth.com.microsoft.intunemam');
 
     // Cleanup temp dir

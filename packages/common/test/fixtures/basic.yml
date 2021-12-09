@@ -29,10 +29,15 @@ platforms:
 
         # New format
         plist:
-          replace: true
-          entries:
-            - UISupportedInterfaceOrientations:
-                - UIInterfaceOrientationPortrait
+          - replace: true
+            entries:
+              - UISupportedInterfaceOrientations:
+                  - UIInterfaceOrientationPortrait
+          - replace: false
+            entries:
+              - CFBundleURLTypes:
+                  - CFBundleURLSchemes:
+                      - AdditionalBundleURLScheme
 
         entitlements:
           - keychain-access-groups:
