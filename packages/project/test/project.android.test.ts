@@ -45,6 +45,14 @@ describe('project - android', () => {
     const newSource = await readFile(join(project.config.android?.path!, 'app/src/main/java/com/ionicframework/awesome/MainActivity.java'), { encoding: 'utf-8' });
     expect(newSource.indexOf('package com.ionicframework.awesome;')).toBe(0);
     expect(!(await pathExists(join(project.config.android?.path!, 'app/src/main/java/io')))).toBe(true);
+    const activity = project.android?.getAndroidManifest().find('manifest/application/activity');
+    expect(activity?.[0].getAttribute('android:name')).toBe('com.ionicframework.awesome.MainActivity');
+  });
+
+  it('should not error setting same package name', async () => {
+    const packageName = project.android?.getPackageName();
+    expect(await project.android?.setPackageName(packageName!)).rejects.toThrow();
+    expect(project.android?.getPackageName()).toBe(packageName);
   });
 
   it('should set package name longer than current package', async () => {
@@ -54,6 +62,8 @@ describe('project - android', () => {
     const newSource = await readFile(join(project.config.android?.path!, 'app/src/main/java/com/ionicframework/awesome/long/MainActivity.java'), { encoding: 'utf-8' });
     expect(newSource.indexOf('package com.ionicframework.awesome.long;')).toBe(0);
     expect(!(await pathExists(join(project.config.android?.path!, 'app/src/main/java/io')))).toBe(true);
+    const activity = project.android?.getAndroidManifest().find('manifest/application/activity');
+    expect(activity?.[0].getAttribute('android:name')).toBe('com.ionicframework.awesome.long.MainActivity');
   });
 
   it('should set package name shorter than current package', async () => {
@@ -63,6 +73,8 @@ describe('project - android', () => {
     const newSource = await readFile(join(project.config.android?.path!, 'app/src/main/java/com/super/MainActivity.java'), { encoding: 'utf-8' });
     expect(newSource.indexOf('package com.super;')).toBe(0);
     expect(!(await pathExists(join(project.config.android?.path!, 'app/src/main/java/io')))).toBe(true);
+    const activity = project.android?.getAndroidManifest().find('manifest/application/activity');
+    expect(activity?.[0].getAttribute('android:name')).toBe('com.super.MainActivity');
   });
 
   it('should add an attribute on a manifest node', async () => {

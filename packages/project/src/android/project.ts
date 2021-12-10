@@ -57,8 +57,16 @@ export class AndroidProject {
    */
   async setPackageName(packageName: string) {
     const oldPackageName = await this.manifest.getDocumentElement()?.getAttribute('package');
+
+    if (packageName === oldPackageName) {
+      return;
+    }
+
     this.manifest.getDocumentElement()?.setAttribute('package', packageName);
     await this.appBuildGradle?.setApplicationId(packageName);
+    this.manifest.setAttrs('manifest/application/activity', {
+      'android:name': `${packageName}.MainActivity`
+    });
 
     if (!this.getAppRoot()) {
       return;
