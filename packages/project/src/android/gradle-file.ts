@@ -255,8 +255,12 @@ export class GradleFile {
 
   async setApplicationId(applicationId: string) {
     const source = await this.getGradleSource();
+
     if (source) {
-      this.vfs.set(this.filename, source.replace(/(applicationId\s+)["'][^"']+["']/, `$1"${applicationId}"`));
+      this.vfs.set(this.filename, source.replace(
+        /(applicationId\s+)["'][^"']+["']/,
+        `$1"${applicationId}"`,
+      ));
     }
   }
 
@@ -269,7 +273,7 @@ export class GradleFile {
       if (!applicationId) {
         return null;
       }
-      
+
       return applicationId[1];
     }
     return null;

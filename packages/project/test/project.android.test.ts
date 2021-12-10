@@ -1,25 +1,35 @@
+import tempy from 'tempy';
+
 import { CapacitorConfig } from "@capacitor/cli";
 import { CapacitorProject } from '../src';
 
 import { join } from 'path';
-import { readFile } from '@ionic/utils-fs';
+import { copy, pathExists, readFile, rm } from '@ionic/utils-fs';
 import { serializeXml } from "../src/util/xml";
 
 describe('project - android', () => {
   let config: CapacitorConfig;
   let project: CapacitorProject;
+  let dir: string;
   beforeEach(async () => {
+    dir = tempy.directory();
+    await copy('../common/test/fixtures/ios-and-android', dir);
+
     config = {
       ios: {
-        path: '../common/test/fixtures/ios-and-android/ios'
+        path: join(dir, 'ios')
       },
       android: {
-        path: '../common/test/fixtures/ios-and-android/android'
+        path: join(dir, 'android')
       }
     }
 
     project = new CapacitorProject(config);
     await project.load();
+  });
+
+  afterEach(async () => {
+    await rm(dir, { force: true, recursive: true });
   });
 
   it('should load project', async () => {
@@ -32,6 +42,39 @@ describe('project - android', () => {
     await project.android?.setPackageName('com.ionicframework.awesome');
     expect(project.android?.getPackageName()).toBe('com.ionicframework.awesome');
     expect(await project.android?.getAppBuildGradle()?.getApplicationId()).toBe('com.ionicframework.awesome');
+    const newSource = await readFile(join(project.config.android?.path!, 'app/src/main/java/com/ionicframework/awesome/MainActivity.java'), { encoding: 'utf-8' });
+    expect(newSource.indexOf('package com.ionicframework.awesome;')).toBe(0);
+    expect(!(await pathExists(join(project.config.android?.path!, 'app/src/main/java/io')))).toBe(true);
+    const activity = project.android?.getAndroidManifest().find('manifest/application/activity');
+    expect(activity?.[0].getAttribute('android:name')).toBe('com.ionicframework.awesome.MainActivity');
+  });
+
+  it('should not error setting same package name', async () => {
+    const packageName = project.android?.getPackageName();
+    await project.android?.setPackageName(packageName!);
+    expect(project.android?.getPackageName()).toBe(packageName);
+  });
+
+  it('should set package name longer than current package', async () => {
+    await project.android?.setPackageName('com.ionicframework.awesome.long');
+    expect(project.android?.getPackageName()).toBe('com.ionicframework.awesome.long');
+    expect(await project.android?.getAppBuildGradle()?.getApplicationId()).toBe('com.ionicframework.awesome.long');
+    const newSource = await readFile(join(project.config.android?.path!, 'app/src/main/java/com/ionicframework/awesome/long/MainActivity.java'), { encoding: 'utf-8' });
+    expect(newSource.indexOf('package com.ionicframework.awesome.long;')).toBe(0);
+    expect(!(await pathExists(join(project.config.android?.path!, 'app/src/main/java/io')))).toBe(true);
+    const activity = project.android?.getAndroidManifest().find('manifest/application/activity');
+    expect(activity?.[0].getAttribute('android:name')).toBe('com.ionicframework.awesome.long.MainActivity');
+  });
+
+  it('should set package name shorter than current package', async () => {
+    await project.android?.setPackageName('com.super');
+    expect(project.android?.getPackageName()).toBe('com.super');
+    expect(await project.android?.getAppBuildGradle()?.getApplicationId()).toBe('com.super');
+    const newSource = await readFile(join(project.config.android?.path!, 'app/src/main/java/com/super/MainActivity.java'), { encoding: 'utf-8' });
+    expect(newSource.indexOf('package com.super;')).toBe(0);
+    expect(!(await pathExists(join(project.config.android?.path!, 'app/src/main/java/io')))).toBe(true);
+    const activity = project.android?.getAndroidManifest().find('manifest/application/activity');
+    expect(activity?.[0].getAttribute('android:name')).toBe('com.super.MainActivity');
   });
 
   it('should add an attribute on a manifest node', async () => {

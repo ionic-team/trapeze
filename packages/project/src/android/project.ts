@@ -1,6 +1,5 @@
 import { join } from 'path';
-import gradleToJs from 'gradle-to-js/lib/parser.js'
-import { pathExists, mkdir, readFile, writeFile } from '@ionic/utils-fs';
+import { pathExists, move, mkdir, mkdirp, readFile, remove, rmdir, writeFile } from '@ionic/utils-fs';
 
 
 import { CapacitorProject } from "../project";
@@ -49,10 +48,67 @@ export class AndroidProject {
     return null;
   }
 
+  /**
+   * Update the Android package name. This renames the package in `AndroidManifest.xml`,
+   * the `applicationId` in `app/build.gradle`, and renames the java
+   * package for the `MainActivity.java` file.
+   * 
+   * This action will mutate the project on disk!
+   */
   async setPackageName(packageName: string) {
+    const oldPackageName = await this.manifest.getDocumentElement()?.getAttribute('package');
+
+    if (packageName === oldPackageName) {
+      return;
+    }
+
     this.manifest.getDocumentElement()?.setAttribute('package', packageName);
     await this.appBuildGradle?.setApplicationId(packageName);
+    this.manifest.setAttrs('manifest/application/activity', {
+      'android:name': `${packageName}.MainActivity`
+    });
+
+    if (!this.getAppRoot()) {
+      return;
+    }
+
+    const oldPackageParts = oldPackageName?.split('.') ?? [];
+    const newPackageParts = packageName.split('.');
+
+    const sourceDir = join(this.getAppRoot()!, 'src', 'main', 'java');
+    const destDir = join(sourceDir, ...newPackageParts);
+
+    let activityFile = join(sourceDir, ...oldPackageParts, 'MainActivity.java');
+
+    // Make the new directory tree and any missing parents
+    await mkdirp(destDir);
+    // Move the old activity file over
+    await move(activityFile, join(destDir, 'MainActivity.java'));
+
+    // Try to delete the empty directories we left behind, starting
+    // from the deepest
+    let sourceDirLeaf = join(sourceDir, ...oldPackageParts);
+    for (const _ of oldPackageParts) {
+      try {
+        await rmdir(sourceDirLeaf);
+      } catch (ex) {
+        // This will fail if directory is not empty, that's fine, we won't delete those
+      }
+      sourceDirLeaf = join(sourceDirLeaf, '..');
+    }
+
+    // Rename the package in the main source file
+    activityFile = join(sourceDir, ...newPackageParts, 'MainActivity.java');
+    if (await pathExists(activityFile)) {
+      const activitySource = await readFile(activityFile, { encoding: 'utf-8' });
+      const newActivitySource = activitySource?.replace(
+        /(package\s+)[^;]+/,
+        `$1${packageName}`,
+      );
+      await writeFile(activityFile, newActivitySource);
+    }
   }
+
 
   getPackageName() {
     return this.manifest.getDocumentElement()?.getAttribute('package');
