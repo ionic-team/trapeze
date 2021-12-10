@@ -51,7 +51,7 @@ describe('project - android', () => {
 
   it('should not error setting same package name', async () => {
     const packageName = project.android?.getPackageName();
-    expect(await project.android?.setPackageName(packageName!)).rejects.toThrow();
+    await project.android?.setPackageName(packageName!);
     expect(project.android?.getPackageName()).toBe(packageName);
   });
 
