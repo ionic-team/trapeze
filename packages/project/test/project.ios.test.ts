@@ -1,21 +1,32 @@
+import tempy from 'tempy';
+import { join } from 'path';
+import { copy, pathExists, readFile, rm } from '@ionic/utils-fs';
 import { CapacitorConfig } from '@capacitor/cli';
 import { CapacitorProject } from '../src';
 
 describe('project - ios', () => {
   let config: CapacitorConfig;
   let project: CapacitorProject;
+  let dir: string;
   beforeEach(async () => {
+    dir = tempy.directory();
+    await copy('../common/test/fixtures/ios-and-android', dir);
+
     config = {
       ios: {
-        path: '../common/test/fixtures/ios-and-android/ios'
+        path: join(dir, 'ios')
       },
       android: {
-        path: '../common/test/fixtures/ios-and-android/android'
+        path: join(dir, 'android')
       }
     }
 
     project = new CapacitorProject(config);
     await project.load();
+  });
+
+  afterEach(async () => {
+    await rm(dir, { force: true, recursive: true });
   });
 
   it('should load project', async () => {
@@ -166,6 +177,15 @@ describe('project - ios', () => {
         'group1', 'group2', 'group3', 'group4'
       ]
     });
+  });
+
+  it('should create new entitlements file if one does not exist', async () => {
+    await project.ios?.addEntitlements('My Share Extension', 'Debug', {
+      'keychain-access-groups': [
+        'group1', 'group2'
+      ]
+    });
+    expect(project.ios?.getEntitlementsFile('My Share Extension', 'Debug')).toBe('My Share Extension/My_Share_Extension.entitlements');
   });
 
   it('should get info.plist for each target', async () => {

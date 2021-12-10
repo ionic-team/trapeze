@@ -1,5 +1,5 @@
 import plist from 'plist';
-import { join } from 'path';
+import path, { join } from 'path';
 import { writeFile } from '@ionic/utils-fs';
 
 import { parsePbxProject } from "../util/pbx";
@@ -285,7 +285,8 @@ export class IosProject {
         const target = join(this.project.config.ios.path, 'App', targetDir, fname)
         await writeFile(target, defaultEntitlementsPlist);
 
-        file = join(targetDir, fname);
+        // Always use posix paths
+        file = join(targetDir, fname).split(path.sep).join(path.posix.sep);
 
         this.setBuildProperty(targetName, buildName, 'CODE_SIGN_ENTITLEMENTS', file);
       } else {
