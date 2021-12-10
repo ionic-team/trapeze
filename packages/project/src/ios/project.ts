@@ -494,7 +494,11 @@ export class IosProject {
 
   private plistCommitFn = async (file: VFSRef) => {
     const data = file.getData();
-    const xml = plist.build(data);
+    const xml = plist.build(data, {
+      indent: '	', // Tab character
+      offset: -1,
+      newline: '\n'
+    });
     return writeFile(file.getFilename(), xml);
   }
 }
