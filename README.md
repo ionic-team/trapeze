@@ -325,6 +325,21 @@ Configuration files are written in YAML. New to YAML? Read [Learn YAML in five m
 
 See an [Example Yaml Configuration](https://github.com/ionic-team/capacitor-configure/blob/main/examples/basic.yml) for a real-world example using many of the supported features.
 
+## Variables and Environment Variables
+
+Variables defined in the yaml `vars` section can be automatically supplied through environment variables of the same name, or interactively input by the user if not found in the environment and lacking a default value.
+
+For example:
+
+```yaml
+vars:
+  MY_APP_ID:
+  THIS_HAS_A_DEFAULT:
+    default: true
+```
+
+In this case, `MY_APP_ID` has no default value, so `MY_APP_ID` must be found in the environment or an interactive prompt will display asking the user to input a value. `THIS_HAS_A_DEFAULT` will use the default value of `true` unless a value is provided in the environment.
+
 ## Supported Operations
 
 | Platform | Operation                  | Supported          |
