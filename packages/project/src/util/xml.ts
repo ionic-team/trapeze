@@ -1,6 +1,7 @@
 import { readFile, writeFile } from '@ionic/utils-fs';
 import xmldom, { XMLSerializer } from '@xmldom/xmldom';
-import prettier from 'prettier';
+import prettier from 'prettier/standalone';
+import prettierXml from '@prettier/plugin-xml';
 
 export async function parseXml(filename: string) {
   const contents = await readFile(filename, { encoding: 'utf-8' });
@@ -25,6 +26,7 @@ export async function writeXml(doc: any, filename: string, nodePackageRoot: stri
     xmlWhitespaceSensitivity: 'ignore',
     tabWidth: 4,
     pluginSearchDirs: [nodePackageRoot],
+    plugins: [prettierXml]
   } as any);
 
   return writeFile(filename, formatted);
