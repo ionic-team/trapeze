@@ -1,5 +1,13 @@
 # @capacitor/configure
 
+## 1.0.30
+
+### Patch Changes
+
+- Changset
+- Updated dependencies
+  - @capacitor/project@1.0.30
+
 ## 1.0.29
 
 ### Patch Changes
