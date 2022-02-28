@@ -1,5 +1,11 @@
 # @capacitor/project
 
+## 1.0.31
+
+### Patch Changes
+
+- remove bad rollup packages
+
 ## 1.0.30
 
 ### Patch Changes
