@@ -1,21 +1,20 @@
 {
   "name": "root",
   "devDependencies": {
-    "lerna": "^4.0.0"
+    "@changesets/cli": "^2.20.0",
+    "sync-cordova-xml2": "^0.0.3",
+    "turbo": "^1.1.2"
   },
+  "workspaces": [
+    "packages/configure",
+    "packages/gradle-parse",
+    "packages/project"
+  ],
   "scripts": {
-    "clean-change-log": "node ./scripts/clean-changelog.js && lerna run clean-change-log",
-    "lerna:bootstrap": "lerna bootstrap",
-    "test": "lerna run test",
-    "build": "lerna run build",
-    "lerna:publish": "npm run build && lerna publish --conventional-commits --conventional-graduate --create-release github",
-    "lerna:publish:beta": "lerna publish --conventional-commits --conventional-prerelease --preid beta --dist-tag next --force-publish --create-release github",
-    "lerna:publish:dev": "lerna publish prerelease --conventional-commits --conventional-prerelease --no-changelog --preid dev-$(git rev-parse --short HEAD) --dist-tag dev --force-publish --no-git-tag-version --no-push",
-    "lerna:publish:rc": "lerna publish --conventional-commits --conventional-prerelease --preid rc --dist-tag next --force-publish --create-release github",
-    "postinstall": "lerna bootstrap",
-    "release": "lerna run test && lerna run build && npm run lerna:publish",
-    "release:beta": "lerna run test && lerna run build && npm run lerna:publish:beta",
-    "release:dev": "lerna run test && lerna run build && npm run lerna:publish:dev",
-    "release:rc": "lerna run test && lerna run build && npm run lerna:publish:rc"
+    "build": "turbo run build"
+  },
+  "volta": {
+    "node": "16.13.2",
+    "npm": "8.3.0"
   }
 }
