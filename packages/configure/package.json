@@ -19,16 +19,6 @@
     "watch": "tsc -w",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
-  "watch": {
-    "transpile": {
-      "patterns": [
-        "src"
-      ],
-      "extensions": "ts,js",
-      "quite": false
-    },
-    "rollup": "dist/esm/**/*.*"
-  },
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "dependencies": {
@@ -39,8 +29,6 @@
     "@ionic/utils-subprocess": "^2.1.8",
     "@ionic/utils-terminal": "^2.3.1",
     "@prettier/plugin-xml": "^1.1.0",
-    "@rollup/plugin-commonjs": "^17.1.0",
-    "@rollup/plugin-node-resolve": "^11.2.0",
     "commander": "^8.2.0",
     "conventional-changelog": "^3.1.4",
     "env-paths": "^3.0.0",
