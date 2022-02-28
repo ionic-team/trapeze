@@ -1,5 +1,6 @@
 {
   "name": "root",
+  "private": false,
   "devDependencies": {
     "@changesets/cli": "^2.20.0",
     "sync-cordova-xml2": "^0.0.3",
