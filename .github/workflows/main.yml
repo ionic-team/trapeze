@@ -19,15 +19,12 @@ jobs:
           fetch-depth: 0
 
       # Start npm/platform tasks
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 14
+      - uses: volta-cli/action@v1
 
       - name: Install and Test
         env:
           CI: true
         run: |
           npm ci
-          npm run lerna:bootstrap
           npm run build
           npm test
