@@ -11,7 +11,8 @@
     "packages/project"
   ],
   "scripts": {
-    "build": "turbo run build"
+    "build": "turbo run build",
+    "test": "turbo run test"
   },
   "volta": {
     "node": "16.13.2",
