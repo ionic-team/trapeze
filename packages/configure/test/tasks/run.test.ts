@@ -8,7 +8,13 @@ import { runCommand } from '../../src/tasks/run';
 
 describe('task: run', () => {
   it('should run operations', async () => {
-    const ctx = await loadContext('../common/test/fixtures/ios-and-android');
+    const dir = tempy.directory();
+
+    await copy('../common/test/fixtures/ios-and-android', dir);
+    await copy('../common/test/fixtures/basic.yml', join(dir, 'basic.yml'));
+
+    const ctx = await loadContext(dir);
+
     ctx.args.y = true;
     ctx.args.quiet = true;
     ctx.args.noCommit = true;
@@ -18,13 +24,46 @@ describe('task: run', () => {
     const files = ctx.project.vfs.all();
 
     expect(files).toEqual({
-      '../common/test/fixtures/ios-and-android/android/build.gradle': expect.anything(),
-      '../common/test/fixtures/ios-and-android/android/app/build.gradle': expect.anything(),
-      '../common/test/fixtures/ios-and-android/android/app/src/main/AndroidManifest.xml': expect.anything(),
-      '../common/test/fixtures/ios-and-android/ios/App/App.xcodeproj/project.pbxproj': expect.anything(),
-      '../common/test/fixtures/ios-and-android/ios/App/App/App.entitlements': expect.anything(),
-      '../common/test/fixtures/ios-and-android/ios/App/App/Info.plist': expect.anything(),
-      '../common/test/fixtures/ios-and-android/ios/App/My App Clip/AppClip.plist': expect.anything(),
+      [join(dir, 'android/build.gradle')]: expect.anything(),
+      [join(dir, 'android/app/build.gradle')]: expect.anything(),
+      [join(dir, 'android/app/src/main/AndroidManifest.xml')]: expect.anything(),
+      [join(dir, 'ios/App/App.xcodeproj/project.pbxproj')]: expect.anything(),
+      [join(dir, 'ios/App/App/App.entitlements')]: expect.anything(),
+      [join(dir, 'ios/App/App/Info.plist')]: expect.anything(),
+      [join(dir, 'ios/App/My App Clip/AppClip.plist')]: expect.anything(),
+      [join(dir, 'ios/App/My App Clip/My_App_Clip.entitlements')]: expect.anything(),
+    });
+
+    await rm(dir, { force: true, recursive: true });
+  });
+
+  it('Should support providing the project root as an arg', async () => {
+    const dir = tempy.directory();
+
+    await copy('../common/test/fixtures/custom-platform-directories', dir);
+
+    process.argv.push('--projectRoot');
+    process.argv.push(dir);
+    process.argv.push('-y');
+    process.argv.push('--quiet');
+    process.argv.push('--noCommit');
+    const ctx = await loadContext();
+
+    expect(ctx.args.projectRoot).toBe(dir);
+
+    await runCommand(ctx, '../common/test/fixtures/basic.yml');
+
+    const files = ctx.project.vfs.all();
+
+    expect(files).toEqual({
+      [join(dir, 'my-android-app/build.gradle')]: expect.anything(),
+      [join(dir, 'my-android-app/app/build.gradle')]: expect.anything(),
+      [join(dir, 'my-android-app/app/src/main/AndroidManifest.xml')]: expect.anything(),
+      [join(dir, 'my-ios-app/App/App.xcodeproj/project.pbxproj')]: expect.anything(),
+      [join(dir, 'my-ios-app/App/App/App.entitlements')]: expect.anything(),
+      [join(dir, 'my-ios-app/App/App/Info.plist')]: expect.anything(),
+      [join(dir, 'my-ios-app/App/My App Clip/AppClip.plist')]: expect.anything(),
+      [join(dir, 'my-ios-app/App/My App Clip/My_App_Clip.entitlements')]: expect.anything(),
     });
   });
 
@@ -50,6 +89,7 @@ describe('task: run', () => {
       [join(dir, 'ios/App/App/App.entitlements')]: expect.anything(),
       [join(dir, 'ios/App/App/Info.plist')]: expect.anything(),
       [join(dir, 'ios/App/My App Clip/AppClip.plist')]: expect.anything(),
+      [join(dir, 'ios/App/My App Clip/My_App_Clip.entitlements')]: expect.anything(),
     });
 
     await ctx.project.commit();
@@ -80,7 +120,7 @@ describe('task: run', () => {
   });
 
   // TODO: Separate this out into multiple sub-tests
-  it.only('should commit operations to filesystem directly with y', async () => {
+  it('should commit operations to filesystem directly with y', async () => {
     const dir = tempy.directory();
 
     await copy('../common/test/fixtures/ios-and-android', dir);
