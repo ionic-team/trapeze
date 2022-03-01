@@ -1,5 +1,11 @@
 # @capacitor/project
 
+## 1.1.0
+
+### Minor Changes
+
+- Support customizing the project root and loading capacitor config
+
 ## 1.0.31
 
 ### Patch Changes
