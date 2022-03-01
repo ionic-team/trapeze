@@ -1,17 +1,20 @@
+import { join } from 'path';
 import { Context, loadContext } from '../src/ctx';
 import { loadConfig } from '../src/config';
 
 describe('context and capacitor project loading', () => {
   let ctx: Context;
   it('should load capacitor configuration', async () => {
-    ctx = await loadContext('../common/test/fixtures/ios-and-android');
-    expect(ctx.project.config?.ios?.path).toBe('ios');
-    expect(ctx.project.config?.android?.path).toBe('android');
+    const dir = '../common/test/fixtures/ios-and-android';
+    ctx = await loadContext(dir)
+    expect(ctx.project.config?.ios?.path).toBe(join(dir, 'ios'));
+    expect(ctx.project.config?.android?.path).toBe(join(dir, 'android'));
   });
 
-  it('should load capacitor configuration with customer dir', async () => {
-    ctx = await loadContext('../common/test/fixtures/custom-platform-directories');
-    expect(ctx.project.config?.ios?.path).toBe('my-ios-app');
-    expect(ctx.project.config?.android?.path).toBe('my-android-app');
+  it('should load capacitor configuration with custom dir', async () => {
+    const dir = '../common/test/fixtures/custom-platform-directories';
+    ctx = await loadContext(dir);
+    expect(ctx.project.config?.ios?.path).toBe(join(dir, 'my-ios-app'));
+    expect(ctx.project.config?.android?.path).toBe(join(dir, 'my-android-app'));
   });
 });

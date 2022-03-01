@@ -129,6 +129,7 @@ describe('task: run', () => {
     const ctx = await loadContext(dir);
     ctx.args.y = true;
     ctx.args.quiet = true;
+    ctx.args.noCommit = false;
 
     await runCommand(ctx, join(dir, 'basic.yml'));
 
