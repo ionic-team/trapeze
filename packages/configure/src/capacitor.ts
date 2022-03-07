@@ -42,9 +42,7 @@ export async function loadExtConfig(rootDir: string): Promise<CapacitorConfig | 
   const extConfigFilePathTS = resolve(rootDir, CONFIG_FILE_NAME_TS);
 
   if (await pathExists(extConfigFilePathTS)) {
-    console.log('Loading TS config', rootDir, CONFIG_FILE_NAME_TS, extConfigFilePathTS);
     const tsConfig = await loadExtConfigTS(rootDir, CONFIG_FILE_NAME_TS, extConfigFilePathTS);
-    console.log('GOT TSCONFIG', tsConfig);
     return tsConfig;
   }
 

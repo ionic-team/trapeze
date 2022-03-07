@@ -19,7 +19,7 @@
   "typings": "dist/index.d.ts",
   "dependencies": {
     "@capacitor/cli": "^3.2.5",
-    "@capacitor/gradle-parse": "^1.0.22",
+    "@capacitor/gradle-parse": "*",
     "@ionic/utils-fs": "^3.1.5",
     "@ionic/utils-subprocess": "^2.1.8",
     "@prettier/plugin-xml": "^1.1.0",

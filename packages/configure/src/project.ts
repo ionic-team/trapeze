@@ -18,9 +18,24 @@ async function loadCapacitorConfig(projectRootPath?: string): Promise<CapacitorC
     extConfig = await loadExtConfig(projectRootPath ?? '');
     if (extConfig?.android?.path) {
       extConfig.android.path = join(projectRootPath ?? '', extConfig.android.path);
+    } else {
+      extConfig = {
+        ...extConfig,
+        android: {
+          path: projectRootPath ? join(projectRootPath, 'android') : 'android'
+        }
+      }
     }
+
     if (extConfig?.ios?.path) {
       extConfig.ios.path = join(projectRootPath ?? '', extConfig.ios.path);
+    } else {
+      extConfig = {
+        ...extConfig,
+        ios: {
+          path: projectRootPath ? join(projectRootPath, 'ios') : 'ios'
+        }
+      }
     }
   } catch (e) {
     console.warn('Unable to load external Capacitor config', e);
