@@ -1,5 +1,13 @@
 # @capacitor/project
 
+## 1.1.1
+
+### Patch Changes
+
+- Fix loading of capacitor config
+- Updated dependencies
+  - @capacitor/gradle-parse@1.0.23
+
 ## 1.1.0
 
 ### Minor Changes

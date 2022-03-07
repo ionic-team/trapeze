@@ -1,5 +1,13 @@
 # @capacitor/configure
 
+## 1.1.1
+
+### Patch Changes
+
+- Fix loading of capacitor config
+- Updated dependencies
+  - @capacitor/project@1.1.1
+
 ## 1.1.0
 
 ### Minor Changes
