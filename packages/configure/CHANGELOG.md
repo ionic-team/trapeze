@@ -1,5 +1,16 @@
 # @capacitor/configure
 
+## 2.0.0
+
+### Major Changes
+
+- Fixed issue with iOS getBuild and made several iOS project functions async
+
+### Patch Changes
+
+- Updated dependencies
+  - @capacitor/project@2.0.0
+
 ## 1.1.1
 
 ### Patch Changes
