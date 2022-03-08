@@ -9,6 +9,11 @@ export default async function execute(ctx: Context, op: Operation) {
     if (!gradleFile) {
       throw new Error(`Unable to modify gradle file ${entry.file}. Options are build.gradle or app/build.gradle`);
     }
+
+    if (Array.isArray(entry.replace)) {
+      await gradleFile.replaceProperties(entry.target, entry.replace);
+    }
+
     if (typeof entry.insert === 'string') {
       await gradleFile.insertFragment(entry.target, entry.insert);
     } else if (Array.isArray(entry.insert)) {

@@ -58,6 +58,56 @@ describe('project - android - gradle', () => {
     expect(nodes.length).not.toBe(0);
   });
 
+  it.only('Should replace at spot', async () => {
+    const gradle = new GradleFile(join('../common/test/fixtures/replace.gradle'), vfs);
+
+    /*
+    await gradle.replaceProperties({
+      buildscript: {
+        dependencies: {
+          implementation: {}
+        }
+      }
+    }, { implementation: "'com.whatever.cool'" });
+    */
+
+    await gradle.replaceProperties({
+      buildscript: {
+        thing: {
+          field: {}
+        }
+      }
+    }, { field: 4 });
+
+    const source = vfs.get(gradle.filename)?.getData();
+    expect(source.trim()).toBe(`
+dependencies {}
+
+buildscript {
+    thing {
+        field 4
+    }
+    dependencies {
+        implementation 'fake thing'
+    }
+}
+
+extra {
+  what {
+    foo 10
+  }
+}
+
+allprojects {
+    nest1 {
+        nest2 {
+            dependencies {}
+        }
+    }
+}
+`.trim());
+  });
+
   it('Should inject at spot', async () => {
     const gradle = new GradleFile(join(project.config.android!.path!, 'app', 'build.gradle'), vfs);
 
