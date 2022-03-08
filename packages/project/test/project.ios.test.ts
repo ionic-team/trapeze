@@ -4,7 +4,7 @@ import { copy, pathExists, readFile, rm } from '@ionic/utils-fs';
 import { CapacitorConfig } from '@capacitor/cli';
 import { CapacitorProject } from '../src';
 
-describe('project - ios', () => {
+describe('project - ios standard', () => {
   let config: CapacitorConfig;
   let project: CapacitorProject;
   let dir: string;
@@ -86,25 +86,25 @@ describe('project - ios', () => {
   });
 
   it('should get build number', async () => {
-    expect(project.ios?.getBuild('App', 'Debug')).toBe(1);
-    expect(project.ios?.getBuild('App', 'Release')).toBe(1);
+    expect(await project.ios?.getBuild('App', 'Debug')).toBe(1);
+    expect(await project.ios?.getBuild('App', 'Release')).toBe(1);
     expect(await project.ios?.incrementBuild('App', 'Debug'));
-    expect(project.ios?.getBuild('App', 'Debug')).toBe(2);
-    expect(project.ios?.getBuild('App', 'Release')).toBe(1);
+    expect(await project.ios?.getBuild('App', 'Debug')).toBe(2);
+    expect(await project.ios?.getBuild('App', 'Release')).toBe(1);
     expect(await project.ios?.incrementBuild('App'));
-    expect(project.ios?.getBuild('App', 'Debug')).toBe(2);
-    expect(project.ios?.getBuild('App', 'Release')).toBe(2);
+    expect(await project.ios?.getBuild('App', 'Debug')).toBe(2);
+    expect(await project.ios?.getBuild('App', 'Release')).toBe(2);
 
     // Make sure the info plist is updated to use the CURRENT_PROJECT_VERSION
-    const filename = project.ios?.getInfoPlistFilename('App', 'Debug');
+    const filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
     const updated = project.vfs.get(filename!)?.getData();
     expect(updated['CFBundleVersion']).toBe('$(CURRENT_PROJECT_VERSION)');
   });
 
   it('should set build number', async () => {
     await project.ios?.setBuild('App', 'Debug', 42);
-    expect(project.ios?.getBuild('App', 'Debug')).toBe(42);
-    const filename = project.ios?.getInfoPlistFilename('App', 'Debug');
+    expect(await project.ios?.getBuild('App', 'Debug')).toBe(42);
+    const filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
     const updated = project.vfs.get(filename!)?.getData();
     expect(updated['CFBundleVersion']).toBe('$(CURRENT_PROJECT_VERSION)');
   });
@@ -113,7 +113,7 @@ describe('project - ios', () => {
     await project.ios?.setVersion('App', 'Debug', '1.4.5');
     expect(project.ios?.getVersion('App', 'Debug')).toBe('1.4.5');
     // Make sure the info plist is updated to use the MARKETING_VERSION
-    const filename = project.ios?.getInfoPlistFilename('App', 'Debug');
+    const filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
     const updated = project.vfs.get(filename!)?.getData();
     expect(updated['CFBundleShortVersionString']).toBe('$(MARKETING_VERSION)');
   });
@@ -189,19 +189,19 @@ describe('project - ios', () => {
   });
 
   it('should get info.plist for each target', async () => {
-    expect(project.ios?.getInfoPlist('App', 'Debug')).toBe('App/Info.plist');
-    expect(project.ios?.getInfoPlist('App', 'Release')).toBe('App/Info.plist');
-    expect(project.ios?.getInfoPlist('App')).toBe('App/Info.plist');
-    expect(project.ios?.getInfoPlist('My App Clip', 'Debug')).toBe('My App Clip/AppClip.plist');
-    expect(project.ios?.getInfoPlist('My App Clip', 'Release')).toBe('My App Clip/AppClip.plist');
-    expect(project.ios?.getInfoPlist('My Share Extension', 'Debug')).toBe('My Share Extension/Info.plist');
-    expect(project.ios?.getInfoPlist('My Share Extension', 'Release')).toBe('My Share Extension/Info.plist');
+    expect(await project.ios?.getInfoPlist('App', 'Debug')).toBe('App/Info.plist');
+    expect(await project.ios?.getInfoPlist('App', 'Release')).toBe('App/Info.plist');
+    expect(await project.ios?.getInfoPlist('App')).toBe('App/Info.plist');
+    expect(await project.ios?.getInfoPlist('My App Clip', 'Debug')).toBe('My App Clip/AppClip.plist');
+    expect(await project.ios?.getInfoPlist('My App Clip', 'Release')).toBe('My App Clip/AppClip.plist');
+    expect(await project.ios?.getInfoPlist('My Share Extension', 'Debug')).toBe('My Share Extension/Info.plist');
+    expect(await project.ios?.getInfoPlist('My Share Extension', 'Release')).toBe('My Share Extension/Info.plist');
   });
 
   it('should set display name for target', async () => {
     await project.ios?.setDisplayName('App', 'Debug', 'Super Duper App');
     expect(await project.ios?.getDisplayName('App', 'Debug')).toBe('Super Duper App');
-    const filename = project.ios?.getInfoPlistFilename('App', 'Debug');
+    const filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
     const updated = project.vfs.get(filename!)?.getData();
     expect(updated['CFBundleDisplayName']).toBe('Super Duper App');
   });
@@ -211,7 +211,7 @@ describe('project - ios', () => {
       NSFaceIDUsageDescription: 'The better to see you with'
     });
 
-    const filename = project.ios?.getInfoPlistFilename('App', 'Debug');
+    const filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
     const updated = project.vfs.get(filename!)?.getData();
     expect(updated['NSFaceIDUsageDescription']).toBe('The better to see you with');
   });
@@ -225,7 +225,7 @@ describe('project - ios', () => {
       NSFaceIDUsageDescription: 'This is new'
     });
 
-    const filename = project.ios?.getInfoPlistFilename('App', 'Debug');
+    const filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
     const updated = project.vfs.get(filename!)?.getData();
     expect(updated['NSFaceIDUsageDescription']).toBe('This is new');
   });
@@ -236,7 +236,7 @@ describe('project - ios', () => {
         'AppendThis'
       ]
     });
-    let filename = project.ios?.getInfoPlistFilename('App', 'Debug');
+    let filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
     let updated = project.vfs.get(filename!)?.getData();
     expect(updated['UISupportedInterfaceOrientations']).toEqual([
       'UIInterfaceOrientationPortrait',
@@ -252,7 +252,7 @@ describe('project - ios', () => {
     }, {
       replace: true
     });
-    filename = project.ios?.getInfoPlistFilename('App', 'Debug');
+    filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
     updated = project.vfs.get(filename!)?.getData();
     expect(updated['UISupportedInterfaceOrientations']).toEqual(['UIInterfaceOrientationPortrait']);
   });
@@ -263,7 +263,7 @@ describe('project - ios', () => {
         'AppendThis': false
       }
     });
-    let filename = project.ios?.getInfoPlistFilename('App', 'Debug');
+    let filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
     let updated = project.vfs.get(filename!)?.getData();
     expect(updated['TestDict']).toEqual({
       'Item1': 'String1',
@@ -278,7 +278,7 @@ describe('project - ios', () => {
     }, {
       replace: true
     });
-    filename = project.ios?.getInfoPlistFilename('App', 'Debug');
+    filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
     updated = project.vfs.get(filename!)?.getData();
     expect(updated['TestDict']).toEqual({
       'AppendThis': false
@@ -304,7 +304,7 @@ describe('project - ios', () => {
         }
       ]
     });
-    let filename = project.ios?.getInfoPlistFilename('App', 'Debug');
+    let filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
     let updated = project.vfs.get(filename!)?.getData();
     expect(updated['CFBundleURLTypes']).toEqual([
       {
@@ -324,5 +324,32 @@ describe('project - ios', () => {
     } catch (e) {
       expect((e as any).message).toBe(`Target 'Invalid Target' not found in project`);
     }
+  });
+
+});
+
+describe('ios - empty template case', () => {
+  let config: CapacitorConfig;
+  let project: CapacitorProject;
+  let dir: string;
+  beforeEach(async () => {
+    dir = tempy.directory();
+    await copy('../common/test/fixtures/ios-no-current-project-version', dir);
+
+    config = {
+      ios: {
+        path: join(dir, 'ios')
+      },
+      android: {
+        path: join(dir, 'android')
+      }
+    }
+
+    project = new CapacitorProject(config);
+    await project.load();
+  });
+
+  it('should get build number when CURRENT_PROJECT_VERSION missing', async () => {
+    expect(await project.ios?.getBuild(null)).toBe("1");
   });
 });

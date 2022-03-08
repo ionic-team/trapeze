@@ -141,7 +141,7 @@ export class IosProject {
   async setBuild(targetName: IosTargetName | null, buildName: IosBuildName | null, buildNumber: number) {
     this.pbxProject?.updateBuildProperty('CURRENT_PROJECT_VERSION', buildNumber, buildName, targetName);
 
-    const file = this.getInfoPlist(targetName, buildName ?? undefined);
+    const file = await this.getInfoPlist(targetName, buildName ?? undefined);
     if (!file || !this.project?.config.ios?.path) {
       throw new Error('Unable to load plist file');
     }
@@ -157,8 +157,22 @@ export class IosProject {
    * Get the build number (aka the `CURRENT_PROJECT_VERSION`) for the given target and build.
    * If the `targetName` is null the main app target is used. If the `buildName` is null the value is set for both builds (Debug/Release);
    */
-  getBuild(targetName: IosTargetName | null, buildName?: IosBuildName | null | undefined) {
-    return this.pbxProject?.getBuildProperty('CURRENT_PROJECT_VERSION', buildName, targetName);
+  async getBuild(targetName: IosTargetName | null, buildName?: IosBuildName | null | undefined) {
+    const currentProjectVersion = this.pbxProject?.getBuildProperty('CURRENT_PROJECT_VERSION', buildName, targetName);
+
+    if (currentProjectVersion) {
+      return currentProjectVersion;
+    }
+
+    const file = await this.getInfoPlist(targetName, buildName ?? undefined);
+    if (!file || !this.project?.config.ios?.path) {
+      throw new Error('Unable to load plist file');
+    }
+
+    const filename = join(this.project.config.ios.path, 'App', file);
+
+    const parsed = await this.plist(filename);
+    return parsed['CFBundleVersion'];
   }
 
   /**
@@ -185,7 +199,7 @@ export class IosProject {
 
     this.pbxProject?.updateBuildProperty('MARKETING_VERSION', version, buildName, targetName);
 
-    const file = this.getInfoPlist(targetName, buildName ?? undefined);
+    const file = await this.getInfoPlist(targetName, buildName ?? undefined);
     if (!file || !this.project?.config.ios?.path) {
       throw new Error('Unable to load plist file');
     }
@@ -326,7 +340,7 @@ export class IosProject {
   /**
    * Gets the relative Info plist file from the build settings.
    */
-  getInfoPlist(targetName: IosTargetName | null, buildName?: IosBuildName | null | undefined) {
+  async getInfoPlist(targetName: IosTargetName | null, buildName?: IosBuildName | null | undefined) {
     targetName = this.assertTargetName(targetName || null);
 
     return this.getBuildProperty(targetName, buildName ?? null, 'INFOPLIST_FILE');
@@ -336,8 +350,8 @@ export class IosProject {
    * Gets the full relative path to the Info plist after getting the relative path
    * from the build settings and resolving it with the app path
    */
-  getInfoPlistFilename(targetName: IosTargetName, buildName?: IosBuildName | null | undefined): string | null {
-    const file = this.getInfoPlist(targetName, buildName);
+  async getInfoPlistFilename(targetName: IosTargetName, buildName?: IosBuildName | null | undefined): Promise<string | null> {
+    const file = await this.getInfoPlist(targetName, buildName);
     if (!this.project?.config.ios?.path) {
       return null;
     }
@@ -353,7 +367,7 @@ export class IosProject {
   async setDisplayName(targetName: IosTargetName | null, buildName: IosBuildName | null, displayName: string) {
     targetName = this.assertTargetName(targetName || null);
 
-    const file = this.getInfoPlist(targetName, buildName ?? undefined);
+    const file = await this.getInfoPlist(targetName, buildName ?? undefined);
     if (!file || !this.project?.config.ios?.path) {
       throw new Error('Unable to load plist file');
     }
@@ -373,7 +387,7 @@ export class IosProject {
   async getDisplayName(targetName: IosTargetName | null, buildName?: IosBuildName | null | undefined): Promise<string | null> {
     targetName = this.assertTargetName(targetName || null);
 
-    const filename = this.getInfoPlistFilename(targetName, buildName);
+    const filename = await this.getInfoPlistFilename(targetName, buildName);
     if (!filename) {
       return null;
     }
@@ -393,7 +407,7 @@ export class IosProject {
   }) {
     targetName = this.assertTargetName(targetName || null);
 
-    const filename = this.getInfoPlistFilename(targetName, buildName ?? undefined);
+    const filename = await this.getInfoPlistFilename(targetName, buildName ?? undefined);
     if (!filename) {
       throw new Error('Unable to get plist filename to update');
     }
