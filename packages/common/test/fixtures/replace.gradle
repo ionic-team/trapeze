@@ -10,9 +10,9 @@ buildscript {
 }
 
 extra {
-  what {
-    foo 10
-  }
+    what {
+        foo 10
+    }
 }
 
 allprojects {

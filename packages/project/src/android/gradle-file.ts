@@ -38,46 +38,50 @@ export class GradleFile {
 
     const found = this.find(pathObject);
     if (!found.length) {
-      throw new Error('Unable to find method in Gradle file to inject');
+      // Create a parent selector object since we're going to insert instead
+      const parent = this._makeReplacePathObject(pathObject, Object.keys(toReplace)[0]);
+      const foundParent = this.find(parent);
+
+      if (foundParent.length) {
+        this.insertIntoGradleFile([toReplace], foundParent[0]);
+        return;
+      } else {
+        throw new Error('Unable to find target in Gradle file to replace or insert');
+      }
     }
 
     const target = found[0];
 
-    // const replacePathObject = this._makeReplacePathObject(pathObject, Object.keys(toReplace)[0]);
-
-    // const existingReplaceTarget = this.find(target);
-
-    //console.log('New replace path object', replacePathObject);
-    console.log(toReplace);
-
     return this.replaceInGradleFile(toReplace, target);
   }
 
+  // Build a new pathObject that is the path to the parent rather than
+  // the path in pathObject
   _makeReplacePathObject(pathObject: any, injectKey: string) {
-    let x = cloneDeep(pathObject);
-    while (x) {
-      console.log(x, injectKey);
-      const keys = Object.keys(x);
-      const newX = x[keys[0]];
+    let x: any = {};
+    let y = x;
 
-      // If we already have a matching entry in the 
-      if (keys[0] === injectKey && !Object.keys(newX).length) {
-        return pathObject;
+    let a = pathObject;
+    while (a) {
+      console.log(a, x, injectKey);
+      const keys = Object.keys(a);
+
+      if (keys[0] === injectKey || !keys.length) {
+        return y;
       }
 
-      if (!Object.keys(newX).length) {
-        newX[injectKey] = {};
-        break;
-      }
+      const o = {};
+      x[keys[0]] = o;
+      x = o;
 
-      x = newX;
+      a = a[keys[0]];
     }
 
-    return x;
+    return y;
   }
 
   /**
-   * Inject a modification into the gradle file.
+   * Replace an entry in the gradle file.
    */
   // This is a beast, sorry. Hey, at least there's tests
   // In the future, this could be moved to the Java `gradle-parse` package provided in this monorepo
@@ -86,8 +90,6 @@ export class GradleFile {
     // These values are 1-indexed not 0-indexed
     //let { line, column, lastLine, lastColumn } = targetNode.node.source;
     let { line, column, lastLine, lastColumn } = targetNode.node.source;
-
-    console.log('Replacing in node', targetNode.node, targetNode.depth);
 
     const source = await this.getGradleSource() ?? '';
     const sourceLines = source.split(/\r?\n/);
@@ -107,28 +109,20 @@ export class GradleFile {
 
     this.createGradleSource([toInject], lines /* out */, detectedIndent.indent);
 
-    console.log('New source', lines);
-
     const resolvedLastLine = lastLine < 0 ? sourceLines.length : lastLine;
 
     const formatted = lines.join('\n');
 
     const indentAmount = targetNode.depth;
 
-    let newSource: string | null = null;
-
     const indented = indent(formatted, detectedIndent.indent, indentAmount - 1);
 
-    console.log('Making change at start line', line, 'to', resolvedLastLine + 1)
-    console.log('New line', indented);
-
-    newSource = sourceLines.slice(0, Math.max(0, line - 1))
+    // Replace the target lines with our new source line
+    const newSource = sourceLines.slice(0, Math.max(0, line - 1))
       .join('\n') +
       '\n' + indented + '\n' +
       sourceLines.slice(Math.max(0, resolvedLastLine), sourceLines.length)
         .join('\n')
-
-    console.log('new source', newSource);
 
     this.vfs.get(this.filename)?.setData(newSource);
   }
@@ -145,6 +139,7 @@ export class GradleFile {
 
     const found = this.find(pathObject);
     if (!found.length) {
+      const parent = pathObject
       throw new Error('Unable to find method in Gradle file to inject');
     }
 
@@ -462,12 +457,7 @@ export class GradleFile {
   ]
   */
   private createGradleSource(injectObj: any[], lines: string[], indentation: string, depth = 0) {
-    console.log('Creating gradle source', injectObj, lines);
-
     for (const entry of injectObj) {
-
-      console.log(entry);
-
       const keys = Object.keys(entry);
 
       for (const key of keys) {
