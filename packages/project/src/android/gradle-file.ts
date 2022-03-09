@@ -27,7 +27,8 @@ export class GradleFile {
   }
 
   /**
-   * Insert the given properties at the specified point in the Gradle file.
+   * Replace the given properties at the specified point in the Gradle file or insert
+   * if the replacement doesn't exist
    **/
   async replaceProperties(pathObject: any, toReplace: any): Promise<void> {
     await this.parse();
@@ -63,7 +64,6 @@ export class GradleFile {
 
     let a = pathObject;
     while (a) {
-      console.log(a, x, injectKey);
       const keys = Object.keys(a);
 
       if (keys[0] === injectKey || !keys.length) {

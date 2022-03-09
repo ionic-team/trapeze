@@ -144,6 +144,23 @@ platforms:
             includeExternalLibraries = ["androidx.*", "com.getcapacitor.*"]
           }
 
+      - file: app/build.gradle
+        target:
+          android:
+            buildTypes:
+              release:
+                minifyEnabled:
+        replace:
+          minifyEnabled: true
+
+      - file: app/build.gradle
+        target:
+          android:
+            buildTypes:
+              implementation:
+        replace:
+          implementation: "'test-implementation'"
+
     res:
       - path: raw
         file: auth_config.json

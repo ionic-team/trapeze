@@ -156,6 +156,9 @@ describe('task: run', () => {
     expect(appGradleContents).toContain('intunemam {');
     expect(appGradleContents).toContain('versionCode 197');
     expect(appGradleContents).toContain('versionName "5.2.1"');
+    // This was a replace rather than an insert
+    expect(appGradleContents).toContain('minifyEnabled true');
+    expect(appGradleContents).toContain('implementation \'test-implementation\'');
 
     const pbxProj = await readFile(join(dir, 'ios/App/App.xcodeproj/project.pbxproj'), { encoding: 'utf-8' });
     expect(pbxProj).toContain('PRODUCT_BUNDLE_IDENTIFIER = io.ionic.fixtureTest');

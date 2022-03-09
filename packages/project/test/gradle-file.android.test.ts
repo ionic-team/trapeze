@@ -58,7 +58,7 @@ describe('project - android - gradle', () => {
     expect(nodes.length).not.toBe(0);
   });
 
-  it.only('Should replace at spot', async () => {
+  it('Should replace at spot', async () => {
     const gradle = new GradleFile(join('../common/test/fixtures/replace.gradle'), vfs);
 
     await gradle.replaceProperties({
@@ -103,7 +103,7 @@ allprojects {
 `.trim());
   });
 
-  it.only('Should inject during replace if target does not exist', async () => {
+  it('Should inject during replace if target does not exist', async () => {
     const gradle = new GradleFile(join('../common/test/fixtures/replace.gradle'), vfs);
 
     await gradle.replaceProperties({
