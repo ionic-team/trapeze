@@ -139,7 +139,6 @@ export class GradleFile {
 
     const found = this.find(pathObject);
     if (!found.length) {
-      const parent = pathObject
       throw new Error('Unable to find method in Gradle file to inject');
     }
 
