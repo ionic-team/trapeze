@@ -58,6 +58,97 @@ describe('project - android - gradle', () => {
     expect(nodes.length).not.toBe(0);
   });
 
+  it('Should replace at spot', async () => {
+    const gradle = new GradleFile(join('../common/test/fixtures/replace.gradle'), vfs);
+
+    await gradle.replaceProperties({
+      buildscript: {
+        thing: {
+          field: {}
+        }
+      }
+    }, { field: 4 });
+
+    await gradle.replaceProperties({
+      extra: {
+        what: {
+        }
+      }
+    }, { what: "'this'" });
+
+    const source = vfs.get(gradle.filename)?.getData();
+    expect(source.trim()).toBe(`
+dependencies {}
+
+buildscript {
+    thing {
+        field 4
+    }
+    dependencies {
+        implementation 'fake thing'
+    }
+}
+
+extra {
+    what 'this'
+}
+
+allprojects {
+    nest1 {
+        nest2 {
+            dependencies {}
+        }
+    }
+}
+`.trim());
+  });
+
+  it('Should inject during replace if target does not exist', async () => {
+    const gradle = new GradleFile(join('../common/test/fixtures/replace.gradle'), vfs);
+
+    await gradle.replaceProperties({
+      allprojects: {
+        nest1: {
+          nest2: {
+            dependencies: {
+              implementation: {}
+            }
+          }
+        }
+      }
+    }, { implementation: "'com.ionicframework.test'" });
+
+    const source = vfs.get(gradle.filename)?.getData();
+    expect(source.trim()).toBe(`
+dependencies {}
+
+buildscript {
+    thing {
+        field 2
+    }
+    dependencies {
+        implementation 'fake thing'
+    }
+}
+
+extra {
+    what {
+        foo 10
+    }
+}
+
+allprojects {
+    nest1 {
+        nest2 {
+            dependencies {
+                implementation 'com.ionicframework.test'
+            }
+        }
+    }
+}
+`.trim());
+  });
+
   it('Should inject at spot', async () => {
     const gradle = new GradleFile(join(project.config.android!.path!, 'app', 'build.gradle'), vfs);
 

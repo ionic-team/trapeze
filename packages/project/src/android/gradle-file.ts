@@ -1,10 +1,11 @@
 import { dirname, join } from 'path';
+import tempy from 'tempy';
+import { cloneDeep } from 'lodash';
 import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
 import { runCommand } from '../util/subprocess';
 import { getIndentation, indent } from '../util/text';
 import { VFS, VFSRef } from '../vfs';
 import detectIndent from '../util/detect-indent';
-import tempy from 'tempy';
 
 export type GradleAST = any;
 export interface GradleASTNode {
@@ -23,6 +24,107 @@ export class GradleFile {
   private tempFile: string | null = null;
 
   constructor(public filename: string, private vfs: VFS) {
+  }
+
+  /**
+   * Replace the given properties at the specified point in the Gradle file or insert
+   * if the replacement doesn't exist
+   **/
+  async replaceProperties(pathObject: any, toReplace: any): Promise<void> {
+    await this.parse();
+
+    if (!this.parsed) {
+      throw new Error('Call parse() first to load Gradle file');
+    }
+
+    const found = this.find(pathObject);
+    if (!found.length) {
+      // Create a parent selector object since we're going to insert instead
+      const parent = this._makeReplacePathObject(pathObject, Object.keys(toReplace)[0]);
+      const foundParent = this.find(parent);
+
+      if (foundParent.length) {
+        this.insertIntoGradleFile([toReplace], foundParent[0]);
+        return;
+      } else {
+        throw new Error('Unable to find target in Gradle file to replace or insert');
+      }
+    }
+
+    const target = found[0];
+
+    return this.replaceInGradleFile(toReplace, target);
+  }
+
+  // Build a new pathObject that is the path to the parent rather than
+  // the path in pathObject
+  _makeReplacePathObject(pathObject: any, injectKey: string) {
+    let x: any = {};
+    let y = x;
+
+    let a = pathObject;
+    while (a) {
+      const keys = Object.keys(a);
+
+      if (keys[0] === injectKey || !keys.length) {
+        return y;
+      }
+
+      const o = {};
+      x[keys[0]] = o;
+      x = o;
+
+      a = a[keys[0]];
+    }
+
+    return y;
+  }
+
+  /**
+   * Replace an entry in the gradle file.
+   */
+  // This is a beast, sorry. Hey, at least there's tests
+  // In the future, this could be moved to the Java `gradle-parse` package provided in this monorepo
+  // along with modifying the AST to inject our script but this works fine forn ow
+  private async replaceInGradleFile(toInject: any, targetNode: { node: GradleASTNode, depth: number }) {
+    // These values are 1-indexed not 0-indexed
+    //let { line, column, lastLine, lastColumn } = targetNode.node.source;
+    let { line, column, lastLine, lastColumn } = targetNode.node.source;
+
+    const source = await this.getGradleSource() ?? '';
+    const sourceLines = source.split(/\r?\n/);
+
+    if (line == -1) {
+      // Set to first line (remember, 1-indexed)
+      line = 1;
+    }
+    if (lastLine === -1) {
+      // Set to last line (remember, 1-indexed)
+      lastLine = sourceLines.length + 1;
+    }
+
+    const detectedIndent = detectIndent(source);
+
+    let lines: string[] = [];
+
+    this.createGradleSource([toInject], lines /* out */, detectedIndent.indent);
+
+    const resolvedLastLine = lastLine < 0 ? sourceLines.length : lastLine;
+
+    const formatted = lines.join('\n');
+
+    const indentAmount = targetNode.depth;
+
+    const indented = indent(formatted, detectedIndent.indent, indentAmount - 1);
+
+    // Replace the target lines with our new source line
+    const newSource = sourceLines.slice(0, Math.max(0, line - 1))
+      .join('\n') +
+      '\n' + indented + '\n' +
+      sourceLines.slice(Math.max(0, resolvedLastLine), sourceLines.length)
+        .join('\n')
+
+    this.vfs.get(this.filename)?.setData(newSource);
   }
 
   /**
@@ -113,7 +215,6 @@ export class GradleFile {
       throw new Error(`Unable to load or parse gradle file: ${e}`);
     }
   }
-
 
   /**
    * Inject a modification into the gradle file.
@@ -356,7 +457,6 @@ export class GradleFile {
   */
   private createGradleSource(injectObj: any[], lines: string[], indentation: string, depth = 0) {
     for (const entry of injectObj) {
-
       const keys = Object.keys(entry);
 
       for (const key of keys) {
@@ -366,7 +466,7 @@ export class GradleFile {
           lines.push(`${key} {`);
           this.createGradleSource(editEntry, lines, indentation, depth + 1);
           lines.push('}');
-        } else if (typeof editEntry === 'string') {
+        } else if (typeof editEntry === 'string' || typeof editEntry === 'number' || typeof editEntry === 'boolean') {
           lines.push(indent(`${key} ${editEntry}`, indentation, depth));
         } else {
           const fields = Object.keys(editEntry);
