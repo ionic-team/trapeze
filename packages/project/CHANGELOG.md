@@ -1,5 +1,11 @@
 # @capacitor/project
 
+## 2.0.1
+
+### Patch Changes
+
+- Added support for replace for gradle files
+
 ## 2.0.0
 
 ### Major Changes
