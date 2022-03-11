@@ -1,5 +1,11 @@
 # @capacitor/project
 
+## 2.0.2
+
+### Patch Changes
+
+- Built
+
 ## 2.0.1
 
 ### Patch Changes
