@@ -1,5 +1,13 @@
 # @capacitor/configure
 
+## 2.0.3
+
+### Patch Changes
+
+- Fixing package fixing
+- Updated dependencies
+  - @capacitor/project@2.0.3
+
 ## 2.0.2
 
 ### Patch Changes

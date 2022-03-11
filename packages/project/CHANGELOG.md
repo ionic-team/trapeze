@@ -1,5 +1,13 @@
 # @capacitor/project
 
+## 2.0.3
+
+### Patch Changes
+
+- Fixing package fixing
+- Updated dependencies
+  - @capacitor/gradle-parse@2.0.3
+
 ## 2.0.2
 
 ### Patch Changes
