@@ -1,5 +1,11 @@
 # @capacitor/configure
 
+## 2.0.2
+
+### Patch Changes
+
+- Change replace detection
+
 ## 2.0.1
 
 ### Patch Changes
