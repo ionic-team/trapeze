@@ -56,10 +56,17 @@ export class AndroidProject {
    * This action will mutate the project on disk!
    */
   async setPackageName(packageName: string) {
+    const sourceDir = join(this.getAppRoot()!, 'src', 'main', 'java');
     const oldPackageName = await this.manifest.getDocumentElement()?.getAttribute('package');
+    const oldPackageParts = oldPackageName?.split('.') ?? [];
 
     if (packageName === oldPackageName) {
       return;
+    }
+
+    const existingPackage = join(sourceDir, ...oldPackageParts);
+    if (!await pathExists(existingPackage)) {
+      throw new Error('Current Java package name and directory structure do not match the <manifest> package attribute. Ensure these match before modifying the project package name');
     }
 
     this.manifest.getDocumentElement()?.setAttribute('package', packageName);
@@ -72,10 +79,8 @@ export class AndroidProject {
       return;
     }
 
-    const oldPackageParts = oldPackageName?.split('.') ?? [];
     const newPackageParts = packageName.split('.');
 
-    const sourceDir = join(this.getAppRoot()!, 'src', 'main', 'java');
     const destDir = join(sourceDir, ...newPackageParts);
 
     let activityFile = join(sourceDir, ...oldPackageParts, 'MainActivity.java');
@@ -88,6 +93,7 @@ export class AndroidProject {
     // Try to delete the empty directories we left behind, starting
     // from the deepest
     let sourceDirLeaf = join(sourceDir, ...oldPackageParts);
+
     for (const _ of oldPackageParts) {
       try {
         await rmdir(sourceDirLeaf);

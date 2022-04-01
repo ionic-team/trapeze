@@ -33,7 +33,6 @@ export async function runCommand(ctx: Context, configFile: YamlFile) {
   try {
     await executeOperations(ctx, processed);
   } catch (e) {
-    error('Unable to apply changes', e);
     throw e;
   }
 }

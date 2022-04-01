@@ -7,6 +7,7 @@ import {
 
 import { isInteractive } from './term';
 import c from '../colors';
+import kleur from 'kleur';
 
 const options = {
   colors: c,
@@ -48,7 +49,7 @@ export function error(...args: any[]) {
 }
 
 export function fatal(msg: string, exc: Error): never {
-  console.error(c.failure(`Fatal error: ${msg}`));
+  console.error(kleur.bold(c.failure(`Fatal error: ${msg}`)));
   if (exc) {
     console.error(exc);
   }
