@@ -25,3 +25,10 @@ export interface AndroidGradleOperation extends Operation {
     replace?: string | any[];
   }[];
 }
+
+export interface AndroidPropertiesOperation extends Operation {
+  value: {
+    file: string;
+    entries: any
+  }[];
+}
