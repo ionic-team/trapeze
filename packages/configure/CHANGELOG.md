@@ -1,5 +1,13 @@
 # @capacitor/configure
 
+## 2.0.4
+
+### Patch Changes
+
+- Merge manifest nodes. Fixes #55
+- Updated dependencies
+  - @capacitor/project@2.0.4
+
 ## 2.0.3
 
 ### Patch Changes
