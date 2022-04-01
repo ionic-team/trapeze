@@ -1,3 +1,5 @@
+
+import { dirname } from 'path';
 import { readFile, writeFile } from '@ionic/utils-fs';
 import xmldom, { XMLSerializer } from '@xmldom/xmldom';
 import prettier from 'prettier/standalone';
@@ -16,8 +18,10 @@ export function serializeXml(doc: any) {
   return new XMLSerializer().serializeToString(doc);
 }
 
-export async function writeXml(doc: any, filename: string, nodePackageRoot: string) {
+export async function formatXml(doc: any) {
   var xml = new XMLSerializer().serializeToString(doc);
+
+  const p = dirname(require.resolve('@prettier/plugin-xml'));
 
   const formatted = prettier.format(xml, {
     parser: 'xml',
@@ -25,9 +29,14 @@ export async function writeXml(doc: any, filename: string, nodePackageRoot: stri
     bracketSameLine: true,
     xmlWhitespaceSensitivity: 'ignore',
     tabWidth: 4,
-    pluginSearchDirs: [nodePackageRoot],
+    pluginSearchDirs: [p],
     plugins: [prettierXml]
   } as any);
 
+  return formatted;
+}
+
+export async function writeXml(doc: any, filename: string) {
+  const formatted = await formatXml(doc);
   return writeFile(filename, formatted);
 }

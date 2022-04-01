@@ -1,4 +1,4 @@
-import { parseXml, parseXmlString, serializeXml } from "../util/xml";
+import { parseXml, parseXmlString, serializeXml, writeXml } from "../util/xml";
 import { writeFile } from '@ionic/utils-fs';
 import xpath from 'xpath';
 import { difference } from 'lodash';
@@ -39,16 +39,32 @@ export class AndroidManifest {
       return;
     }
 
-    const nodes = xpath.select(target, this.doc);
+    const nodes = xpath.select(target, this.doc) as Element[];
     const doc = parseXmlString(fragment).documentElement;
 
-    nodes.forEach((n: any) => {
-      if (!this.exists(n, doc)) {
+    nodes.forEach(n => {
+      const existingChild = Array.prototype.find.call(n.childNodes, (en) => en.nodeName === doc.nodeName);
+
+      // If the child doesn't exist, append it and finish
+      if (!existingChild || !this.exists(n, doc)) {
         n.appendChild(doc);
+      } else {
+        // Child exists, so merge the two nodes
+        this._mergeNodes(existingChild, doc);
       }
     });
 
     this.vfs.set(this.path, this.doc);
+  }
+
+  _mergeNodes(oldEl: Element, newEl: Element) {
+    Array.prototype.forEach.call(newEl.childNodes, (n) => {
+      const exists = this.exists(oldEl, n);
+      if (!exists) {
+        oldEl.appendChild(n);
+      }
+      // TODO: make this recursive?
+    });
   }
 
   /**
@@ -94,7 +110,6 @@ export class AndroidManifest {
   }
 
   private manifestCommitFn = async (file: VFSRef) => {
-    const xmlStr = serializeXml(file.getData());
-    return writeFile(file.getFilename(), xmlStr);
+    return writeXml(file.getData(), file.getFilename());
   }
 }

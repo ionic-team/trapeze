@@ -5,7 +5,7 @@ import { CapacitorProject } from '../src';
 
 import { join } from 'path';
 import { copy, pathExists, readFile, rm } from '@ionic/utils-fs';
-import { serializeXml } from "../src/util/xml";
+import { formatXml, serializeXml } from "../src/util/xml";
 
 describe('project - android', () => {
   let config: CapacitorConfig;
@@ -119,6 +119,26 @@ describe('project - android', () => {
 
     const manifestFile = project.vfs.get((project.android as any).getAndroidManifestPath());
     expect(manifestFile).not.toBeNull();
+  });
+
+  it('should merge inject an XML fragment', async () => {
+    project.android?.getAndroidManifest().injectFragment('manifest/application/activity', `
+       <intent-filter>
+        <action android:name="android.intent.action.VIEW"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+        <category android:name="android.intent.category.BROWSABLE"/>
+        <data android:scheme="@string/custom_url_scheme"/>
+      </intent-filter>
+    `);
+
+    const node = project.android?.getAndroidManifest().find('manifest/application/activity/intent-filter')?.[0];
+    expect(node).toBeDefined();
+    const elements = Object.values(node.childNodes as any).filter((n: any) => n.nodeType === 1);
+
+    const manifestFile = project.vfs.get((project.android as any).getAndroidManifestPath());
+    expect(manifestFile).not.toBeNull();
+
+    expect(elements.length).toBe(6);
   });
 
   it('should set version', async () => {
