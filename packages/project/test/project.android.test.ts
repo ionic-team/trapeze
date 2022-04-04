@@ -122,7 +122,7 @@ describe('project - android', () => {
   });
 
   it('should merge inject an XML fragment', async () => {
-    project.android?.getAndroidManifest().injectFragment('manifest/application/activity', `
+    project.android?.getAndroidManifest().mergeFragment('manifest/application/activity', `
        <intent-filter>
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>

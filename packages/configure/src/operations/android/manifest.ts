@@ -9,5 +9,8 @@ export default async function execute(ctx: Context, op: Operation) {
     if (entry.inject) {
       ctx.project.android?.getAndroidManifest().injectFragment(entry.target, entry.inject);
     }
+    if (entry.merge) {
+      ctx.project.android?.getAndroidManifest().mergeFragment(entry.target, entry.merge);
+    }
   }
 }

@@ -1,7 +1,7 @@
 import { parseXml, parseXmlString, serializeXml, writeXml } from "../util/xml";
 import { writeFile } from '@ionic/utils-fs';
 import xpath from 'xpath';
-import { difference } from 'lodash';
+import { difference, isEqual, isObject, transform } from 'lodash';
 import { VFS, VFSRef } from "../vfs";
 
 const toArray = (o: any[]) => Array.prototype.slice.call(o || []);
@@ -35,6 +35,19 @@ export class AndroidManifest {
    * have the fragment appended.
    */
   injectFragment(target: string, fragment: string) {
+    if (!this.doc) {
+      return;
+    }
+
+    const nodes = xpath.select(target, this.doc) as Element[];
+    const doc = parseXmlString(fragment).documentElement;
+
+    nodes.forEach(n => n.appendChild(doc));
+
+    this.vfs.set(this.path, this.doc);
+  }
+
+  mergeFragment(target: string, fragment: string) {
     if (!this.doc) {
       return;
     }
