@@ -1,5 +1,12 @@
 # @capacitor/project
 
+## 2.0.5
+
+### Patch Changes
+
+- Add merge option for manifest nodes
+  - @capacitor/gradle-parse@2.0.5
+
 ## 2.0.4
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@capacitor/project",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "Capacitor Project API for managing projects through code",
   "author": "Ionic Team <hi@ionic.io> (https://ionicframework.com) ",
   "license": "SEE LICENSE",
@@ -19,7 +19,7 @@
   "typings": "dist/index.d.ts",
   "dependencies": {
     "@capacitor/cli": "^3.2.5",
-    "@capacitor/gradle-parse": "2.0.4",
+    "@capacitor/gradle-parse": "2.0.5",
     "@ionic/utils-fs": "^3.1.5",
     "@ionic/utils-subprocess": "^2.1.8",
     "@prettier/plugin-xml": "^1.1.0",
