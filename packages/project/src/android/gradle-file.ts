@@ -2,7 +2,7 @@ import { dirname, join } from 'path';
 import tempy from 'tempy';
 import { cloneDeep } from 'lodash';
 import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
-import { runCommand } from '../util/subprocess';
+import { runCommand, spawnCommand } from '../util/subprocess';
 import { getIndentation, indent } from '../util/text';
 import { VFS, VFSRef } from '../vfs';
 import detectIndent from '../util/detect-indent';
@@ -204,8 +204,9 @@ export class GradleFile {
     }
 
     try {
-      const json = await runCommand(java, ['-cp', 'lib/*:capacitor-gradle-parse.jar:.', 'com.capacitorjs.gradle.Parse', this.tempFile], {
-        cwd: parserRoot
+      const json = await spawnCommand(java, ['-cp', 'lib/*:capacitor-gradle-parse.jar:.', 'com.capacitorjs.gradle.Parse', this.tempFile], {
+        cwd: parserRoot,
+        stdio: 'pipe'
       });
 
       this.parsed = JSON.parse(json || '{}');

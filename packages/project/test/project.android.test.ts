@@ -123,7 +123,7 @@ describe('project - android', () => {
 
   it('should merge inject an XML fragment', async () => {
     project.android?.getAndroidManifest().mergeFragment('manifest/application/activity', `
-       <intent-filter>
+      <intent-filter>
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
@@ -139,6 +139,23 @@ describe('project - android', () => {
     expect(manifestFile).not.toBeNull();
 
     expect(elements.length).toBe(6);
+  });
+
+  it('should inject an XML fragment without single parent', async () => {
+    project.android?.getAndroidManifest().injectFragment('manifest/application/activity[1]', `
+      <thing1 />
+      <thing2 />
+      <thing3 />
+    `);
+
+    const node = project.android?.getAndroidManifest().find('manifest/application/activity')?.[0];
+    expect(node).toBeDefined();
+    const elements = Object.values(node.childNodes as any).filter((n: any) => n.nodeName?.indexOf('thing') == 0);
+
+    const manifestFile = project.vfs.get((project.android as any).getAndroidManifestPath());
+    expect(manifestFile).not.toBeNull();
+
+    expect(elements.length).toBe(3);
   });
 
   it('should set version', async () => {

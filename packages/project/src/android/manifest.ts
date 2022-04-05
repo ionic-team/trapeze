@@ -40,9 +40,10 @@ export class AndroidManifest {
     }
 
     const nodes = xpath.select(target, this.doc) as Element[];
-    const doc = parseXmlString(fragment).documentElement;
+    const parsed = parseXmlString(fragment);
+    const docNodes = parsed.childNodes ?? [];
 
-    nodes.forEach(n => n.appendChild(doc));
+    nodes.forEach(n => Array.prototype.forEach.call(docNodes, d => n.appendChild(d)))
 
     this.vfs.set(this.path, this.doc);
   }
@@ -53,25 +54,28 @@ export class AndroidManifest {
     }
 
     const nodes = xpath.select(target, this.doc) as Element[];
-    const doc = parseXmlString(fragment).documentElement;
+    const parsed = parseXmlString(fragment);
+    const docNodes = parsed.childNodes ?? [];
 
     nodes.forEach(n => {
-      const existingChild = Array.prototype.find.call(n.childNodes, (en) => en.nodeName === doc.nodeName);
+      Array.prototype.forEach.call(docNodes, doc => {
+        const existingChild = Array.prototype.find.call(n.childNodes, (en) => en.nodeName === doc.nodeName);
 
-      // If the child doesn't exist, append it and finish
-      if (!existingChild || !this.exists(n, doc)) {
-        n.appendChild(doc);
-      } else {
-        // Child exists, so merge the two nodes
-        this._mergeNodes(existingChild, doc);
-      }
+        // If the child doesn't exist, append it and finish
+        if (!existingChild || !this.exists(n, doc)) {
+          n.appendChild(doc);
+        } else {
+          // Child exists, so merge the two nodes
+          this._mergeNodes(existingChild, doc);
+        }
+      });
     });
 
     this.vfs.set(this.path, this.doc);
   }
 
   _mergeNodes(oldEl: Element, newEl: Element) {
-    Array.prototype.forEach.call(newEl.childNodes, (n) => {
+    Array.prototype.forEach.call(newEl.childNodes ?? [], (n) => {
       const exists = this.exists(oldEl, n);
       if (!exists) {
         oldEl.appendChild(n);

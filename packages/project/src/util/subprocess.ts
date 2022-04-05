@@ -1,4 +1,5 @@
 import { Subprocess, SubprocessError } from "@ionic/utils-subprocess";
+import { spawn } from 'cross-spawn';
 import chalk from "chalk";
 
 export async function runCommand(command: string, args: string[], options = {}): Promise<string> {
@@ -25,4 +26,29 @@ export async function runCommand(command: string, args: string[], options = {}):
 
     throw e;
   }
+}
+
+export async function spawnCommand(command: string, args: string[], options = {}): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, options);
+    const stderr: string[] = [];
+    const stdout: string[] = [];
+    child.stdout?.addListener('data', e => {
+      stdout.push(e.toString());
+    });
+    child.stderr?.addListener('data', e => {
+      stderr.push(e.toString());
+    });
+    child.on('exit', e => {
+    });
+    child.on('error', e => {
+    });
+    child.on('close', e => {
+      if (e) {
+        reject(stderr.join());
+      } else {
+        resolve(stdout.join(''));
+      }
+    });
+  });
 }
