@@ -107,7 +107,7 @@ export class GradleFile {
 
     let lines: string[] = [];
 
-    this.createGradleSource([toInject], lines /* out */, detectedIndent.indent);
+    this.createGradleSource([toInject], lines /* out */, detectedIndent.indent, undefined, targetNode.node);
 
     const resolvedLastLine = lastLine < 0 ? sourceLines.length : lastLine;
 
@@ -244,7 +244,7 @@ export class GradleFile {
     let lines: string[] = [];
 
     if (Array.isArray(toInject)) {
-      this.createGradleSource(toInject, lines /* out */, detectedIndent.indent);
+      this.createGradleSource(toInject, lines /* out */, detectedIndent.indent, undefined, targetNode.node);
     } else {
       lines = toInject.split(/\r?\n/);
     }
@@ -326,7 +326,7 @@ export class GradleFile {
     }
 
     for (const c of node.children) {
-      if (c.type === 'method' && c.name === targetKey) {
+      if (this.isTargetNode(c) && c.name === targetKey) {
         pathNode = pathNode[targetKey];
         if (!pathNode || Object.keys(pathNode).length == 0) {
           // We've run out of path nodes to match
@@ -335,6 +335,10 @@ export class GradleFile {
       }
       this._find(pathObject, c, pathNode, found, c.type === 'block' ? depth + 1 : depth);
     }
+  }
+
+  private isTargetNode(node: any) {
+    return node.type === 'method' || node.type === 'variable';
   }
 
   verifyJavaHome() {
@@ -456,7 +460,7 @@ export class GradleFile {
     }
   ]
   */
-  private createGradleSource(injectObj: any[], lines: string[], indentation: string, depth = 0) {
+  private createGradleSource(injectObj: any[], lines: string[], indentation: string, depth = 0, targetNode: GradleASTNode) {
     for (const entry of injectObj) {
       const keys = Object.keys(entry);
 
@@ -465,10 +469,14 @@ export class GradleFile {
 
         if (Array.isArray(editEntry)) {
           lines.push(`${key} {`);
-          this.createGradleSource(editEntry, lines, indentation, depth + 1);
+          this.createGradleSource(editEntry, lines, indentation, depth + 1, targetNode);
           lines.push('}');
         } else if (typeof editEntry === 'string' || typeof editEntry === 'number' || typeof editEntry === 'boolean') {
-          lines.push(indent(`${key} ${editEntry}`, indentation, depth));
+          if (targetNode.type === 'variable') {
+            lines.push(indent(`${key} = ${editEntry}`, indentation, depth));
+          } else {
+            lines.push(indent(`${key} ${editEntry}`, indentation, depth));
+          }
         } else {
           const fields = Object.keys(editEntry);
 
@@ -479,7 +487,7 @@ export class GradleFile {
               lines.push(indent(`${fieldKey} ${fieldEntry}`, indentation, depth));
             } else if (Array.isArray(fieldEntry)) {
               lines.push('{');
-              this.createGradleSource(fieldEntry, lines, indentation, depth + 1);
+              this.createGradleSource(fieldEntry, lines, indentation, depth + 1, targetNode);
               lines.push('}');
             }
           }

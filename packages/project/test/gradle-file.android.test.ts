@@ -289,4 +289,39 @@ intunemam {
     ]
 }`.trim());
   });
+
+  it('Should support any gradle file', async () => {
+    const gradle = await project.android?.getGradleFile('variables.gradle');
+    await gradle?.parse();
+
+    let nodes = gradle?.find({
+      ext : {
+      }
+    });
+
+    expect(nodes?.length).not.toBe(0);
+
+    await gradle?.replaceProperties({
+      ext: {
+        minSdkVersion: {
+        }
+      }
+    }, { minSdkVersion: 42 });
+
+    const source = project.vfs.get(gradle!.filename)?.getData();
+    expect(source.trim()).toBe(`ext {
+    minSdkVersion = 42
+    compileSdkVersion = 30
+    targetSdkVersion = 30
+    androidxActivityVersion = '1.2.0'
+    androidxAppCompatVersion = '1.2.0'
+    androidxCoordinatorLayoutVersion = '1.1.0'
+    androidxCoreVersion = '1.3.2'
+    androidxFragmentVersion = '1.3.0'
+    junitVersion = '4.13.1'
+    androidxJunitVersion = '1.1.2'
+    androidxEspressoCoreVersion = '3.3.0'
+    cordovaAndroidVersion = '7.0.0'
+}`);
+  });
 });

@@ -12,6 +12,7 @@ export class AndroidProject {
   private manifest: AndroidManifest;
   private buildGradle: GradleFile | null = null;
   private appBuildGradle: GradleFile | null = null;
+  private gradleFiles: { [path:string]: GradleFile } = {};
 
   constructor(private project: CapacitorProject) {
     const manifestPath = this.getAndroidManifestPath();
@@ -39,13 +40,18 @@ export class AndroidProject {
     return this.manifest;
   }
 
-  getGradleFile(path: string) {
+  async getGradleFile(path: string) {
     if (path === 'build.gradle') {
       return this.buildGradle;
     } else if (path === 'app/build.gradle') {
       return this.appBuildGradle;
     }
-    return null;
+
+    const file = await this.loadGradle(path);
+    if (file) {
+      this.gradleFiles[path] = file;
+    }
+    return file;
   }
 
   /**

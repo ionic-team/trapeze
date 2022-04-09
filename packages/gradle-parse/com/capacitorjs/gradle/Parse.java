@@ -93,8 +93,35 @@ class Visitor {
 
     if (expr instanceof MethodCallExpression) {
       MethodCallExpression mcExpr = (MethodCallExpression) expr;
-
       return visitMethodCallExpression(exprStatement, mcExpr);
+    } if (expr instanceof BinaryExpression) {
+      BinaryExpression binExpr = (BinaryExpression) expr;
+      return visitBinaryExpression(exprStatement, binExpr);
+    }
+
+    return null;
+  }
+
+  private JSONObject visitBinaryExpression(ExpressionStatement exprStatement, BinaryExpression binExpr) {
+    Expression leftExpr = binExpr.getLeftExpression();
+    Expression rightExpr = binExpr.getRightExpression();
+
+    if (leftExpr instanceof VariableExpression && rightExpr instanceof ConstantExpression) {
+      VariableExpression varExpr = (VariableExpression) leftExpr;
+      ConstantExpression constExpr = (ConstantExpression) rightExpr;
+
+      String varName = varExpr.getName();
+
+      String constValue = constExpr.getText();
+
+      JSONObject jsonNode = new JSONObject();
+      jsonNode.put("type", "variable");
+      jsonNode.put("name", varName);
+      jsonNode.put("value", constExpr.getValue());
+      jsonNode.put("children", new JSONArray());
+      addSourceInfo(binExpr, jsonNode);
+
+      return jsonNode;
     }
 
     return null;
@@ -144,6 +171,10 @@ class Visitor {
     }
 
     return jsonNode;
+  }
+
+  private JSONObject visitExpression(Expression expr) {
+    return new JSONObject();
   }
 
   /**
