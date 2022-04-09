@@ -1,6 +1,6 @@
 {
   "name": "@capacitor/configure",
-  "version": "2.0.6",
+  "version": "3.0.0",
   "description": "Capacitor configuration tool for automatically configuring projects",
   "author": "Ionic Team <hi@ionic.io> (https://ionicframework.com) ",
   "license": "SEE LICENSE",
@@ -23,7 +23,7 @@
   "typings": "dist/index.d.ts",
   "dependencies": {
     "@capacitor/cli": "^3.2.5",
-    "@capacitor/project": "2.0.6",
+    "@capacitor/project": "3.0.0",
     "@ionic/cli-framework-output": "^2.2.2",
     "@ionic/utils-fs": "^3.1.5",
     "@ionic/utils-subprocess": "^2.1.8",

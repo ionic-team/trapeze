@@ -1,5 +1,16 @@
 # @capacitor/project
 
+## 3.0.0
+
+### Major Changes
+
+- Bump to 2.0.6
+
+### Patch Changes
+
+- Updated dependencies
+  - @capacitor/gradle-parse@3.0.0
+
 ## 2.0.6
 
 ### Patch Changes
