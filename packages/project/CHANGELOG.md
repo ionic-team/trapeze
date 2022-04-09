@@ -1,5 +1,13 @@
 # @capacitor/project
 
+## 2.0.7
+
+### Patch Changes
+
+- Bad release
+- Updated dependencies
+  - @capacitor/gradle-parse@2.0.7
+
 ### Major Changes
 
 - Bump to 2.0.6
