@@ -1,5 +1,13 @@
 # @capacitor/project
 
+## 2.0.6
+
+### Patch Changes
+
+- Add support for overriding gradle variables
+- Updated dependencies
+  - @capacitor/gradle-parse@2.0.6
+
 ## 2.0.5
 
 ### Patch Changes
