@@ -52,7 +52,7 @@ In this case, `MY_APP_ID` has no default value, so `MY_APP_ID` must be found in 
 | ios      | Version and Build Number   | :white_check_mark: |
 | ios      | Increment Build Number     | :white_check_mark: |
 | ios      | Build Settings             | :white_check_mark: |
-| ios      | Plist Modifications        | :white_check_mark: |
+| ios      | Plist Modifications        | plist | :white_check_mark: |
 | ios      | Add Frameworks             | :white_check_mark: |
 | ios      | Set Entitlements           | :white_check_mark: |
 | ios      | Add Source/Header files    | WIP                |
@@ -65,6 +65,175 @@ In this case, `MY_APP_ID` has no default value, so `MY_APP_ID` must be found in 
 | android  | Manifest File Modification | :white_check_mark: |
 | android  | Add Source/Header files    | WIP                |
 
-## Thank you's
+## Android
 
-Thank you to Cordova for the lower-level [cordova-node-xcode](https://github.com/apache/cordova-node-xcode) project used to parse and manage the `pbxproj` file in Xcode projects.
+To provide Android project operations, use the `android` platform key under the top-level `platforms` key:
+
+```
+platforms:
+  android:
+```
+
+### `versionName`
+
+Example:
+
+```yaml
+platforms:
+  android:
+    versionName: 5.2.1
+```
+
+### `versionCode`
+
+```yaml
+platforms:
+  android:
+    versionCode: 197
+```
+
+### `incrementVersionCode`
+
+This operation will increment the integer `versionCode` each time. This is useful for auto-incrementing version codes during build, for example.
+
+```yaml
+platforms:
+  android:
+    incrementVersionCode: true
+```
+
+### `manifest`
+
+The Manifest operation can modifications against the AndroidManifest XML file, and other XML files.
+
+The operation supports three modes: `attrs`, `merge`, and `inject`:
+
+* `attrs` updates the attributes of the given `target` node.
+* `merge` merges the given XML tree supplied to `merge` with the given `target`
+* `inject` injects the given XML tree supplied to `inject` inside of the given `target`
+
+Example: 
+
+```yaml
+platforms:
+  android:
+    manifest:
+      - file: AndroidManifest.xml
+        target: manifest/application
+        attrs:
+          android:name: com.ionicframework.intune.IntuneApplication
+
+      - file: AndroidManifest.xml
+        target: manifest/application
+        merge:
+          <queries>
+              <package android:name="com.azure.authenticator" />
+          </queries>
+
+      - file: AndroidManifest.xml
+        target: manifest
+        inject: |
+          <queries>
+              <package android:name="com.azure.authenticator" />
+              <package android:name="$PACKAGE_NAME" />
+              <package android:name="com.microsoft.windowsintune.companyportal" />
+              <!-- Required for API Level 30 to make sure the app detect browsers
+                  (that don't support custom tabs) -->
+              <intent>
+                  <action android:name="android.intent.action.VIEW" />
+                  <category android:name="android.intent.category.BROWSABLE" />
+                  <data android:scheme="https" />
+              </intent>
+              <!-- Required for API Level 30 to make sure the app can detect browsers that support custom tabs -->
+              <!-- https://developers.google.com/web/updates/2020/07/custom-tabs-android-11#detecting_browsers_that_support_custom_tabs -->
+              <intent>
+                  <action android:name="android.support.customtabs.action.CustomTabsService" />
+              </intent>
+          </queries>
+
+      - file: AndroidManifest.xml
+        target: manifest/application
+        inject: |
+          <activity android:name="com.microsoft.identity.client.BrowserTabActivity">
+              <intent-filter>
+                  <action android:name="android.intent.action.VIEW" />
+
+                  <category android:name="android.intent.category.DEFAULT" />
+                  <category android:name="android.intent.category.BROWSABLE" />
+
+                  <!--
+                      Add in your scheme/host from registered redirect URI
+                      note that the leading "/" is required for android:path
+                  -->
+                  <data
+                      android:host="$PACKAGE_NAME"
+                      android:path="/$INTUNE_SIGNATURE_HASH"
+                      android:scheme="msauth" />
+              </intent-filter>
+          </activity>
+```
+
+### `gradle`
+
+The `gradle` command can modify and insert snippets of Gradle code. Currently only Groovy-based Gradle files are supported ([issue and discussion](https://github.com/ionic-team/capacitor-configure/issues/58)).
+
+
+```yaml
+    gradle:
+      - file: build.gradle
+        target:
+          buildscript:
+        insert:
+          - classpath: "'org.javassist:javassist:3.27.0-GA'"
+          - classpath: files("../node_modules/@ionic-enterprise/intune/android/ms-intune-app-sdk-android/GradlePlugin/com.microsoft.intune.mam.build.jar")
+
+      - file: build.gradle
+        target:
+          allprojects:
+            repositories:
+        insert:
+          - maven:
+              - url: 'https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1'
+              - name: 'Duo-SDK-Feed'
+
+      - file: app/build.gradle
+        target:
+        insert: |
+          apply plugin: 'com.microsoft.intune.mam'
+          intunemam {
+            includeExternalLibraries = ["androidx.*", "com.getcapacitor.*"]
+          }
+
+      - file: app/build.gradle
+        target:
+          android:
+            buildTypes:
+              release:
+                minifyEnabled:
+        replace:
+          minifyEnabled: true
+
+      - file: app/build.gradle
+        target:
+          android:
+            buildTypes:
+              implementation:
+        replace:
+          implementation: "'test-implementation'"
+```
+
+### `packageName`
+
+### `res`
+
+## iOS
+
+### `version`
+### `buildNumber`
+### `incrementBuild`
+### `bundleId`
+### `displayName`
+### `productName`
+### `buildSettings`
+### `plist`
+### `entitlements`
