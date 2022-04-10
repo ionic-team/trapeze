@@ -175,10 +175,18 @@ platforms:
 
 ### `gradle`
 
-The `gradle` command can modify and insert snippets of Gradle code. Currently only Groovy-based Gradle files are supported ([issue and discussion](https://github.com/ionic-team/capacitor-configure/issues/58)).
+The `gradle` command can modify and insert snippets of basic Gradle code. Currently only Groovy-based Gradle files are supported ([issue and discussion](https://github.com/ionic-team/capacitor-configure/issues/58)).
 
+The operation supports inserting arbitrary Gradle code, or when using `replace`, modifying basic method calls or variable definitions.
+
+The Gradle commands supports two modes: `insert` or `replace`:
+
+ * `insert` inserts new Gradle snippets at the desired location in the file
+ * `replace` replaces existing entries in the Gradle file at the desired location
 
 ```yaml
+platforms:
+  android:
     gradle:
       - file: build.gradle
         target:
@@ -228,7 +236,28 @@ The `gradle` command can modify and insert snippets of Gradle code. Currently on
 
 ## iOS
 
+iOS supports multiple operations and can perform them against different project targets and build types. If a target and/or build is not specified, the tool will infer the app target in the project. Thus, complex projects should specify the target to avoid issues.
+
+```yaml
+platforms:
+  ios:
+    targets:
+      App:
+        # Operations for the App target
+      My App Clip:
+        # Oeprations for the My App Clip target
+```
+
+
 ### `version`
+
+Updates the human-readable version for the given target and build:
+
+```yaml
+platforms:
+  ios:
+    
+
 ### `buildNumber`
 ### `incrementBuild`
 ### `bundleId`
