@@ -245,7 +245,7 @@ platforms:
       App:
         # Operations for the App target
       My App Clip:
-        # Oeprations for the My App Clip target
+        # Operations for the My App Clip target
 ```
 
 
@@ -256,13 +256,121 @@ Updates the human-readable version for the given target and build:
 ```yaml
 platforms:
   ios:
-    
+    targets:
+      App:
+        version: 16.4
+```
 
 ### `buildNumber`
+
+Sets the integer build number for the given target and build:
+
+```yaml
+platforms:
+  ios:
+    targets:
+      App:
+        buildNumber: 128
+```
+
 ### `incrementBuild`
+
+Increments the build number for the given target and build:
+
+```yaml
+platforms:
+  ios:
+    targets:
+      App:
+        incrementBuildNumber: true
+```
+
 ### `bundleId`
+
+Sets the bundle id for the given target and build:
+
+```yaml
+platforms:
+  ios:
+    targets:
+      App:
+        bundleId: $BUNDLE_ID
+```
+
 ### `displayName`
+
+Sets the display name for the given target and build:
+
+```yaml
+platforms:
+  ios:
+    targets:
+      App:
+        displayName: My Awesome App
+```
+
 ### `productName`
+
+Sets the product name for the given target and build. This sets the `PRODUCT_NAME` field in your project build settings for this target and build.
+
+```yaml
+platforms:
+  ios:
+    targets:
+      App:
+        displayName: Awesome App
+```
+
 ### `buildSettings`
+
+Sets build settings fields for this target and build.
+
+```yaml
+platforms:
+  ios:
+    targets:
+      App:
+        buildSettings:
+          ENABLE_BITCODE: false
+          STRIP_SWIFT_SYMBOLS: false
+```
+
 ### `plist`
+
+Updates values in the `INFOPLIST_FILE` for the given target and build. Currently only supports updating this file but support for other plist files is [coming](https://github.com/ionic-team/capacitor-configure/issues/52).
+
+```yaml
+platforms:
+  ios:
+    targets:
+      App:
+        plist:
+          - replace: true
+            entries:
+              - UISupportedInterfaceOrientations:
+                  - UIInterfaceOrientationPortrait
+
+          - replace: false
+            entries:
+              - CFBundleURLTypes:
+                  - CFBundleURLSchemes:
+                      - AdditionalBundleURLScheme
+```
+
 ### `entitlements`
+
+Updates the entitlements for a given target and build:
+
+```yaml
+platforms:
+  ios:
+    targets:
+      App:
+        entitlements:
+          - keychain-access-groups:
+              [
+                '$BUNDLE_ID',
+                'com.microsoft.intune.mam',
+                'com.microsoft.adalcache',
+              ]
+```
