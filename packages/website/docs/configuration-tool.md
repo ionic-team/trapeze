@@ -44,7 +44,16 @@ vars:
 
 In this case, `MY_APP_ID` has no default value, so `MY_APP_ID` must be found in the environment or an interactive prompt will display asking the user to input a value. `THIS_HAS_A_DEFAULT` will use the default value of `true` unless a value is provided in the environment.
 
+Here's one example of providing an environment variable to the command:
+
+```shell
+MY_APP_ID="com.awesome.app" npm run cap-config 
+```
+
 ## Supported Operations
+
+The configuration tool currently supports these project operations:
+
 
 | Platform | Operation                  | Supported          |
 | -------- | -------------------------- | ------------------ |
@@ -52,7 +61,7 @@ In this case, `MY_APP_ID` has no default value, so `MY_APP_ID` must be found in 
 | ios      | Version and Build Number   | :white_check_mark: |
 | ios      | Increment Build Number     | :white_check_mark: |
 | ios      | Build Settings             | :white_check_mark: |
-| ios      | Plist Modifications        | plist | :white_check_mark: |
+| ios      | Plist Modifications        | :white_check_mark: |
 | ios      | Add Frameworks             | :white_check_mark: |
 | ios      | Set Entitlements           | :white_check_mark: |
 | ios      | Add Source/Header files    | WIP                |
@@ -236,7 +245,17 @@ platforms:
 
 ## iOS
 
-iOS supports multiple operations and can perform them against different project targets and build types. If a target and/or build is not specified, the tool will infer the app target in the project. Thus, complex projects should specify the target to avoid issues.
+iOS supports multiple operations and can perform them against different project targets and build types. If a target is not specified, the tool will infer the app target in the project. If a build is not specified commands will operate on all builds in a target (Debug and Release, for example). Thus, complex projects should specify at least the target name to avoid issues.
+
+Here's an example of not supplying the target name and having it inferred by finding the first target with the productType of `"com.apple.product-type.application"`:
+
+```yaml
+platforms:
+  ios:
+    # Operations for the main app target
+```
+
+Here's an example of specifying the target:
 
 ```yaml
 platforms:
@@ -248,6 +267,19 @@ platforms:
         # Operations for the My App Clip target
 ```
 
+In this example, both a target and build type are provided:
+
+```yaml
+platforms:
+  ios:
+    targets:
+      App:
+        builds:
+          Debug:
+            # Operations for the App target and Debug build
+          Release:
+            # Operations for the App target and Release build
+```
 
 ### `version`
 
