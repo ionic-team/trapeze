@@ -78,7 +78,7 @@ The configuration tool currently supports these project operations:
 
 To provide Android project operations, use the `android` platform key under the top-level `platforms` key:
 
-```
+```yaml
 platforms:
   android:
 ```
