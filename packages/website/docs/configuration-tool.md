@@ -110,6 +110,15 @@ platforms:
   android:
     incrementVersionCode: true
 ```
+### `packageName`
+
+Set the project package name. This operation will also rename the actual java package and folder structure to match. Currently, these modifications happen without confirmation when the tool is run. See [this discussion](https://github.com/ionic-team/capacitor-configure/issues/28) for more info.
+
+```yaml
+platforms:
+  android:
+    packageName: $PACKAGE_NAME
+```
 
 ### `manifest`
 
@@ -239,9 +248,34 @@ platforms:
           implementation: "'test-implementation'"
 ```
 
-### `packageName`
 
 ### `res`
+
+Creates new resource files. Use `path` to specify the resource type.
+
+```yaml
+platforms:
+  android:
+    res:
+      - path: raw
+        file: auth_config.json
+        text: |
+          {
+            "client_id": "$INTUNE_CLIENT_ID",
+            "authorization_user_agent": "DEFAULT",
+            "redirect_uri": "msauth://$PACKAGE_NAME/$HASH",
+            "broker_redirect_uri_registered": true,
+            "authorities": [
+              {
+                "type": "AAD",
+                "audience": {
+                  "type": "AzureADMyOrg",
+                  "tenant_id": "$INTUNE_TENANT_ID"
+                }
+              }
+            ]
+          }
+```
 
 ## iOS
 
