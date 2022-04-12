@@ -10,8 +10,7 @@
   "workspaces": [
     "packages/configure",
     "packages/gradle-parse",
-    "packages/project",
-    "packages/website"
+    "packages/project"
   ],
   "scripts": {
     "build": "turbo run build",
