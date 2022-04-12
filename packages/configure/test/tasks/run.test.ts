@@ -27,6 +27,7 @@ describe('task: run', () => {
       [join(dir, 'android/build.gradle')]: expect.anything(),
       [join(dir, 'android/app/build.gradle')]: expect.anything(),
       [join(dir, 'android/app/src/main/AndroidManifest.xml')]: expect.anything(),
+      [join(dir, 'android/app/src/main/res/values/strings.xml')]: expect.anything(),
       [join(dir, 'ios/App/App.xcodeproj/project.pbxproj')]: expect.anything(),
       [join(dir, 'ios/App/App/App.entitlements')]: expect.anything(),
       [join(dir, 'ios/App/App/Info.plist')]: expect.anything(),
@@ -59,6 +60,7 @@ describe('task: run', () => {
       [join(dir, 'my-android-app/build.gradle')]: expect.anything(),
       [join(dir, 'my-android-app/app/build.gradle')]: expect.anything(),
       [join(dir, 'my-android-app/app/src/main/AndroidManifest.xml')]: expect.anything(),
+      [join(dir, 'my-android-app/app/src/main/res/values/strings.xml')]: expect.anything(),
       [join(dir, 'my-ios-app/App/App.xcodeproj/project.pbxproj')]: expect.anything(),
       [join(dir, 'my-ios-app/App/App/App.entitlements')]: expect.anything(),
       [join(dir, 'my-ios-app/App/App/Info.plist')]: expect.anything(),
@@ -85,6 +87,7 @@ describe('task: run', () => {
       [join(dir, 'android/build.gradle')]: expect.anything(),
       [join(dir, 'android/app/build.gradle')]: expect.anything(),
       [join(dir, 'android/app/src/main/AndroidManifest.xml')]: expect.anything(),
+      [join(dir, 'android/app/src/main/res/values/strings.xml')]: expect.anything(),
       [join(dir, 'ios/App/App.xcodeproj/project.pbxproj')]: expect.anything(),
       [join(dir, 'ios/App/App/App.entitlements')]: expect.anything(),
       [join(dir, 'ios/App/App/Info.plist')]: expect.anything(),
@@ -134,7 +137,6 @@ describe('task: run', () => {
     await runCommand(ctx, join(dir, 'basic.yml'));
 
     const files = ctx.project.vfs.all();
-    console.log(files);
     expect(files).toEqual({
       [join(dir, 'android/build.gradle')]: expect.anything(),
       [join(dir, 'android/app/build.gradle')]: expect.anything(),
@@ -146,7 +148,6 @@ describe('task: run', () => {
       [join(dir, 'ios/App/My App Clip/AppClip.plist')]: expect.anything(),
       [join(dir, 'ios/App/My App Clip/My_App_Clip.entitlements')]: expect.anything(),
     });
-    console.log('Project dir', dir);
 
     const buildGradleContents = await readFile(join(dir, 'android/build.gradle'), { encoding: 'utf-8' });
 
@@ -192,6 +193,6 @@ describe('task: run', () => {
     expect(plistContents).toContain('msauth.com.microsoft.intunemam');
 
     // Cleanup temp dir
-    // await rm(dir, { force: true, recursive: true });
+    await rm(dir, { force: true, recursive: true });
   });
 });
