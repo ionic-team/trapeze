@@ -158,6 +158,28 @@ describe('project - android', () => {
     expect(elements.length).toBe(3);
   });
 
+  it('should support replacing in arbitrary xml files', async () => {
+    const xml = await project.android?.getXmlFile('app/src/main/res/values/strings.xml');
+    await xml!.load();
+    
+    xml!.replaceFragment('resources/string[@name="app_name"]', `
+      <string name="app_name">Awesome App</string>
+    `);
+
+    const serialized = serializeXml(xml!.getDocumentElement());
+    const node = xml!.find('resources/string[@name="app_name"]')?.[0];
+    expect(node).toBeDefined();
+    expect(node.textContent).toBe('Awesome App');
+    expect(serialized).toBe(`
+<resources>
+    <string name="app_name">Awesome App</string>
+    <string name="title_activity_main">capacitor-configure-test</string>
+    <string name="package_name">io.ionic.starter</string>
+    <string name="custom_url_scheme">io.ionic.starter</string>
+</resources>
+    `.trim());
+  });
+
   it('should set version', async () => {
     await project.android?.setVersionName('5.0.2');
     expect(await project.android?.getVersionName()).toBe('5.0.2');

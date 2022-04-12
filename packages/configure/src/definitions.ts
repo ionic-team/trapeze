@@ -32,3 +32,33 @@ export interface AndroidPropertiesOperation extends Operation {
     entries: any
   }[];
 }
+
+export interface XmlOperation extends Operation {
+  value: XmlOperationValue[]
+}
+
+export interface XmlOperationValue {
+    file?: string;
+    target: any;
+    attrs?: any;
+    inject?: string;
+    merge?: string;
+    replace?: string;
+}
+
+export interface AndroidXmlOperationValue extends XmlOperationValue {
+  file?: string;
+  resFile?: string;
+}
+export interface IosXmlOperationValue extends XmlOperationValue {
+  file: string;
+}
+export interface AndroidManifestOperation extends XmlOperation {
+  value: AndroidXmlOperationValue[];
+}
+export interface AndroidXmlOperation extends XmlOperation {
+  value: AndroidXmlOperationValue[];
+}
+export interface IosXmlOperation extends XmlOperation {
+  value: IosXmlOperationValue[];
+}

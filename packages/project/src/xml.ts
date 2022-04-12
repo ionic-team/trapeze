@@ -1,12 +1,12 @@
-import { parseXml, parseXmlString, serializeXml, writeXml } from "../util/xml";
+import { parseXml, parseXmlString, serializeXml, writeXml } from "./util/xml";
 import { writeFile } from '@ionic/utils-fs';
 import xpath from 'xpath';
 import { difference, isEqual, isObject, transform } from 'lodash';
-import { VFS, VFSRef } from "../vfs";
+import { VFS, VFSRef } from "./vfs";
 
 const toArray = (o: any[]) => Array.prototype.slice.call(o || []);
 
-export class AndroidManifest {
+export class XmlFile {
   private doc: Document | null = null;
 
   constructor(private path: string, private vfs: VFS) {
@@ -14,7 +14,7 @@ export class AndroidManifest {
 
   async load() {
     this.doc = await parseXml(this.path);
-    this.vfs.open(this.path, this.doc, this.manifestCommitFn);
+    this.vfs.open(this.path, this.doc, this.xmlCommitFn);
   }
 
   getDocumentElement() {
@@ -48,6 +48,9 @@ export class AndroidManifest {
     this.vfs.set(this.path, this.doc);
   }
 
+  /**
+   * Merges a fragment of XML into the given target.
+   */
   mergeFragment(target: string, fragment: string) {
     if (!this.doc) {
       return;
@@ -82,6 +85,28 @@ export class AndroidManifest {
       }
       // TODO: make this recursive?
     });
+  }
+
+  /**
+   * Replaces a given target with the given fragment
+   */
+  replaceFragment(target: string, fragment: string) {
+    if (!this.doc) {
+      return;
+    }
+
+    const nodes = xpath.select(target, this.doc) as Element[];
+    const parsed = parseXmlString(fragment);
+
+    nodes.forEach(n => {
+      const index = Array.prototype.indexOf.call(n.parentNode?.childNodes, n);
+      if (index >= 0) {
+        n.parentNode!.removeChild(n);
+        n.parentNode!.insertBefore(parsed.documentElement, n.parentNode?.childNodes[index] ?? null);
+      }
+    });
+
+    this.vfs.set(this.path, this.doc);
   }
 
   /**
@@ -126,7 +151,7 @@ export class AndroidManifest {
     return false;
   }
 
-  private manifestCommitFn = async (file: VFSRef) => {
+  private xmlCommitFn = async (file: VFSRef) => {
     return writeXml(file.getData(), file.getFilename());
   }
 }

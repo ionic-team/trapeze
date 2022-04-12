@@ -1,25 +1,22 @@
 import { join } from 'path';
 import { pathExists, move, mkdir, mkdirp, readFile, remove, rmdir, writeFile } from '@ionic/utils-fs';
 
-
 import { CapacitorProject } from "../project";
-import { AndroidManifest } from './manifest';
-
 import { AndroidResDir } from '../definitions';
 import { GradleFile } from './gradle-file';
+import { XmlFile } from '../xml';
 
 export class AndroidProject {
-  private manifest: AndroidManifest;
+  private manifest: XmlFile;
   private buildGradle: GradleFile | null = null;
   private appBuildGradle: GradleFile | null = null;
-  private gradleFiles: { [path:string]: GradleFile } = {};
 
   constructor(private project: CapacitorProject) {
     const manifestPath = this.getAndroidManifestPath();
     if (!manifestPath) {
       throw new Error('Unable to load AndroidManifest.xml for project');
     }
-    this.manifest = new AndroidManifest(manifestPath, project.vfs);
+    this.manifest = new XmlFile(manifestPath, project.vfs);
   }
 
   async load() {
@@ -40,6 +37,29 @@ export class AndroidProject {
     return this.manifest;
   }
 
+  getResourceXmlFile(resourcePath: string) {
+    console.log('Getting resource xml file', resourcePath);
+    return this.getXmlFile(join(this.getResourcesPath(), resourcePath));
+  }
+
+  getXmlFile(path: string) {
+    const root = this.project.config.android?.path;
+
+    if (!root) {
+      return null;
+    }
+
+    const filename = join(root, path);
+
+    const existing = this.project.vfs.get(filename);
+
+    if (existing) {
+      return existing.getData() as XmlFile;
+    }
+
+    return new XmlFile(filename, this.project.vfs);
+  }
+
   async getGradleFile(path: string) {
     if (path === 'build.gradle') {
       return this.buildGradle;
@@ -47,11 +67,7 @@ export class AndroidProject {
       return this.appBuildGradle;
     }
 
-    const file = await this.loadGradle(path);
-    if (file) {
-      this.gradleFiles[path] = file;
-    }
-    return file;
+    return this.loadGradle(path);
   }
 
   /**
@@ -89,6 +105,7 @@ export class AndroidProject {
 
     const destDir = join(sourceDir, ...newPackageParts);
 
+    // TODO: Don't hard code this
     let activityFile = join(sourceDir, ...oldPackageParts, 'MainActivity.java');
 
     // Make the new directory tree and any missing parents
@@ -224,17 +241,25 @@ export class AndroidProject {
     return join(this.project.config.android?.path, 'app', 'src', 'main', 'AndroidManifest.xml');
   }
 
-  private getResourcesRoot(): string | null {
+  getResourcesPath(): string {
+    return join('app', 'src', 'main', 'res');
+  }
+
+  getResourcesRoot(): string | null {
     if (!this.project.config.android?.path) {
       return null;
     }
-    return join(this.project.config.android?.path, 'app', 'src', 'main', 'res');
+
+    // TODO: Don't hard-code app
+    return join(this.project.config.android?.path, this.getResourcesPath());
   }
 
   private getAppRoot(): string | null {
     if (!this.project.config.android?.path) {
       return null;
     }
+
+    // TODO: Don't hard-code app
     return join(this.project.config.android?.path, 'app');
   }
 

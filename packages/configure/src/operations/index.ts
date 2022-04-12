@@ -3,12 +3,16 @@ import executeAndroidGradle from './android/gradle';
 import executeAndroidRes from './android/res';
 import executeAndroidManifest from './android/manifest';
 import executeAndroidVersion from './android/version';
+import executeAndroidXml from './android/xml';
+
 import executeIosProject from './ios/project';
 import executeIosFrameworks from './ios/frameworks';
 import executeIosEntitlements from './ios/entitlements';
 import executeIosPlist from './ios/plist';
 import executeIosBuildVersion from './ios/buildVersion';
 import executeIosBuildSettings from './ios/buildSettings';
+import executeIosXml from './ios/xml';
+
 import { Context } from '../ctx';
 import { Operation } from '../definitions';
 
@@ -30,6 +34,7 @@ const operations: OperationHandlers = {
   'ios.frameworks': executeIosFrameworks,
   'ios.entitlements': executeIosEntitlements,
   'ios.build.gradle': executeAndroidGradle,
+  'ios.xml': executeIosXml,
   'android.manifest': executeAndroidManifest,
   'android.res': executeAndroidRes,
   'android.gradle': executeAndroidGradle,
@@ -37,6 +42,7 @@ const operations: OperationHandlers = {
   'android.versionName': executeAndroidVersion,
   'android.versionCode': executeAndroidVersion,
   'android.incrementVersionCode': executeAndroidVersion,
+  'android.xml': executeAndroidXml,
 };
 
 const enabled: string[] | null = null; //['ios.plist'];

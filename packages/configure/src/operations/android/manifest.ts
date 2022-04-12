@@ -1,8 +1,10 @@
 import { Context } from '../../ctx';
-import { Operation } from '../../definitions';
+import { AndroidManifestOperation, Operation } from '../../definitions';
 
 export default async function execute(ctx: Context, op: Operation) {
-  for (const entry of op.value) {
+  const manifestOp = op as AndroidManifestOperation;
+
+  for (const entry of manifestOp.value) {
     if (entry.attrs) {
       ctx.project.android?.getAndroidManifest().setAttrs(entry.target, entry.attrs)
     }

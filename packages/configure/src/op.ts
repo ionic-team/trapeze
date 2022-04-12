@@ -150,6 +150,8 @@ function createOpDisplayText(op: Partial<Operation>) {
       return op.value.join(', ');
     case 'ios.plist':
       return `${op.value.entries.length} modifications`;
+    case 'ios.xml':
+      return `${op.value.entries.length} modifications`;
     // android
     case 'android.packageName':
       return op.value;
@@ -159,6 +161,8 @@ function createOpDisplayText(op: Partial<Operation>) {
       return op.value;
     case 'android.manifest':
       return `${op.value.length} modifications`;
+    case 'android.xml':
+      return `${op.value.entries.length} modifications`;
     case 'android.build.gradle':
       return '';
     case 'android.app.build.gradle':

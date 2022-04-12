@@ -7,6 +7,7 @@ import { parsePlist, updatePlist } from "../util/plist";
 import { CapacitorProject } from "../project";
 import { IosPbxProject, IosEntitlements, IosFramework, IosBuildName, IosTarget, IosTargetName, IosTargetBuildConfiguration, IosFrameworkOpts } from '../definitions';
 import { VFSRef } from '../vfs';
+import { XmlFile } from '../xml';
 
 const defaultEntitlementsPlist = `
 <?xml version="1.0" encoding="UTF-8"?>
@@ -34,6 +35,24 @@ export class IosProject {
     const proj = await this.pbx();
 
     this.pbxProject = proj;
+  }
+
+  async getXmlFile(path: string) {
+    const root = this.project.config.android?.path;
+
+    if (!root) {
+      return null;
+    }
+
+    const filename = join(root, path);
+
+    const existing = this.project.vfs.get(filename);
+
+    if (existing) {
+      return existing.getData() as XmlFile;
+    }
+
+    return new XmlFile(filename, this.project.vfs);
   }
 
   getPbxProject() {
