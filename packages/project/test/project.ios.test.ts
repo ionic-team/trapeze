@@ -128,6 +128,16 @@ describe('project - ios standard', () => {
     expect(project.ios?.getBuildProperty('App', 'Release', 'THING')).toBe('THIS');
   });
 
+  it('should properly quote pbxproj string values that need to be quoted', async () => {
+    project.ios?.setBuildProperty('App', 'Debug', 'FAKE_PROPERTY', 'This Is A Long String');
+    var actualValue = project.ios?.getPbxProject()?.getBuildProperty('FAKE_PROPERTY', 'Debug', 'App');
+
+    // Value read back shouldn't have quotes
+    expect(project.ios?.getBuildProperty('App', 'Debug', 'FAKE_PROPERTY')).toBe('This Is A Long String');
+    // Value from pbx file should have quotes
+    expect(actualValue).toBe('\"This Is A Long String\"');
+  });
+
   it('should add frameworks', async () => {
     const fwks = ['ImageIO.framework', 'AudioToolbox.framework'];
     fwks.forEach(f => project.ios?.addFramework('App', f));

@@ -2,7 +2,7 @@ import plist from 'plist';
 import path, { join } from 'path';
 import { writeFile } from '@ionic/utils-fs';
 
-import { parsePbxProject } from "../util/pbx";
+import { parsePbxProject, pbxReadString, pbxSerializeString } from "../util/pbx";
 import { parsePlist, updatePlist } from "../util/plist";
 import { CapacitorProject } from "../project";
 import { IosPbxProject, IosEntitlements, IosFramework, IosBuildName, IosTarget, IosTargetName, IosTargetBuildConfiguration, IosFrameworkOpts } from '../definitions';
@@ -116,7 +116,7 @@ export class IosProject {
   setBundleId(targetName: IosTargetName | null, buildName: IosBuildName | null, bundleId: string) {
     targetName = this.assertTargetName(targetName);
 
-    this.pbxProject?.updateBuildProperty('PRODUCT_BUNDLE_IDENTIFIER', bundleId, buildName, targetName);
+    this.pbxProject?.updateBuildProperty('PRODUCT_BUNDLE_IDENTIFIER', pbxSerializeString(bundleId), buildName, targetName);
   }
 
   /**
@@ -141,7 +141,7 @@ export class IosProject {
   setProductName(targetName: IosTargetName | null, productName: string) {
     targetName = this.assertTargetName(targetName);
 
-    this.pbxProject?.updateBuildProperty('PRODUCT_NAME', productName, null, targetName);
+    this.pbxProject?.updateBuildProperty('PRODUCT_NAME', pbxSerializeString(productName), null, targetName);
   }
 
   /**
@@ -216,7 +216,7 @@ export class IosProject {
   async setVersion(targetName: IosTargetName | null, buildName: IosBuildName | null, version: string) {
     targetName = this.assertTargetName(targetName || null);
 
-    this.pbxProject?.updateBuildProperty('MARKETING_VERSION', version, buildName, targetName);
+    this.pbxProject?.updateBuildProperty('MARKETING_VERSION', pbxSerializeString(version), buildName, targetName);
 
     const file = await this.getInfoPlist(targetName, buildName ?? undefined);
     if (!file || !this.project?.config.ios?.path) {
@@ -247,7 +247,7 @@ export class IosProject {
   setBuildProperty(targetName: IosTargetName | null, buildName: IosBuildName | null, key: string, value: string) {
     targetName = this.assertTargetName(targetName || null);
 
-    this.pbxProject?.updateBuildProperty(key, value, buildName ? buildName : undefined /* must use undefined if null */, targetName);
+    this.pbxProject?.updateBuildProperty(key, pbxSerializeString(value), buildName ? buildName : undefined /* must use undefined if null */, targetName);
   }
 
   /**
@@ -257,7 +257,7 @@ export class IosProject {
   getBuildProperty(targetName: IosTargetName | null, buildName: IosBuildName | null, key: string) {
     targetName = this.assertTargetName(targetName || null);
 
-    return this.pbxProject?.getBuildProperty(key, buildName ? buildName : undefined /* must use undefined if null */, targetName)?.replace(/(^")+|("$)+/g, '');
+    return pbxReadString(this.pbxProject?.getBuildProperty(key, buildName ? buildName : undefined /* must use undefined if null */, targetName));
   }
 
   /**
