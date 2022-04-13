@@ -37,8 +37,12 @@ export class IosProject {
     this.pbxProject = proj;
   }
 
-  async getXmlFile(path: string) {
-    const root = this.project.config.android?.path;
+  /**
+   * Get a project file container for the given path in the project root.
+   * This will return an existing file container or create a new one.
+   */
+  getProjectFile<T>(path: string, create: (filename: string) => T): T | null {
+    const root = this.project.config.ios?.path;
 
     if (!root) {
       return null;
@@ -49,10 +53,14 @@ export class IosProject {
     const existing = this.project.vfs.get(filename);
 
     if (existing) {
-      return existing.getData() as XmlFile;
+      return existing.getData() as T;
     }
 
-    return new XmlFile(filename, this.project.vfs);
+    return create(filename);
+  }
+
+  async getXmlFile(path: string) {
+    return this.getProjectFile(path, (filename: string) => new XmlFile(filename, this.project.vfs));
   }
 
   getPbxProject() {

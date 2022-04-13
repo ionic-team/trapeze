@@ -1,0 +1,10 @@
+{
+  "name": "json",
+  "favoriteDay": "Friday, 13th",
+  "wardrobe": [
+    "mask"
+  ],
+  "info": {
+    "age": 34
+  }
+}

@@ -38,12 +38,12 @@ export interface XmlOperation extends Operation {
 }
 
 export interface XmlOperationValue {
-    file?: string;
-    target: any;
-    attrs?: any;
-    inject?: string;
-    merge?: string;
-    replace?: string;
+  file?: string;
+  target: any;
+  attrs?: any;
+  inject?: string;
+  merge?: string;
+  replace?: string;
 }
 
 export interface AndroidXmlOperationValue extends XmlOperationValue {
@@ -61,4 +61,24 @@ export interface AndroidXmlOperation extends XmlOperation {
 }
 export interface IosXmlOperation extends XmlOperation {
   value: IosXmlOperationValue[];
+}
+
+export interface JsonOperation {
+  value: JsonOperationValue[];
+}
+export interface JsonOperationValue {
+  file?: string;
+  set: any;
+}
+export interface AndroidJsonOperation extends JsonOperation {
+  value: AndroidJsonOperationValue[];
+}
+export interface AndroidJsonOperationValue extends JsonOperationValue {
+  file?: string;
+  resFile?: string;
+}
+export interface IosJsonOperation extends JsonOperation {
+  value: IosJsonOperationValue[];
+}
+export interface IosJsonOperationValue extends JsonOperationValue {
 }

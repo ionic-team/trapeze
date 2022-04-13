@@ -37,12 +37,11 @@ export class AndroidProject {
     return this.manifest;
   }
 
-  getResourceXmlFile(resourcePath: string) {
-    console.log('Getting resource xml file', resourcePath);
-    return this.getXmlFile(join(this.getResourcesPath(), resourcePath));
-  }
-
-  getXmlFile(path: string) {
+  /**
+   * Get a project file container for the given path in the project root.
+   * This will return an existing file container or create a new one.
+   */
+  getProjectFile<T>(path: string, create: (filename: string) => T): T | null {
     const root = this.project.config.android?.path;
 
     if (!root) {
@@ -54,10 +53,18 @@ export class AndroidProject {
     const existing = this.project.vfs.get(filename);
 
     if (existing) {
-      return existing.getData() as XmlFile;
+      return existing.getData() as T;
     }
 
-    return new XmlFile(filename, this.project.vfs);
+    return create(filename);
+  }
+
+  getResourceXmlFile(resourcePath: string) {
+    return this.getXmlFile(join(this.getResourcesPath(), resourcePath));
+  }
+
+  getXmlFile(path: string) {
+    return this.getProjectFile(path, (filename: string) => new XmlFile(filename, this.project.vfs));
   }
 
   async getGradleFile(path: string) {
