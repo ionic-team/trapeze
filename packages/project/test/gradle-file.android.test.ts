@@ -188,6 +188,42 @@ allprojects {
         name: "'Duo-SDK-Feed'"
       }]
     }]);
+
+    const source = vfs.get(gradle.filename)?.getData();
+    expect(source.trim()).toBe(`// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:4.2.1'
+        classpath 'com.google.gms:google-services:4.3.5'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+        classpath 'com.super.cool'
+        classpath 'com.super.amazing'
+    }
+}
+
+apply from: "variables.gradle"
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+        maven {
+            url 'https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1'
+            name 'Duo-SDK-Feed'
+        }
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}`);
   });
 
   it('Should inject Gradle statements in empty method blocks', async () => {
@@ -244,6 +280,48 @@ allprojects {
     }
 }
 `.trim());
+  });
+
+  it('Should update complex gradle types', async () => {
+    const gradle = await project.android?.getGradleFile('variables.gradle');
+    await gradle?.parse();
+
+    let nodes = gradle?.find({
+      ext : {
+      }
+    });
+
+    expect(nodes?.length).not.toBe(0);
+
+    await gradle?.replaceProperties({
+      ext: {
+        minSdkVersion: {
+        }
+      }
+    }, { minSdkVersion: ["hello"] });
+
+    await gradle?.replaceProperties({
+      ext: {
+        compileSdkVersion: {
+        }
+      }
+    }, { compileSdkVersion: "\"value\"" });
+
+    const source = project.vfs.get(gradle!.filename)?.getData();
+    expect(source.trim()).toBe(`ext {
+    minSdkVersion = ["hello"]
+    compileSdkVersion = "value"
+    targetSdkVersion = 30
+    androidxActivityVersion = '1.2.0'
+    androidxAppCompatVersion = '1.2.0'
+    androidxCoordinatorLayoutVersion = '1.1.0'
+    androidxCoreVersion = '1.3.2'
+    androidxFragmentVersion = '1.3.0'
+    junitVersion = '4.13.1'
+    androidxJunitVersion = '1.1.2'
+    androidxEspressoCoreVersion = '3.3.0'
+    cordovaAndroidVersion = '7.0.0'
+}`);
   });
 
   it('Should inject Gradle raw source', async () => {

@@ -468,9 +468,17 @@ export class GradleFile {
         const editEntry = entry[key];
 
         if (Array.isArray(editEntry)) {
-          lines.push(`${key} {`);
-          this.createGradleSource(editEntry, lines, indentation, depth + 1, targetNode);
-          lines.push('}');
+          if (typeof editEntry[0] === 'object') {
+            lines.push(`${key} {`);
+            this.createGradleSource(editEntry, lines, indentation, depth + 1, targetNode);
+            lines.push('}');
+          } else {
+            if (targetNode.type === 'variable') {
+              lines.push(`${key} = ${JSON.stringify(editEntry)}`);
+            } else {
+              lines.push(`${key} ${editEntry}`);
+            }
+          }
         } else if (typeof editEntry === 'string' || typeof editEntry === 'number' || typeof editEntry === 'boolean') {
           if (targetNode.type === 'variable') {
             lines.push(indent(`${key} = ${editEntry}`, indentation, depth));

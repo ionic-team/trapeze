@@ -202,6 +202,8 @@ The Gradle commands supports two modes: `insert` or `replace`:
  * `insert` inserts new Gradle snippets at the desired location in the file
  * `replace` replaces existing entries in the Gradle file at the desired location
 
+ Currently, the tool supports updating primitive types (numbers, strings, booleans), and arrays of primitives. Strings need additional quoting if necessary, in order to support non-quoted variable strings. See the example below for string quoting examples.
+
 ```yaml
 platforms:
   android:
