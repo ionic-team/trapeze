@@ -55,6 +55,6 @@ export class JsonFile {
   }
 
   private commitFn = async (file: VFSRef) => {
-    return writeJson(file.getData(), file.getFilename());
+    return writeJson(file.getFilename(), file.getData());
   }
 }

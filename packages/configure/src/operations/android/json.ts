@@ -8,15 +8,23 @@ export default async function execute(ctx: Context, op: Operation) {
   const xmlOp = op as AndroidJsonOperation;
   const entries = xmlOp.value;
 
+  if (!ctx.project.android) {
+    return;
+  }
+
   for (const entry of entries) {
     let filename = entry.file;
     let jsonFile: JsonFile | null | undefined = null;
 
     if (entry.resFile) {
-      filename = join(ctx.project.android?.getResourcesPath(), entry.resFile);
+      filename = join(ctx.project.android.getResourcesPath(), entry.resFile);
     }
 
-    jsonFile = ctx.project.android?.getProjectFile<JsonFile>(filename, (filename: string) => new JsonFile(filename, ctx.project.vfs));
+    jsonFile = ctx.project.android.getProjectFile<JsonFile>(filename!, (filename: string) => new JsonFile(filename, ctx.project.vfs));
+
+    if (!jsonFile) {
+      return;
+    }
 
     try {
       await jsonFile.load();

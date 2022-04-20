@@ -85,6 +85,7 @@ describe('task: run', () => {
     const files = ctx.project.vfs.all();
     expect(files).toEqual({
       [join(dir, 'android/build.gradle')]: expect.anything(),
+      [join(dir, 'android/google-services.json')]: expect.anything(),
       [join(dir, 'android/app/build.gradle')]: expect.anything(),
       [join(dir, 'android/app/src/main/AndroidManifest.xml')]: expect.anything(),
       [join(dir, 'android/app/src/main/res/values/strings.xml')]: expect.anything(),
@@ -110,7 +111,7 @@ describe('task: run', () => {
     expect(appGradleContents).toContain('versionName "5.2.1"');
 
     const pbxProj = await readFile(join(dir, 'ios/App/App.xcodeproj/project.pbxproj'), { encoding: 'utf-8' });
-    expect(pbxProj).toContain('PRODUCT_BUNDLE_IDENTIFIER = "io.ionic.fixtureTest"');
+    expect(pbxProj).toContain('PRODUCT_BUNDLE_IDENTIFIER = io.ionic.fixtureTest');
 
     const entitlements = await readFile(join(dir, 'ios/App/App/App.entitlements'), { encoding: 'utf-8' });
     expect(entitlements).toContain('keychain-access-groups');
@@ -140,6 +141,7 @@ describe('task: run', () => {
     expect(files).toEqual({
       [join(dir, 'android/build.gradle')]: expect.anything(),
       [join(dir, 'android/app/build.gradle')]: expect.anything(),
+      [join(dir, 'android/google-services.json')]: expect.anything(),
       [join(dir, 'android/app/src/main/AndroidManifest.xml')]: expect.anything(),
       [join(dir, 'android/app/src/main/res/values/strings.xml')]: expect.anything(),
       [join(dir, 'ios/App/App.xcodeproj/project.pbxproj')]: expect.anything(),
@@ -164,8 +166,11 @@ describe('task: run', () => {
     expect(appGradleContents).toContain('minifyEnabled true');
     expect(appGradleContents).toContain('implementation \'test-implementation\'');
 
+    const jsonContents = await readFile(join(dir, 'android/google-services.json'), { encoding: 'utf-8' });
+    console.log('Got services', jsonContents);
+
     const pbxProj = await readFile(join(dir, 'ios/App/App.xcodeproj/project.pbxproj'), { encoding: 'utf-8' });
-    expect(pbxProj).toContain('PRODUCT_BUNDLE_IDENTIFIER = "io.ionic.fixtureTest"');
+    expect(pbxProj).toContain('PRODUCT_BUNDLE_IDENTIFIER = io.ionic.fixtureTest');
     expect(pbxProj).toContain('CURRENT_PROJECT_VERSION = 195');
 
     const entitlements = await ctx.project.ios?.getEntitlements('App');

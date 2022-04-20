@@ -4,6 +4,7 @@ import executeAndroidRes from './android/res';
 import executeAndroidManifest from './android/manifest';
 import executeAndroidVersion from './android/version';
 import executeAndroidXml from './android/xml';
+import executeAndroidJson from './android/json';
 
 import executeIosProject from './ios/project';
 import executeIosFrameworks from './ios/frameworks';
@@ -42,6 +43,7 @@ const operations: OperationHandlers = {
   'android.versionName': executeAndroidVersion,
   'android.versionCode': executeAndroidVersion,
   'android.incrementVersionCode': executeAndroidVersion,
+  'android.json': executeAndroidJson,
   'android.xml': executeAndroidXml,
 };
 

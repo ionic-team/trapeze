@@ -161,6 +161,8 @@ function createOpDisplayText(op: Partial<Operation>) {
       return op.value;
     case 'android.manifest':
       return `${op.value.length} modifications`;
+    case 'android.json':
+      return op.value;
     case 'android.xml':
       return `${op.value.entries.length} modifications`;
     case 'android.build.gradle':

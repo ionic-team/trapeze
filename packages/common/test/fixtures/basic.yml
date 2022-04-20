@@ -125,6 +125,12 @@ platforms:
               </intent-filter>
           </activity>
 
+    json:
+      - file: google-services.json
+        set:
+          project_info:
+            project_id: "asdf"
+
     gradle:
       - file: build.gradle
         target:
