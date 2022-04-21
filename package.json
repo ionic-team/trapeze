@@ -19,5 +19,6 @@
   "volta": {
     "node": "16.13.2",
     "npm": "8.3.0"
-  }
+  },
+  "packageManager": "npm@8.3.0"
 }
