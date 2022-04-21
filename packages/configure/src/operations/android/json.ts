@@ -1,8 +1,8 @@
 import { join } from 'path';
 
 import { JsonFile } from '@capacitor/project';
-import { Context } from "../../ctx";
-import { AndroidJsonOperation, Operation } from "../../definitions";
+import { Context } from '../../ctx';
+import { AndroidJsonOperation, Operation } from '../../definitions';
 
 export default async function execute(ctx: Context, op: Operation) {
   const xmlOp = op as AndroidJsonOperation;
@@ -20,7 +20,10 @@ export default async function execute(ctx: Context, op: Operation) {
       filename = join(ctx.project.android.getResourcesPath(), entry.resFile);
     }
 
-    jsonFile = ctx.project.android.getProjectFile<JsonFile>(filename!, (filename: string) => new JsonFile(filename, ctx.project.vfs));
+    jsonFile = ctx.project.android.getProjectFile<JsonFile>(
+      filename!,
+      (filename: string) => new JsonFile(filename, ctx.project.vfs),
+    );
 
     if (!jsonFile) {
       return;
@@ -29,11 +32,14 @@ export default async function execute(ctx: Context, op: Operation) {
     try {
       await jsonFile.load();
     } catch (e) {
-      console.log('Unable to load the XML file here', e);
+      console.log('Unable to load the JSON file here', e);
     }
 
     if (entry.set) {
       jsonFile.set(entry.set);
+    }
+    if (entry.merge) {
+      jsonFile.merge(entry.merge);
     }
   }
 }

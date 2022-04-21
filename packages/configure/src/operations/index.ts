@@ -13,6 +13,7 @@ import executeIosPlist from './ios/plist';
 import executeIosBuildVersion from './ios/buildVersion';
 import executeIosBuildSettings from './ios/buildSettings';
 import executeIosXml from './ios/xml';
+import executeIosJson from './ios/json';
 
 import { Context } from '../ctx';
 import { Operation } from '../definitions';
@@ -36,6 +37,7 @@ const operations: OperationHandlers = {
   'ios.entitlements': executeIosEntitlements,
   'ios.build.gradle': executeAndroidGradle,
   'ios.xml': executeIosXml,
+  'ios.json': executeIosJson,
   'android.manifest': executeAndroidManifest,
   'android.res': executeAndroidRes,
   'android.gradle': executeAndroidGradle,

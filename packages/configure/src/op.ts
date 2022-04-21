@@ -21,9 +21,9 @@ function createAndroidPlatform(platform: string, platformEntry: any) {
     return [];
   }
 
-  return Object.keys(platformEntry || {}).map(op =>
-    createOperation(platform, op, platformEntry[op]),
-  ).flat();
+  return Object.keys(platformEntry || {})
+    .map(op => createOperation(platform, op, platformEntry[op]))
+    .flat();
 }
 
 function createIosPlatform(platform: string, platformEntry: any) {
@@ -34,39 +34,86 @@ function createIosPlatform(platform: string, platformEntry: any) {
   if (typeof platformEntry.targets !== 'undefined') {
     return createIosPlatformTargets(platform, platformEntry);
   } else {
-    return Object.keys(platformEntry || {}).map(op =>
-      createIosOperation({ platform, target: null, build: null, op, opEntry: platformEntry[op] })
-    ).flat();
+    return Object.keys(platformEntry || {})
+      .map(op =>
+        createIosOperation({
+          platform,
+          target: null,
+          build: null,
+          op,
+          opEntry: platformEntry[op],
+        }),
+      )
+      .flat();
   }
 }
 
 function createIosPlatformTargets(platform: string, platformEntry: any) {
-  return Object.keys(platformEntry.targets || {}).map(target =>
-    createIosPlatformTarget(platform, target, platformEntry.targets[target])
-  ).flat();
+  return Object.keys(platformEntry.targets || {})
+    .map(target =>
+      createIosPlatformTarget(platform, target, platformEntry.targets[target]),
+    )
+    .flat();
 }
 
-function createIosPlatformTarget(platform: string, target: string, targetEntry: any) {
+function createIosPlatformTarget(
+  platform: string,
+  target: string,
+  targetEntry: any,
+) {
   if (typeof targetEntry.builds !== 'undefined') {
     return createIosPlatformBuilds(platform, target, targetEntry);
   } else {
-    return Object.keys(targetEntry || {}).map(op =>
-      createIosOperation({ platform, target, build: null, op, opEntry: targetEntry[op] })
-    ).flat();
+    return Object.keys(targetEntry || {})
+      .map(op =>
+        createIosOperation({
+          platform,
+          target,
+          build: null,
+          op,
+          opEntry: targetEntry[op],
+        }),
+      )
+      .flat();
   }
 }
 
-function createIosPlatformBuilds(platform: string, target: string, targetEntry: any) {
-  return Object.keys(targetEntry.builds || {}).map(build =>
-    createIosPlatformBuild(platform, target, build, targetEntry.builds[build])
-    // createIosPlatformBuild({ platform, target, build, buildEntry: targetEntry.builds[build] })
-  ).flat();
+function createIosPlatformBuilds(
+  platform: string,
+  target: string,
+  targetEntry: any,
+) {
+  return Object.keys(targetEntry.builds || {})
+    .map(
+      build =>
+        createIosPlatformBuild(
+          platform,
+          target,
+          build,
+          targetEntry.builds[build],
+        ),
+      // createIosPlatformBuild({ platform, target, build, buildEntry: targetEntry.builds[build] })
+    )
+    .flat();
 }
 
-function createIosPlatformBuild(platform: string, target: string, build: string, buildEntry: any) {
-  return Object.keys(buildEntry || {}).map(op =>
-    createIosOperation({ platform, target, build, op, opEntry: buildEntry[op] })
-  ).flat();
+function createIosPlatformBuild(
+  platform: string,
+  target: string,
+  build: string,
+  buildEntry: any,
+) {
+  return Object.keys(buildEntry || {})
+    .map(op =>
+      createIosOperation({
+        platform,
+        target,
+        build,
+        op,
+        opEntry: buildEntry[op],
+      }),
+    )
+    .flat();
 }
 
 interface CreateIosOperation {
@@ -76,7 +123,13 @@ interface CreateIosOperation {
   op: string;
   opEntry: any;
 }
-function createIosOperation({ platform, target, build, op, opEntry }: CreateIosOperation): Operation {
+function createIosOperation({
+  platform,
+  target,
+  build,
+  op,
+  opEntry,
+}: CreateIosOperation): Operation {
   const opRet = getOpIdAlias({
     id: `${platform}.${op}`,
     platform,
@@ -92,14 +145,18 @@ function createIosOperation({ platform, target, build, op, opEntry }: CreateIosO
   };
 }
 
-function createOperation(platform: string, op: string, opEntry: any): Operation {
+function createOperation(
+  platform: string,
+  op: string,
+  opEntry: any,
+): Operation {
   const opRet = getOpIdAlias({
     id: `${platform}.${op}`,
     platform,
     name: op,
     value: opEntry,
     iosTarget: null,
-    iosBuild: null
+    iosBuild: null,
   });
 
   return {
@@ -116,11 +173,9 @@ function getOpIdAlias(op: Partial<Operation>) {
         ...op,
         id: 'ios.plist',
         value: {
-          entries: [
-            ...op.value
-          ]
-        }
-      }
+          entries: [...op.value],
+        },
+      };
   }
 
   return op;
@@ -152,6 +207,8 @@ function createOpDisplayText(op: Partial<Operation>) {
       return `${op.value.entries.length} modifications`;
     case 'ios.xml':
       return `${op.value.entries.length} modifications`;
+    case 'ios.json':
+      return `${op.value.entries.length} modifications`;
     // android
     case 'android.packageName':
       return op.value;
@@ -162,7 +219,7 @@ function createOpDisplayText(op: Partial<Operation>) {
     case 'android.manifest':
       return `${op.value.length} modifications`;
     case 'android.json':
-      return op.value;
+      return `${op.value.entries.length} modifications`;
     case 'android.xml':
       return `${op.value.entries.length} modifications`;
     case 'android.build.gradle':

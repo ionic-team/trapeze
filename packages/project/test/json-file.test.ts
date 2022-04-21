@@ -13,36 +13,48 @@ describe('json file', () => {
 
   it('Should load json file', async () => {
     expect(file.getData()).toMatchObject({
-      "name": "json",
-      "favoriteDay": "Friday, 13th",
-      "wardrobe": [
-        "mask"
-      ],
-      "info": {
-        "age": 34
-      }
+      name: 'json',
+      favoriteDay: 'Friday, 13th',
+      wardrobe: ['mask'],
+      info: {
+        age: 34,
+      },
     });
   });
 
-  it('Should update json file', async () => {
+  it('Should set json', async () => {
     file.set({
-      "name": "Jason",
-      "wardrobe": [
-        "chainsaw"
-      ],
-      "info": {
-        "size": "large"
-      }
+      name: 'Jason',
+      wardrobe: ['chainsaw'],
+      info: {
+        size: 'large',
+      },
     });
     expect(file.getData()).toMatchObject({
-      "name": "Jason",
-      "favoriteDay": "Friday, 13th",
-      "wardrobe": [
-        "chainsaw"
-      ],
-      "info": {
-        "size": "large"
-      }
+      name: 'Jason',
+      favoriteDay: 'Friday, 13th',
+      wardrobe: ['chainsaw'],
+      info: {
+        size: 'large',
+      },
+    });
+  });
+
+  it('Should merge json', async () => {
+    file.merge({
+      wardrobe: ['chainsaw'],
+      info: {
+        color: 'blue',
+      },
+    });
+    expect(file.getData()).toMatchObject({
+      name: 'json',
+      favoriteDay: 'Friday, 13th',
+      wardrobe: ['mask', 'chainsaw'],
+      info: {
+        age: 34,
+        color: 'blue',
+      },
     });
   });
 });

@@ -29,12 +29,12 @@ export interface AndroidGradleOperation extends Operation {
 export interface AndroidPropertiesOperation extends Operation {
   value: {
     file: string;
-    entries: any
+    entries: any;
   }[];
 }
 
 export interface XmlOperation extends Operation {
-  value: XmlOperationValue[]
+  value: XmlOperationValue[];
 }
 
 export interface XmlOperationValue {
@@ -68,7 +68,8 @@ export interface JsonOperation {
 }
 export interface JsonOperationValue {
   file?: string;
-  set: any;
+  set?: any;
+  merge?: any;
 }
 export interface AndroidJsonOperation extends JsonOperation {
   value: AndroidJsonOperationValue[];
@@ -80,5 +81,4 @@ export interface AndroidJsonOperationValue extends JsonOperationValue {
 export interface IosJsonOperation extends JsonOperation {
   value: IosJsonOperationValue[];
 }
-export interface IosJsonOperationValue extends JsonOperationValue {
-}
+export interface IosJsonOperationValue extends JsonOperationValue {}

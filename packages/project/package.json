@@ -13,7 +13,7 @@
     "clean": "rimraf ./dist",
     "build": "npm run clean && tsc",
     "watch": "tsc -w",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
+    "test": "jest"
   },
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",

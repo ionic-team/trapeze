@@ -59,6 +59,7 @@ describe('task: run', () => {
     process.argv.push('--quiet');
     process.argv.push('--noCommit');
     const ctx = await loadContext();
+    ctx.args.quiet = true;
 
     expect(ctx.args.projectRoot).toBe(dir);
 
