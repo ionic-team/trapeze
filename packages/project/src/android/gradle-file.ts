@@ -1,4 +1,5 @@
 import { dirname, join } from 'path';
+import os from 'os';
 import tempy from 'tempy';
 import { cloneDeep } from 'lodash';
 import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
@@ -23,8 +24,7 @@ export class GradleFile {
   private parsed: GradleAST | null = null;
   private tempFile: string | null = null;
 
-  constructor(public filename: string, private vfs: VFS) {
-  }
+  constructor(public filename: string, private vfs: VFS) {}
 
   /**
    * Replace the given properties at the specified point in the Gradle file or insert
@@ -40,14 +40,19 @@ export class GradleFile {
     const found = this.find(pathObject);
     if (!found.length) {
       // Create a parent selector object since we're going to insert instead
-      const parent = this._makeReplacePathObject(pathObject, Object.keys(toReplace)[0]);
+      const parent = this._makeReplacePathObject(
+        pathObject,
+        Object.keys(toReplace)[0],
+      );
       const foundParent = this.find(parent);
 
       if (foundParent.length) {
         this.insertIntoGradleFile([toReplace], foundParent[0]);
         return;
       } else {
-        throw new Error('Unable to find target in Gradle file to replace or insert');
+        throw new Error(
+          'Unable to find target in Gradle file to replace or insert',
+        );
       }
     }
 
@@ -86,12 +91,15 @@ export class GradleFile {
   // This is a beast, sorry. Hey, at least there's tests
   // In the future, this could be moved to the Java `gradle-parse` package provided in this monorepo
   // along with modifying the AST to inject our script but this works fine forn ow
-  private async replaceInGradleFile(toInject: any, targetNode: { node: GradleASTNode, depth: number }) {
+  private async replaceInGradleFile(
+    toInject: any,
+    targetNode: { node: GradleASTNode; depth: number },
+  ) {
     // These values are 1-indexed not 0-indexed
     //let { line, column, lastLine, lastColumn } = targetNode.node.source;
     let { line, column, lastLine, lastColumn } = targetNode.node.source;
 
-    const source = await this.getGradleSource() ?? '';
+    const source = (await this.getGradleSource()) ?? '';
     const sourceLines = source.split(/\r?\n/);
 
     if (line == -1) {
@@ -107,7 +115,13 @@ export class GradleFile {
 
     let lines: string[] = [];
 
-    this.createGradleSource([toInject], lines /* out */, detectedIndent.indent, undefined, targetNode.node);
+    this.createGradleSource(
+      [toInject],
+      lines /* out */,
+      detectedIndent.indent,
+      undefined,
+      targetNode.node,
+    );
 
     const resolvedLastLine = lastLine < 0 ? sourceLines.length : lastLine;
 
@@ -118,11 +132,14 @@ export class GradleFile {
     const indented = indent(formatted, detectedIndent.indent, indentAmount - 1);
 
     // Replace the target lines with our new source line
-    const newSource = sourceLines.slice(0, Math.max(0, line - 1))
-      .join('\n') +
-      '\n' + indented + '\n' +
-      sourceLines.slice(Math.max(0, resolvedLastLine), sourceLines.length)
-        .join('\n')
+    const newSource =
+      sourceLines.slice(0, Math.max(0, line - 1)).join('\n') +
+      '\n' +
+      indented +
+      '\n' +
+      sourceLines
+        .slice(Math.max(0, resolvedLastLine), sourceLines.length)
+        .join('\n');
 
     this.vfs.get(this.filename)?.setData(newSource);
   }
@@ -177,7 +194,7 @@ export class GradleFile {
    * parser API which this uses under the hood.
    */
   async parse() {
-    if (!await pathExists(this.filename)) {
+    if (!(await pathExists(this.filename))) {
       throw new Error(`Unable to locate file at ${this.filename}`);
     }
 
@@ -204,10 +221,37 @@ export class GradleFile {
     }
 
     try {
-      const json = await spawnCommand(java, ['-cp', 'lib/*:capacitor-gradle-parse.jar:.', 'com.capacitorjs.gradle.Parse', this.tempFile], {
-        cwd: parserRoot,
-        stdio: 'pipe'
-      });
+      let json: string | null = null;
+
+      if (os.platform() === 'win32') {
+        json = await spawnCommand(
+          java,
+          [
+            '-cp',
+            'lib/groovy-3.0.9.jar;lib/json-20210307.jar;capacitor-gradle-parse.jar;.',
+            'com.capacitorjs.gradle.Parse',
+            this.tempFile,
+          ],
+          {
+            cwd: parserRoot,
+            stdio: 'pipe',
+          },
+        );
+      } else {
+        json = await spawnCommand(
+          java,
+          [
+            '-cp',
+            'lib/*:capacitor-gradle-parse.jar:.',
+            'com.capacitorjs.gradle.Parse',
+            this.tempFile,
+          ],
+          {
+            cwd: parserRoot,
+            stdio: 'pipe',
+          },
+        );
+      }
 
       this.parsed = JSON.parse(json || '{}');
 
@@ -223,11 +267,14 @@ export class GradleFile {
   // This is a beast, sorry. Hey, at least there's tests
   // In the future, this could be moved to the Java `gradle-parse` package provided in this monorepo
   // along with modifying the AST to inject our script but this works fine forn ow
-  private async insertIntoGradleFile(toInject: any[] | string, targetNode: { node: GradleASTNode, depth: number }) {
+  private async insertIntoGradleFile(
+    toInject: any[] | string,
+    targetNode: { node: GradleASTNode; depth: number },
+  ) {
     // These values are 1-indexed not 0-indexed
     let { line, column, lastLine, lastColumn } = targetNode.node.source;
 
-    const source = await this.getGradleSource() ?? '';
+    const source = (await this.getGradleSource()) ?? '';
     const sourceLines = source.split(/\r?\n/);
 
     if (line == -1) {
@@ -244,7 +291,13 @@ export class GradleFile {
     let lines: string[] = [];
 
     if (Array.isArray(toInject)) {
-      this.createGradleSource(toInject, lines /* out */, detectedIndent.indent, undefined, targetNode.node);
+      this.createGradleSource(
+        toInject,
+        lines /* out */,
+        detectedIndent.indent,
+        undefined,
+        targetNode.node,
+      );
     } else {
       lines = toInject.split(/\r?\n/);
     }
@@ -265,38 +318,41 @@ export class GradleFile {
 
       // The new line is the slice from the start of the line to one character before the end (remember,
       // the lines and columns are 1-indexed so lastColumn - 2 is one character before the end
-      const newLine = sourceLine.slice(0, Math.max(0, lastColumn - 2)) +
+      const newLine =
+        sourceLine.slice(0, Math.max(0, lastColumn - 2)) +
         '\n' +
         indented +
         '\n' +
         indent(
-          sourceLine.slice(
-            Math.max(0, lastColumn - 2)
-          ).trim(),
+          sourceLine.slice(Math.max(0, lastColumn - 2)).trim(),
           detectedIndent.indent,
-          Math.max(0, indentAmount - 1)
+          Math.max(0, indentAmount - 1),
         );
 
-      newSource = sourceLines.slice(0, Math.max(0, resolvedLastLine - 1))
-        .join('\n') +
-        '\n' + newLine + '\n' +
-        sourceLines.slice(Math.max(0, resolvedLastLine), sourceLines.length)
+      newSource =
+        sourceLines.slice(0, Math.max(0, resolvedLastLine - 1)).join('\n') +
+        '\n' +
+        newLine +
+        '\n' +
+        sourceLines
+          .slice(Math.max(0, resolvedLastLine), sourceLines.length)
           .join('\n');
     } else {
       const indented = indent(formatted, detectedIndent.indent, indentAmount);
-      newSource = sourceLines.slice(0, Math.max(0, resolvedLastLine - 1))
-        .join('\n') +
+      newSource =
+        sourceLines.slice(0, Math.max(0, resolvedLastLine - 1)).join('\n') +
         '\n' +
         indented +
         '\n' +
-        sourceLines.slice(Math.max(0, resolvedLastLine - 1), sourceLines.length)
+        sourceLines
+          .slice(Math.max(0, resolvedLastLine - 1), sourceLines.length)
           .join('\n');
     }
 
     this.vfs.get(this.filename)?.setData(newSource);
   }
 
-  find(pathObject: any | null): { node: GradleASTNode, depth: number }[] {
+  find(pathObject: any | null): { node: GradleASTNode; depth: number }[] {
     if (!this.parsed) {
       throw new Error('Call parse() first to load Gradle file');
     }
@@ -310,12 +366,18 @@ export class GradleFile {
       return [];
     }
 
-    const found: { node: GradleASTNode, depth: number }[] = [];
+    const found: { node: GradleASTNode; depth: number }[] = [];
     this._find(pathObject, this.parsed, pathObject, found);
     return found;
   }
 
-  private _find(pathObject: any, node: any, pathNode: any, found: any[], depth = 0) {
+  private _find(
+    pathObject: any,
+    node: any,
+    pathNode: any,
+    found: any[],
+    depth = 0,
+  ) {
     if (!pathNode) {
       return;
     }
@@ -333,7 +395,13 @@ export class GradleFile {
           found.push({ node: c, depth });
         }
       }
-      this._find(pathObject, c, pathNode, found, c.type === 'block' ? depth + 1 : depth);
+      this._find(
+        pathObject,
+        c,
+        pathNode,
+        found,
+        c.type === 'block' ? depth + 1 : depth,
+      );
     }
   }
 
@@ -363,10 +431,13 @@ export class GradleFile {
     const source = await this.getGradleSource();
 
     if (source) {
-      this.vfs.set(this.filename, source.replace(
-        /(applicationId\s+)["'][^"']+["']/,
-        `$1"${applicationId}"`,
-      ));
+      this.vfs.set(
+        this.filename,
+        source.replace(
+          /(applicationId\s+)["'][^"']+["']/,
+          `$1"${applicationId}"`,
+        ),
+      );
     }
   }
 
@@ -389,7 +460,10 @@ export class GradleFile {
     const source = await this.getGradleSource();
 
     if (source) {
-      this.vfs.set(this.filename, source.replace(/(versionCode\s+)\w+/, `$1${versionCode}`));
+      this.vfs.set(
+        this.filename,
+        source.replace(/(versionCode\s+)\w+/, `$1${versionCode}`),
+      );
     }
   }
 
@@ -416,7 +490,10 @@ export class GradleFile {
       }
       const num = parseInt(versionCode[1]);
       if (!isNaN(num)) {
-        this.vfs.set(this.filename, source.replace(/(versionCode\s+)\w+/, `$1${num + 1}`));
+        this.vfs.set(
+          this.filename,
+          source.replace(/(versionCode\s+)\w+/, `$1${num + 1}`),
+        );
       }
     }
   }
@@ -425,10 +502,10 @@ export class GradleFile {
     const source = await this.getGradleSource();
 
     if (source) {
-      this.vfs.set(this.filename, source.replace(
-        /(versionName\s+)["'][^"']+["']/,
-        `$1"${versionName}"`,
-      ));
+      this.vfs.set(
+        this.filename,
+        source.replace(/(versionName\s+)["'][^"']+["']/, `$1"${versionName}"`),
+      );
     }
   }
 
@@ -436,7 +513,8 @@ export class GradleFile {
     const source = await this.getGradleSource();
 
     if (source) {
-      const versionName = source.match(/versionName\s+["']([^"']+)["']/) || null;
+      const versionName =
+        source.match(/versionName\s+["']([^"']+)["']/) || null;
       if (!versionName) {
         return null;
       }
@@ -460,7 +538,13 @@ export class GradleFile {
     }
   ]
   */
-  private createGradleSource(injectObj: any[], lines: string[], indentation: string, depth = 0, targetNode: GradleASTNode) {
+  private createGradleSource(
+    injectObj: any[],
+    lines: string[],
+    indentation: string,
+    depth = 0,
+    targetNode: GradleASTNode,
+  ) {
     for (const entry of injectObj) {
       const keys = Object.keys(entry);
 
@@ -470,7 +554,13 @@ export class GradleFile {
         if (Array.isArray(editEntry)) {
           if (typeof editEntry[0] === 'object') {
             lines.push(`${key} {`);
-            this.createGradleSource(editEntry, lines, indentation, depth + 1, targetNode);
+            this.createGradleSource(
+              editEntry,
+              lines,
+              indentation,
+              depth + 1,
+              targetNode,
+            );
             lines.push('}');
           } else {
             if (targetNode.type === 'variable') {
@@ -479,7 +569,11 @@ export class GradleFile {
               lines.push(`${key} ${editEntry}`);
             }
           }
-        } else if (typeof editEntry === 'string' || typeof editEntry === 'number' || typeof editEntry === 'boolean') {
+        } else if (
+          typeof editEntry === 'string' ||
+          typeof editEntry === 'number' ||
+          typeof editEntry === 'boolean'
+        ) {
           if (targetNode.type === 'variable') {
             lines.push(indent(`${key} = ${editEntry}`, indentation, depth));
           } else {
@@ -492,10 +586,18 @@ export class GradleFile {
             const fieldEntry = editEntry[fieldKey];
 
             if (typeof fieldEntry === 'string') {
-              lines.push(indent(`${fieldKey} ${fieldEntry}`, indentation, depth));
+              lines.push(
+                indent(`${fieldKey} ${fieldEntry}`, indentation, depth),
+              );
             } else if (Array.isArray(fieldEntry)) {
               lines.push('{');
-              this.createGradleSource(fieldEntry, lines, indentation, depth + 1, targetNode);
+              this.createGradleSource(
+                fieldEntry,
+                lines,
+                indentation,
+                depth + 1,
+                targetNode,
+              );
               lines.push('}');
             }
           }
@@ -515,10 +617,10 @@ export class GradleFile {
   }
 
   private gradleParseError() {
-    return `JAVA_HOME not set or set incorrectly. Please set JAVA_HOME to the root of your Java installation.\n\nGradle parse functionality depends on a local Java install for accurate Gradle file modification.`
+    return `JAVA_HOME not set or set incorrectly. Please set JAVA_HOME to the root of your Java installation.\n\nGradle parse functionality depends on a local Java install for accurate Gradle file modification.`;
   }
 
   private gradleCommitFn = async (file: VFSRef) => {
     return writeFile(file.getFilename(), file.getData());
-  }
+  };
 }
