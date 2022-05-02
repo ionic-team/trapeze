@@ -63,19 +63,11 @@ describe('task: run', () => {
 
     expect(files).toEqual({
       [join(dir, 'my-android-app/build.gradle')]: expect.anything(),
+      [join(dir, 'my-android-app/google-services.json')]: expect.anything(),
       [join(dir, 'my-android-app/app/build.gradle')]: expect.anything(),
-      [join(
-        dir,
-        'my-android-app/app/src/main/AndroidManifest.xml',
-      )]: expect.anything(),
-      [join(
-        dir,
-        'my-android-app/app/src/main/res/values/strings.xml',
-      )]: expect.anything(),
-      [join(
-        dir,
-        'my-ios-app/App/App.xcodeproj/project.pbxproj',
-      )]: expect.anything(),
+      [join(dir, 'my-android-app/app/src/main/AndroidManifest.xml')]: expect.anything(),
+      [join(dir, 'my-android-app/app/src/main/res/values/strings.xml')]: expect.anything(),
+      [join(dir, 'my-ios-app/App/App.xcodeproj/project.pbxproj')]: expect.anything(),
       [join(dir, 'my-ios-app/App/App/App.entitlements')]: expect.anything(),
       [join(dir, 'my-ios-app/App/App/Info.plist')]: expect.anything(),
       [join(
@@ -238,7 +230,6 @@ describe('task: run', () => {
       join(dir, 'android/google-services.json'),
       { encoding: 'utf-8' },
     );
-    console.log('Got services', jsonContents);
 
     const pbxProj = await readFile(
       join(dir, 'ios/App/App.xcodeproj/project.pbxproj'),

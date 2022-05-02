@@ -25,11 +25,7 @@ export default async function execute(ctx: Context, op: Operation) {
       return;
     }
 
-    try {
-      await jsonFile.load();
-    } catch (e) {
-      console.log('Unable to load the JSON file here', e);
-    }
+    await jsonFile.load();
 
     if (entry.set) {
       jsonFile.set(entry.set);
