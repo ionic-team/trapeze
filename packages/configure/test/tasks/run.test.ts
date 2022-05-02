@@ -27,6 +27,7 @@ describe('task: run', () => {
       [join(dir, 'android/build.gradle')]: expect.anything(),
       [join(dir, 'android/app/build.gradle')]: expect.anything(),
       [join(dir, 'android/google-services.json')]: expect.anything(),
+<<<<<<< HEAD
       [join(
         dir,
         'android/app/src/main/AndroidManifest.xml',
@@ -35,6 +36,10 @@ describe('task: run', () => {
         dir,
         'android/app/src/main/res/values/strings.xml',
       )]: expect.anything(),
+=======
+      [join(dir, 'android/app/src/main/AndroidManifest.xml')]: expect.anything(),
+      [join(dir, 'android/app/src/main/res/values/strings.xml')]: expect.anything(),
+>>>>>>> ea9c6e0 (Update tests to pass for json)
       [join(dir, 'ios/App/App.xcodeproj/project.pbxproj')]: expect.anything(),
       [join(dir, 'ios/App/App/App.entitlements')]: expect.anything(),
       [join(dir, 'ios/App/App/Info.plist')]: expect.anything(),
