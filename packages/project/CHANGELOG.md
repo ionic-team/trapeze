@@ -1,5 +1,14 @@
 # @capacitor/project
 
+## 2.0.9
+
+### Patch Changes
+
+- JSON support and Windows
+
+- Updated dependencies []:
+  - @capacitor/gradle-parse@2.0.9
+
 ## 2.0.8
 
 ### Patch Changes
