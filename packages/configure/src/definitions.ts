@@ -26,7 +26,7 @@ export interface AndroidGradleOperation extends Operation {
   }[];
 }
 
-export interface AndroidPropertiesOperation extends Operation {
+export interface AndroidPropertiesOperation {
   value: {
     file: string;
     entries: any;

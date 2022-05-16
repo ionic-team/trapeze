@@ -5,7 +5,7 @@ import { CapacitorProject } from "../project";
 import { AndroidResDir } from '../definitions';
 import { GradleFile } from './gradle-file';
 import { XmlFile } from '../xml';
-import { PropertiesFile } from './properties';
+import { PropertiesFile } from '../properties';
 
 export class AndroidProject {
   private manifest: XmlFile;

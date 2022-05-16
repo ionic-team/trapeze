@@ -1,4 +1,4 @@
-import { PropertiesFile } from '../src/android/properties';
+import { PropertiesFile } from '../src/properties';
 import { VFS } from '../src/vfs';
 
 describe('Android: properties files', () => {

@@ -271,7 +271,7 @@ try {
   });
 
   it('should load properties file', async () => {
-    const props = await project.android?.getPropertiesFile('gradle.properties');
+    const props = project.android?.getPropertiesFile('gradle.properties');
     await props?.load();
     expect(props?.getProperties()).toMatchObject({
       'org.gradle.jvmargs': '-Xmx1536m',

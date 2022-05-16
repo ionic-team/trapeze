@@ -1,7 +1,7 @@
 import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
 import { mergeWith, union } from 'lodash';
-import { parseProperties, writeProperties } from '../util/properties';
-import { VFS, VFSRef } from '../vfs';
+import { parseProperties, writeProperties } from './util/properties';
+import { VFS, VFSRef } from './vfs';
 
 export class PropertiesFile {
   private doc: any;
