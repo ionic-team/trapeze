@@ -1,5 +1,14 @@
 # @capacitor/project
 
+## 2.0.10
+
+### Patch Changes
+
+- Added support for Android properties files
+
+- Updated dependencies []:
+  - @capacitor/gradle-parse@2.0.10
+
 ## 2.0.9
 
 ### Patch Changes
