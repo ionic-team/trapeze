@@ -5,6 +5,7 @@ import { CapacitorProject } from "../project";
 import { AndroidResDir } from '../definitions';
 import { GradleFile } from './gradle-file';
 import { XmlFile } from '../xml';
+import { PropertiesFile } from './properties';
 
 export class AndroidProject {
   private manifest: XmlFile;
@@ -65,6 +66,10 @@ export class AndroidProject {
 
   getXmlFile(path: string) {
     return this.getProjectFile(path, (filename: string) => new XmlFile(filename, this.project.vfs));
+  }
+
+  getPropertiesFile(path: string) {
+    return this.getProjectFile(path, (filename: string) => new PropertiesFile(filename, this.project.vfs));
   }
 
   async getGradleFile(path: string) {

@@ -7,6 +7,11 @@ export class PropertiesFile {
   private doc: any;
   constructor(public path: string, private vfs: VFS) {
   }
+
+  getProperties() {
+    return this.doc;
+  }
+
   async updateProperties(properties: any): Promise<void> {
     if (!this.doc) {
       return;
