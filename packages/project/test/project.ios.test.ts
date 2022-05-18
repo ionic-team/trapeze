@@ -1,12 +1,14 @@
 import tempy from 'tempy';
 import { join } from 'path';
-import { copy, pathExists, readFile, rm } from '@ionic/utils-fs';
+import { copy, rm } from '@ionic/utils-fs';
 import { CapacitorConfig } from '@capacitor/cli';
-import { CapacitorProject } from '../src';
+import { MobileProject } from '../src';
+import { MobileProjectConfig } from '../src/config';
 
 describe('project - ios standard', () => {
-  let config: CapacitorConfig;
-  let project: CapacitorProject;
+  let config: MobileProjectConfig;
+  let project: MobileProject;
+
   let dir: string;
   beforeEach(async () => {
     dir = tempy.directory();
@@ -21,7 +23,7 @@ describe('project - ios standard', () => {
       }
     }
 
-    project = new CapacitorProject(config);
+    project = new MobileProject('../common/test/fixtures/ios-and-android', config);
     await project.load();
   });
 
@@ -339,8 +341,8 @@ describe('project - ios standard', () => {
 });
 
 describe('ios - empty template case', () => {
-  let config: CapacitorConfig;
-  let project: CapacitorProject;
+  let config: MobileProjectConfig;
+  let project: MobileProject;
   let dir: string;
   beforeEach(async () => {
     dir = tempy.directory();
@@ -355,7 +357,7 @@ describe('ios - empty template case', () => {
       }
     }
 
-    project = new CapacitorProject(config);
+    project = new MobileProject('../common/test/fixtures/ios-no-current-project-version', config);
     await project.load();
   });
 

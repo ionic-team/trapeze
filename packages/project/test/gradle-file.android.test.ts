@@ -1,13 +1,13 @@
-import { CapacitorConfig } from "@capacitor/cli";
-import { CapacitorProject } from '../src';
+import { MobileProject } from '../src';
+import { MobileProjectConfig } from "../src/config";
 import { GradleFile } from '../src/android/gradle-file';
 
 import { join } from 'path';
 import { VFS } from "../src/vfs";
 
 describe('project - android - gradle', () => {
-  let config: CapacitorConfig;
-  let project: CapacitorProject;
+  let config: MobileProjectConfig;
+  let project: MobileProject;
   let vfs: VFS;
   beforeEach(async () => {
     config = {
@@ -19,7 +19,7 @@ describe('project - android - gradle', () => {
       }
     }
 
-    project = new CapacitorProject(config);
+    project = new MobileProject('../common/test/fixtures/ios-and-android', config);
     await project.load();
     vfs = new VFS();
   });

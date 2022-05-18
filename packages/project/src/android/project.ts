@@ -1,7 +1,7 @@
 import { join } from 'path';
 import { pathExists, move, mkdir, mkdirp, readFile, remove, rmdir, writeFile } from '@ionic/utils-fs';
 
-import { CapacitorProject } from "../project";
+import { MobileProject } from "../project";
 import { AndroidResDir } from '../definitions';
 import { GradleFile } from './gradle-file';
 import { XmlFile } from '../xml';
@@ -12,7 +12,7 @@ export class AndroidProject {
   private buildGradle: GradleFile | null = null;
   private appBuildGradle: GradleFile | null = null;
 
-  constructor(private project: CapacitorProject) {
+  constructor(private project: MobileProject) {
     const manifestPath = this.getAndroidManifestPath();
     if (!manifestPath) {
       throw new Error('Unable to load AndroidManifest.xml for project');

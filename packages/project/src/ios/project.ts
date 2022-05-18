@@ -4,7 +4,7 @@ import { writeFile } from '@ionic/utils-fs';
 
 import { parsePbxProject, pbxReadString, pbxSerializeString } from "../util/pbx";
 import { parsePlist, updatePlist } from "../util/plist";
-import { CapacitorProject } from "../project";
+import { MobileProject } from "../project";
 import { IosPbxProject, IosEntitlements, IosFramework, IosBuildName, IosTarget, IosTargetName, IosTargetBuildConfiguration, IosFrameworkOpts } from '../definitions';
 import { VFSRef } from '../vfs';
 import { XmlFile } from '../xml';
@@ -28,7 +28,7 @@ const defaultEntitlementsPlist = `
 export class IosProject {
   private pbxProject: IosPbxProject | null = null;
 
-  constructor(private project: CapacitorProject) {
+  constructor(private project: MobileProject) {
   }
 
   async load() {

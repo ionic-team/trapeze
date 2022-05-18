@@ -1,15 +1,16 @@
 import tempy from 'tempy';
 
 import { CapacitorConfig } from "@capacitor/cli";
-import { CapacitorProject } from '../src';
+import { MobileProject } from '../src';
 
 import { join } from 'path';
 import { copy, pathExists, readFile, rm } from '@ionic/utils-fs';
 import { formatXml, serializeXml } from "../src/util/xml";
+import { MobileProjectConfig } from '../src/config';
 
 describe('project - android', () => {
-  let config: CapacitorConfig;
-  let project: CapacitorProject;
+  let config: MobileProjectConfig;
+  let project: MobileProject;
   let dir: string;
   beforeEach(async () => {
     dir = tempy.directory();
@@ -24,7 +25,7 @@ describe('project - android', () => {
       }
     }
 
-    project = new CapacitorProject(config);
+    project = new MobileProject('../common/test/fixtures/ios-and-android', config);
     await project.load();
   });
 
