@@ -6,6 +6,10 @@ The first is the Project API which provides a fully-typed JavaScript API for wri
 
 The second is a tool for configuration-based modifications which is useful for plugins and other scripts that need to apply certain settings to a file in a way that fits the configuration approach.
 
+# Overview
+
+To learn more about this project, check out this overview video on youtube: [https://www.youtube.com/watch?v=HufvY63esXs](https://www.youtube.com/watch?v=HufvY63esXs).
+
 # Project API
 
 To write custom scripts and code that manage iOS and Android targets in your Capacitor project, install the `@capacitor/project` package:
