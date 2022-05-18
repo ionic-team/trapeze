@@ -1,5 +1,3 @@
-import { CapacitorConfig } from '@capacitor/cli';
-
 import { pathExists } from '@ionic/utils-fs';
 
 import { AndroidProject } from "./android/project";
@@ -8,7 +6,7 @@ import { Framework } from './frameworks';
 import { CapacitorFramework } from './frameworks/capacitor';
 import { CordovaFramework } from './frameworks/cordova';
 import { FlutterFramework } from './frameworks/flutter';
-import { DotNetMauiFramework } from './frameworks/maui';
+import { DotNetMauiFramework } from './frameworks/dotnet-maui';
 import { NativeFramework } from './frameworks/native';
 import { ReactNativeFramework } from './frameworks/react-native';
 import { IosProject } from "./ios/project";

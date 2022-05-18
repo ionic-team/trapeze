@@ -9,13 +9,13 @@ export class ReactNativeFramework extends Framework {
     super();
   }
 
-  static async matches(project: MobileProject) {
+  static async getFramework(project: MobileProject): Promise<ReactNativeFramework | null> {
     if (!project.config.projectRoot) {
-      return false;
+      return null;
     }
 
     if (!(await pathExists(join(project.config.projectRoot, 'app.json')))) {
-      return false;
+      return null;
     }
 
     const packageJson = (await readJSON(join(project.config.projectRoot, 'package.json'))) ?? {};
@@ -26,7 +26,7 @@ export class ReactNativeFramework extends Framework {
     };
 
     if (!('react-native' in deps)) {
-      return false;
+      return null;
     }
 
     if ('expo' in deps) {
