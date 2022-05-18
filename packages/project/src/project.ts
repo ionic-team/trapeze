@@ -7,10 +7,12 @@ import { CapacitorFramework } from './frameworks/capacitor';
 import { CordovaFramework } from './frameworks/cordova';
 import { FlutterFramework } from './frameworks/flutter';
 import { DotNetMauiFramework } from './frameworks/dotnet-maui';
-import { NativeFramework } from './frameworks/native';
 import { ReactNativeFramework } from './frameworks/react-native';
 import { IosProject } from "./ios/project";
 import { VFS } from './vfs';
+import { NativeIosFramework } from './frameworks/native-ios';
+import { NativeAndroidFramework } from './frameworks/native-android';
+import { NativeScriptFramework } from './frameworks/nativescript';
 
 
 export class MobileProject {
@@ -25,7 +27,7 @@ export class MobileProject {
   }
 
   async detectFramework(): Promise<Framework | null> {
-    const frameworks = [NativeFramework, FlutterFramework, ReactNativeFramework, CapacitorFramework, CordovaFramework, DotNetMauiFramework];
+    const frameworks = [FlutterFramework, ReactNativeFramework, CapacitorFramework, CordovaFramework, DotNetMauiFramework, NativeScriptFramework, NativeIosFramework, NativeAndroidFramework];
     return Promise.any(frameworks.map(f => f.getFramework(this)));
   }
 
