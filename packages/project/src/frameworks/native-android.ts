@@ -14,6 +14,10 @@ export class NativeAndroidFramework extends Framework {
       return false;
     }
 
+    if (!(await pathExists(join(project.config.projectRoot, 'build.gradle')))) {
+      return null;
+    }
+
     return new NativeAndroidFramework();
   }
 }

@@ -8,7 +8,7 @@ describe('frameworks: Native iOS', () => {
 
   it('should detect project', async () => {
     project = new MobileProject(
-      '../common/test/fixtures/frameworks/NativeIos',
+      '../common/test/fixtures/frameworks/NativeIosApp',
     );
     const fwk = await NativeIosFramework.getFramework(project);
     expect(fwk).not.toBe(null);

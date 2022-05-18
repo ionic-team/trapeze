@@ -8,7 +8,7 @@ describe('frameworks: Native Android', () => {
 
   it('should detect project', async () => {
     project = new MobileProject(
-      '../common/test/fixtures/frameworks/NativeAndroid',
+      '../common/test/fixtures/frameworks/NativeAndroidApp',
     );
     const fwk = await NativeAndroidFramework.getFramework(project);
     expect(fwk).not.toBe(null);
