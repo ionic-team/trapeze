@@ -1,9 +1,9 @@
 module.exports = {
-  title: 'Cap\'n Config',
-  tagline: 'Naitve iOS and Android project management and automation tool',
+  title: 'Trapeze',
+  tagline: 'Native mobile project management',
   url: 'https://ionic.io',
   trailingSlash: false,
-  baseUrl: '/docs/cap-config/',
+  baseUrl: '/',
   baseUrlIssueBanner: false,
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -16,9 +16,9 @@ module.exports = {
       additionalLanguages: ['java', 'groovy'],
     },
     navbar: {
-      title: 'Cap\'n Config',
+      title: 'Trapeze',
       logo: {
-        alt: 'Cap Config Logo',
+        alt: 'Trapeze Logo',
         src: 'img/logo.png',
       },
       items: [
