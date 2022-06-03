@@ -83,8 +83,7 @@ module.exports = {
       additionalLanguages: ['shell-session', 'java', 'groovy'],
     },
   },
-  plugins: ['@ionic-internal/docusaurus-plugin-tag-manager', 'docusaurus-plugin-sass'],
-  themes: ['@ionic-internal/docusaurus-theme'],
+  plugins: [],
   presets: [
     [
       '@docusaurus/preset-classic',
@@ -96,7 +95,7 @@ module.exports = {
         blog: false,
         pages: false,
         theme: {
-          customCss: ['prismjs/themes/prism-tomorrow.css'],
+          // customCss: ['prismjs/themes/prism-tomorrow.css'],
         },
       },
     ],

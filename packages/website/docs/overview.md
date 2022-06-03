@@ -1,9 +1,10 @@
 ---
 title: Overview
 sidebar_label: Overview
+slug: /
 ---
 
-Cap Config is a native iOS and Android project management library, with both a Node.js-based Project API and a configuration-driven experience.
+Trapeze is a native iOS and Android project management library, with both a Node.js-based Project API and a configuration-driven experience.
 
 The Project API abstracts away common iOS and Android project management operations to make it easy to build programatic project automation scripts.
 
