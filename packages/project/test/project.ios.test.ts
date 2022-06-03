@@ -1,7 +1,6 @@
 import tempy from 'tempy';
 import { join } from 'path';
 import { copy, rm } from '@ionic/utils-fs';
-import { CapacitorConfig } from '@capacitor/cli';
 import { MobileProject } from '../src';
 import { MobileProjectConfig } from '../src/config';
 

@@ -3,10 +3,10 @@ title: Project API
 sidebar_label: Project API
 ---
 
-To write custom scripts and code that manage iOS and Android targets in your Capacitor project, install the `@capacitor/project` package:
+To write custom scripts and code that manage iOS and Android targets in your native projects, install the `@trapezedev/project` package:
 
 ```bash
-npm install @capacitor/project
+npm install @trapezedev/project
 ```
 
 ## TypeScript Note

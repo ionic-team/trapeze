@@ -424,7 +424,7 @@ export class GradleFile {
   }
 
   getGradleParserPath() {
-    return dirname(require.resolve('@capacitor/gradle-parse'));
+    return dirname(require.resolve('@trapezedev/gradle-parse'));
   }
 
   async setApplicationId(applicationId: string) {
