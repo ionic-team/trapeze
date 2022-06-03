@@ -1,12 +1,12 @@
 import { CapacitorConfig } from '@capacitor/cli';
 import { join } from 'path';
-import { CapacitorProject } from '@capacitor/project';
+import { MobileProject, MobileProjectConfig } from '@trapezedev/project';
 
 import { loadExtConfig } from './capacitor';
 
-export async function loadProject(projectRootPath?: string): Promise<CapacitorProject> {
-  const config = await loadCapacitorConfig(projectRootPath);
-  const project = new CapacitorProject(config);
+export async function loadProject(projectRootPath?: string): Promise<MobileProject> {
+  const config = await loadCapacitorConfig(projectRootPath) as MobileProjectConfig;
+  const project = new MobileProject(projectRootPath ?? "", config);
   await project.load();
   return project;
 }

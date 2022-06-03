@@ -3,7 +3,7 @@
   "changelog": ["@changesets/changelog-github", { "repo": "ionic-team/capacitor-configure" }],
   "commit": false,
   "fixed": [
-    ["@capacitor/configure", "@capacitor/project", "@capacitor/gradle-parse"]
+    ["@trapezedev/configure", "@trapezedev/project", "@trapezedev/gradle-parse"]
   ],
   "linked": [],
   "access": "public",

@@ -26,10 +26,10 @@ For Android: `JAVA_HOME` must be set to use Gradle configuration. This is becaus
 
 ### API Usage
 
-To initialize the project, set the config and initialize a new `CapacitorProject` instance:
+To initialize the project, set the config and initialize a new `MobileProject` instance:
 
 ```typescript
-import { CapacitorProject } from '@capacitor/project';
+import { MobileProject } from '@trapezedev/project';
 import { CapacitorConfig } from '@capacitor/cli';
 
 // This takes a CapacitorConfig, such as the one in capacitor.config.ts, but only needs a few properties
@@ -43,7 +43,7 @@ const config: CapacitorConfig = {
   },
 };
 
-const project = new CapacitorProject(config);
+const project = new MobileProject(config);
 await project.load();
 ```
 

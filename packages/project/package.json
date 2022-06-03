@@ -18,7 +18,7 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "dependencies": {
-    "@trapzedev/gradle-parse": "2.0.10",
+    "@trapezedev/gradle-parse": "2.0.10",
     "@ionic/utils-fs": "^3.1.5",
     "@ionic/utils-subprocess": "^2.1.8",
     "@prettier/plugin-xml": "^1.1.0",
