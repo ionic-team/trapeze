@@ -30,21 +30,21 @@ export class GradleFile {
    * Replace the given properties at the specified point in the Gradle file or insert
    * if the replacement doesn't exist
    **/
-  async replaceProperties(pathObject: any, toReplace: any): Promise<void> {
+  async replaceProperties(pathObject: any, toReplace: any, exact = false): Promise<void> {
     await this.parse();
 
     if (!this.parsed) {
       throw new Error('Call parse() first to load Gradle file');
     }
 
-    const found = this.find(pathObject);
+    const found = this.find(pathObject, exact);
     if (!found.length) {
       // Create a parent selector object since we're going to insert instead
       const parent = this._makeReplacePathObject(
         pathObject,
         Object.keys(toReplace)[0],
       );
-      const foundParent = this.find(parent);
+      const foundParent = this.find(parent, exact);
 
       if (foundParent.length) {
         this.insertIntoGradleFile([toReplace], foundParent[0]);
@@ -147,14 +147,14 @@ export class GradleFile {
   /**
    * Insert the given properties at the specified point in the Gradle file.
    **/
-  async insertProperties(pathObject: any, toInject: any[]): Promise<void> {
+  async insertProperties(pathObject: any, toInject: any[], exact = false): Promise<void> {
     await this.parse();
 
     if (!this.parsed) {
       throw new Error('Call parse() first to load Gradle file');
     }
 
-    const found = this.find(pathObject);
+    const found = this.find(pathObject, exact);
     if (!found.length) {
       throw new Error('Unable to find method in Gradle file to inject');
     }
@@ -167,14 +167,14 @@ export class GradleFile {
   /**
    * Inject the given properties at the specified point in the Gradle file.
    **/
-  async insertFragment(pathObject: any, toInject: string): Promise<void> {
+  async insertFragment(pathObject: any, toInject: string, exact = false): Promise<void> {
     await this.parse();
 
     if (!this.parsed) {
       throw new Error('Call parse() first to load Gradle file');
     }
 
-    const found = this.find(pathObject);
+    const found = this.find(pathObject, exact);
     if (!found.length) {
       throw new Error('Unable to find method in Gradle file to inject');
     }
@@ -352,7 +352,7 @@ export class GradleFile {
     this.vfs.get(this.filename)?.setData(newSource);
   }
 
-  find(pathObject: any | null): { node: GradleASTNode; depth: number }[] {
+  find(pathObject: any | null, exact = false): { node: GradleASTNode; depth: number }[] {
     if (!this.parsed) {
       throw new Error('Call parse() first to load Gradle file');
     }
@@ -367,7 +367,7 @@ export class GradleFile {
     }
 
     const found: { node: GradleASTNode; depth: number }[] = [];
-    this._find(pathObject, this.parsed, pathObject, found);
+    this._find(pathObject, this.parsed, pathObject, exact, found);
     return found;
   }
 
@@ -375,12 +375,15 @@ export class GradleFile {
     pathObject: any,
     node: any,
     pathNode: any,
+    exact: boolean,
     found: any[],
     depth = 0,
   ) {
     if (!pathNode) {
       return;
     }
+
+    console.log('Path node', pathObject, pathNode, node);
 
     const targetKey = Object.keys(pathNode)?.[0];
     if (!targetKey) {
@@ -399,6 +402,7 @@ export class GradleFile {
         pathObject,
         c,
         pathNode,
+        exact,
         found,
         c.type === 'block' ? depth + 1 : depth,
       );

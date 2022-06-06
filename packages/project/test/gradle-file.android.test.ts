@@ -58,6 +58,26 @@ describe('project - android - gradle', () => {
     expect(nodes.length).not.toBe(0);
   });
 
+  it('Should find exact element in parsed Gradle', async () => {
+    const gradle = new GradleFile(join(project.config.android!.path!, 'build.gradle'), vfs);
+    await gradle.parse();
+
+    let nodes = gradle.find({
+      dependencies: {}
+    }, true);
+
+    console.log('Found exact nodes', nodes);
+
+    expect(nodes.length).toBe(1);
+    expect(nodes[0].node.type).toBe('method');
+    expect(nodes[0].node.name).toBe('dependencies');
+
+    // Should find the root node
+    nodes = gradle.find({});
+
+    expect(nodes.length).not.toBe(0);
+  });
+
   it('Should replace at spot', async () => {
     const gradle = new GradleFile(join('../common/test/fixtures/replace.gradle'), vfs);
 
@@ -219,6 +239,9 @@ allprojects {
             name 'Duo-SDK-Feed'
         }
     }
+}
+
+dependencies {
 }
 
 task clean(type: Delete) {
