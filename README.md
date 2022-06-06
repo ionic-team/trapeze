@@ -1,4 +1,7 @@
-# Capacitor Project API and Configuration Tool
+# Trapeze (formerly: Capacitor Project API and Configuration Tool)
+
+__Note: this project is currently in the process of being renamed to `Trapeze`. In the process support for other mobile frameworks is being added (see the [agnostic](https://github.com/ionic-team/trapeze/tree/agnostic) brance to follow development). The following README still refers to the Capacitor-only project.__
+
 
 This project has two utilities for automatically configuring native [Capacitor](https://capacitorjs.com/) projects in a predictable and safe way.
 
