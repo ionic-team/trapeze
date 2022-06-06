@@ -302,21 +302,13 @@ appBuildGradleFile.insertFragment({
 To configure projects using configuration and the configuration tool, install the `@capacitor/configure` package. This package uses the `@capacitor/project` API under the hood:
 
 ```bash
-npm install @capacitor/configure
-```
-
-Add to your npm scripts:
-
-```json
-"scripts": {
-  "cap-config": "cap-config"
-}
+npm install @trapezedev/configure
 ```
 
 ## Usage
 
 ```bash
-npm run cap-config run config.yaml
+npm run trapeze run config.yaml
 ```
 
 ## Writing Configuration Files

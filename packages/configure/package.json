@@ -11,7 +11,7 @@
     "README.md"
   ],
   "bin": {
-    "cap-config": "./bin/cap-config"
+    "trapeze": "./bin/trapeze"
   },
   "scripts": {
     "clean": "rimraf ./dist",

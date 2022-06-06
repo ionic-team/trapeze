@@ -9,7 +9,7 @@ module.exports = {
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/logo.png',
   organizationName: 'ionic-team',
-  projectName: 'cap-config',
+  projectName: 'trapeze',
   titleDelimiter: '-',
   themeConfig: {
     prism: {

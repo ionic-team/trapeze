@@ -11,16 +11,10 @@ npm install @capacitor/configure
 
 Add to your npm scripts:
 
-```json
-"scripts": {
-  "cap-config": "cap-config"
-}
-```
-
 ## Usage
 
 ```bash
-npm run cap-config run config.yaml
+npx trapeze run config.yaml
 ```
 
 ## Writing Configuration Files
@@ -47,7 +41,7 @@ In this case, `MY_APP_ID` has no default value, so `MY_APP_ID` must be found in 
 Here's one example of providing an environment variable to the command:
 
 ```shell
-MY_APP_ID="com.awesome.app" npm run cap-config 
+MY_APP_ID="com.awesome.app" npx trapeze
 ```
 
 ## Supported Operations
