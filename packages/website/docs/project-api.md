@@ -1,5 +1,6 @@
 ---
 title: Project API
+sidebar_position: 3
 sidebar_label: Project API
 ---
 
