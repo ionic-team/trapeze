@@ -299,7 +299,7 @@ appBuildGradleFile.insertFragment({
 
 # Configuration Tool
 
-To configure projects using configuration and the configuration tool, install the `@capacitor/configure` package. This package uses the `@capacitor/project` API under the hood:
+To configure projects using configuration and the configuration tool, install the `@trapezedev/configure` package. This package uses the `@trapezedev/project` API under the hood:
 
 ```bash
 npm install @trapezedev/configure
