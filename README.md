@@ -29,12 +29,9 @@ For Android: `JAVA_HOME` must be set to use Gradle configuration. This is becaus
 To initialize the project, set the config and initialize a new `MobileProject` instance:
 
 ```typescript
-import { MobileProject } from '@trapezedev/project';
-import { CapacitorConfig } from '@capacitor/cli';
+import { MobileProject, MobileProjectConfig } from '@trapezedev/project';
 
-// This takes a CapacitorConfig, such as the one in capacitor.config.ts, but only needs a few properties
-// to know where the ios and android projects are
-const config: CapacitorConfig = {
+const config: MobileProjectConfig = {
   ios: {
     path: 'ios',
   },

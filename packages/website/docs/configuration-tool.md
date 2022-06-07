@@ -10,8 +10,6 @@ To configure projects using configuration and the configuration tool, install th
 npm install @trapezedev/configure
 ```
 
-Add to your npm scripts:
-
 ## Usage
 
 ```bash
