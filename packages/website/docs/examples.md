@@ -6,7 +6,7 @@ sidebar_label: Examples
 
 ## Configuration
 
-See the [basic.yml] file for an example Configuration file showing many of the features available.
+See the [basic.yml]() file for an example Configuration file showing many of the features available.
 
 ## Project API
 
