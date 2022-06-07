@@ -25,6 +25,16 @@ const config: MobileProjectConfig = {
 async function run() {
   const project = new MobileProject(projectDir, config);
   await project.load();
+
+  const appTarget = project.ios!.getAppTarget();
+  await project.ios?.addEntitlements(appTarget?.name ?? null, null, {
+    'keychain-access-groups': ['group1', 'group2'],
+  });
+
+  // If you want to see the changes before committing
+  // const changes = project.vfs.all();
+
+  await project.commit();
 }
 
 run();

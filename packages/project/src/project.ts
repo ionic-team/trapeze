@@ -1,4 +1,5 @@
 import { pathExists } from '@ionic/utils-fs';
+import { join } from 'path';
 
 import { AndroidProject } from "./android/project";
 import { MobileProjectConfig } from './config';
@@ -24,6 +25,13 @@ export class MobileProject {
   constructor(public projectRoot: string, public config: MobileProjectConfig = {}) {
     this.vfs = new VFS();
     this.config.projectRoot = projectRoot;
+
+    if (this.config.ios) {
+      this.config.ios.path = join(this.projectRoot, this.config.ios.path ?? '');
+    }
+    if (this.config.android) {
+      this.config.android.path = join(this.projectRoot, this.config.android.path ?? '');
+    }
   }
 
   async detectFramework(): Promise<Framework | null> {

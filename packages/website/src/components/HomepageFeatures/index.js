@@ -9,7 +9,7 @@ const FeatureList = [
     description: (
       <>
         Trapeze modifies native iOS and Android projects with a simple
-        configuration-driven experience or API
+        configuration-driven experience or Node.js-based API
       </>
     ),
   },
