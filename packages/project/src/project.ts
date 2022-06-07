@@ -21,14 +21,16 @@ export class MobileProject {
   android: AndroidProject | null = null;
   vfs: VFS;
 
-  constructor(projectRoot: string, public config: MobileProjectConfig = {}) {
+  constructor(public projectRoot: string, public config: MobileProjectConfig = {}) {
     this.vfs = new VFS();
     this.config.projectRoot = projectRoot;
   }
 
   async detectFramework(): Promise<Framework | null> {
     const frameworks = [FlutterFramework, ReactNativeFramework, CapacitorFramework, CordovaFramework, DotNetMauiFramework, NativeScriptFramework, NativeIosFramework, NativeAndroidFramework];
-    return Promise.any(frameworks.map(f => f.getFramework(this)));
+    const results = await Promise.all(frameworks.map(f => f.getFramework(this)));
+
+    return results.filter(f => f).find(f => !!f) ?? null;
   }
 
   async load(): Promise<void> {
@@ -38,6 +40,8 @@ export class MobileProject {
     if (this.config?.ios?.path && await pathExists(this.config.ios?.path)) {
       this.ios = new IosProject(this);
     }
+
+    this.framework = await this.detectFramework();
 
     await this.ios?.load();
     await this.android?.load();

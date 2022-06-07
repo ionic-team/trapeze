@@ -25,7 +25,6 @@ const config: MobileProjectConfig = {
 async function run() {
   const project = new MobileProject(projectDir, config);
   await project.load();
-  console.log('Loaded project', project);
 }
 
 run();
