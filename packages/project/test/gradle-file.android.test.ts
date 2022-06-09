@@ -12,10 +12,10 @@ describe('project - android - gradle', () => {
   beforeEach(async () => {
     config = {
       ios: {
-        path: '../common/test/fixtures/ios-and-android/ios'
+        path: 'ios/App'
       },
       android: {
-        path: '../common/test/fixtures/ios-and-android/android'
+        path: 'android'
       }
     }
 

@@ -47,6 +47,8 @@ export class MobileProject {
     }
     if (this.config?.ios?.path && await pathExists(this.config.ios?.path)) {
       this.ios = new IosProject(this);
+    } else {
+      console.log('IS PROJECT ODESNO TEXIST', this.config);
     }
 
     this.framework = await this.detectFramework();

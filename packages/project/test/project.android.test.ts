@@ -18,14 +18,14 @@ describe('project - android', () => {
 
     config = {
       ios: {
-        path: join(dir, 'ios')
+        path: 'ios/App'
       },
       android: {
-        path: join(dir, 'android')
+        path: 'android'
       }
     }
 
-    project = new MobileProject('../common/test/fixtures/ios-and-android', config);
+    project = new MobileProject(dir, config);
     await project.load();
   });
 

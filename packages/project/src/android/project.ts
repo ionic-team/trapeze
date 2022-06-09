@@ -91,6 +91,7 @@ export class AndroidProject {
    */
   async setPackageName(packageName: string) {
     const sourceDir = join(this.getAppRoot()!, 'src', 'main', 'java');
+    console.log('Setting package name in src dir', sourceDir);
     const oldPackageName = await this.manifest.getDocumentElement()?.getAttribute('package');
     const oldPackageParts = oldPackageName?.split('.') ?? [];
 

@@ -33,14 +33,14 @@ npx trapeze run config.yaml
 
 ## API
 
-Capacitor projects usually have platform projects in a single repo. Thus, pass the main project directory to the `MobileProject` constructor, and then pass the names of the `ios` and `android` directories relative to the root:
+Capacitor projects usually have platform projects in a single repo. Thus, pass the main project directory to the `MobileProject` constructor, and then pass the relative paths to the iOS and Android projects. Note: Capacitor puts the actual iOS project one level deeper inside of the `ios` folder, so pass that explicitly so the `.xcodeproj` can be found:
 
 ```typescript
 import { MobileProject, MobileProjectConfig } from '@trapezedev/project';
 
 const config: MobileProjectConfig = {
   ios: {
-    path: 'ios',
+    path: 'ios/App',
   },
   android: {
     path: 'android',

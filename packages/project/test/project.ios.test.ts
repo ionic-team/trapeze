@@ -15,14 +15,14 @@ describe('project - ios standard', () => {
 
     config = {
       ios: {
-        path: join(dir, 'ios')
+        path: 'ios/App',
       },
       android: {
-        path: join(dir, 'android')
+        path: 'android'
       }
     }
 
-    project = new MobileProject('../common/test/fixtures/ios-and-android', config);
+    project = new MobileProject(dir, config);
     await project.load();
   });
 
@@ -30,7 +30,7 @@ describe('project - ios standard', () => {
     await rm(dir, { force: true, recursive: true });
   });
 
-  it('should load project', async () => {
+  it('should load pbx project', async () => {
     expect(project.ios?.getPbxProject()).not.toBe(null);
   });
 
@@ -349,14 +349,14 @@ describe('ios - empty template case', () => {
 
     config = {
       ios: {
-        path: join(dir, 'ios')
+        path: 'ios/App'
       },
       android: {
-        path: join(dir, 'android')
+        path: 'android'
       }
     }
 
-    project = new MobileProject('../common/test/fixtures/ios-no-current-project-version', config);
+    project = new MobileProject(dir, config);
     await project.load();
   });
 
