@@ -521,12 +521,12 @@ export class IosProject {
     )
   }
 
-  private async xcodeprojName(): Promise<string> {
+  public async xcodeprojName(): Promise<string> {
     const files = await readdir(this.iosProjectRoot());
     return files.find(f => f.indexOf('.xcodeproj') >= 0) ?? '';
   }
 
-  private async pbxprojName(): Promise<string> {
+  public async pbxprojName(): Promise<string> {
     const xcodeprojName = await this.xcodeprojName();
     const xcodeprojDir = join(this.iosProjectRoot(), xcodeprojName);
     const files = await readdir(xcodeprojDir);

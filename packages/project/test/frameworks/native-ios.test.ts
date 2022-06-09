@@ -13,4 +13,25 @@ describe('frameworks: Native iOS', () => {
     const fwk = await NativeIosFramework.getFramework(project);
     expect(fwk).not.toBe(null);
   });
+
+  describe('ios', () => {
+    let project: MobileProject;
+
+    beforeEach(async () => {
+      project = new MobileProject('../common/test/fixtures/frameworks/NativeIosApp', {
+        ios: {
+          path: '.'
+        }
+      });
+      await project.load();
+    });
+
+    it('should find pbxproj', async () => {
+      expect(await project.ios?.pbxprojName()).toBe('project.pbxproj');
+    });
+
+    it('should find xcodeproj', async () => {
+      expect(await project.ios?.xcodeprojName()).toBe('NativeIosApp.xcodeproj');
+    });
+  });
 });
