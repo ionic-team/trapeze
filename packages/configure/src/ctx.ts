@@ -3,10 +3,10 @@ import { join } from 'path';
 import { hideBin } from 'yargs/helpers';
 
 import { loadProject } from './project';
-import { CapacitorProject } from '@capacitor/project';
+import { MobileProject } from '@trapezedev/project';
 
 export interface Context {
-  project: CapacitorProject;
+  project: MobileProject;
   // Path the to the root of the capacitor project, if needed
   projectRootPath?: string;
   args: any;
@@ -28,7 +28,7 @@ export async function loadContext(projectRootPath?: string): Promise<Context> {
 
   const argv = yargs(hideBin(process.argv)).argv;
 
-  let project: CapacitorProject;
+  let project: MobileProject;
 
   try {
     project = await loadProject(projectRootPath ?? argv.projectRoot as string | undefined);

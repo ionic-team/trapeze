@@ -1,12 +1,13 @@
 ---
 title: Project API
+sidebar_position: 3
 sidebar_label: Project API
 ---
 
-To write custom scripts and code that manage iOS and Android targets in your Capacitor project, install the `@capacitor/project` package:
+To write custom scripts and code that manage iOS and Android targets in your native projects, install the `@trapezedev/project` package:
 
 ```bash
-npm install @capacitor/project
+npm install @trapezedev/project
 ```
 
 ## TypeScript Note
@@ -21,15 +22,12 @@ For Android: `JAVA_HOME` must be set to use Gradle configuration. This is becaus
 
 ### API Usage
 
-To initialize the project, set the config and initialize a new `CapacitorProject` instance:
+To initialize the project, set the config and initialize a new `MobileProject` instance:
 
 ```typescript
-import { CapacitorProject } from '@capacitor/project';
-import { CapacitorConfig } from '@capacitor/cli';
+import { MobileProject, MobileProjectConfig } from '@trapezedev/project';
 
-// This takes a CapacitorConfig, such as the one in capacitor.config.ts, but only needs a few properties
-// to know where the ios and android projects are
-const config: CapacitorConfig = {
+const config: MobileProjectConfig = {
   ios: {
     path: 'ios',
   },
@@ -38,7 +36,7 @@ const config: CapacitorConfig = {
   },
 };
 
-const project = new CapacitorProject(config);
+const project = new MobileProject(config);
 await project.load();
 ```
 

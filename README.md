@@ -33,15 +33,12 @@ For Android: `JAVA_HOME` must be set to use Gradle configuration. This is becaus
 
 ### API Usage
 
-To initialize the project, set the config and initialize a new `CapacitorProject` instance:
+To initialize the project, set the config and initialize a new `MobileProject` instance:
 
 ```typescript
-import { CapacitorProject } from '@capacitor/project';
-import { CapacitorConfig } from '@capacitor/cli';
+import { MobileProject, MobileProjectConfig } from '@trapezedev/project';
 
-// This takes a CapacitorConfig, such as the one in capacitor.config.ts, but only needs a few properties
-// to know where the ios and android projects are
-const config: CapacitorConfig = {
+const config: MobileProjectConfig = {
   ios: {
     path: 'ios',
   },
@@ -50,7 +47,7 @@ const config: CapacitorConfig = {
   },
 };
 
-const project = new CapacitorProject(config);
+const project = new MobileProject(config);
 await project.load();
 ```
 
@@ -306,24 +303,16 @@ appBuildGradleFile.insertFragment({
 
 # Configuration Tool
 
-To configure projects using configuration and the configuration tool, install the `@capacitor/configure` package. This package uses the `@capacitor/project` API under the hood:
+To configure projects using configuration and the configuration tool, install the `@trapezedev/configure` package. This package uses the `@trapezedev/project` API under the hood:
 
 ```bash
-npm install @capacitor/configure
-```
-
-Add to your npm scripts:
-
-```json
-"scripts": {
-  "cap-config": "cap-config"
-}
+npm install @trapezedev/configure
 ```
 
 ## Usage
 
 ```bash
-npm run cap-config run config.yaml
+npm run trapeze run config.yaml
 ```
 
 ## Writing Configuration Files

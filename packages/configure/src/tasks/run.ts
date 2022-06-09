@@ -6,7 +6,7 @@ import { loadConfig, YamlFile } from '../config';
 import { hasHandler, runOperation } from '../operations/index';
 import { Context } from '../ctx';
 import { Operation } from '../definitions';
-import { VFSRef } from '@capacitor/project/dist/vfs';
+import { VFSRef } from '@trapezedev/project/dist/vfs';
 
 export async function runCommand(ctx: Context, configFile: YamlFile) {
   let processed: Operation[];

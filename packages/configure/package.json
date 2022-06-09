@@ -1,7 +1,7 @@
 {
-  "name": "@capacitor/configure",
+  "name": "@trapezedev/configure",
   "version": "2.0.10",
-  "description": "Capacitor configuration tool for automatically configuring projects",
+  "description": "Trapeze configuration tool for automatically configuring projects",
   "author": "Ionic Team <hi@ionic.io> (https://ionicframework.com) ",
   "license": "SEE LICENSE",
   "private": false,
@@ -11,7 +11,7 @@
     "README.md"
   ],
   "bin": {
-    "cap-config": "./bin/cap-config"
+    "trapeze": "./bin/trapeze"
   },
   "scripts": {
     "clean": "rimraf ./dist",
@@ -23,7 +23,7 @@
   "typings": "dist/index.d.ts",
   "dependencies": {
     "@capacitor/cli": "^3.2.5",
-    "@capacitor/project": "2.0.10",
+    "@trapezedev/project": "2.0.10",
     "@ionic/cli-framework-output": "^2.2.2",
     "@ionic/utils-fs": "^3.1.5",
     "@ionic/utils-subprocess": "^2.1.8",

@@ -1,12 +1,13 @@
 import tempy from 'tempy';
 import { join } from 'path';
-import { copy, pathExists, readFile, rm } from '@ionic/utils-fs';
-import { CapacitorConfig } from '@capacitor/cli';
-import { CapacitorProject } from '../src';
+import { copy, rm } from '@ionic/utils-fs';
+import { MobileProject } from '../src';
+import { MobileProjectConfig } from '../src/config';
 
 describe('project - ios standard', () => {
-  let config: CapacitorConfig;
-  let project: CapacitorProject;
+  let config: MobileProjectConfig;
+  let project: MobileProject;
+
   let dir: string;
   beforeEach(async () => {
     dir = tempy.directory();
@@ -14,14 +15,14 @@ describe('project - ios standard', () => {
 
     config = {
       ios: {
-        path: join(dir, 'ios')
+        path: 'ios/App',
       },
       android: {
-        path: join(dir, 'android')
+        path: 'android'
       }
     }
 
-    project = new CapacitorProject(config);
+    project = new MobileProject(dir, config);
     await project.load();
   });
 
@@ -29,7 +30,7 @@ describe('project - ios standard', () => {
     await rm(dir, { force: true, recursive: true });
   });
 
-  it('should load project', async () => {
+  it('should load pbx project', async () => {
     expect(project.ios?.getPbxProject()).not.toBe(null);
   });
 
@@ -339,8 +340,8 @@ describe('project - ios standard', () => {
 });
 
 describe('ios - empty template case', () => {
-  let config: CapacitorConfig;
-  let project: CapacitorProject;
+  let config: MobileProjectConfig;
+  let project: MobileProject;
   let dir: string;
   beforeEach(async () => {
     dir = tempy.directory();
@@ -348,14 +349,14 @@ describe('ios - empty template case', () => {
 
     config = {
       ios: {
-        path: join(dir, 'ios')
+        path: 'ios/App'
       },
       android: {
-        path: join(dir, 'android')
+        path: 'android'
       }
     }
 
-    project = new CapacitorProject(config);
+    project = new MobileProject(dir, config);
     await project.load();
   });
 

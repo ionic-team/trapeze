@@ -1,7 +1,7 @@
 {
-  "name": "@capacitor/project",
+  "name": "@trapezedev/project",
   "version": "2.0.10",
-  "description": "Capacitor Project API for managing projects through code",
+  "description": "Trapeze mobile configuration API for managing projects through code",
   "author": "Ionic Team <hi@ionic.io> (https://ionicframework.com) ",
   "license": "SEE LICENSE",
   "private": false,
@@ -18,8 +18,7 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "dependencies": {
-    "@capacitor/cli": "^3.2.5",
-    "@capacitor/gradle-parse": "2.0.10",
+    "@trapezedev/gradle-parse": "2.0.10",
     "@ionic/utils-fs": "^3.1.5",
     "@ionic/utils-subprocess": "^2.1.8",
     "@prettier/plugin-xml": "^1.1.0",

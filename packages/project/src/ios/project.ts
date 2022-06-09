@@ -1,10 +1,10 @@
 import plist from 'plist';
 import path, { join } from 'path';
-import { writeFile } from '@ionic/utils-fs';
+import { readdir, writeFile } from '@ionic/utils-fs';
 
 import { parsePbxProject, pbxReadString, pbxSerializeString } from "../util/pbx";
 import { parsePlist, updatePlist } from "../util/plist";
-import { CapacitorProject } from "../project";
+import { MobileProject } from "../project";
 import { IosPbxProject, IosEntitlements, IosFramework, IosBuildName, IosTarget, IosTargetName, IosTargetBuildConfiguration, IosFrameworkOpts } from '../definitions';
 import { VFSRef } from '../vfs';
 import { XmlFile } from '../xml';
@@ -28,7 +28,7 @@ const defaultEntitlementsPlist = `
 export class IosProject {
   private pbxProject: IosPbxProject | null = null;
 
-  constructor(private project: CapacitorProject) {
+  constructor(private project: MobileProject) {
   }
 
   async load() {
@@ -173,7 +173,7 @@ export class IosProject {
       throw new Error('Unable to load plist file');
     }
 
-    const filename = join(this.project.config.ios.path, 'App', file);
+    const filename = join(this.project.config.ios.path, file);
 
     const parsed = await this.plist(filename);
     parsed['CFBundleVersion'] = '$(CURRENT_PROJECT_VERSION)';
@@ -196,7 +196,7 @@ export class IosProject {
       throw new Error('Unable to load plist file');
     }
 
-    const filename = join(this.project.config.ios.path, 'App', file);
+    const filename = join(this.project.config.ios.path, file);
 
     const parsed = await this.plist(filename);
     return parsed['CFBundleVersion'];
@@ -231,7 +231,7 @@ export class IosProject {
       throw new Error('Unable to load plist file');
     }
 
-    const filename = join(this.project.config.ios.path, 'App', file);
+    const filename = join(this.project.config.ios.path, file);
 
     const parsed = await this.plist(filename);
     parsed['CFBundleShortVersionString'] = '$(MARKETING_VERSION)';
@@ -323,7 +323,7 @@ export class IosProject {
         const fname = `${(targetName || 'App').split(/\s+/).join('_')}.entitlements`;
 
         // Create the default entitlements file
-        const target = join(this.project.config.ios.path, 'App', targetDir, fname)
+        const target = join(this.project.config.ios.path, targetDir, fname)
         await writeFile(target, defaultEntitlementsPlist);
 
         // Always use posix paths
@@ -339,7 +339,7 @@ export class IosProject {
       return;
     }
 
-    const filename = join(this.project.config.ios.path, 'App', file);
+    const filename = join(this.project.config.ios.path, file);
 
     const parsed = await this.plist(filename);
     const updated = updatePlist(entitlements, parsed);
@@ -359,7 +359,7 @@ export class IosProject {
       return;
     }
 
-    const filename = join(this.project.config.ios.path, 'App', file);
+    const filename = join(this.project.config.ios.path, file);
 
     return this.plist(filename);
   }
@@ -382,8 +382,7 @@ export class IosProject {
     if (!this.project?.config.ios?.path) {
       return null;
     }
-    // TODO: Don't hardcode the 'App' folder
-    return join(this.project.config.ios.path, 'App', file);
+    return join(this.project.config.ios.path, file);
   }
 
   /**
@@ -399,7 +398,7 @@ export class IosProject {
       throw new Error('Unable to load plist file');
     }
 
-    const filename = join(this.project.config.ios.path, 'App', file);
+    const filename = join(this.project.config.ios.path, file);
 
     const parsed = await this.plist(filename);
     parsed['CFBundleDisplayName'] = displayName;
@@ -502,23 +501,41 @@ export class IosProject {
     return parsed;
   }
 
+  private iosProjectRoot() {
+    return this.project?.config.ios?.path ?? '';
+  }
+
   // Get the filename of the pbxproj
-  private pbxFilename(): string | null {
+  private async pbxFilename(): Promise<string | null> {
     if (!this.project?.config.ios?.path) {
       return null;
     }
 
+    const xcodeprojName = await this.xcodeprojName();
+    const pbxprojName = await this.pbxprojName();
+
     return join(
       this.project.config.ios.path,
-      'App',
-      'App.xcodeproj',
-      'project.pbxproj',
+      xcodeprojName,
+      pbxprojName
     )
+  }
+
+  public async xcodeprojName(): Promise<string> {
+    const files = await readdir(this.iosProjectRoot());
+    return files.find(f => f.indexOf('.xcodeproj') >= 0) ?? '';
+  }
+
+  public async pbxprojName(): Promise<string> {
+    const xcodeprojName = await this.xcodeprojName();
+    const xcodeprojDir = join(this.iosProjectRoot(), xcodeprojName);
+    const files = await readdir(xcodeprojDir);
+    return files.find(f => f.indexOf('.pbxproj') >= 0) ?? '';
   }
 
   // Parse and return a pbx project
   private async pbx() {
-    const filename = this.pbxFilename();
+    const filename = await this.pbxFilename();
     if (!filename) {
       throw new Error('Unable to load pbxproj');
     }

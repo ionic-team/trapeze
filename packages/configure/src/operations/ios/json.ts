@@ -1,6 +1,6 @@
 import { join } from 'path';
 
-import { JsonFile } from '@capacitor/project';
+import { JsonFile } from '@trapezedev/project';
 import { Context } from '../../ctx';
 import { IosJsonOperation, Operation } from '../../definitions';
 

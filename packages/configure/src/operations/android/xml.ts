@@ -1,5 +1,5 @@
 import { Context } from "../../ctx";
-import { XmlFile } from '@capacitor/project';
+import { XmlFile } from '@trapezedev/project';
 import { AndroidXmlOperation, Operation } from "../../definitions";
 
 export default async function execute(ctx: Context, op: Operation) {

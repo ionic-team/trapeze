@@ -1,26 +1,19 @@
 ---
 title: Configuration Tool
+sidebar_position: 2
 sidebar_label: Configuration Tool
 ---
 
-To configure projects using configuration and the configuration tool, install the `@capacitor/configure` package. This package uses the `@capacitor/project` API under the hood:
+To configure projects using configuration and the configuration tool, install the `@trapezedev/configure` package. This package uses the `@trapezedev/project` API under the hood:
 
 ```bash
-npm install @capacitor/configure
-```
-
-Add to your npm scripts:
-
-```json
-"scripts": {
-  "cap-config": "cap-config"
-}
+npm install @trapezedev/configure
 ```
 
 ## Usage
 
 ```bash
-npm run cap-config run config.yaml
+npx trapeze run config.yaml
 ```
 
 ## Writing Configuration Files
@@ -47,7 +40,7 @@ In this case, `MY_APP_ID` has no default value, so `MY_APP_ID` must be found in 
 Here's one example of providing an environment variable to the command:
 
 ```shell
-MY_APP_ID="com.awesome.app" npm run cap-config 
+MY_APP_ID="com.awesome.app" npx trapeze
 ```
 
 ## Supported Operations
