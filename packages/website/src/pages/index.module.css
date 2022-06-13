@@ -9,6 +9,9 @@
   position: relative;
   overflow: hidden;
 
+  background: #222;
+}
+[data-theme='dark'] .heroBanner {
   background: #eee;
 }
 
