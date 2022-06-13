@@ -1,5 +1,11 @@
 # @capacitor/gradle-parse
 
+## 3.0.0
+
+### Major Changes
+
+- Releasing first version of Trapeze
+
 ## 2.0.10
 
 ## 2.0.9

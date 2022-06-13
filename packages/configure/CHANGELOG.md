@@ -1,5 +1,16 @@
 # @capacitor/configure
 
+## 3.0.0
+
+### Major Changes
+
+- Releasing first version of Trapeze
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @trapezedev/project@3.0.0
+
 ## 2.0.10
 
 ### Patch Changes
