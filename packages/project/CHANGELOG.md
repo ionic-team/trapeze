@@ -1,5 +1,12 @@
 # @capacitor/project
 
+## 3.0.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @trapezedev/gradle-parse@3.0.1
+
 ## 3.0.0
 
 ### Major Changes
