@@ -12,7 +12,10 @@ import { warn } from './util/log';
 
 export type YamlFile = any;
 
-export async function loadConfig(ctx: Context, filename: string): Promise<YamlFile> {
+export async function loadYamlConfig(
+  ctx: Context,
+  filename: string,
+): Promise<YamlFile> {
   const contents = await readFile(filename, { encoding: 'utf-8' });
   const parsed = yaml.parse(contents, {
     prettyErrors: true,
@@ -41,9 +44,9 @@ async function ensureVars(ctx: Context, yaml: YamlFile) {
     if (!vk || (!ctx.vars[v] && !vk.default)) {
       const answers = await logPrompt(
         `Required variable: ${c.strong(v)}\n` +
-        (vk.description
-          ? `${c.strong('Description:')} ${vk.description}`
-          : ''),
+          (vk.description
+            ? `${c.strong('Description:')} ${vk.description}`
+            : ''),
         {
           type: 'text',
           name: 'value',

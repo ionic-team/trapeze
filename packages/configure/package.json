@@ -22,7 +22,6 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "dependencies": {
-    "@capacitor/cli": "^3.2.5",
     "@trapezedev/project": "2.0.10",
     "@ionic/cli-framework-output": "^2.2.2",
     "@ionic/utils-fs": "^3.1.5",

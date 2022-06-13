@@ -31,9 +31,15 @@ export async function loadContext(projectRootPath?: string): Promise<Context> {
   let project: MobileProject;
 
   try {
-    project = await loadProject(projectRootPath ?? argv.projectRoot as string | undefined);
-  } catch (e: any) {
-    throw new Error(`Unable to load Capacitor project: ${e.message}`);
+    project = await loadProject(
+      projectRootPath ?? (argv.projectRoot as string | undefined),
+    );
+  } catch (e) {
+    throw new Error(
+      `Unable to load Capacitor project: ${(e as Error).message}: ${
+        (e as Error).stack
+      }`,
+    );
   }
 
   return {

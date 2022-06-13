@@ -2,20 +2,19 @@ import c from '../colors';
 import { processOperations } from '../op';
 import { logger, log, error, warn } from '../util/log';
 import { logPrompt } from '../util/cli';
-import { loadConfig, YamlFile } from '../config';
+import { loadYamlConfig, YamlFile } from '../yaml-config';
 import { hasHandler, runOperation } from '../operations/index';
 import { Context } from '../ctx';
 import { Operation } from '../definitions';
-import { VFSRef } from '@trapezedev/project/dist/vfs';
 
 export async function runCommand(ctx: Context, configFile: YamlFile) {
   let processed: Operation[];
   try {
-    const config = await loadConfig(ctx, configFile);
+    const config = await loadYamlConfig(ctx, configFile);
 
     processed = processOperations(config);
-  } catch (e: any) {
-    logger.error(`Unable to load config file: ${e.message}`);
+  } catch (e) {
+    logger.error(`Unable to load config file: ${(e as Error).message}`);
     throw e;
   }
 
@@ -57,7 +56,9 @@ async function verifyOperations(_ctx: Context, operations: Operation[]) {
   for (const op of operations) {
     if (op.platform === 'android' && op.id === 'android.gradle') {
       if (!process.env.JAVA_HOME) {
-        throw new Error('JAVA_HOME not set which is required for android.gradle modifications');
+        throw new Error(
+          'JAVA_HOME not set which is required for android.gradle modifications',
+        );
       }
     }
   }
@@ -76,7 +77,7 @@ async function executeOperations(ctx: Context, operations: Operation[]) {
       continue;
     }
 
-    await runOperation(ctx, op) || [];
+    (await runOperation(ctx, op)) || [];
   }
   await checkModifiedFiles(ctx);
 }
@@ -104,7 +105,7 @@ async function checkModifiedFiles(ctx: Context) {
   if (!ctx.args.dryRun && !ctx.args.y) {
     const answers = await logPrompt(
       c.strong(`Apply changes?\n`) +
-      `Applying these changes will modify your source files. We recommend committing any changes before running this operation.`,
+        `Applying these changes will modify your source files. We recommend committing any changes before running this operation.`,
       {
         type: 'confirm',
         name: 'apply',

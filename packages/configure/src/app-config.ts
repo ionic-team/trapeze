@@ -4,17 +4,17 @@ import { resolve } from 'path';
 import { resolveNode, requireTS } from './util/node';
 import * as c from './colors';
 import { fatal } from './util/log';
-import { CapacitorConfig } from '@capacitor/cli';
+import { MobileProjectConfig } from '@trapezedev/project';
 
-export const CONFIG_FILE_NAME_TS = 'capacitor.config.ts';
-export const CONFIG_FILE_NAME_JS = 'capacitor.config.js';
-export const CONFIG_FILE_NAME_JSON = 'capacitor.config.json';
+export const CONFIG_FILE_NAME_TS = 'trapeze.config.ts';
+export const CONFIG_FILE_NAME_JS = 'trapeze.config.js';
+export const CONFIG_FILE_NAME_JSON = 'trapeze.config.json';
 
 async function loadExtConfigTS(
   rootDir: string,
   extConfigName: string,
   extConfigFilePath: string,
-): Promise<CapacitorConfig | null> {
+): Promise<MobileProjectConfig | null> {
   try {
     const extConfigObject = requireTS(extConfigFilePath) as any;
     return extConfigObject.default ?? extConfigObject;
@@ -28,7 +28,7 @@ async function loadExtConfigJS(
   rootDir: string,
   extConfigName: string,
   extConfigFilePath: string,
-): Promise<CapacitorConfig | null> {
+): Promise<MobileProjectConfig | null> {
   try {
     return require(extConfigFilePath);
   } catch (e) {
@@ -38,11 +38,17 @@ async function loadExtConfigJS(
   }
 }
 
-export async function loadExtConfig(rootDir: string): Promise<CapacitorConfig | null> {
+export async function loadExtConfig(
+  rootDir: string,
+): Promise<MobileProjectConfig | null> {
   const extConfigFilePathTS = resolve(rootDir, CONFIG_FILE_NAME_TS);
 
   if (await pathExists(extConfigFilePathTS)) {
-    const tsConfig = await loadExtConfigTS(rootDir, CONFIG_FILE_NAME_TS, extConfigFilePathTS);
+    const tsConfig = await loadExtConfigTS(
+      rootDir,
+      CONFIG_FILE_NAME_TS,
+      extConfigFilePathTS,
+    );
     return tsConfig;
   }
 
@@ -55,10 +61,12 @@ export async function loadExtConfig(rootDir: string): Promise<CapacitorConfig | 
   const extConfigFilePath = resolve(rootDir, CONFIG_FILE_NAME_JSON);
 
   if (await pathExists(extConfigFilePath)) {
-    let json: CapacitorConfig | null = null;
+    let json: MobileProjectConfig | null = null;
 
     try {
-      json = await readJSON(extConfigFilePath, { encoding: 'utf-8' }) as CapacitorConfig;
+      json = (await readJSON(extConfigFilePath, {
+        encoding: 'utf-8',
+      })) as MobileProjectConfig;
     } catch (e) {
       console.warn('Unable to parse Capacitor JSON config file', e as Error);
       return null;
@@ -67,7 +75,9 @@ export async function loadExtConfig(rootDir: string): Promise<CapacitorConfig | 
     return json;
   }
 
-  console.warn('Unable to find or parse the Capacitor project config file. Using defaults');
+  console.warn(
+    'Unable to find or parse the Capacitor project config file. Using defaults',
+  );
 
   return null;
 }

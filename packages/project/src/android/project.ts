@@ -1,7 +1,16 @@
 import { join } from 'path';
-import { pathExists, move, mkdir, mkdirp, readFile, remove, rmdir, writeFile } from '@ionic/utils-fs';
+import {
+  pathExists,
+  move,
+  mkdir,
+  mkdirp,
+  readFile,
+  remove,
+  rmdir,
+  writeFile,
+} from '@ionic/utils-fs';
 
-import { MobileProject } from "../project";
+import { MobileProject } from '../project';
 import { AndroidResDir } from '../definitions';
 import { GradleFile } from './gradle-file';
 import { XmlFile } from '../xml';
@@ -65,11 +74,17 @@ export class AndroidProject {
   }
 
   getXmlFile(path: string) {
-    return this.getProjectFile(path, (filename: string) => new XmlFile(filename, this.project.vfs));
+    return this.getProjectFile(
+      path,
+      (filename: string) => new XmlFile(filename, this.project.vfs),
+    );
   }
 
   getPropertiesFile(path: string) {
-    return this.getProjectFile(path, (filename: string) => new PropertiesFile(filename, this.project.vfs));
+    return this.getProjectFile(
+      path,
+      (filename: string) => new PropertiesFile(filename, this.project.vfs),
+    );
   }
 
   async getGradleFile(path: string) {
@@ -86,13 +101,14 @@ export class AndroidProject {
    * Update the Android package name. This renames the package in `AndroidManifest.xml`,
    * the `applicationId` in `app/build.gradle`, and renames the java
    * package for the `MainActivity.java` file.
-   * 
+   *
    * This action will mutate the project on disk!
    */
   async setPackageName(packageName: string) {
     const sourceDir = join(this.getAppRoot()!, 'src', 'main', 'java');
-    console.log('Setting package name in src dir', sourceDir);
-    const oldPackageName = await this.manifest.getDocumentElement()?.getAttribute('package');
+    const oldPackageName = await this.manifest
+      .getDocumentElement()
+      ?.getAttribute('package');
     const oldPackageParts = oldPackageName?.split('.') ?? [];
 
     if (packageName === oldPackageName) {
@@ -100,14 +116,16 @@ export class AndroidProject {
     }
 
     const existingPackage = join(sourceDir, ...oldPackageParts);
-    if (!await pathExists(existingPackage)) {
-      throw new Error('Current Java package name and directory structure do not match the <manifest> package attribute. Ensure these match before modifying the project package name');
+    if (!(await pathExists(existingPackage))) {
+      throw new Error(
+        'Current Java package name and directory structure do not match the <manifest> package attribute. Ensure these match before modifying the project package name',
+      );
     }
 
     this.manifest.getDocumentElement()?.setAttribute('package', packageName);
     await this.appBuildGradle?.setApplicationId(packageName);
     this.manifest.setAttrs('manifest/application/activity', {
-      'android:name': `${packageName}.MainActivity`
+      'android:name': `${packageName}.MainActivity`,
     });
 
     if (!this.getAppRoot()) {
@@ -142,7 +160,9 @@ export class AndroidProject {
     // Rename the package in the main source file
     activityFile = join(sourceDir, ...newPackageParts, 'MainActivity.java');
     if (await pathExists(activityFile)) {
-      const activitySource = await readFile(activityFile, { encoding: 'utf-8' });
+      const activitySource = await readFile(activityFile, {
+        encoding: 'utf-8',
+      });
       const newActivitySource = activitySource?.replace(
         /(package\s+)[^;]+/,
         `$1${packageName}`,
@@ -150,7 +170,6 @@ export class AndroidProject {
       await writeFile(activityFile, newActivitySource);
     }
   }
-
 
   getPackageName() {
     return this.manifest.getDocumentElement()?.getAttribute('package');
@@ -180,7 +199,11 @@ export class AndroidProject {
    * Add a new file to the given resources directory with the given contents and
    * given file name
    **/
-  getResource(resDir: AndroidResDir, file: string, options: { encoding: 'utf-8' | string } | null = { encoding: 'utf-8' }) {
+  getResource(
+    resDir: AndroidResDir,
+    file: string,
+    options: { encoding: 'utf-8' | string } | null = { encoding: 'utf-8' },
+  ) {
     const root = this.getResourcesRoot();
     if (!root) {
       return;
@@ -251,7 +274,13 @@ export class AndroidProject {
     if (!this.project.config.android?.path) {
       return null;
     }
-    return join(this.project.config.android?.path, 'app', 'src', 'main', 'AndroidManifest.xml');
+    return join(
+      this.project.config.android?.path,
+      'app',
+      'src',
+      'main',
+      'AndroidManifest.xml',
+    );
   }
 
   getResourcesPath(): string {
