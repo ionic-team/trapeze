@@ -31,7 +31,17 @@ Put this file in the root of your project where you will run the following comma
 
 ## Usage
 
-Once your project is configured, the Trapeze Configuration tool can be run against it:
+Then, assuming you have a Trapeze YAML configuration file to use, use the `run` command to process it.
+
+Here's a basic example YAML file:
+
+```yaml title="config.yaml"
+platforms:
+  android:
+    versionName: 5.2.1
+  ios:
+    version: 16.4
+```
 
 ```bash
 npx trapeze run config.yaml
