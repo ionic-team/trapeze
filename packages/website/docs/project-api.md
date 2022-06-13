@@ -1,6 +1,6 @@
 ---
 title: Project API
-sidebar_position: 3
+sidebar_position: 4
 sidebar_label: Project API
 ---
 
@@ -52,7 +52,7 @@ To get a preview of changes that will be committed, the `VFS` object can be acce
 
 ```typescript
 const changedFiles = project.vfs.all();
-changedFiles.forEach(f => {
+changedFiles.forEach((f) => {
   console.log(f.getFilename(), f.getData());
 });
 ```
@@ -224,7 +224,7 @@ project.android?.getAndroidManifest().injectFragment(
   <intent>
   </intent>
 </queries>
-`,
+`
 );
 ```
 
@@ -271,7 +271,7 @@ buildGradleFile.insertProperties(
   {
     buildscript: {},
   },
-  [{ classpath: 'com.my.custom.gradle.plugin' }],
+  [{ classpath: 'com.my.custom.gradle.plugin' }]
 );
 ```
 
