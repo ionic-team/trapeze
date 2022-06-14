@@ -15,7 +15,7 @@
 
 Trapeze makes it easy to automate the configuration of native mobile iOS and Android projects, and supports traditional native, Ionic/Capacitor, React Native, Flutter, and .NET MAUI.
 
-Trapeze features a configuration-driven tool that takes a YAML file with iOS and Android project modifications and performs those modifications from the command line interactively. Alternative, a Project API is available to write custom JavaScript/TypeScript project modification scripts for full control. The configuration tool uses this API under the hood.
+Trapeze features a configuration-driven tool that takes a YAML file with iOS and Android project modifications and performs those modifications from the command line interactively. A Project API is also available for writing custom JavaScript/TypeScript project modification scripts for full control. The configuration tool uses this API under the hood.
 
 See [Trapeze.dev](https://trapeze.dev) for full documentation.
 
