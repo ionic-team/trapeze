@@ -1,6 +1,6 @@
 # Trapeze
 
-![Trapeze Logo](./logo.png)
+<img src="https://github.com/ionic-team/trapeze/raw/main/logo.png" alt="Trapeze Logo" width="512" />
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@trapezedev/project"><img src="https://img.shields.io/npm/v/@trapezedev/project?style=flat-square" /></a>
