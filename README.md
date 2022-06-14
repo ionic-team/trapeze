@@ -17,7 +17,7 @@ Trapeze makes it easy to automate the configuration of native mobile iOS and And
 
 Trapeze features a configuration-driven tool that takes a YAML file with iOS and Android project modifications and performs those modifications from the command line interactively. A Project API is also available for writing custom JavaScript/TypeScript project modification scripts for full control. The configuration tool uses this API under the hood.
 
-See [Trapeze.dev](https://trapeze.dev) for full documentation.
+See [trapeze.dev](https://trapeze.dev) for full documentation and to get started using Trapeze.
 
 __Note: this project was formerly known as `capacitor-configure` but has now been expanded to support other mobile frameworks and renamed to Trapeze as of June 2022__
 
