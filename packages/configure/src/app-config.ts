@@ -19,7 +19,7 @@ async function loadExtConfigTS(
     const extConfigObject = requireTS(extConfigFilePath) as any;
     return extConfigObject.default ?? extConfigObject;
   } catch (e) {
-    console.warn('Unable to load Capacitor typescript config file', e);
+    console.warn('Unable to load Trapeze typescript config file', e);
     return null;
   }
 }
@@ -32,7 +32,7 @@ async function loadExtConfigJS(
   try {
     return require(extConfigFilePath);
   } catch (e) {
-    console.warn('Unable to load Capacitor typescript config file', e);
+    console.warn('Unable to load Trapeze typescript config file', e);
     return null;
     // fatal(`Parsing ${c.strong(extConfigName)} failed.`, e as Error);
   }
@@ -68,7 +68,7 @@ export async function loadExtConfig(
         encoding: 'utf-8',
       })) as MobileProjectConfig;
     } catch (e) {
-      console.warn('Unable to parse Capacitor JSON config file', e as Error);
+      console.warn('Unable to parse Trapeze JSON config file', e as Error);
       return null;
     }
 
@@ -76,7 +76,7 @@ export async function loadExtConfig(
   }
 
   console.warn(
-    'Unable to find or parse the Capacitor project config file. Using defaults',
+    'Unable to find or parse the Trapeze project config file. Using defaults',
   );
 
   return null;

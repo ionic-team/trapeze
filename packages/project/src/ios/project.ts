@@ -32,7 +32,7 @@ const defaultInfoPlist = `
   so I've tried to accurately map what it expects. */
 
 /**
- * An instance of an IosProject in a Capacitor project
+ * An instance of an IosProject in a mobile project
  */
 export class IosProject {
   private pbxProject: IosPbxProject | null = null;
