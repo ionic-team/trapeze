@@ -39,6 +39,10 @@ describe('project - android', () => {
     expect(project.android?.getAppBuildGradle()).not.toBe(null);
   });
 
+  it('should get main activity filename', async () => {
+    expect(project.android?.getMainActivityFilename()).toBe('MainActivity.java');
+  });
+
   it('should set package name', async () => {
     await project.android?.setPackageName('com.ionicframework.awesome');
     expect(project.android?.getPackageName()).toBe('com.ionicframework.awesome');

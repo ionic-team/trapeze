@@ -137,7 +137,9 @@ export class AndroidProject {
     const destDir = join(sourceDir, ...newPackageParts);
 
     // TODO: Don't hard code this
-    let activityFile = join(sourceDir, ...oldPackageParts, 'MainActivity.java');
+    const mainActivityName = this.getMainActivityFilename();
+
+    let activityFile = join(sourceDir, ...oldPackageParts, mainActivityName);
 
     // Make the new directory tree and any missing parents
     await mkdirp(destDir);
@@ -158,7 +160,7 @@ export class AndroidProject {
     }
 
     // Rename the package in the main source file
-    activityFile = join(sourceDir, ...newPackageParts, 'MainActivity.java');
+    activityFile = join(sourceDir, ...newPackageParts, this.getMainActivityFilename());
     if (await pathExists(activityFile)) {
       const activitySource = await readFile(activityFile, {
         encoding: 'utf-8',
@@ -169,6 +171,18 @@ export class AndroidProject {
       );
       await writeFile(activityFile, newActivitySource);
     }
+  }
+
+  getMainActivityFilename() {
+    const activity = this.manifest.find('manifest/application/activity');
+
+    if (!activity) {
+      return 'MainActivity.java';
+    }
+
+    const activityName = activity[0].getAttribute('android:name');
+    const parts = activityName.split('.');
+    return `${parts[parts.length - 1]}.java`;
   }
 
   getPackageName() {
@@ -292,7 +306,6 @@ export class AndroidProject {
       return null;
     }
 
-    // TODO: Don't hard-code app
     return join(this.project.config.android?.path, this.getResourcesPath());
   }
 
