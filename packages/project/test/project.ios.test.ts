@@ -1,6 +1,6 @@
 import tempy from 'tempy';
 import { join } from 'path';
-import { copy, rm } from '@ionic/utils-fs';
+import { copy, pathExists, readFile, rm } from '@ionic/utils-fs';
 import { MobileProject } from '../src';
 import { MobileProjectConfig } from '../src/config';
 
@@ -337,6 +337,38 @@ describe('project - ios standard', () => {
     }
   });
 
+});
+
+describe('ios - no info plist case', () => {
+  let config: MobileProjectConfig;
+  let project: MobileProject;
+  let dir: string;
+  beforeEach(async () => {
+    dir = tempy.directory();
+    await copy('../common/test/fixtures/ios-no-info-plist', dir);
+
+    config = {
+      ios: {
+        path: 'ios/App'
+      }
+    }
+
+    project = new MobileProject(dir, config);
+    await project.load();
+  });
+
+  it('should create info plist when updating', async () => {
+    const plistName = await project.ios?.getInfoPlist('App');
+    const plistPath = join(project.config.ios?.path!, plistName!);
+    expect(await pathExists(plistPath)).toBe(false);
+    await project.ios?.updateInfoPlist('App', 'Debug', {
+      NSFaceIDUsageDescription: 'The better to see you with'
+    });
+    await project.commit();
+    expect(await pathExists(plistPath)).toBe(true);
+    const plistContents = await readFile(plistPath, { encoding: 'utf-8' });
+    expect(plistContents.indexOf('NSFaceIDUsageDescription') >= 0);
+  });
 });
 
 describe('ios - empty template case', () => {

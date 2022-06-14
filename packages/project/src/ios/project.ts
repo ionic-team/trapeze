@@ -1,6 +1,6 @@
 import plist from 'plist';
 import path, { join } from 'path';
-import { readdir, writeFile } from '@ionic/utils-fs';
+import { pathExists, readdir, writeFile } from '@ionic/utils-fs';
 
 import { parsePbxProject, pbxReadString, pbxSerializeString } from "../util/pbx";
 import { parsePlist, updatePlist } from "../util/plist";
@@ -10,6 +10,15 @@ import { VFSRef } from '../vfs';
 import { XmlFile } from '../xml';
 
 const defaultEntitlementsPlist = `
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+</dict>
+</plist>
+`;
+
+const defaultInfoPlist = `
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -434,8 +443,13 @@ export class IosProject {
     targetName = this.assertTargetName(targetName || null);
 
     const filename = await this.getInfoPlistFilename(targetName, buildName ?? undefined);
+
     if (!filename) {
       throw new Error('Unable to get plist filename to update');
+    }
+
+    if (!await pathExists(join(this.iosProjectRoot(), filename))) {
+      await writeFile(filename, defaultInfoPlist);
     }
 
     const parsed = await this.plist(filename);
