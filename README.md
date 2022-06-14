@@ -1,5 +1,6 @@
 # Trapeze
 
+![Trapeze Logo](./logo.png)
 
 Trapeze makes it easy to automate the configuration of native mobile iOS and Android projects, and supports traditional native, Ionic/Capacitor, React Native, Flutter, and .NET MAUI.
 
