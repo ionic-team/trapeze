@@ -448,7 +448,7 @@ export class IosProject {
       throw new Error('Unable to get plist filename to update');
     }
 
-    if (!await pathExists(join(this.iosProjectRoot(), filename))) {
+    if (!await pathExists(filename)) {
       await writeFile(filename, defaultInfoPlist);
     }
 
