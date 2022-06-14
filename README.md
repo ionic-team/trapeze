@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/ionic-team/trapeze/raw/main/logo.png" alt="Trapeze Logo" width="512" />
+  <a href="https://trapeze.dev" target="_blank"><img src="https://github.com/ionic-team/trapeze/raw/main/logo.png" alt="Trapeze Logo" width="512" /></a>
 </div>
 
 <p align="center">
