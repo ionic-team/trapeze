@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@1.7.0/schema.json",
-  "changelog": ["@changesets/changelog-github", { "repo": "ionic-team/capacitor-configure" }],
+  "changelog": ["@changesets/changelog-github", { "repo": "ionic-team/trapezedev" }],
   "commit": false,
   "fixed": [
     ["@trapezedev/configure", "@trapezedev/project", "@trapezedev/gradle-parse"]

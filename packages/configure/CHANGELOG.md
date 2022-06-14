@@ -1,4 +1,4 @@
-# @capacitor/configure
+# @trapezedev/configure
 
 ## 3.0.2
 

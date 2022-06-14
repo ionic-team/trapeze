@@ -1,4 +1,4 @@
-# @capacitor/project
+# @trapezedev/project
 
 ## 3.0.2
 
