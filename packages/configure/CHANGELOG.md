@@ -1,5 +1,14 @@
 # @capacitor/configure
 
+## 3.0.2
+
+### Patch Changes
+
+- Added support for generating Info.plist if not exists
+
+- Updated dependencies []:
+  - @trapezedev/project@3.0.2
+
 ## 3.0.1
 
 ### Patch Changes
