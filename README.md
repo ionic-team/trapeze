@@ -1,10 +1,16 @@
-# Trapeze
+<div align="center">
+  <img src="https://github.com/ionic-team/trapeze/raw/main/logo.png" alt="Trapeze Logo" width="512" />
+</div>
 
-<img src="https://github.com/ionic-team/trapeze/raw/main/logo.png" alt="Trapeze Logo" width="512" />
+<p align="center">
+  🤸‍♀️ Easy Mobile Project Configuration 🤸‍♀️
+</p>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@trapezedev/project"><img src="https://img.shields.io/npm/v/@trapezedev/project?style=flat-square" /></a>
 </p>
+
+---
 
 Trapeze makes it easy to automate the configuration of native mobile iOS and Android projects, and supports traditional native, Ionic/Capacitor, React Native, Flutter, and .NET MAUI.
 
