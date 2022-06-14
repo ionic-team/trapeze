@@ -70,7 +70,6 @@ function interpolateVars(ctx: Context, yaml: YamlFile) {
   for (let k in vars) {
     const v = vars[k];
 
-    // TODO: Set any var values to the default
     if (v && v.default) {
       v.value = v.default;
     }
