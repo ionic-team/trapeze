@@ -24,4 +24,20 @@ describe('xml file', () => {
 </resources>
     `.trim());
   });
+
+  it('Should delete attributes', async () => {
+    file.deleteAttributes('//string', ['name']);
+    const doc = file.getDocumentElement();
+    const serialized = serializeXml(doc);
+    expect(serialized).toBe(`
+<resources>
+    <string>capacitor-configure-test</string>
+    <string>capacitor-configure-test</string>
+    <string>io.ionic.starter</string>
+    <string>io.ionic.starter</string>
+</resources>
+    `.trim());
+  });
+
+  // TODO: More tests for the rest of XmlFile
 });

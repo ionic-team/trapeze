@@ -39,6 +39,17 @@ export class XmlFile {
     this.vfs.set(this.path, this);
   }
 
+  deleteAttributes(target: string, attributes: string[]) {
+    if (!this.doc) {
+      return;
+    }
+
+    const nodes = xpath.select(target, this.doc) as Element[];
+    nodes.forEach(n => attributes.forEach(a => n.removeAttribute(a)));
+
+    this.vfs.set(this.path, this);
+  }
+
   /**
    * Injects a fragment of XML as a child of the given target.
    * Note: If the target resolves to a node list, each node will

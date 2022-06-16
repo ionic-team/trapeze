@@ -45,6 +45,7 @@ export interface XmlOperationValue {
   merge?: string;
   replace?: string;
   delete?: string;
+  deleteAttributes?: string[];
 }
 
 export interface AndroidXmlOperationValue extends XmlOperationValue {
