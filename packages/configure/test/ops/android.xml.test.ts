@@ -33,8 +33,6 @@ describe('op: android.xml', () => {
 
     await Op(ctx, op as Operation);
 
-    console.log(ctx.project.vfs.all());
-
     await ctx.project.commit();
 
     const file = await readFile(join(dir, 'android/app/src/main/AndroidManifest.xml'), { encoding: 'utf-8' });
@@ -55,9 +53,12 @@ describe('op: android.xml', () => {
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode"
             android:name="io.ionic.starter.MainActivity"
             android:label="@string/title_activity_main"
-            android:theme="@style/AppTheme.NoActionBarLaunch"
-            android:launchMode="singleTask"
-        />
+            android:theme="@style/AppTheme.NoActionBarLaunch">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -80,8 +81,6 @@ describe('op: android.xml', () => {
     ]);
 
     await Op(ctx, op as Operation);
-
-    console.log(ctx.project.vfs.all());
 
     await ctx.project.commit();
 

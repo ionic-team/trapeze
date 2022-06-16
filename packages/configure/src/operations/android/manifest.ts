@@ -17,5 +17,8 @@ export default async function execute(ctx: Context, op: Operation) {
     if (entry.delete) {
       ctx.project.android?.getAndroidManifest().deleteNodes(entry.delete);
     }
+    if (entry.deleteAttributes) {
+      ctx.project.android?.getAndroidManifest().deleteAttributes(entry.target, entry.deleteAttributes);
+    }
   }
 }

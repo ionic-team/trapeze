@@ -6,8 +6,6 @@ export default async function execute(ctx: Context, op: Operation) {
   const xmlOp = op as AndroidXmlOperation;
   const entries = xmlOp.value;
 
-  console.log('Got op', xmlOp);
-
   for (const entry of entries) {
     let filename = entry.file;
     let xmlFile: XmlFile | null | undefined = null;
@@ -39,6 +37,8 @@ export default async function execute(ctx: Context, op: Operation) {
       await xmlFile.replaceFragment(entry.target, entry.replace);
     } else if (entry.delete) {
       await xmlFile.deleteNodes(entry.delete);
+    } else if (entry.deleteAttributes) {
+      await xmlFile.deleteAttributes(entry.target, entry.deleteAttributes);
     }
   }
 }
