@@ -103,7 +103,7 @@ describe('project - android', () => {
     expect(manifestFile).not.toBeNull();
 
     // Make sure the updated file hasn't been destroyed
-    expect(serializeXml(manifestFile?.getData())).toContain('<manifest');
+    expect(serializeXml(manifestFile?.getData().getDocumentElement())).toContain('<manifest');
   });
 
   it('should inject an XML fragment', async () => {
@@ -178,6 +178,23 @@ describe('project - android', () => {
     expect(serialized).toBe(`
 <resources>
     <string name="app_name">Awesome App</string>
+    <string name="title_activity_main">capacitor-configure-test</string>
+    <string name="package_name">io.ionic.starter</string>
+    <string name="custom_url_scheme">io.ionic.starter</string>
+</resources>
+    `.trim());
+  });
+
+  it('should support deleting nodes in xml', async () => {
+    const xml = await project.android?.getXmlFile('app/src/main/res/values/strings.xml');
+    await xml!.load();
+
+    const node = xml!.find('resources/string[@name="app_name"]')?.[0];
+    node.parentNode.removeChild(node);
+    const serialized = serializeXml(xml!.getDocumentElement());
+    expect(serialized).toBe(`
+<resources>
+    
     <string name="title_activity_main">capacitor-configure-test</string>
     <string name="package_name">io.ionic.starter</string>
     <string name="custom_url_scheme">io.ionic.starter</string>

@@ -39,11 +39,12 @@ export interface XmlOperation extends Operation {
 
 export interface XmlOperationValue {
   file?: string;
-  target: any;
+  target?: any;
   attrs?: any;
   inject?: string;
   merge?: string;
   replace?: string;
+  delete?: string;
 }
 
 export interface AndroidXmlOperationValue extends XmlOperationValue {

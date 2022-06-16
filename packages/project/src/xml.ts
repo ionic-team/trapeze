@@ -1,5 +1,4 @@
-import { parseXml, parseXmlString, serializeXml, writeXml } from "./util/xml";
-import { writeFile } from '@ionic/utils-fs';
+import { parseXml, parseXmlString, writeXml } from "./util/xml";
 import xpath from 'xpath';
 import { difference, isEqual, isObject, transform } from 'lodash';
 import { VFS, VFSRef } from "./vfs";
@@ -14,7 +13,7 @@ export class XmlFile {
 
   async load() {
     this.doc = await parseXml(this.path);
-    this.vfs.open(this.path, this.doc, this.xmlCommitFn);
+    this.vfs.open(this.path, this, this.xmlCommitFn);
   }
 
   getDocumentElement() {
@@ -27,6 +26,17 @@ export class XmlFile {
     }
 
     return xpath.select(target, this.doc) as any;
+  }
+
+  deleteNodes(target: string) {
+    if (!this.doc) {
+      return;
+    }
+
+    const nodes = xpath.select(target, this.doc) as Element[];
+    nodes.forEach(n => n.parentNode?.removeChild(n));
+
+    this.vfs.set(this.path, this);
   }
 
   /**
@@ -45,7 +55,7 @@ export class XmlFile {
 
     nodes.forEach(n => Array.prototype.forEach.call(docNodes, d => n.appendChild(d)))
 
-    this.vfs.set(this.path, this.doc);
+    this.vfs.set(this.path, this);
   }
 
   /**
@@ -74,7 +84,7 @@ export class XmlFile {
       });
     });
 
-    this.vfs.set(this.path, this.doc);
+    this.vfs.set(this.path, this);
   }
 
   _mergeNodes(oldEl: Element, newEl: Element) {
@@ -106,7 +116,7 @@ export class XmlFile {
       }
     });
 
-    this.vfs.set(this.path, this.doc);
+    this.vfs.set(this.path, this);
   }
 
   /**
@@ -127,7 +137,7 @@ export class XmlFile {
     });
 
 
-    this.vfs.set(this.path, this.doc);
+    this.vfs.set(this.path, this);
   }
 
   /**
@@ -152,6 +162,6 @@ export class XmlFile {
   }
 
   private xmlCommitFn = async (file: VFSRef) => {
-    return writeXml(file.getData(), file.getFilename());
+    return writeXml(file.getData().doc, file.getFilename());
   }
 }

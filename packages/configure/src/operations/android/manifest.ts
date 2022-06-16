@@ -14,5 +14,8 @@ export default async function execute(ctx: Context, op: Operation) {
     if (entry.merge) {
       ctx.project.android?.getAndroidManifest().mergeFragment(entry.target, entry.merge);
     }
+    if (entry.delete) {
+      ctx.project.android?.getAndroidManifest().deleteNodes(entry.delete);
+    }
   }
 }
