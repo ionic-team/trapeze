@@ -74,29 +74,6 @@ Here's one example of providing an environment variable to the command:
 MY_APP_ID="com.awesome.app" npx trapeze
 ```
 
-## Supported Operations
-
-The configuration tool currently supports these project operations:
-
-| Platform | Operation                  | Supported          |
-| -------- | -------------------------- | ------------------ |
-| ios      | Bundle ID and Product Name | :white_check_mark: |
-| ios      | Version and Build Number   | :white_check_mark: |
-| ios      | Increment Build Number     | :white_check_mark: |
-| ios      | Build Settings             | :white_check_mark: |
-| ios      | Plist Modifications        | :white_check_mark: |
-| ios      | Add Frameworks             | :white_check_mark: |
-| ios      | Set Entitlements           | :white_check_mark: |
-| ios      | Add Source/Header files    | WIP                |
-| android  | Package Name               | :white_check_mark: |
-| android  | Version Name and Code      | :white_check_mark: |
-| android  | Version Code               | :white_check_mark: |
-| android  | Increment Version Code     | :white_check_mark: |
-| android  | Gradle Config              | :white_check_mark: |
-| android  | Resource Files             | :white_check_mark: |
-| android  | Manifest File Modification | :white_check_mark: |
-| android  | Add Source/Header files    | WIP                |
-
 ## Android
 
 To provide Android project operations, use the `android` platform key under the top-level `platforms` key:
@@ -153,6 +130,8 @@ The operation supports three modes: `attrs`, `merge`, and `inject`:
 - `attrs` updates the attributes of the given `target` node.
 - `merge` merges the given XML tree supplied to `merge` with the given `target`
 - `inject` injects the given XML tree supplied to `inject` inside of the given `target`
+- `delete` deletes nodes specified by `delete` in XPath format.
+- `deleteAttributes` deletes the given attributes in `deleteAttributes` inside of the given `target`
 
 Example:
 
@@ -212,6 +191,14 @@ platforms:
                       android:scheme="msauth" />
               </intent-filter>
           </activity>
+
+      - file: AndroidManifest.xml
+        delete: //intent-filter
+
+      - file: AndroidManifest.xml
+        target: manifest/application/application
+        deleteAttributes:
+          - android:name
 ```
 
 ### `gradle`
