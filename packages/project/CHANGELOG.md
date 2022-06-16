@@ -1,5 +1,14 @@
 # @trapezedev/project
 
+## 3.0.3
+
+### Patch Changes
+
+- Added support for deleting nodes and attributes per #73
+
+- Updated dependencies []:
+  - @trapezedev/gradle-parse@3.0.3
+
 ## 3.0.2
 
 ### Patch Changes

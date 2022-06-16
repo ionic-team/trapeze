@@ -1,5 +1,11 @@
 # @capacitor/gradle-parse
 
+## 3.0.3
+
+### Patch Changes
+
+- Added support for deleting nodes and attributes per #73
+
 ## 3.0.2
 
 ## 3.0.1
