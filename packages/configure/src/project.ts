@@ -1,12 +1,13 @@
 import { join } from 'path';
 import { MobileProject, MobileProjectConfig } from '@trapezedev/project';
-
-import { loadExtConfig } from './app-config';
+import { Context } from './ctx';
 
 export async function loadProject(
   projectRootPath?: string,
+  androidProject?: string,
+  iosProject?: string
 ): Promise<MobileProject> {
-  const config = (await loadConfig(projectRootPath)) as MobileProjectConfig;
+  const config = (await loadConfig(projectRootPath, androidProject, iosProject)) as MobileProjectConfig;
   const project = new MobileProject(projectRootPath ?? '', config);
   await project.load();
   return project;
@@ -14,40 +15,15 @@ export async function loadProject(
 
 async function loadConfig(
   projectRootPath?: string,
+  androidProject?: string,
+  iosProject?: string
 ): Promise<MobileProjectConfig> {
-  let extConfig: MobileProjectConfig | null = null;
-
-  try {
-    extConfig = await loadExtConfig(projectRootPath ?? '');
-    if (!extConfig?.android?.path) {
-      extConfig = {
-        ...extConfig,
-        android: {
-          path: 'android',
-        },
-      };
+  return <MobileProjectConfig>{
+    android: {
+      path: androidProject ?? 'android'
+    },
+    ios: {
+      path: iosProject ?? 'ios/App'
     }
-
-    if (!extConfig?.ios?.path) {
-      extConfig = {
-        ...extConfig,
-        ios: {
-          path: 'ios/App',
-        },
-      };
-    }
-  } catch (e) {
-    console.warn('Unable to load external Capacitor config', e);
   }
-
-  return (
-    extConfig || {
-      ios: {
-        path: 'ios/App',
-      },
-      android: {
-        path: 'android',
-      },
-    }
-  );
 }

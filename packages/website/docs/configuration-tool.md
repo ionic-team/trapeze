@@ -10,28 +10,15 @@ To configure projects using configuration and the configuration tool, install th
 npm install @trapezedev/configure
 ```
 
-## `trapeze.config.ts`
-
-Before running the tool, your project settings should be declared in a Trapeze config file, which can be TypeScript, plain JS, or JSON:
-
-```js title="trapeze.config.ts"
-const config = {
-  ios: {
-    path: 'ios/App',
-  },
-  android: {
-    path: 'android',
-  },
-};
-
-export default config;
-```
-
-Put this file in the root of your project where you will run the following command from. Then, specify the directories for your iOS app project and/or Android project. This file will automatically be detected by Trapeze.
-
 ## Usage
 
 Then, assuming you have a Trapeze YAML configuration file to use, use the `run` command to process it.
+
+```bash
+npx trapeze run config.yaml --android-project android --ios-project ios/App
+```
+
+Where `--android-project` is the relative path to your Android project, and `--ios-project` is the relative path to your iOS Xcode project folder.
 
 Here's a basic example YAML file:
 
@@ -43,9 +30,6 @@ platforms:
     version: 16.4
 ```
 
-```bash
-npx trapeze run config.yaml
-```
 
 ## Writing Configuration Files
 

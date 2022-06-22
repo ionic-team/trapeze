@@ -23,7 +23,7 @@ export interface Variables {
   [variable: string]: Variable;
 }
 
-export async function loadContext(projectRootPath?: string): Promise<Context> {
+export async function loadContext(projectRootPath?: string, androidProject?: string, iosProject?: string): Promise<Context> {
   const rootDir = process.cwd();
 
   const argv = yargs(hideBin(process.argv)).argv;
@@ -33,6 +33,8 @@ export async function loadContext(projectRootPath?: string): Promise<Context> {
   try {
     project = await loadProject(
       projectRootPath ?? (argv.projectRoot as string | undefined),
+      androidProject ?? argv.androidProject as string | undefined,
+      iosProject ?? argv.iosProject as string | undefined
     );
   } catch (e) {
     throw new Error(

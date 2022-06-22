@@ -1,8 +1,0 @@
-{
-  "ios": {
-    "path": "my-ios-app/App"
-  },
-  "android": {
-    "path": "my-android-app"
-  }
-}
