@@ -271,6 +271,24 @@ platforms:
           }
 ```
 
+### `json`
+
+Modifies JSON files relative to the root of the Android project. Use `set` to override the element (and clobber any children), or `merge` to merge the values:
+
+```yaml
+platforms:
+  android:
+    json:
+      - file: google-services.json
+        set:
+          project_info:
+            project_id: "MY_ID"
+      - file: google-services.json
+        merge:
+          data:
+            field: "MY_FIELD"
+```
+
 ## iOS
 
 iOS supports multiple operations and can perform them against different project targets and build types. If a target is not specified, the tool will infer the app target in the project. If a build is not specified commands will operate on all builds in a target (Debug and Release, for example). Thus, complex projects should specify at least the target name to avoid issues.
@@ -428,4 +446,24 @@ platforms:
       App:
         entitlements:
           - keychain-access-groups: ['$BUNDLE_ID', 'com.microsoft.intune.mam', 'com.microsoft.adalcache']
+```
+
+### `json`
+
+Modifies JSON files relative to the root of the iOS project. Use `set` to override the element (and clobber any children), or `merge` to merge the values:
+
+```yaml
+platforms:
+  ios:
+    targets:
+      App:
+        json:
+          - file: google-services.json
+            set:
+              project_info:
+                project_id: "MY_ID"
+          - file: google-services.json
+            merge:
+              data:
+                field: "MY_FIELD"
 ```

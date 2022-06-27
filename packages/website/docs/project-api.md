@@ -36,7 +36,7 @@ const config: MobileProjectConfig = {
   },
 };
 
-const project = new MobileProject(config);
+const project = new MobileProject('project/root', config);
 await project.load();
 ```
 
@@ -178,6 +178,33 @@ project.ios?.setBuildProperty(targetName, buildName, 'FAKE_PROPERTY', 'YES');
 project.ios?.getBuildProperty(targetName, buildName, 'FAKE_PROPERTY');
 ```
 
+#### JSON files
+
+Use `JsonFile` to make modifications against project JSON files:
+
+```typescript
+// Get a JSON file from the iOS project, or create a new one:
+const jsonFile = ctx.project.ios?.getProjectFile<JsonFile>(
+  filename,
+  (filename: string) => new JsonFile(filename, ctx.project.vfs),
+);
+
+// Load it
+await jsonFile.load();
+
+// Set values
+jsonFile.set({
+  field: 'value'
+});
+// Merge values
+jsonFile.merge({
+  field: {
+    field2: 'value'
+  }
+});
+```
+
+
 ## Android
 
 Android functionality currently supported includes making modifications to `AndroidManifest.xml` (attributes and new elements), updating package name, updating version name/code, adding resources files, and making Gradle modifications.
@@ -288,4 +315,30 @@ appBuildGradleFile.insertFragment({
     { name: 'Duo-SDK-Feed }
   ]
 }]
+```
+
+#### JSON files
+
+Use `JsonFile` to make modifications against project JSON files:
+
+```typescript
+// Get a JSON file from the iOS project, or create a new one:
+const jsonFile = ctx.project.android?.getProjectFile<JsonFile>(
+  filename,
+  (filename: string) => new JsonFile(filename, ctx.project.vfs),
+);
+
+// Load it
+await jsonFile.load();
+
+// Set values
+jsonFile.set({
+  field: 'value'
+});
+// Merge values
+jsonFile.merge({
+  field: {
+    field2: 'value'
+  }
+});
 ```
