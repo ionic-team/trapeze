@@ -30,7 +30,6 @@ platforms:
     version: 16.4
 ```
 
-
 ## Writing Configuration Files
 
 Configuration files are written in YAML. New to YAML? Read [Learn YAML in five minutes](https://www.codeproject.com/Articles/1214409/Learn-YAML-in-five-minutes).
@@ -379,7 +378,7 @@ platforms:
   ios:
     targets:
       App:
-        displayName: Awesome App
+        productName: Awesome App
 ```
 
 ### `buildSettings`
