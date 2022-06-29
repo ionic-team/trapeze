@@ -1,5 +1,11 @@
 # @capacitor/gradle-parse
 
+## 3.0.4
+
+### Patch Changes
+
+- Release ios and android directory options
+
 ## 3.0.3
 
 ### Patch Changes
