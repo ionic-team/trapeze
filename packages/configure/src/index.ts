@@ -24,6 +24,8 @@ export function runProgram(ctx: Context) {
     .option('--dry-run', 'Show changes before making them')
     .option('-y', 'Non-interactive')
     .option('--verbose', 'Verbose output')
+    .option('--android-project', 'Path to the root of the Android project (default: \'android\')')
+    .option('--ios-project', 'Path to the root of the iOS project (default: \'ios/App\')')
     .action(
       wrapAction(async (configFile: string, args = {}) => {
         setArguments(ctx, args);

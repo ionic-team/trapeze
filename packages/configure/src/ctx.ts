@@ -26,7 +26,9 @@ export interface Variables {
 export async function loadContext(projectRootPath?: string, androidProject?: string, iosProject?: string): Promise<Context> {
   const rootDir = process.cwd();
 
-  const argv = yargs(hideBin(process.argv)).argv;
+  const args = yargs(hideBin(process.argv));
+
+  const argv = args.argv;
 
   let project: MobileProject;
 
