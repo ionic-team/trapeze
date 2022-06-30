@@ -1,5 +1,11 @@
 # @capacitor/gradle-parse
 
+## 3.0.5
+
+### Patch Changes
+
+- Improved error logging
+
 ## 3.0.4
 
 ### Patch Changes

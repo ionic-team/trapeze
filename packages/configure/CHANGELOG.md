@@ -1,5 +1,14 @@
 # @trapezedev/configure
 
+## 3.0.5
+
+### Patch Changes
+
+- Improved error logging
+
+- Updated dependencies []:
+  - @trapezedev/project@3.0.5
+
 ## 3.0.4
 
 ### Patch Changes
