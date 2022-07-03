@@ -491,3 +491,23 @@ platforms:
               data:
                 field: "MY_FIELD"
 ```
+
+### `xml`
+
+Modifies XML files relative to the root of the iOS project. This operation supports the following XML file modifications:
+
+- `attrs` updates the attributes of the given `target` node.
+- `merge` merges the given XML tree supplied to `merge` with the given `target`
+- `inject` injects the given XML tree supplied to `inject` inside of the given `target`
+- `delete` deletes nodes specified by `delete` in XPath format.
+- `deleteAttributes` deletes the given attributes in `deleteAttributes` inside of the given `target`
+
+```yaml
+platforms:
+  android:
+    xml:
+      - file: file.xml
+        target: entries/field
+        merge: |
+          <string>Value</string>
+```
