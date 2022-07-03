@@ -289,6 +289,30 @@ platforms:
             field: "MY_FIELD"
 ```
 
+### `xml`
+
+Modifies XML files relative to the root of the Android project. Can also modify files relative to the resource path using `resFile` instead of `file`. This operation supports the same options as the `manifest` operation:
+
+- `attrs` updates the attributes of the given `target` node.
+- `merge` merges the given XML tree supplied to `merge` with the given `target`
+- `inject` injects the given XML tree supplied to `inject` inside of the given `target`
+- `delete` deletes nodes specified by `delete` in XPath format.
+- `deleteAttributes` deletes the given attributes in `deleteAttributes` inside of the given `target`
+
+```yaml
+platforms:
+  android:
+    xml:
+      - file: app/file.xml
+        target: entries/field
+        merge: |
+          <string>Value</string>
+      - resFile: values/strings.xml
+        target: resources/string[@name="app_name"]
+        replace: |
+          <string name="app_name">Awesome App</string>
+```
+
 ## iOS
 
 iOS supports multiple operations and can perform them against different project targets and build types. If a target is not specified, the tool will infer the app target in the project. If a build is not specified commands will operate on all builds in a target (Debug and Release, for example). Thus, complex projects should specify at least the target name to avoid issues.
