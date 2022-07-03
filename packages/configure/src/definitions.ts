@@ -84,3 +84,11 @@ export interface IosJsonOperation extends JsonOperation {
   value: IosJsonOperationValue[];
 }
 export interface IosJsonOperationValue extends JsonOperationValue {}
+
+export type IosEntitlementsOperationValue = {
+  entries: any[]
+  replace?: boolean
+} | any[] ;
+export interface IosEntitlementsOperation {
+  value: IosEntitlementsOperationValue;
+}

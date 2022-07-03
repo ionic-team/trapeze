@@ -190,6 +190,34 @@ describe('project - ios standard', () => {
     });
   });
 
+  it('should set entitlements to file', async () => {
+    await project.ios?.setEntitlements('App', 'Debug', {
+      'keychain-access-groups': [
+        'group1', 'group2'
+      ]
+    });
+
+    let entitlements = await project.ios?.getEntitlements('App', 'Debug');
+    expect(entitlements).toEqual({
+      'keychain-access-groups': [
+        'group1', 'group2'
+      ]
+    });
+
+    await project.ios?.setEntitlements('App', null, {
+      'keychain-access-groups': [
+        'group3', 'group4'
+      ]
+    });
+
+    entitlements = await project.ios?.getEntitlements('App');
+    expect(entitlements).toEqual({
+      'keychain-access-groups': [
+        'group3', 'group4'
+      ]
+    });
+  });
+
   it('should create new entitlements file if one does not exist', async () => {
     await project.ios?.addEntitlements('My Share Extension', 'Debug', {
       'keychain-access-groups': [

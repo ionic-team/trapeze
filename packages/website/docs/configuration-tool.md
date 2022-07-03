@@ -461,15 +461,21 @@ platforms:
 
 ### `entitlements`
 
-Updates the entitlements for a given target and build:
+Updates the entitlements for a given target and build. The value can either be an array of objects to merge into the existing entitlements list, or specify the edit operation manually. See examples below:
 
 ```yaml
 platforms:
   ios:
     targets:
       App:
+        # Passing an array of objects, these values will be merged by default
         entitlements:
           - keychain-access-groups: ['$BUNDLE_ID', 'com.microsoft.intune.mam', 'com.microsoft.adalcache']
+        # Passing an object with options for the entitlements operation, and then an array of objects
+        entitlements:
+          replace: true
+          entries:
+            - keychain-access-groups: ['$BUNDLE_ID', 'com.microsoft.intune.mam', 'com.microsoft.adalcache']
 ```
 
 ### `json`

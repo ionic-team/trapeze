@@ -324,34 +324,37 @@ export class IosProject {
   async addEntitlements(targetName: IosTargetName | null, buildName: IosBuildName | null, entitlements: IosEntitlements) {
     targetName = this.assertTargetName(targetName || null);
 
-    let file = this.getEntitlementsFile(targetName, buildName ?? undefined);
+    let file = await this.assertEntitlementsFile(targetName, buildName);
 
     if (!file) {
-      if (this.project?.config?.ios?.path) {
-        const targetDir = targetName || 'App';
-        const fname = `${(targetName || 'App').split(/\s+/).join('_')}.entitlements`;
-
-        // Create the default entitlements file
-        const target = join(this.project.config.ios.path, targetDir, fname)
-        await writeFile(target, defaultEntitlementsPlist);
-
-        // Always use posix paths
-        file = join(targetDir, fname).split(path.sep).join(path.posix.sep);
-
-        this.setBuildProperty(targetName, buildName, 'CODE_SIGN_ENTITLEMENTS', file);
-      } else {
-        return;
-      }
-    }
-
-    if (!file || !this.project?.config?.ios?.path) {
       return;
     }
 
-    const filename = join(this.project.config.ios.path, file);
+    const filename = join(this.project.config.ios!.path, file);
 
     const parsed = await this.plist(filename);
     const updated = updatePlist(entitlements, parsed);
+    this.project.vfs.set(filename, updated);
+  }
+
+  /**
+   * Set entitlements for the given target and build.
+   * If the `targetName` is null the main app target is used. If the `buildName` is null the first
+   * build name is used.
+   */
+  async setEntitlements(targetName: IosTargetName | null, buildName: IosBuildName | null, entitlements: IosEntitlements) {
+    targetName = this.assertTargetName(targetName || null);
+
+    let file = await this.assertEntitlementsFile(targetName, buildName);
+
+    if (!file) {
+      return;
+    }
+
+    const filename = join(this.project.config.ios!.path, file);
+
+    const parsed = await this.plist(filename);
+    const updated = updatePlist(entitlements, parsed, true);
     this.project.vfs.set(filename, updated);
   }
 
@@ -455,6 +458,34 @@ export class IosProject {
     const parsed = await this.plist(filename);
     const updated = updatePlist(entries, parsed, mergeMode?.replace ?? false);
     this.project.vfs.set(filename, updated);
+  }
+
+  private async assertEntitlementsFile(targetName: IosTargetName, buildName: IosBuildName | null) {
+    let file = this.getEntitlementsFile(targetName, buildName ?? undefined);
+
+    if (!file) {
+      if (this.project?.config?.ios?.path) {
+        const targetDir = targetName || 'App';
+        const fname = `${(targetName || 'App').split(/\s+/).join('_')}.entitlements`;
+
+        // Create the default entitlements file
+        const target = join(this.project.config.ios.path, targetDir, fname)
+        await writeFile(target, defaultEntitlementsPlist);
+
+        // Always use posix paths
+        file = join(targetDir, fname).split(path.sep).join(path.posix.sep);
+
+        this.setBuildProperty(targetName, buildName, 'CODE_SIGN_ENTITLEMENTS', file);
+      } else {
+        return null;
+      }
+    }
+
+    if (!file || !this.project?.config?.ios?.path) {
+      return null;
+    }
+
+    return file;
   }
 
   // Used to get the target name for operations, defaulting to the main app target
