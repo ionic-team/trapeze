@@ -68,6 +68,8 @@ export class JsonFile {
   }
 
   private commitFn = async (file: VFSRef) => {
-    return writeJson(file.getFilename(), file.getData());
+    return writeJson(file.getFilename(), file.getData(), {
+      spaces: 2
+    });
   };
 }
