@@ -1,5 +1,7 @@
 # @capacitor/gradle-parse
 
+## 3.0.7
+
 ## 3.0.6
 
 ## 3.0.5

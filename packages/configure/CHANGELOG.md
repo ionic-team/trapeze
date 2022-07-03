@@ -1,5 +1,14 @@
 # @trapezedev/configure
 
+## 3.0.7
+
+### Patch Changes
+
+- Added options for entitlements to support merging or replacing
+
+- Updated dependencies []:
+  - @trapezedev/project@3.0.7
+
 ## 3.0.6
 
 ### Patch Changes
