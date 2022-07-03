@@ -1,5 +1,14 @@
 # @trapezedev/project
 
+## 3.0.6
+
+### Patch Changes
+
+- Added new XML operations to iOS and updated docs"
+
+- Updated dependencies []:
+  - @trapezedev/gradle-parse@3.0.6
+
 ## 3.0.5
 
 ### Patch Changes
