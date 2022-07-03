@@ -181,7 +181,10 @@ export class AndroidProject {
     }
 
     const activityName = activity[0].getAttribute('android:name');
-    const parts = activityName.split('.');
+    const parts = activityName?.split('.');
+    if (!parts) {
+      return '';
+    }
     return `${parts[parts.length - 1]}.java`;
   }
 

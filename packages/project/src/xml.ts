@@ -20,12 +20,12 @@ export class XmlFile {
     return this.doc?.documentElement;
   }
 
-  find(target: string): any[] | null {
+  find(target: string): Element[] | null {
     if (!this.doc) {
       return null;
     }
 
-    return xpath.select(target, this.doc) as any;
+    return xpath.select(target, this.doc) as Element[];
   }
 
   deleteNodes(target: string) {
