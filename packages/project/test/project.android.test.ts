@@ -88,7 +88,7 @@ describe('project - android', () => {
     });
 
     const applicationNode = project.android?.getAndroidManifest().find('manifest/application')?.[0];
-    expect(applicationNode.getAttribute('android:name')).toBe('com.ionicframework.test.CoolApplication');
+    expect(applicationNode!.getAttribute('android:name')).toBe('com.ionicframework.test.CoolApplication');
 
     project.android?.getAndroidManifest().setAttrs("/manifest/application/meta-data[@*='com.google.android.geo.API_KEY']",
       {
@@ -97,7 +97,7 @@ describe('project - android', () => {
     );
 
     const metadataNode = project.android?.getAndroidManifest().find("/manifest/application/meta-data[@*='com.google.android.geo.API_KEY']")?.[0];
-    expect(metadataNode.getAttribute('android:value')).toBe('---API-KEY---');
+    expect(metadataNode!.getAttribute('android:value')).toBe('---API-KEY---');
 
     const manifestFile = project.vfs.get((project.android as any).getAndroidManifestPath());
     expect(manifestFile).not.toBeNull();
@@ -117,10 +117,10 @@ describe('project - android', () => {
 
     const queriesNode = project.android?.getAndroidManifest().find('manifest/queries')?.[0];
     expect(queriesNode).toBeDefined();
-    expect(queriesNode.nodeName).toBe('queries');
+    expect(queriesNode!.nodeName).toBe('queries');
     const intentNode = project.android?.getAndroidManifest().find('manifest/queries/intent')?.[0];
     expect(intentNode).toBeDefined();
-    expect(intentNode.nodeName).toBe('intent');
+    expect(intentNode!.nodeName).toBe('intent');
 
     const manifestFile = project.vfs.get((project.android as any).getAndroidManifestPath());
     expect(manifestFile).not.toBeNull();
@@ -138,7 +138,7 @@ describe('project - android', () => {
 
     const node = project.android?.getAndroidManifest().find('manifest/application/activity/intent-filter')?.[0];
     expect(node).toBeDefined();
-    const elements = Object.values(node.childNodes as any).filter((n: any) => n.nodeType === 1);
+    const elements = Object.values(node!.childNodes as any).filter((n: any) => n.nodeType === 1);
 
     const manifestFile = project.vfs.get((project.android as any).getAndroidManifestPath());
     expect(manifestFile).not.toBeNull();
@@ -155,7 +155,7 @@ describe('project - android', () => {
 
     const node = project.android?.getAndroidManifest().find('manifest/application/activity')?.[0];
     expect(node).toBeDefined();
-    const elements = Object.values(node.childNodes as any).filter((n: any) => n.nodeName?.indexOf('thing') == 0);
+    const elements = Object.values(node!.childNodes as any).filter((n: any) => n.nodeName?.indexOf('thing') == 0);
 
     const manifestFile = project.vfs.get((project.android as any).getAndroidManifestPath());
     expect(manifestFile).not.toBeNull();
@@ -174,7 +174,7 @@ describe('project - android', () => {
     const serialized = serializeXml(xml!.getDocumentElement());
     const node = xml!.find('resources/string[@name="app_name"]')?.[0];
     expect(node).toBeDefined();
-    expect(node.textContent).toBe('Awesome App');
+    expect(node!.textContent).toBe('Awesome App');
     expect(serialized).toBe(`
 <resources>
     <string name="app_name">Awesome App</string>
@@ -190,7 +190,7 @@ describe('project - android', () => {
     await xml!.load();
 
     const node = xml!.find('resources/string[@name="app_name"]')?.[0];
-    node.parentNode.removeChild(node);
+    node!.parentNode!.removeChild(node!);
     const serialized = serializeXml(xml!.getDocumentElement());
     expect(serialized).toBe(`
 <resources>
