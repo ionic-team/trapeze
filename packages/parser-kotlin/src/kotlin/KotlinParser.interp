@@ -396,7 +396,7 @@ constructorDelegationCall
 enumClassBody
 enumEntries
 enumEntry
-rustType
+type
 typeReference
 nullableType
 quest

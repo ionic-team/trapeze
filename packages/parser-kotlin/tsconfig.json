@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "allowUnreachableCode": false,
+    "declaration": true,
+    "esModuleInterop": true,
+    "lib": ["es2019"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noFallthroughCasesInSwitch": true,
+    "outDir": "dist",
+    "pretty": true,
+    "sourceMap": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "target": "es2019",
+    "allowJs": true
+  },
+  "files": ["src/index.ts"],
+  "include": ["/src/**/*.ts", "**/src/**/*.ts", "/src/**/*.d.ts", "src/kotlin/KotlinParser.js", "src/kotlin/KotlinParserListener.js"]
+}

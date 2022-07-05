@@ -523,4 +523,3 @@ Inside_NL: NL -> channel(HIDDEN);
 mode DEFAULT_MODE;
 
 ErrorCharacter: .;
-

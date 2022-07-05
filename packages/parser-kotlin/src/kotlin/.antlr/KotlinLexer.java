@@ -1,4 +1,4 @@
-// Generated from /Users/max/git/trapeze/packages/parser/kotlin/KotlinLexer.g4 by ANTLR 4.9.2
+// Generated from /Users/max/git/trapeze/packages/parser-kotlin/src/kotlin/KotlinLexer.g4 by ANTLR 4.9.2
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;
