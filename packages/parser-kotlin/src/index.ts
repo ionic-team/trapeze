@@ -26,7 +26,7 @@ export function parse(contents: string) {
 
   console.log('Parsed in', (after - before) / 1000.0, 'seconds');
 
-  // tree.accept(new Visitor() as any);
+  tree.accept(new Visitor() as any);
 
   // walkTree(tree);
 }
@@ -44,6 +44,7 @@ function walkTree(t: any) {
 
 class Visitor {
   visitChildren(ctx: any) {
+    console.log('Visiting children', ctx);
     if (!ctx) {
       return;
     }
