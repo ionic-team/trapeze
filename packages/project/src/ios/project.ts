@@ -8,6 +8,7 @@ import { MobileProject } from "../project";
 import { IosPbxProject, IosEntitlements, IosFramework, IosBuildName, IosTarget, IosTargetName, IosTargetBuildConfiguration, IosFrameworkOpts } from '../definitions';
 import { VFSRef } from '../vfs';
 import { XmlFile } from '../xml';
+import { PlistFile } from '../plist';
 
 const defaultEntitlementsPlist = `
 <?xml version="1.0" encoding="UTF-8"?>
@@ -70,6 +71,10 @@ export class IosProject {
 
   async getXmlFile(path: string) {
     return this.getProjectFile(path, (filename: string) => new XmlFile(filename, this.project.vfs));
+  }
+
+  async getPlistFile(path: string) {
+    return this.getProjectFile(path, (filename: string) => new PlistFile(filename, this.project.vfs));
   }
 
   getPbxProject() {
