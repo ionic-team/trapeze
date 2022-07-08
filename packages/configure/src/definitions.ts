@@ -92,3 +92,14 @@ export type IosEntitlementsOperationValue = {
 export interface IosEntitlementsOperation {
   value: IosEntitlementsOperationValue;
 }
+
+export interface IosPlistOperation {
+  value: IosPlistOperationValue;
+}
+export type IosPlistOperationValue = {
+  file?: string;
+  replace?: boolean;
+  iosTarget?: string;
+  iosBuild?: string;
+  entries: any[];
+}[];

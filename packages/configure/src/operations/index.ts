@@ -10,6 +10,7 @@ import executeIosProject from './ios/project';
 import executeIosFrameworks from './ios/frameworks';
 import executeIosEntitlements from './ios/entitlements';
 import executeIosPlist from './ios/plist';
+import executeIosLegacyPlist from './ios/infoPlist';
 import executeIosBuildVersion from './ios/buildVersion';
 import executeIosBuildSettings from './ios/buildSettings';
 import executeIosXml from './ios/xml';
@@ -26,6 +27,7 @@ interface OperationHandlers {
 
 const operations: OperationHandlers = {
   'ios.plist': executeIosPlist,
+  'ios.infoPlist': executeIosLegacyPlist,
   'ios.bundleId': executeIosProject,
   'ios.displayName': executeIosProject,
   'ios.productName': executeIosProject,
