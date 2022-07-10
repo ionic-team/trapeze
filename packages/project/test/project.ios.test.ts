@@ -99,7 +99,7 @@ describe('project - ios standard', () => {
     // Make sure the info plist is updated to use the CURRENT_PROJECT_VERSION
     const filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
     const updated = project.vfs.get(filename!)?.getData();
-    expect(updated['CFBundleVersion']).toBe('$(CURRENT_PROJECT_VERSION)');
+    expect(updated.getDocument()['CFBundleVersion']).toBe('$(CURRENT_PROJECT_VERSION)');
   });
 
   it('should set build number', async () => {
@@ -107,7 +107,7 @@ describe('project - ios standard', () => {
     expect(await project.ios?.getBuild('App', 'Debug')).toBe(42);
     const filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
     const updated = project.vfs.get(filename!)?.getData();
-    expect(updated['CFBundleVersion']).toBe('$(CURRENT_PROJECT_VERSION)');
+    expect(updated.getDocument()['CFBundleVersion']).toBe('$(CURRENT_PROJECT_VERSION)');
   });
 
   it('should set project version', async () => {
@@ -116,7 +116,7 @@ describe('project - ios standard', () => {
     // Make sure the info plist is updated to use the MARKETING_VERSION
     const filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
     const updated = project.vfs.get(filename!)?.getData();
-    expect(updated['CFBundleShortVersionString']).toBe('$(MARKETING_VERSION)');
+    expect(updated.getDocument()['CFBundleShortVersionString']).toBe('$(MARKETING_VERSION)');
   });
 
   it('should update build settings', async () => {
@@ -242,7 +242,7 @@ describe('project - ios standard', () => {
     expect(await project.ios?.getDisplayName('App', 'Debug')).toBe('Super Duper App');
     const filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
     const updated = project.vfs.get(filename!)?.getData();
-    expect(updated['CFBundleDisplayName']).toBe('Super Duper App');
+    expect(updated.getDocument()['CFBundleDisplayName']).toBe('Super Duper App');
   });
 
   it('should update plist with entries', async () => {
@@ -252,7 +252,7 @@ describe('project - ios standard', () => {
 
     const filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
     const updated = project.vfs.get(filename!)?.getData();
-    expect(updated['NSFaceIDUsageDescription']).toBe('The better to see you with');
+    expect(updated.getDocument()['NSFaceIDUsageDescription']).toBe('The better to see you with');
   });
 
   it('should overwrite existing keys in plist', async () => {
@@ -266,7 +266,7 @@ describe('project - ios standard', () => {
 
     const filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
     const updated = project.vfs.get(filename!)?.getData();
-    expect(updated['NSFaceIDUsageDescription']).toBe('This is new');
+    expect(updated.getDocument()['NSFaceIDUsageDescription']).toBe('This is new');
   });
 
   it('should support replacing items to arrays in plist', async () => {
@@ -277,7 +277,7 @@ describe('project - ios standard', () => {
     });
     let filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
     let updated = project.vfs.get(filename!)?.getData();
-    expect(updated['UISupportedInterfaceOrientations']).toEqual([
+    expect(updated.getDocument()['UISupportedInterfaceOrientations']).toEqual([
       'UIInterfaceOrientationPortrait',
       'UIInterfaceOrientationLandscapeLeft',
       'UIInterfaceOrientationLandscapeRight',
@@ -293,7 +293,7 @@ describe('project - ios standard', () => {
     });
     filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
     updated = project.vfs.get(filename!)?.getData();
-    expect(updated['UISupportedInterfaceOrientations']).toEqual(['UIInterfaceOrientationPortrait']);
+    expect(updated.getDocument()['UISupportedInterfaceOrientations']).toEqual(['UIInterfaceOrientationPortrait']);
   });
 
   it('should support merging objects in plist', async () => {
@@ -304,7 +304,7 @@ describe('project - ios standard', () => {
     });
     let filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
     let updated = project.vfs.get(filename!)?.getData();
-    expect(updated['TestDict']).toEqual({
+    expect(updated.getDocument()['TestDict']).toEqual({
       'Item1': 'String1',
       'Item2': true,
       'AppendThis': false
@@ -319,7 +319,7 @@ describe('project - ios standard', () => {
     });
     filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
     updated = project.vfs.get(filename!)?.getData();
-    expect(updated['TestDict']).toEqual({
+    expect(updated.getDocument()['TestDict']).toEqual({
       'AppendThis': false
     });
   });
@@ -345,7 +345,7 @@ describe('project - ios standard', () => {
     });
     let filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
     let updated = project.vfs.get(filename!)?.getData();
-    expect(updated['CFBundleURLTypes']).toEqual([
+    expect(updated.getDocument()['CFBundleURLTypes']).toEqual([
       {
         CFBundleURLSchemes: [
           'MyApp'
