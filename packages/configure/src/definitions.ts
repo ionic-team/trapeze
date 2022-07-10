@@ -93,6 +93,8 @@ export interface IosEntitlementsOperation {
   value: IosEntitlementsOperationValue;
 }
 
+
+// New plist format
 export interface IosPlistOperation {
   value: IosPlistOperationValue;
 }

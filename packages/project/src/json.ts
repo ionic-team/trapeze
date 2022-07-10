@@ -1,7 +1,7 @@
 import { readJson, writeJson } from '@ionic/utils-fs';
 import { mergeWith, union } from 'lodash';
 
-import { VFS, VFSRef } from './vfs';
+import { VFS, VFSRef, VFSRefFile } from './vfs';
 
 export class JsonFile {
   private json: any | null = null;
@@ -67,7 +67,7 @@ export class JsonFile {
     Object.assign(this.json, merged);
   }
 
-  private commitFn = async (file: VFSRef) => {
+  private commitFn = async (file: VFSRefFile) => {
     return writeJson(file.getFilename(), file.getData(), {
       spaces: 2
     });

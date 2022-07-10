@@ -19,11 +19,12 @@ describe('op: ios.plist', () => {
     ctx.args.quiet = true;
   });
 
-  it('should set ios.plist', async () => {
+  it('should use target and build types ios.plist', async () => {
     const op: IosPlistOperation = {
       value: [
         {
-          file: 'plist-file.plist',
+          iosBuild: 'Debug',
+          iosTarget: 'My App Clip',
           replace: true,
           entries: [{
             UIApplicationSceneManifest: {
@@ -36,9 +37,12 @@ describe('op: ios.plist', () => {
 
     await Op(ctx, op as Operation);
 
+    const filename = await ctx.project.ios?.getInfoPlistFilename('My App Clip', 'Debug');
+
     const file = ctx.project.vfs.get(
-      join(ctx.project.config.ios?.path ?? '', 'plist-file.plist'),
+      filename!
     );
+
     expect(file?.getData().getDocument()).toEqual({
       NSAppClip: {
         NSAppClipRequestEphemeralUserNotification: false,

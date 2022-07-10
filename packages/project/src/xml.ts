@@ -1,7 +1,7 @@
 import { parseXml, parseXmlString, writeXml } from "./util/xml";
 import xpath from 'xpath';
 import { difference, isEqual, isObject, transform } from 'lodash';
-import { VFS, VFSRef } from "./vfs";
+import { VFS, VFSRef, VFSRefFile } from "./vfs";
 
 const toArray = (o: any[]) => Array.prototype.slice.call(o || []);
 
@@ -172,7 +172,8 @@ export class XmlFile {
     return false;
   }
 
-  private xmlCommitFn = async (file: VFSRef) => {
-    return writeXml(file.getData().doc, file.getFilename());
+  private xmlCommitFn = async (file: VFSRefFile) => {
+    const data = file.getData() as XmlFile;
+    return writeXml(data.doc, file.getFilename());
   }
 }

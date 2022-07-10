@@ -1,11 +1,10 @@
 import tempy from 'tempy';
 
-import { CapacitorConfig } from "@capacitor/cli";
 import { MobileProject } from '../src';
 
 import { join } from 'path';
 import { copy, pathExists, readFile, rm } from '@ionic/utils-fs';
-import { formatXml, serializeXml } from "../src/util/xml";
+import { serializeXml } from "../src/util/xml";
 import { MobileProjectConfig } from '../src/config';
 
 describe('project - android', () => {

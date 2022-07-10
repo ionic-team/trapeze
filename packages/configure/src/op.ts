@@ -166,18 +166,6 @@ function createOperation(
 }
 
 function getOpIdAlias(op: Partial<Operation>) {
-  switch (op.id) {
-    case 'ios.infoPlist':
-      // Transform the old infoPlist format to new plist format
-      return {
-        ...op,
-        id: 'ios.plist',
-        value: {
-          entries: [...op.value],
-        },
-      };
-  }
-
   return op;
 }
 

@@ -1,7 +1,7 @@
 import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
 import { mergeWith, union } from 'lodash';
 import { parseProperties, writeProperties } from './util/properties';
-import { VFS, VFSRef } from './vfs';
+import { VFS, VFSRef, VFSRefFile } from './vfs';
 
 export class PropertiesFile {
   private doc: any;
@@ -55,7 +55,7 @@ export class PropertiesFile {
     this.vfs.open(this.path, this.doc, this.commitFn);
   }
 
-  private commitFn = async (file: VFSRef) => {
+  private commitFn = async (file: VFSRefFile) => {
     return writeProperties(file.getFilename(), file.getData());
   }
 }
