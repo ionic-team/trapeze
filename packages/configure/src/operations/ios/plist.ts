@@ -1,24 +1,31 @@
 import { Context } from '../../ctx';
-import { Operation } from '../../definitions';
+import { IosPlistOperationValue, Operation } from '../../definitions';
 
 export default async function execute(ctx: Context, op: Operation) {
-  const plistOp = op.value;
+  const plistOp = op.value as IosPlistOperationValue;
 
-  // Support arrays of ops or single ops
+  for (const op of plistOp) {
+    if (op.file) {
+      const file = await ctx.project.ios?.getPlistFile(op.file);
+      if (!file) {
+        throw new Error(`No such plist file for plist operation: ${op.file}`);
+      }
 
-  if (Array.isArray(plistOp)) {
-    for (const op of plistOp) {
+      await file.load();
+
       for (const entries of op.entries) {
-        await ctx.project.ios?.updateInfoPlist(op.iosTarget, op.iosBuild, entries, {
+        if (op.replace) {
+          file.set(entries);
+        } else {
+          file.merge(entries);
+        }
+      }
+    } else {
+      for (const entries of op.entries) {
+        await ctx.project.ios?.updateInfoPlist(op.iosTarget ?? null, op.iosBuild ?? null, entries, {
           replace: op.replace ?? false
         });
       }
-    }
-  } else {
-    for (const entries of plistOp.entries) {
-      await ctx.project.ios?.updateInfoPlist(op.iosTarget, op.iosBuild, entries, {
-        replace: plistOp.replace ?? false
-      });
     }
   }
 }

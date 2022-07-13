@@ -3,11 +3,11 @@ import path, { join } from 'path';
 import { pathExists, readdir, writeFile } from '@ionic/utils-fs';
 
 import { parsePbxProject, pbxReadString, pbxSerializeString } from "../util/pbx";
-import { parsePlist, updatePlist } from "../util/plist";
 import { MobileProject } from "../project";
 import { IosPbxProject, IosEntitlements, IosFramework, IosBuildName, IosTarget, IosTargetName, IosTargetBuildConfiguration, IosFrameworkOpts } from '../definitions';
-import { VFSRef } from '../vfs';
+import { VFSRef, VFSFile } from '../vfs';
 import { XmlFile } from '../xml';
+import { PlistFile } from '../plist';
 
 const defaultEntitlementsPlist = `
 <?xml version="1.0" encoding="UTF-8"?>
@@ -70,6 +70,10 @@ export class IosProject {
 
   async getXmlFile(path: string) {
     return this.getProjectFile(path, (filename: string) => new XmlFile(filename, this.project.vfs));
+  }
+
+  async getPlistFile(path: string) {
+    return this.getProjectFile(path, (filename: string) => new PlistFile(filename, this.project.vfs));
   }
 
   getPbxProject() {
@@ -185,7 +189,7 @@ export class IosProject {
     const filename = join(this.project.config.ios.path, file);
 
     const parsed = await this.plist(filename);
-    parsed['CFBundleVersion'] = '$(CURRENT_PROJECT_VERSION)';
+    parsed.set({ 'CFBundleVersion': '$(CURRENT_PROJECT_VERSION)' });
     this.project.vfs.set(filename, parsed);
   }
 
@@ -208,7 +212,8 @@ export class IosProject {
     const filename = join(this.project.config.ios.path, file);
 
     const parsed = await this.plist(filename);
-    return parsed['CFBundleVersion'];
+    const doc = parsed.getDocument() ?? {};
+    return doc['CFBundleVersion'];
   }
 
   /**
@@ -243,7 +248,7 @@ export class IosProject {
     const filename = join(this.project.config.ios.path, file);
 
     const parsed = await this.plist(filename);
-    parsed['CFBundleShortVersionString'] = '$(MARKETING_VERSION)';
+    parsed.set({'CFBundleShortVersionString': '$(MARKETING_VERSION)'});
     this.project.vfs.set(filename, parsed);
   }
 
@@ -333,8 +338,9 @@ export class IosProject {
     const filename = join(this.project.config.ios!.path, file);
 
     const parsed = await this.plist(filename);
-    const updated = updatePlist(entitlements, parsed);
-    this.project.vfs.set(filename, updated);
+    parsed.update(entitlements);
+
+    this.project.vfs.set(filename, parsed);
   }
 
   /**
@@ -354,8 +360,8 @@ export class IosProject {
     const filename = join(this.project.config.ios!.path, file);
 
     const parsed = await this.plist(filename);
-    const updated = updatePlist(entitlements, parsed, true);
-    this.project.vfs.set(filename, updated);
+    parsed.update(entitlements, true);
+    this.project.vfs.set(filename, parsed);
   }
 
   /**
@@ -373,7 +379,8 @@ export class IosProject {
 
     const filename = join(this.project.config.ios.path, file);
 
-    return this.plist(filename);
+    const plistFile = await this.plist(filename);
+    return plistFile.getDocument();
   }
 
   /**
@@ -413,7 +420,7 @@ export class IosProject {
     const filename = join(this.project.config.ios.path, file);
 
     const parsed = await this.plist(filename);
-    parsed['CFBundleDisplayName'] = displayName;
+    parsed.set({ 'CFBundleDisplayName': displayName });
     this.project.vfs.set(filename, parsed);
   }
 
@@ -431,7 +438,8 @@ export class IosProject {
     }
 
     const parsed = await this.plist(filename);
-    return parsed['CFBundleDisplayName'];
+    const doc = parsed.getDocument() ?? {};
+    return doc['CFBundleDisplayName'] as string;
   }
 
   /**
@@ -456,8 +464,8 @@ export class IosProject {
     }
 
     const parsed = await this.plist(filename);
-    const updated = updatePlist(entries, parsed, mergeMode?.replace ?? false);
-    this.project.vfs.set(filename, updated);
+    parsed.update(entries, mergeMode?.replace ?? false);
+    this.project.vfs.set(filename, parsed);
   }
 
   private async assertEntitlementsFile(targetName: IosTargetName, buildName: IosBuildName | null) {
@@ -535,15 +543,20 @@ export class IosProject {
     });
   }
 
-  private async plist(filename: string) {
+  private async plist(filename: string): Promise<PlistFile> {
     const open = this.project.vfs.get(filename);
 
     if (open) {
-      return open.getData();
+      return open.getData() as PlistFile;
     }
-    const parsed = await parsePlist(filename);
-    this.project.vfs.open(filename, parsed, this.plistCommitFn);
-    return parsed;
+
+    const plistFile = new PlistFile(filename, this.project.vfs);
+
+    await plistFile.load();
+
+    //const parsed = await parsePlist(filename);
+    this.project.vfs.open(filename, plistFile, this.plistCommitFn);
+    return plistFile;
   }
 
   private iosProjectRoot() {
@@ -589,15 +602,15 @@ export class IosProject {
     return pbxParsed;
   }
 
-  private pbxCommitFn = async (file: VFSRef) => {
+  private pbxCommitFn = async (file: VFSFile) => {
     if (this.pbxProject) {
       await writeFile(file.getFilename(), this.pbxProject.writeSync());
     }
   }
 
-  private plistCommitFn = async (file: VFSRef) => {
-    const data = file.getData();
-    const xml = plist.build(data, {
+  private plistCommitFn = async (file: VFSFile) => {
+    const data = file.getData() as PlistFile;
+    const xml = plist.build(data.getDocument() ?? {}, {
       indent: '	', // Tab character
       offset: -1,
       newline: '\n'
