@@ -1,6 +1,6 @@
 import tempy from 'tempy';
 
-import { MobileProject } from '../src';
+import { MobileProject, XmlFile } from '../src';
 
 import { join } from 'path';
 import { copy, pathExists, readFile, rm } from '@ionic/utils-fs';
@@ -98,11 +98,11 @@ describe('project - android', () => {
     const metadataNode = project.android?.getAndroidManifest().find("/manifest/application/meta-data[@*='com.google.android.geo.API_KEY']")?.[0];
     expect(metadataNode!.getAttribute('android:value')).toBe('---API-KEY---');
 
-    const manifestFile = project.vfs.get((project.android as any).getAndroidManifestPath());
+    const manifestFile = project.vfs.get<XmlFile>((project.android as any).getAndroidManifestPath());
     expect(manifestFile).not.toBeNull();
 
     // Make sure the updated file hasn't been destroyed
-    expect(serializeXml(manifestFile?.getData().getDocumentElement())).toContain('<manifest');
+    expect(serializeXml(manifestFile?.getData()?.getDocumentElement())).toContain('<manifest');
   });
 
   it('should inject an XML fragment', async () => {
