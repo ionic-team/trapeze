@@ -384,7 +384,7 @@ platforms:
   ios:
     targets:
       App:
-        incrementBuildNumber: true
+        incrementBuild: true
 ```
 
 ### `bundleId`
