@@ -3,7 +3,7 @@ import { IosPlistOperationValue, Operation } from '../../definitions';
 import { logger } from '../../util/log';
 
 export default async function execute(ctx: Context, op: Operation) {
-  if (Array.isArray(op)) {
+  if (Array.isArray(op.value)) {
     const plistOp = op.value as IosPlistOperationValue[];
     for (const pop of plistOp) {
       if (pop.file) {
