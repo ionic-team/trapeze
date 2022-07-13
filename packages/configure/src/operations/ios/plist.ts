@@ -1,30 +1,47 @@
 import { Context } from '../../ctx';
 import { IosPlistOperationValue, Operation } from '../../definitions';
+import { logger } from '../../util/log';
 
 export default async function execute(ctx: Context, op: Operation) {
-  const plistOp = op.value as IosPlistOperationValue;
+  if (Array.isArray(op)) {
+    const plistOp = op.value as IosPlistOperationValue[];
+    for (const pop of plistOp) {
+      if (pop.file) {
+        const file = await ctx.project.ios?.getPlistFile(pop.file);
+        if (!file) {
+          throw new Error(`No such plist file for plist operation: ${pop.file}`);
+        }
 
-  for (const op of plistOp) {
-    if (op.file) {
-      const file = await ctx.project.ios?.getPlistFile(op.file);
-      if (!file) {
-        throw new Error(`No such plist file for plist operation: ${op.file}`);
-      }
+        await file.load();
 
-      await file.load();
-
-      for (const entries of op.entries) {
-        if (op.replace) {
-          file.set(entries);
-        } else {
-          file.merge(entries);
+        for (const entries of pop.entries) {
+          if (pop.replace) {
+            file.set(entries);
+          } else {
+            file.merge(entries);
+          }
+        }
+      } else {
+        for (const entries of pop.entries) {
+          try {
+            await ctx.project.ios?.updateInfoPlist(pop.iosTarget ?? null, pop.iosBuild ?? null, entries, {
+              replace: pop.replace ?? false
+            });
+          } catch (e) {
+            logger.warn(`Skipping ${op.id} (${(e as any).message})`);
+          }
         }
       }
-    } else {
-      for (const entries of op.entries) {
+    }
+  } else {
+    const plistOp = op.value as IosPlistOperationValue;
+    for (const entries of plistOp.entries) {
+      try {
         await ctx.project.ios?.updateInfoPlist(op.iosTarget ?? null, op.iosBuild ?? null, entries, {
-          replace: op.replace ?? false
+          replace: plistOp.replace ?? false
         });
+      } catch (e) {
+        logger.warn(`Skipping ${op.id} (${(e as any).message})`);
       }
     }
   }

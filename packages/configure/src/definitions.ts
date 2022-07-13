@@ -96,7 +96,7 @@ export interface IosEntitlementsOperation {
 
 // New plist format
 export interface IosPlistOperation {
-  value: IosPlistOperationValue;
+  value: IosPlistOperationValue | IosPlistOperationValue[];
 }
 export type IosPlistOperationValue = {
   file?: string;
@@ -104,4 +104,4 @@ export type IosPlistOperationValue = {
   iosTarget?: string;
   iosBuild?: string;
   entries: any[];
-}[];
+};
