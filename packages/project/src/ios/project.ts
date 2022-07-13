@@ -5,7 +5,7 @@ import { pathExists, readdir, writeFile } from '@ionic/utils-fs';
 import { parsePbxProject, pbxReadString, pbxSerializeString } from "../util/pbx";
 import { MobileProject } from "../project";
 import { IosPbxProject, IosEntitlements, IosFramework, IosBuildName, IosTarget, IosTargetName, IosTargetBuildConfiguration, IosFrameworkOpts } from '../definitions';
-import { VFSRef, VFSRefFile } from '../vfs';
+import { VFSRef, VFSFile } from '../vfs';
 import { XmlFile } from '../xml';
 import { PlistFile } from '../plist';
 
@@ -602,13 +602,13 @@ export class IosProject {
     return pbxParsed;
   }
 
-  private pbxCommitFn = async (file: VFSRefFile) => {
+  private pbxCommitFn = async (file: VFSFile) => {
     if (this.pbxProject) {
       await writeFile(file.getFilename(), this.pbxProject.writeSync());
     }
   }
 
-  private plistCommitFn = async (file: VFSRefFile) => {
+  private plistCommitFn = async (file: VFSFile) => {
     const data = file.getData() as PlistFile;
     const xml = plist.build(data.getDocument() ?? {}, {
       indent: '	', // Tab character

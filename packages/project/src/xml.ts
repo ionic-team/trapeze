@@ -1,14 +1,15 @@
 import { parseXml, parseXmlString, writeXml } from "./util/xml";
 import xpath from 'xpath';
 import { difference, isEqual, isObject, transform } from 'lodash';
-import { VFS, VFSRef, VFSRefFile } from "./vfs";
+import { VFS, VFSRef, VFSFile, VFSStorable } from "./vfs";
 
 const toArray = (o: any[]) => Array.prototype.slice.call(o || []);
 
-export class XmlFile {
+export class XmlFile extends VFSStorable {
   private doc: Document | null = null;
 
   constructor(private path: string, private vfs: VFS) {
+    super();
   }
 
   async load() {
@@ -172,7 +173,7 @@ export class XmlFile {
     return false;
   }
 
-  private xmlCommitFn = async (file: VFSRefFile) => {
+  private xmlCommitFn = async (file: VFSFile) => {
     const data = file.getData() as XmlFile;
     return writeXml(data.doc, file.getFilename());
   }

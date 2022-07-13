@@ -3,12 +3,13 @@ import { writeFile } from '@ionic/utils-fs';
 import { mergeWith, union } from 'lodash';
 
 import { parsePlist } from "./util/plist";
-import { VFS, VFSRef, VFSRefFile, VFSStorable } from "./vfs";
+import { VFS, VFSRef, VFSFile, VFSStorable } from "./vfs";
 
-export class PlistFile implements VFSStorable {
+export class PlistFile extends VFSStorable {
   doc: PlistObject | null = null;
 
   constructor(private path: string, private vfs: VFS) {
+    super();
   }
 
   getDocument() {
@@ -24,7 +25,7 @@ export class PlistFile implements VFSStorable {
     this.vfs.open(this.path, this, this.plistCommitFn);
   }
 
-  private plistCommitFn = async (file: VFSRefFile) => {
+  private plistCommitFn = async (file: VFSFile) => {
     const data = file.getData() as PlistFile;
     const xml = plist.build(data.getDocument() ?? {}, {
       indent: '	', // Tab character

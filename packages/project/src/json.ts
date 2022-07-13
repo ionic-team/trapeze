@@ -1,12 +1,14 @@
 import { readJson, writeJson } from '@ionic/utils-fs';
 import { mergeWith, union } from 'lodash';
 
-import { VFS, VFSRef, VFSRefFile } from './vfs';
+import { VFS, VFSRef, VFSFile, VFSStorable } from './vfs';
 
-export class JsonFile {
-  private json: any | null = null;
+export class JsonFile extends VFSStorable {
+  private json: Record<string, any> | null = null;
 
-  constructor(private path: string, private vfs: VFS) {}
+  constructor(private path: string, private vfs: VFS) {
+    super();
+  }
 
   getData() {
     return this.json;
@@ -14,7 +16,7 @@ export class JsonFile {
 
   async load() {
     this.json = await readJson(this.path);
-    this.vfs.open(this.path, this.json, this.commitFn);
+    this.vfs.open(this.path, this, this.commitFn);
   }
 
   async set(properties: any): Promise<void> {
@@ -67,7 +69,7 @@ export class JsonFile {
     Object.assign(this.json, merged);
   }
 
-  private commitFn = async (file: VFSRefFile) => {
+  private commitFn = async (file: VFSFile) => {
     return writeJson(file.getFilename(), file.getData(), {
       spaces: 2
     });
