@@ -1,12 +1,14 @@
 import { parseXml, parseXmlString, writeXml } from "./util/xml";
-import xpath from 'xpath';
-import { difference, isEqual, isObject, transform } from 'lodash';
-import { VFS, VFSRef, VFSFile, VFSStorable } from "./vfs";
+import xpath, { XPathSelect } from 'xpath';
+import { difference } from 'lodash';
+import { VFS, VFSFile, VFSStorable } from "./vfs";
 
 const toArray = (o: any[]) => Array.prototype.slice.call(o || []);
 
 export class XmlFile extends VFSStorable {
   private doc: Document | null = null;
+
+  private select: XPathSelect | null = null;
 
   constructor(private path: string, private vfs: VFS) {
     super();
@@ -15,6 +17,26 @@ export class XmlFile extends VFSStorable {
   async load() {
     this.doc = await parseXml(this.path);
     this.vfs.open(this.path, this, this.xmlCommitFn);
+
+    const rootNode = this.getDocumentElement();
+    if (rootNode) {
+
+      const namespaces: { [ns:string]: string } = {};
+
+      for (const attr in rootNode.attributes) {
+        const attribute = rootNode.attributes[attr];
+        if (!attribute.name) {
+          continue;
+        }
+
+        if (attribute.name.indexOf('xmlns') >= 0) {
+          const nsName = attribute.name.split(':').slice(1).join();
+          console.log('Found namespace', attribute.name, nsName);
+          namespaces[nsName] = attribute.value ?? '';
+        }
+      }
+      this.select = xpath.useNamespaces(namespaces);
+    }
   }
 
   getDocumentElement() {
@@ -26,7 +48,7 @@ export class XmlFile extends VFSStorable {
       return null;
     }
 
-    return xpath.select(target, this.doc) as Element[];
+    return this.select?.(target, this.doc) as Element[];
   }
 
   deleteNodes(target: string) {
@@ -34,7 +56,7 @@ export class XmlFile extends VFSStorable {
       return;
     }
 
-    const nodes = xpath.select(target, this.doc) as Element[];
+    const nodes = this.select?.(target, this.doc) as Element[];
     nodes.forEach(n => n.parentNode?.removeChild(n));
 
     this.vfs.set(this.path, this);
@@ -45,7 +67,7 @@ export class XmlFile extends VFSStorable {
       return;
     }
 
-    const nodes = xpath.select(target, this.doc) as Element[];
+    const nodes = this.select?.(target, this.doc) as Element[];
     nodes.forEach(n => attributes.forEach(a => n.removeAttribute(a)));
 
     this.vfs.set(this.path, this);
@@ -61,7 +83,7 @@ export class XmlFile extends VFSStorable {
       return;
     }
 
-    const nodes = xpath.select(target, this.doc) as Element[];
+    const nodes = this.select?.(target, this.doc) as Element[];
     const parsed = parseXmlString(fragment);
     const docNodes = parsed.childNodes ?? [];
 
@@ -78,7 +100,7 @@ export class XmlFile extends VFSStorable {
       return;
     }
 
-    const nodes = xpath.select(target, this.doc) as Element[];
+    const nodes = this.select?.(target, this.doc) as Element[];
     const parsed = parseXmlString(fragment);
     const docNodes = parsed.childNodes ?? [];
 
@@ -117,7 +139,7 @@ export class XmlFile extends VFSStorable {
       return;
     }
 
-    const nodes = xpath.select(target, this.doc) as Element[];
+    const nodes = this.select?.(target, this.doc) as Element[];
     const parsed = parseXmlString(fragment);
 
     nodes.forEach(n => {
@@ -141,7 +163,7 @@ export class XmlFile extends VFSStorable {
       return;
     }
 
-    const nodes = xpath.select(target, this.doc);
+    const nodes = this.select?.(target, this.doc) ?? [];
     nodes.forEach((n: any) => {
       Object.keys(attrs).forEach(attr => {
         n.setAttribute(attr, attrs[attr]);
