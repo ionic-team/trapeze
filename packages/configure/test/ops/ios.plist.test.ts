@@ -1,4 +1,5 @@
 import { copy } from '@ionic/utils-fs';
+import { PlistFile } from '@trapezedev/project';
 import { join } from 'path';
 import tempy from 'tempy';
 
@@ -39,11 +40,11 @@ describe('op: ios.plist', () => {
 
     const filename = await ctx.project.ios?.getInfoPlistFilename('My App Clip', 'Debug');
 
-    const file = ctx.project.vfs.get(
+    const file = ctx.project.vfs.get<PlistFile>(
       filename!
     );
 
-    expect(file?.getData().getDocument()).toEqual({
+    expect(file?.getData()?.getDocument()).toEqual({
       NSAppClip: {
         NSAppClipRequestEphemeralUserNotification: false,
         NSAppClipRequestLocationConfirmation: false
@@ -71,11 +72,11 @@ describe('op: ios.plist', () => {
 
     await Op(ctx, op as Operation);
 
-    const file = ctx.project.vfs.get(
+    const file = ctx.project.vfs.get<PlistFile>(
       join(ctx.project.config.ios?.path ?? '', 'plist-file.plist'),
     );
 
-    expect(file?.getData().getDocument()).toEqual({
+    expect(file?.getData()?.getDocument()).toEqual({
       NSAppClip: {
         NSAppClipRequestEphemeralUserNotification: false,
         NSAppClipRequestLocationConfirmation: false
