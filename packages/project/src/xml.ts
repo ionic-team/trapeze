@@ -8,7 +8,7 @@ const toArray = (o: any[]) => Array.prototype.slice.call(o || []);
 export class XmlFile extends VFSStorable {
   private doc: Document | null = null;
 
-  private select: XPathSelect | null = null;
+  private select: XPathSelect = xpath.select;
 
   constructor(private path: string, private vfs: VFS) {
     super();
@@ -31,7 +31,6 @@ export class XmlFile extends VFSStorable {
 
         if (attribute.name.indexOf('xmlns') >= 0) {
           const nsName = attribute.name.split(':').slice(1).join();
-          console.log('Found namespace', attribute.name, nsName);
           namespaces[nsName] = attribute.value ?? '';
         }
       }

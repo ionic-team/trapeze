@@ -10,7 +10,7 @@ export class JsonFile extends VFSStorable {
     super();
   }
 
-  getData() {
+  getDocument() {
     return this.json;
   }
 
@@ -70,7 +70,7 @@ export class JsonFile extends VFSStorable {
   }
 
   private commitFn = async (file: VFSFile) => {
-    return writeJson(file.getFilename(), file.getData(), {
+    return writeJson(file.getFilename(), (file.getData() as JsonFile | null)?.getDocument(), {
       spaces: 2
     });
   };

@@ -51,7 +51,7 @@ export class VFS {
     return ref;
   }
 
-  get(filename: string): VFSRef<any> | null {
+  get<T extends VFSStorable>(filename: string): VFSRef<T> | null {
     return this.openFiles[filename] ?? null;
   }
 
