@@ -425,3 +425,32 @@ describe('ios - empty template case', () => {
     expect(await project.ios?.getBuild(null)).toBe("1");
   });
 });
+
+https://github.com/ionic-team/trapeze/pull/83
+describe('ios - issue #83', () => {
+  let config: MobileProjectConfig;
+  let project: MobileProject;
+  let dir: string;
+  beforeEach(async () => {
+    dir = tempy.directory();
+    await copy('../common/test/fixtures/ios-cfbundleversion-pbx-83', dir);
+
+    config = {
+      ios: {
+        path: 'ios/App'
+      },
+      android: {
+        path: 'android'
+      }
+    }
+
+    project = new MobileProject(dir, config);
+    await project.load();
+  });
+
+  it('should increment build with empty target', async () => {
+    await project.ios!.incrementBuild();
+    console.log(project.ios!.getPbxProject()?.writeSync());
+    expect(await project.ios?.getBuild(null)).toBe("1");
+  });
+});
