@@ -1,5 +1,14 @@
 # @trapezedev/configure
 
+## 4.0.0
+
+### Patch Changes
+
+- Fixing release
+
+- Updated dependencies []:
+  - @trapezedev/project@4.0.0
+
 ## 4.0.0-next.0
 
 ### Major Changes
