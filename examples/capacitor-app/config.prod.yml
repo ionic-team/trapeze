@@ -4,8 +4,8 @@ platforms:
       App:
         incrementBuild: true
         version: 16.4
-        productName: Awesome App (Dev)
-        displayName: My Awesome App (Dev)
+        productName: Awesome App
+        displayName: My Awesome App
 
         buildSettings:
           ENABLE_BITCODE: false
@@ -50,8 +50,9 @@ platforms:
     gradle:
       - file: app/build.gradle
         target:
+          dependencies:
         insert: |
-          apply plugin: 'com.my.custom.gradle.plugin'
+          implementation "com.stripe:stripe-java:20.133.0"
 
     res:
       - path: raw

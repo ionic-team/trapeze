@@ -50,8 +50,9 @@ platforms:
     gradle:
       - file: app/build.gradle
         target:
+          dependencies:
         insert: |
-          apply plugin: 'com.my.custom.gradle.plugin'
+          implementation "com.stripe:stripe-java:20.133.0"
 
     res:
       - path: raw
