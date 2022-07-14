@@ -1,5 +1,11 @@
 # @capacitor/gradle-parse
 
+## 4.0.0-next.1
+
+### Patch Changes
+
+- Fixing deps
+
 ## 4.0.0
 
 ### Patch Changes

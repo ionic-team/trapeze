@@ -1,0 +1,12 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "@trapezedev/configure": "4.0.0-next.0",
+    "@trapezedev/gradle-parse": "4.0.0-next.0",
+    "@trapezedev/project": "4.0.0-next.0"
+  },
+  "changesets": [
+    "light-points-explain"
+  ]
+}
