@@ -1,0 +1,66 @@
+platforms:
+  ios:
+    targets:
+      App:
+        incrementBuild: true
+        version: 16.4
+        productName: Awesome App (Dev)
+        displayName: My Awesome App (Dev)
+
+        buildSettings:
+          ENABLE_BITCODE: false
+          STRIP_SWIFT_SYMBOLS: false
+
+        plist:
+          replace: false
+          entries:
+            - NSFaceIDUsageDescription: Use Face ID to authenticate yourself and login
+
+        entitlements:
+          - keychain-access-groups:
+              [
+                'com.keychain.access.group'
+              ]
+
+        frameworks:
+          - CoreServices.framework
+          - ImageIO.framework
+          - LocalAuthentication.framework
+          - WebKit.framework
+
+  android:
+    incrementVersionCode: true
+
+    manifest:
+      - file: AndroidManifest.xml
+        target: manifest/application
+        attrs:
+          android:name: com.example.App
+
+      - file: AndroidManifest.xml
+        target: manifest
+        inject: |
+          <queries>
+              <intent>
+                  <action android:name="android.intent.action.MAIN" />
+                  <category android:name="android.intent.category.LAUNCHER" />
+              </intent>
+          </queries>
+
+    gradle:
+      - file: app/build.gradle
+        target:
+        insert: |
+          apply plugin: 'com.my.custom.gradle.plugin'
+
+    res:
+      - path: raw
+        file: config.json
+        text: |
+          {
+            "value": true
+          }
+
+      - path: drawable
+        file: icon.png
+        source: ./public/assets/icon/icon.png
