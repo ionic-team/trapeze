@@ -1,5 +1,25 @@
 # @capacitor/gradle-parse
 
+## 4.0.0-next.0
+
+### Major Changes
+
+- This update adds support for arbitrary plist files. Use the `file` field to reference a plist file relative to the native iOS project path.
+
+  This update also had some internal refactoring which has impacted some public types to make them stronger and more concrete, and removes a few legacy operation aliases.
+
+  ## Breaking Changes
+
+  **`@trapezedev/configure`**
+
+  The `infoPlist` operation for `ios` was removed. This was just an alias for `plist` Use the `plist` operation
+
+  **`@trapezedev/project`**
+
+  `JsonFile.getData()` was renamed to `getDocument()` to be more consistent with the other file wrappers.
+
+  VFS types have been made more concrete and data stored in the VFS must now be either a `string` or extend `VFSStorable`.
+
 ## 3.0.7
 
 ## 3.0.6
