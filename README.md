@@ -3,7 +3,7 @@
 </div>
 
 <p align="center">
-  🤸‍♀️ Easy Project Configuration for iOS, Android, Capacitor, React Native, Flutter, and more 🤸‍♀️
+  🤸‍♀️ Easy automated project configuration for iOS, Android, Capacitor, React Native, Flutter, and more 🤸‍♀️
 </p>
 
 <p align="center">
