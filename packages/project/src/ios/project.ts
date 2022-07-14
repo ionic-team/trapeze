@@ -198,7 +198,7 @@ export class IosProject {
    * If the `targetName` is null the main app target is used. If the `buildName` is null the value is set for both builds (Debug/Release);
    */
   async getBuild(targetName: IosTargetName | null, buildName?: IosBuildName | null | undefined) {
-    const currentProjectVersion = this.pbxProject?.getBuildProperty('CURRENT_PROJECT_VERSION', buildName ? buildName : undefined /* must use undefined if null */, targetName);
+    const currentProjectVersion = this.pbxProject?.getBuildProperty('CURRENT_PROJECT_VERSION', buildName ? buildName : undefined/* must use undefined if null */, targetName);
 
     if (currentProjectVersion) {
       return currentProjectVersion;
@@ -225,10 +225,18 @@ export class IosProject {
 
     const num = await this.getBuild(targetName ?? null, buildName);
 
-    if (num) {
+    if (!isNaN(num)) {
+      // If the value is a number, increment it
       return this.setBuild(targetName ?? null, buildName ?? null, num + 1);
     } else {
-      return this.setBuild(targetName ?? null, buildName ?? null, 1);
+      // Otherwise, we need to check if there's a build property set for CURRENT_PROJECT_VERSION and create it if not
+      let currentProjectVersion = this.pbxProject?.getBuildProperty('CURRENT_PROJECT_VERSION', buildName ? buildName : undefined/* must use undefined if null */, targetName);
+      if (!currentProjectVersion) {
+        // Set an initial value for CURRENT_PROJECT_VERSION
+        this.pbxProject?.updateBuildProperty('CURRENT_PROJECT_VERSION', 1, buildName, targetName);
+      } else {
+        // There's already a CURRENT_PROJECT_VERSION set, which shouldn't happen, so do nothing
+      }
     }
   }
 

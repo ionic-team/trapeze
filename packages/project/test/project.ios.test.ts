@@ -449,8 +449,10 @@ describe('ios - issue #83', () => {
   });
 
   it('should increment build with empty target', async () => {
+    expect(await project.ios?.getBuild(null)).toBe("${CURRENT_PROJECT_VERSION}");
     await project.ios!.incrementBuild();
-    console.log(project.ios!.getPbxProject()?.writeSync());
-    expect(await project.ios?.getBuild(null)).toBe("1");
+    expect(await project.ios?.getBuild(null)).toBe(1);
+    await project.ios!.incrementBuild();
+    expect(await project.ios?.getBuild(null)).toBe(2);
   });
 });
