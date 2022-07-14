@@ -1,5 +1,14 @@
 # @trapezedev/project
 
+## 4.0.0-next.2
+
+### Patch Changes
+
+- Fix for incrementBuild with pbx files when defaults aren't set
+
+- Updated dependencies []:
+  - @trapezedev/gradle-parse@4.0.0-next.2
+
 ## 4.0.0-next.1
 
 ### Patch Changes
