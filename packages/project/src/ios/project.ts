@@ -198,7 +198,7 @@ export class IosProject {
    * If the `targetName` is null the main app target is used. If the `buildName` is null the value is set for both builds (Debug/Release);
    */
   async getBuild(targetName: IosTargetName | null, buildName?: IosBuildName | null | undefined) {
-    const currentProjectVersion = this.pbxProject?.getBuildProperty('CURRENT_PROJECT_VERSION', buildName, targetName);
+    const currentProjectVersion = this.pbxProject?.getBuildProperty('CURRENT_PROJECT_VERSION', buildName ? buildName : undefined /* must use undefined if null */, targetName);
 
     if (currentProjectVersion) {
       return currentProjectVersion;
@@ -259,7 +259,7 @@ export class IosProject {
   getVersion(targetName: IosTargetName | null, buildName: IosBuildName | null) {
     targetName = this.assertTargetName(targetName || null);
 
-    return this.pbxProject?.getBuildProperty('MARKETING_VERSION', buildName, targetName);
+    return this.pbxProject?.getBuildProperty('MARKETING_VERSION', buildName ? buildName : undefined /* must use undefined if null */, targetName);
   }
 
   /**
