@@ -39,5 +39,18 @@ describe('xml file', () => {
     `.trim());
   });
 
-  // TODO: More tests for the rest of XmlFile
+  describe('GitHub Issue Tests', () => {
+    // https://github.com/ionic-team/trapeze/issues/80
+    it('Should support namespaced queries #80', async () => {
+      vfs = new VFS();
+      file = new XmlFile('../common/test/fixtures/issues/80/AndroidManifest.xml', vfs);
+      await file.load();
+
+      const target = 'manifest/application/receiver[@android:name="nl.xservices.plugins.ShareChooserPendingIntent"]';
+
+      const node = file.find(target);
+
+      expect(node).toBeDefined();
+    });
+  });
 });

@@ -1,4 +1,5 @@
 import { copy } from '@ionic/utils-fs';
+import { JsonFile } from '@trapezedev/project';
 import { join } from 'path';
 import tempy from 'tempy';
 
@@ -35,10 +36,10 @@ describe('op: ios.json', () => {
 
     await Op(ctx, op as Operation);
 
-    const file = ctx.project.vfs.get(
+    const file = ctx.project.vfs.get<JsonFile>(
       join(ctx.project.config.ios?.path ?? '', 'json-file.json'),
     );
-    expect(file?.getData()).toEqual({
+    expect(file?.getData()?.getDocument()).toEqual({
       client: [],
       project_info: {
         project_id: 'my-id',
@@ -62,10 +63,10 @@ describe('op: ios.json', () => {
 
     await Op(ctx, op as Operation);
 
-    const file = ctx.project.vfs.get(
+    const file = ctx.project.vfs.get<JsonFile>(
       join(ctx.project.config.ios?.path ?? '', 'json-file.json'),
     );
-    expect(file?.getData()).toEqual({
+    expect(file?.getData()?.getDocument()).toEqual({
       client: [],
       project_info: {
         firebase_url: '',

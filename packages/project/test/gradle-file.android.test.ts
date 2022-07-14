@@ -76,8 +76,8 @@ describe('project - android - gradle', () => {
       }
     }, { what: "'this'" });
 
-    const source = vfs.get(gradle.filename)?.getData();
-    expect(source.trim()).toBe(`
+    const source = vfs.get<string>(gradle.filename)?.getData();
+    expect(source?.trim()).toBe(`
 dependencies {}
 
 buildscript {
@@ -118,8 +118,8 @@ allprojects {
       }
     }, { implementation: "'com.ionicframework.test'" });
 
-    const source = vfs.get(gradle.filename)?.getData();
-    expect(source.trim()).toBe(`
+    const source = vfs.get<string>(gradle.filename)?.getData();
+    expect(source?.trim()).toBe(`
 dependencies {}
 
 buildscript {
@@ -189,8 +189,8 @@ allprojects {
       }]
     }]);
 
-    const source = vfs.get(gradle.filename)?.getData();
-    expect(source.trim()).toBe(`// Top-level build file where you can add configuration options common to all sub-projects/modules.
+    const source = vfs.get<string>(gradle.filename)?.getData();
+    expect(source?.trim()).toBe(`// Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
     repositories {
@@ -255,8 +255,8 @@ task clean(type: Delete) {
       { thing: "'here'" }
     ]);
 
-    const source = vfs.get(gradle.filename)?.getData();
-    expect(source.trim()).toBe(`
+    const source = vfs.get<string>(gradle.filename)?.getData();
+    expect(source?.trim()).toBe(`
 dependencies {
     implementation 'com.whatever.cool'
 }
@@ -307,8 +307,8 @@ allprojects {
       }
     }, { compileSdkVersion: "\"value\"" });
 
-    const source = project.vfs.get(gradle!.filename)?.getData();
-    expect(source.trim()).toBe(`ext {
+    const source = project.vfs.get<string>(gradle!.filename)?.getData();
+    expect(source?.trim()).toBe(`ext {
     minSdkVersion = ["hello"]
     compileSdkVersion = "value"
     targetSdkVersion = 30
@@ -337,8 +337,8 @@ intunemam {
     ]
 }
     `);
-    const source = vfs.get(gradle.filename)?.getData();
-    expect(source.trim()).toBe(`
+    const source = vfs.get<string>(gradle.filename)?.getData();
+    expect(source?.trim()).toBe(`
 dependencies {}
 
 buildscript {
@@ -386,8 +386,8 @@ intunemam {
       }
     }, { minSdkVersion: 42 });
 
-    const source = project.vfs.get(gradle!.filename)?.getData();
-    expect(source.trim()).toBe(`ext {
+    const source = project.vfs.get<string>(gradle!.filename)?.getData();
+    expect(source?.trim()).toBe(`ext {
     minSdkVersion = 42
     compileSdkVersion = 30
     targetSdkVersion = 30

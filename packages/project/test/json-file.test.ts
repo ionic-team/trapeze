@@ -12,7 +12,7 @@ describe('json file', () => {
   });
 
   it('Should load json file', async () => {
-    expect(file.getData()).toMatchObject({
+    expect(file.getDocument()).toMatchObject({
       name: 'json',
       favoriteDay: 'Friday, 13th',
       wardrobe: ['mask'],
@@ -30,7 +30,7 @@ describe('json file', () => {
         size: 'large',
       },
     });
-    expect(file.getData()).toMatchObject({
+    expect(file.getDocument()).toMatchObject({
       name: 'Jason',
       favoriteDay: 'Friday, 13th',
       wardrobe: ['chainsaw'],
@@ -47,7 +47,7 @@ describe('json file', () => {
         color: 'blue',
       },
     });
-    expect(file.getData()).toMatchObject({
+    expect(file.getDocument()).toMatchObject({
       name: 'json',
       favoriteDay: 'Friday, 13th',
       wardrobe: ['mask', 'chainsaw'],

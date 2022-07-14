@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<manifest
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  package="io.ionic.starter"
+>
+    <application>
+        <receiver android:enabled="true" android:name="nl.xservices.plugins.ShareChooserPendingIntent">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

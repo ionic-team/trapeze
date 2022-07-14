@@ -5,7 +5,7 @@ import { cloneDeep } from 'lodash';
 import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
 import { runCommand, spawnCommand } from '../util/subprocess';
 import { getIndentation, indent } from '../util/text';
-import { VFS, VFSRef } from '../vfs';
+import { VFS, VFSRef, VFSFile } from '../vfs';
 import detectIndent from '../util/detect-indent';
 
 export type GradleAST = any;
@@ -609,7 +609,7 @@ export class GradleFile {
   private async getGradleSource(): Promise<string | null> {
     const ref = this.vfs.get(this.filename);
     if (ref) {
-      return ref.getData();
+      return ref.getData() as string | null;
     }
     const contents = await readFile(this.filename, { encoding: 'utf-8' });
     this.vfs.open(this.filename, contents, this.gradleCommitFn);
@@ -620,7 +620,7 @@ export class GradleFile {
     return `JAVA_HOME not set or set incorrectly. Please set JAVA_HOME to the root of your Java installation.\n\nGradle parse functionality depends on a local Java install for accurate Gradle file modification.`;
   }
 
-  private gradleCommitFn = async (file: VFSRef) => {
+  private gradleCommitFn = async (file: VFSFile) => {
     return writeFile(file.getFilename(), file.getData());
   };
 }
