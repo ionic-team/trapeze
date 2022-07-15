@@ -108,6 +108,8 @@ async function checkModifiedFiles(ctx: Context) {
   const files = ctx.project.vfs.all();
   const diffs = await ctx.project.vfs.diffAll();
 
+  // console.log('Got these diffs', diffs);
+
   Object.keys(files).map(k => {
     const file = files[k];
     const diff = diffs.find(d => d.file === file);
