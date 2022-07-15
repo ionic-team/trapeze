@@ -6,6 +6,7 @@ import { loadYamlConfig, YamlFile } from '../yaml-config';
 import { hasHandler, runOperation } from '../operations/index';
 import { Context } from '../ctx';
 import { Operation } from '../definitions';
+import { VFSDiff } from '@trapezedev/project';
 
 export async function runCommand(ctx: Context, configFile: YamlFile) {
   let processed: Operation[];
@@ -91,14 +92,29 @@ function printOp(op: Operation) {
   log(tag, platform, opName, opDisplay);
 }
 
-async function printDiffs() {}
+async function printDiff(diff: VFSDiff) {
+  const lines: string[] = diff.patch?.split(/\r?\n|\r/g) ?? [];
+
+  console.log(lines.map(line => {
+    switch (line[0]) {
+      case "+": return c.success(line.trimEnd());
+      case "-": return c.log.ERROR(line.trimEnd());
+      default: return line.trimEnd();
+    }
+  }).join('\n'));
+}
 
 async function checkModifiedFiles(ctx: Context) {
   const files = ctx.project.vfs.all();
+  const diffs = await ctx.project.vfs.diffAll();
+
   Object.keys(files).map(k => {
     const file = files[k];
-    const diff = file.diff();
+    const diff = diffs.find(d => d.file === file);
     log(c.log.WARN(c.strong(`updated`)), file.getFilename());
+    if (diff) {
+      printDiff(diff);
+    }
   });
 
   if (ctx.args.noCommit) {

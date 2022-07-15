@@ -1,9 +1,10 @@
-import Diff from 'diff';
+import * as Diff from 'diff';
 
 export interface VFSDiff {
   file?: VFSFile;
   old?: string;
   new?: string;
+  patch?: string;
 }
 
 // All classes that are stored in the VFS must implement this interface
@@ -94,9 +95,17 @@ export class VFS {
 
   async diffAll() {
     const diffs = await Promise.all(
-      Object.values(this.openFiles).map(file => file.diff()),
+      Object.values(this.openFiles).map(file => {
+        if (file.diff) {
+          return file.diff();
+        }
+        return null;
+      })
     );
-    return diffs.map(diff => Diff.diffChars(diff.old ?? '', diff.new ?? ''));
+    return diffs.filter(d => !!d).map(diff => ({
+      ...diff!,
+      patch: Diff.createPatch(diff?.file?.getFilename() ?? '', diff?.old ?? '', diff?.new ?? '') // Diff.diffChars(diff!.old ?? '', diff!.new ?? '')
+    })) as VFSDiff[];
   }
 
   set(filename: string, data: string | VFSStorable) {
