@@ -106,15 +106,13 @@ async function printDiff(diff: VFSDiff) {
 
 async function checkModifiedFiles(ctx: Context) {
   const files = ctx.project.vfs.all();
-  const diffs = await ctx.project.vfs.diffAll();
-
-  // console.log('Got these diffs', diffs);
+  const diffs = ctx.args.diff ? await ctx.project.vfs.diffAll() : [];
 
   Object.keys(files).map(k => {
     const file = files[k];
-    const diff = diffs.find(d => d.file === file);
     log(c.log.WARN(c.strong(`updated`)), file.getFilename());
-    if (diff) {
+    const diff = diffs.find(d => d.file === file);
+    if (diff && ctx.args.diff) {
       printDiff(diff);
     }
   });

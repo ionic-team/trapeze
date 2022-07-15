@@ -23,6 +23,7 @@ export function runProgram(ctx: Context) {
     .description(`Run project modification`)
     .option('--dry-run', 'Show changes before making them')
     .option('-y', 'Non-interactive')
+    .option('--diff', 'Show a diff of each file')
     .option('--verbose', 'Verbose output')
     .option('--android-project', 'Path to the root of the Android project (default: \'android\')')
     .option('--ios-project', 'Path to the root of the iOS project (default: \'ios/App\')')
