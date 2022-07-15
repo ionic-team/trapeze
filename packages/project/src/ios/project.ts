@@ -562,8 +562,6 @@ export class IosProject {
 
     await plistFile.load();
 
-    //const parsed = await parsePlist(filename);
-    this.project.vfs.open(filename, plistFile, this.plistCommitFn);
     return plistFile;
   }
 

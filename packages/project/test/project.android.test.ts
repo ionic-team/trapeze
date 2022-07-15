@@ -6,6 +6,7 @@ import { join } from 'path';
 import { copy, pathExists, readFile, rm } from '@ionic/utils-fs';
 import { serializeXml } from "../src/util/xml";
 import { MobileProjectConfig } from '../src/config';
+import { GradleFile } from '../src/android/gradle-file';
 
 describe('project - android', () => {
   let config: MobileProjectConfig;
@@ -215,9 +216,9 @@ describe('project - android', () => {
 
     const appBuildGradle = project.android?.getAppBuildGradle();
     expect(appBuildGradle).not.toBe(null);
-    const appBuildGradleSource = project.vfs.get(appBuildGradle?.filename!);
+    const appBuildGradleSource = project.vfs.get<GradleFile>(appBuildGradle?.filename!);
     expect(appBuildGradleSource).not.toBe(null);
-    expect(appBuildGradleSource!.getData()).toBe(`apply plugin: 'com.android.application'
+    expect(appBuildGradleSource!.getData()?.getDocument()).toBe(`apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion

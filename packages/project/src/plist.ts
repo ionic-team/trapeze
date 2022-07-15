@@ -1,5 +1,5 @@
 import plist, { PlistObject, PlistValue } from "plist";
-import { writeFile } from '@ionic/utils-fs';
+import { readFile, writeFile } from '@ionic/utils-fs';
 import { mergeWith, union } from 'lodash';
 
 import { parsePlist } from "./util/plist";
@@ -22,7 +22,7 @@ export class PlistFile extends VFSStorable {
 
   async load() {
     this.doc = await parsePlist(this.path);
-    this.vfs.open(this.path, this, this.plistCommitFn);
+    this.vfs.open(this.path, this, this.plistCommitFn, this.plistDiffFn);
   }
 
   private plistCommitFn = async (file: VFSFile) => {
@@ -33,6 +33,25 @@ export class PlistFile extends VFSStorable {
       newline: '\n'
     });
     return writeFile(file.getFilename(), xml);
+  }
+
+  plistDiffFn = async (file: VFSFile) => {
+    let old = '';
+    try {
+      old = await readFile(file.getFilename(), { encoding: 'utf-8' });
+    } catch (e) {}
+
+    const data = file.getData() as PlistFile;
+    const xml = plist.build(data.getDocument() ?? {}, {
+      indent: '	', // Tab character
+      offset: -1,
+      newline: '\n'
+    });
+
+    return {
+      old,
+      new: xml
+    }
   }
 
   async set(properties: any): Promise<void> {

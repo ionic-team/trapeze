@@ -1,7 +1,8 @@
-import { parseXml, parseXmlString, writeXml } from "./util/xml";
+import { formatXml, parseXml, parseXmlString, serializeXml, writeXml } from './util/xml';
 import xpath, { XPathSelect } from 'xpath';
 import { difference } from 'lodash';
-import { VFS, VFSFile, VFSStorable } from "./vfs";
+import { VFS, VFSFile, VFSStorable } from './vfs';
+import { readFile } from 'fs-extra';
 
 const toArray = (o: any[]) => Array.prototype.slice.call(o || []);
 
@@ -16,12 +17,11 @@ export class XmlFile extends VFSStorable {
 
   async load() {
     this.doc = await parseXml(this.path);
-    this.vfs.open(this.path, this, this.xmlCommitFn);
+    this.vfs.open(this.path, this, this.xmlCommitFn, this.xmlDiffFn);
 
     const rootNode = this.getDocumentElement();
     if (rootNode) {
-
-      const namespaces: { [ns:string]: string } = {};
+      const namespaces: { [ns: string]: string } = {};
 
       for (const attr in rootNode.attributes) {
         const attribute = rootNode.attributes[attr];
@@ -86,7 +86,9 @@ export class XmlFile extends VFSStorable {
     const parsed = parseXmlString(fragment);
     const docNodes = parsed.childNodes ?? [];
 
-    nodes.forEach(n => Array.prototype.forEach.call(docNodes, d => n.appendChild(d)))
+    nodes.forEach(n =>
+      Array.prototype.forEach.call(docNodes, d => n.appendChild(d)),
+    );
 
     this.vfs.set(this.path, this);
   }
@@ -105,7 +107,10 @@ export class XmlFile extends VFSStorable {
 
     nodes.forEach(n => {
       Array.prototype.forEach.call(docNodes, doc => {
-        const existingChild = Array.prototype.find.call(n.childNodes, (en) => en.nodeName === doc.nodeName);
+        const existingChild = Array.prototype.find.call(
+          n.childNodes,
+          en => en.nodeName === doc.nodeName,
+        );
 
         // If the child doesn't exist, append it and finish
         if (!existingChild || !this.exists(n, doc)) {
@@ -121,7 +126,7 @@ export class XmlFile extends VFSStorable {
   }
 
   _mergeNodes(oldEl: Element, newEl: Element) {
-    Array.prototype.forEach.call(newEl.childNodes ?? [], (n) => {
+    Array.prototype.forEach.call(newEl.childNodes ?? [], n => {
       const exists = this.exists(oldEl, n);
       if (!exists) {
         oldEl.appendChild(n);
@@ -145,7 +150,10 @@ export class XmlFile extends VFSStorable {
       const index = Array.prototype.indexOf.call(n.parentNode?.childNodes, n);
       if (index >= 0) {
         n.parentNode!.removeChild(n);
-        n.parentNode!.insertBefore(parsed.documentElement, n.parentNode?.childNodes[index] ?? null);
+        n.parentNode!.insertBefore(
+          parsed.documentElement,
+          n.parentNode?.childNodes[index] ?? null,
+        );
       }
     });
 
@@ -168,7 +176,6 @@ export class XmlFile extends VFSStorable {
         n.setAttribute(attr, attrs[attr]);
       });
     });
-
 
     this.vfs.set(this.path, this);
   }
@@ -197,5 +204,18 @@ export class XmlFile extends VFSStorable {
   private xmlCommitFn = async (file: VFSFile) => {
     const data = file.getData() as XmlFile;
     return writeXml(data.doc, file.getFilename());
-  }
+  };
+
+  private xmlDiffFn = async (file: VFSFile) => {
+    const data = file.getData() as XmlFile;
+    const xmlString = await formatXml(data.doc);
+    const currentString = await readFile(file.getFilename(), {
+      encoding: 'utf-8',
+    });
+
+    return {
+      old: currentString,
+      new: xmlString,
+    };
+  };
 }

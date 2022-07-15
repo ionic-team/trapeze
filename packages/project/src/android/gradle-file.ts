@@ -5,7 +5,7 @@ import { cloneDeep } from 'lodash';
 import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
 import { runCommand, spawnCommand } from '../util/subprocess';
 import { getIndentation, indent } from '../util/text';
-import { VFS, VFSRef, VFSFile } from '../vfs';
+import { VFS, VFSRef, VFSFile, VFSStorable, VFSDiff } from '../vfs';
 import detectIndent from '../util/detect-indent';
 
 export type GradleAST = any;
@@ -20,11 +20,18 @@ export interface GradleASTNode {
   };
 }
 
-export class GradleFile {
+export class GradleFile extends VFSStorable {
+  private source: string | null = null;
   private parsed: GradleAST | null = null;
   private tempFile: string | null = null;
 
-  constructor(public filename: string, private vfs: VFS) {}
+  constructor(public filename: string, private vfs: VFS) {
+    super();
+  }
+
+  getDocument() {
+    return this.source;
+  }
 
   /**
    * Replace the given properties at the specified point in the Gradle file or insert
@@ -141,7 +148,7 @@ export class GradleFile {
         .slice(Math.max(0, resolvedLastLine), sourceLines.length)
         .join('\n');
 
-    this.vfs.get(this.filename)?.setData(newSource);
+    this.source = newSource;
   }
 
   /**
@@ -198,7 +205,7 @@ export class GradleFile {
       throw new Error(`Unable to locate file at ${this.filename}`);
     }
 
-    const vfsRef = this.vfs.get(this.filename);
+    const vfsRef = this.vfs.get<GradleFile>(this.filename);
 
     // We keep a temp file updated with the latest source so the parser can operate
     // on the current state of the file so we can handle multiple modifications to it
@@ -210,7 +217,9 @@ export class GradleFile {
       await writeFile(this.tempFile, gradleContents);
     } else if (vfsRef) {
       // Otherwise if it already exists then write the current vfs data to it
-      await writeFile(this.tempFile, vfsRef.getData());
+      if (vfsRef?.getData()?.getDocument()) {
+        await writeFile(this.tempFile, vfsRef?.getData()?.getDocument());
+      }
     }
 
     const parserRoot = this.getGradleParserPath();
@@ -349,7 +358,7 @@ export class GradleFile {
           .join('\n');
     }
 
-    this.vfs.get(this.filename)?.setData(newSource);
+    this.source = newSource;
   }
 
   find(pathObject: any | null): { node: GradleASTNode; depth: number }[] {
@@ -431,12 +440,9 @@ export class GradleFile {
     const source = await this.getGradleSource();
 
     if (source) {
-      this.vfs.set(
-        this.filename,
-        source.replace(
-          /(applicationId\s+)["'][^"']+["']/,
-          `$1"${applicationId}"`,
-        ),
+      this.source = source.replace(
+        /(applicationId\s+)["'][^"']+["']/,
+        `$1"${applicationId}"`,
       );
     }
   }
@@ -460,10 +466,7 @@ export class GradleFile {
     const source = await this.getGradleSource();
 
     if (source) {
-      this.vfs.set(
-        this.filename,
-        source.replace(/(versionCode\s+)\w+/, `$1${versionCode}`),
-      );
+      this.source = source.replace(/(versionCode\s+)\w+/, `$1${versionCode}`);
     }
   }
 
@@ -490,10 +493,7 @@ export class GradleFile {
       }
       const num = parseInt(versionCode[1]);
       if (!isNaN(num)) {
-        this.vfs.set(
-          this.filename,
-          source.replace(/(versionCode\s+)\w+/, `$1${num + 1}`),
-        );
+        this.source = source.replace(/(versionCode\s+)\w+/, `$1${num + 1}`);
       }
     }
   }
@@ -502,9 +502,9 @@ export class GradleFile {
     const source = await this.getGradleSource();
 
     if (source) {
-      this.vfs.set(
-        this.filename,
-        source.replace(/(versionName\s+)["'][^"']+["']/, `$1"${versionName}"`),
+      this.source = source.replace(
+        /(versionName\s+)["'][^"']+["']/,
+        `$1"${versionName}"`,
       );
     }
   }
@@ -607,12 +607,13 @@ export class GradleFile {
   }
 
   private async getGradleSource(): Promise<string | null> {
-    const ref = this.vfs.get(this.filename);
+    const ref = this.vfs.get<GradleFile>(this.filename);
     if (ref) {
-      return ref.getData() as string | null;
+      return ref.getData()?.getDocument() ?? '';
     }
     const contents = await readFile(this.filename, { encoding: 'utf-8' });
-    this.vfs.open(this.filename, contents, this.gradleCommitFn);
+    this.source = contents;
+    this.vfs.open(this.filename, this, this.gradleCommitFn, this.gradleDiffFn);
     return contents;
   }
 
@@ -621,6 +622,21 @@ export class GradleFile {
   }
 
   private gradleCommitFn = async (file: VFSFile) => {
-    return writeFile(file.getFilename(), file.getData());
+    return writeFile(
+      file.getFilename(),
+      (file.getData() as GradleFile).getDocument(),
+    );
+  };
+
+  private gradleDiffFn = async (file: VFSFile): Promise<VFSDiff> => {
+    let old = '';
+    try {
+      old = await readFile(file.getFilename(), { encoding: 'utf-8' });
+    } catch (e) {}
+
+    return {
+      old,
+      new: this.source ?? '',
+    };
   };
 }

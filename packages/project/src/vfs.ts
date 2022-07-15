@@ -1,6 +1,14 @@
-// All classes that are stored in the VFS must implement this interface
-export class VFSStorable {
+import * as Diff from 'diff';
+
+export interface VFSDiff {
+  file?: VFSFile;
+  old?: string;
+  new?: string;
+  patch?: string;
 }
+
+// All classes that are stored in the VFS must implement this interface
+export class VFSStorable {}
 
 /**
  * Reference to a file and its data (which can be of any type) in the VFS
@@ -10,7 +18,12 @@ export class VFSRef<T extends VFSStorable> {
 
   modified = false;
 
-  constructor(private filename: string, private data: T | null, private commitFn: (file: VFSFile) => Promise<void>) { }
+  constructor(
+    private filename: string,
+    private data: T | null,
+    private commitFn: (file: VFSFile) => Promise<void>,
+    private diffFn?: (file: VFSFile) => Promise<VFSDiff>,
+  ) {}
 
   getFilename() {
     return this.filename;
@@ -32,6 +45,16 @@ export class VFSRef<T extends VFSStorable> {
   commit(): Promise<void> {
     return this.commitFn(this);
   }
+
+  async diff(): Promise<VFSDiff> {
+    console.log('RUNNING DIFF FOR FILE', this.getFilename(), this.diffFn);
+    const diff = (await this.diffFn?.(this)) ?? Promise.resolve({ file: this });
+
+    return {
+      ...diff,
+      file: this,
+    };
+  }
 }
 
 export type VFSFile = VFSRef<string | VFSStorable>;
@@ -43,10 +66,15 @@ export type VFSFile = VFSRef<string | VFSStorable>;
 export class VFS {
   private openFiles: { [path: string]: VFSRef<any> } = {};
 
-  constructor() { }
+  constructor() {}
 
-  open<T extends VFSStorable>(filename: string, data: T, commitFn: (file: VFSFile) => Promise<void>) {
-    const ref = new VFSRef(filename, data, commitFn);
+  open<T extends VFSStorable>(
+    filename: string,
+    data: T,
+    commitFn: (file: VFSFile) => Promise<void>,
+    diffFn?: (file: VFSFile) => Promise<VFSDiff>,
+  ) {
+    const ref = new VFSRef(filename, data, commitFn, diffFn);
     this.openFiles[filename] = ref;
     return ref;
   }
@@ -64,6 +92,21 @@ export class VFS {
 
   async commitAll() {
     await Promise.all(Object.values(this.openFiles).map(file => file.commit()));
+  }
+
+  async diffAll() {
+    const diffs = await Promise.all(
+      Object.values(this.openFiles).map(file => {
+        if (file.diff) {
+          return file.diff();
+        }
+        return null;
+      })
+    );
+    return diffs.filter(d => !!d).map(diff => ({
+      ...diff!,
+      patch: Diff.createPatch(diff?.file?.getFilename() ?? '', diff?.old ?? '', diff?.new ?? '') // Diff.diffChars(diff!.old ?? '', diff!.new ?? '')
+    })) as VFSDiff[];
   }
 
   set(filename: string, data: string | VFSStorable) {
