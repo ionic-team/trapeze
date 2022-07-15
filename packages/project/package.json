@@ -20,7 +20,7 @@
   "dependencies": {
     "@ionic/utils-fs": "^3.1.5",
     "@ionic/utils-subprocess": "^2.1.8",
-    "@prettier/plugin-xml": "^1.1.0",
+    "@prettier/plugin-xml": "^2.2.0",
     "@trapezedev/gradle-parse": "4.0.0-next.2",
     "@types/diff": "^5.0.2",
     "@xmldom/xmldom": "^0.7.5",
@@ -33,7 +33,7 @@
     "lodash": "^4.17.21",
     "npm-watch": "^0.9.0",
     "plist": "^3.0.4",
-    "prettier": "^2.4.1",
+    "prettier": "^2.7.1",
     "prompts": "^2.4.2",
     "replace": "^1.1.0",
     "tempy": "^1.0.1",

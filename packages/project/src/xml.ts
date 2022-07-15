@@ -1,4 +1,4 @@
-import { parseXml, parseXmlString, serializeXml, writeXml } from './util/xml';
+import { formatXml, parseXml, parseXmlString, serializeXml, writeXml } from './util/xml';
 import xpath, { XPathSelect } from 'xpath';
 import { difference } from 'lodash';
 import { VFS, VFSFile, VFSStorable } from './vfs';
@@ -208,7 +208,7 @@ export class XmlFile extends VFSStorable {
 
   private xmlDiffFn = async (file: VFSFile) => {
     const data = file.getData() as XmlFile;
-    const xmlString = serializeXml(data.doc);
+    const xmlString = await formatXml(data.doc);
     const currentString = await readFile(file.getFilename(), {
       encoding: 'utf-8',
     });
