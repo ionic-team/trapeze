@@ -439,11 +439,10 @@ export class GradleFile extends VFSStorable {
   async setApplicationId(applicationId: string) {
     const source = await this.getGradleSource();
 
-
     if (source) {
       this.source = source.replace(
-            /(applicationId\s+)["'][^"']+["']/,
-            `$1"${applicationId}"`,
+        /(applicationId\s+)["'][^"']+["']/,
+        `$1"${applicationId}"`,
       );
     }
   }
@@ -503,7 +502,10 @@ export class GradleFile extends VFSStorable {
     const source = await this.getGradleSource();
 
     if (source) {
-      this.source = source.replace(/(versionName\s+)["'][^"']+["']/, `$1"${versionName}"`);
+      this.source = source.replace(
+        /(versionName\s+)["'][^"']+["']/,
+        `$1"${versionName}"`,
+      );
     }
   }
 
@@ -620,7 +622,10 @@ export class GradleFile extends VFSStorable {
   }
 
   private gradleCommitFn = async (file: VFSFile) => {
-    return writeFile(file.getFilename(), file.getData());
+    return writeFile(
+      file.getFilename(),
+      (file.getData() as GradleFile).getDocument(),
+    );
   };
 
   private gradleDiffFn = async (file: VFSFile): Promise<VFSDiff> => {
@@ -631,7 +636,7 @@ export class GradleFile extends VFSStorable {
 
     return {
       old,
-      new: this.source ?? ''
-    }
-  }
+      new: this.source ?? '',
+    };
+  };
 }
