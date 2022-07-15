@@ -91,10 +91,13 @@ function printOp(op: Operation) {
   log(tag, platform, opName, opDisplay);
 }
 
+async function printDiffs() {}
+
 async function checkModifiedFiles(ctx: Context) {
   const files = ctx.project.vfs.all();
   Object.keys(files).map(k => {
     const file = files[k];
+    const diff = file.diff();
     log(c.log.WARN(c.strong(`updated`)), file.getFilename());
   });
 
