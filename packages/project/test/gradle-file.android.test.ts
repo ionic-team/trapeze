@@ -1,9 +1,9 @@
 import { MobileProject } from '../src';
-import { MobileProjectConfig } from "../src/config";
+import { MobileProjectConfig } from '../src/config';
 import { GradleFile } from '../src/android/gradle-file';
 
 import { join } from 'path';
-import { VFS } from "../src/vfs";
+import { VFS } from '../src/vfs';
 
 describe('project - android - gradle', () => {
   let config: MobileProjectConfig;
@@ -12,20 +12,26 @@ describe('project - android - gradle', () => {
   beforeEach(async () => {
     config = {
       ios: {
-        path: 'ios/App'
+        path: 'ios/App',
       },
       android: {
-        path: 'android'
-      }
-    }
+        path: 'android',
+      },
+    };
 
-    project = new MobileProject('../common/test/fixtures/ios-and-android', config);
+    project = new MobileProject(
+      '../common/test/fixtures/ios-and-android',
+      config,
+    );
     await project.load();
     vfs = new VFS();
   });
 
   it('Should find path to gradle parse', async () => {
-    const gradle = new GradleFile(join(project.config.android!.path!, 'build.gradle'), vfs);
+    const gradle = new GradleFile(
+      join(project.config.android!.path!, 'build.gradle'),
+      vfs,
+    );
     expect(gradle.getGradleParserPath()).not.toBeUndefined();
 
     const output = await gradle.parse();
@@ -34,18 +40,24 @@ describe('project - android - gradle', () => {
 
   it.skip('Should throw an exception if no JAVA_HOME set', async () => {
     process.env.JAVA_HOME = '';
-    const gradle = new GradleFile(join(project.config.android!.path!, 'build.gradle'), vfs);
+    const gradle = new GradleFile(
+      join(project.config.android!.path!, 'build.gradle'),
+      vfs,
+    );
     await expect(gradle.parse()).rejects.toThrow();
   });
 
   it('Should find target element in parsed Gradle', async () => {
-    const gradle = new GradleFile(join(project.config.android!.path!, 'build.gradle'), vfs);
+    const gradle = new GradleFile(
+      join(project.config.android!.path!, 'build.gradle'),
+      vfs,
+    );
     await gradle.parse();
 
     let nodes = gradle.find({
       buildscript: {
-        dependencies: {}
-      }
+        dependencies: {},
+      },
     });
 
     expect(nodes.length).not.toBe(0);
@@ -59,25 +71,37 @@ describe('project - android - gradle', () => {
   });
 
   it('Should replace at spot', async () => {
-    const gradle = new GradleFile(join('../common/test/fixtures/replace.gradle'), vfs);
+    const gradle = new GradleFile(
+      join('../common/test/fixtures/replace.gradle'),
+      vfs,
+    );
 
-    await gradle.replaceProperties({
-      buildscript: {
-        thing: {
-          field: {}
-        }
-      }
-    }, { field: 4 });
+    await gradle.replaceProperties(
+      {
+        buildscript: {
+          thing: {
+            field: {},
+          },
+        },
+      },
+      { field: 4 },
+    );
 
-    await gradle.replaceProperties({
-      extra: {
-        what: {
-        }
-      }
-    }, { what: "'this'" });
+    await gradle.replaceProperties(
+      {
+        extra: {
+          what: {},
+        },
+      },
+      { what: "'this'" },
+    );
 
-    const source = vfs.get<string>(gradle.filename)?.getData();
-    expect(source?.trim()).toBe(`
+    const source = vfs
+      .get<GradleFile>(gradle.filename)
+      ?.getData()
+      ?.getDocument();
+    expect(source?.trim()).toBe(
+      `
 dependencies {}
 
 buildscript {
@@ -100,26 +124,37 @@ allprojects {
         }
     }
 }
-`.trim());
+`.trim(),
+    );
   });
 
   it('Should inject during replace if target does not exist', async () => {
-    const gradle = new GradleFile(join('../common/test/fixtures/replace.gradle'), vfs);
+    const gradle = new GradleFile(
+      join('../common/test/fixtures/replace.gradle'),
+      vfs,
+    );
 
-    await gradle.replaceProperties({
-      allprojects: {
-        nest1: {
-          nest2: {
-            dependencies: {
-              implementation: {}
-            }
-          }
-        }
-      }
-    }, { implementation: "'com.ionicframework.test'" });
+    await gradle.replaceProperties(
+      {
+        allprojects: {
+          nest1: {
+            nest2: {
+              dependencies: {
+                implementation: {},
+              },
+            },
+          },
+        },
+      },
+      { implementation: "'com.ionicframework.test'" },
+    );
 
-    const source = vfs.get<string>(gradle.filename)?.getData();
-    expect(source?.trim()).toBe(`
+    const source = vfs
+      .get<GradleFile>(gradle.filename)
+      ?.getData()
+      ?.getDocument();
+    expect(source?.trim()).toBe(
+      `
 dependencies {}
 
 buildscript {
@@ -146,51 +181,73 @@ allprojects {
         }
     }
 }
-`.trim());
+`.trim(),
+    );
   });
 
   it('Should inject at spot', async () => {
-    const gradle = new GradleFile(join(project.config.android!.path!, 'app', 'build.gradle'), vfs);
+    const gradle = new GradleFile(
+      join(project.config.android!.path!, 'app', 'build.gradle'),
+      vfs,
+    );
 
-    await gradle.insertProperties({
-      dependencies: {}
-    }, [
-      { implementation: "'com.super.cool'" },
-      { implementation: "'com.super.amazing'" },
-    ]);
+    await gradle.insertProperties(
+      {
+        dependencies: {},
+      },
+      [
+        { implementation: "'com.super.cool'" },
+        { implementation: "'com.super.amazing'" },
+      ],
+    );
   });
 
   it('Should inject at root', async () => {
-    const gradle = new GradleFile(join(project.config.android!.path!, 'app', 'build.gradle'), vfs);
+    const gradle = new GradleFile(
+      join(project.config.android!.path!, 'app', 'build.gradle'),
+      vfs,
+    );
 
-    await gradle.insertProperties({}, [
-      { 'apply from:': "'my.cool.package'" }
-    ]);
+    await gradle.insertProperties({}, [{ 'apply from:': "'my.cool.package'" }]);
   });
 
   it('Should inject nested Gradle statements', async () => {
-    const gradle = new GradleFile(join(project.config.android!.path!, 'build.gradle'), vfs);
+    const gradle = new GradleFile(
+      join(project.config.android!.path!, 'build.gradle'),
+      vfs,
+    );
 
-    await gradle.insertProperties({
-      dependencies: {}
-    }, [
-      { classpath: "'com.super.cool'" },
-      { classpath: "'com.super.amazing'" },
-    ]);
+    await gradle.insertProperties(
+      {
+        dependencies: {},
+      },
+      [{ classpath: "'com.super.cool'" }, { classpath: "'com.super.amazing'" }],
+    );
 
-    await gradle.insertProperties({
-      allprojects: {
-        repositories: {}
-      }
-    }, [{
-      maven: [{
-        url: "'https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1'",
-        name: "'Duo-SDK-Feed'"
-      }]
-    }]);
+    await gradle.insertProperties(
+      {
+        allprojects: {
+          repositories: {},
+        },
+      },
+      [
+        {
+          maven: [
+            {
+              url: "'https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1'",
+              name: "'Duo-SDK-Feed'",
+            },
+          ],
+        },
+      ],
+    );
 
-    const source = vfs.get<string>(gradle.filename)?.getData();
-    expect(source?.trim()).toBe(`// Top-level build file where you can add configuration options common to all sub-projects/modules.
+    const source = vfs
+      .get<GradleFile>(gradle.filename)
+      ?.getData()
+      ?.getDocument();
+    expect(source?.trim())
+      .toBe(`// Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
     repositories {
@@ -227,36 +284,46 @@ task clean(type: Delete) {
   });
 
   it('Should inject Gradle statements in empty method blocks', async () => {
-    const gradle = new GradleFile(join('../common/test/fixtures/inject.gradle'), vfs);
+    const gradle = new GradleFile(
+      join('../common/test/fixtures/inject.gradle'),
+      vfs,
+    );
 
-    await gradle.insertProperties({
-      dependencies: {}
-    }, [
-      { implementation: "'com.whatever.cool'" }
-    ]);
+    await gradle.insertProperties(
+      {
+        dependencies: {},
+      },
+      [{ implementation: "'com.whatever.cool'" }],
+    );
 
-    await gradle.insertProperties({
-      buildscript: {
-        dependencies: {}
-      }
-    }, [
-      { classpath: "files('path/to/thing')" }
-    ]);
+    await gradle.insertProperties(
+      {
+        buildscript: {
+          dependencies: {},
+        },
+      },
+      [{ classpath: "files('path/to/thing')" }],
+    );
 
-    await gradle.insertProperties({
-      allprojects: {
-        nest1: {
-          nest2: {
-            dependencies: {}
-          }
-        }
-      }
-    }, [
-      { thing: "'here'" }
-    ]);
+    await gradle.insertProperties(
+      {
+        allprojects: {
+          nest1: {
+            nest2: {
+              dependencies: {},
+            },
+          },
+        },
+      },
+      [{ thing: "'here'" }],
+    );
 
-    const source = vfs.get<string>(gradle.filename)?.getData();
-    expect(source?.trim()).toBe(`
+    const source = vfs
+      .get<GradleFile>(gradle.filename)
+      ?.getData()
+      ?.getDocument();
+    expect(source?.trim()).toBe(
+      `
 dependencies {
     implementation 'com.whatever.cool'
 }
@@ -279,7 +346,8 @@ allprojects {
         }
     }
 }
-`.trim());
+`.trim(),
+    );
   });
 
   it('Should update complex gradle types', async () => {
@@ -287,27 +355,33 @@ allprojects {
     await gradle?.parse();
 
     let nodes = gradle?.find({
-      ext : {
-      }
+      ext: {},
     });
 
     expect(nodes?.length).not.toBe(0);
 
-    await gradle?.replaceProperties({
-      ext: {
-        minSdkVersion: {
-        }
-      }
-    }, { minSdkVersion: ["hello"] });
+    await gradle?.replaceProperties(
+      {
+        ext: {
+          minSdkVersion: {},
+        },
+      },
+      { minSdkVersion: ['hello'] },
+    );
 
-    await gradle?.replaceProperties({
-      ext: {
-        compileSdkVersion: {
-        }
-      }
-    }, { compileSdkVersion: "\"value\"" });
+    await gradle?.replaceProperties(
+      {
+        ext: {
+          compileSdkVersion: {},
+        },
+      },
+      { compileSdkVersion: '"value"' },
+    );
 
-    const source = project.vfs.get<string>(gradle!.filename)?.getData();
+    const source = project.vfs
+      .get<GradleFile>(gradle!.filename)
+      ?.getData()
+      ?.getDocument();
     expect(source?.trim()).toBe(`ext {
     minSdkVersion = ["hello"]
     compileSdkVersion = "value"
@@ -325,9 +399,14 @@ allprojects {
   });
 
   it('Should inject Gradle raw source', async () => {
-    const gradle = new GradleFile(join('../common/test/fixtures/inject.gradle'), vfs);
+    const gradle = new GradleFile(
+      join('../common/test/fixtures/inject.gradle'),
+      vfs,
+    );
 
-    await gradle.insertFragment({}, `
+    await gradle.insertFragment(
+      {},
+      `
 apply plugin: 'com.microsoft.intune.mam'
 
 intunemam {
@@ -336,9 +415,14 @@ intunemam {
         "com.getcapacitor.*"
     ]
 }
-    `);
-    const source = vfs.get<string>(gradle.filename)?.getData();
-    expect(source?.trim()).toBe(`
+    `,
+    );
+    const source = vfs
+      .get<GradleFile>(gradle.filename)
+      ?.getData()
+      ?.getDocument();
+    expect(source?.trim()).toBe(
+      `
 dependencies {}
 
 buildscript {
@@ -365,7 +449,8 @@ intunemam {
         "androidx.*",
         "com.getcapacitor.*"
     ]
-}`.trim());
+}`.trim(),
+    );
   });
 
   it('Should support any gradle file', async () => {
@@ -373,20 +458,24 @@ intunemam {
     await gradle?.parse();
 
     let nodes = gradle?.find({
-      ext : {
-      }
+      ext: {},
     });
 
     expect(nodes?.length).not.toBe(0);
 
-    await gradle?.replaceProperties({
-      ext: {
-        minSdkVersion: {
-        }
-      }
-    }, { minSdkVersion: 42 });
+    await gradle?.replaceProperties(
+      {
+        ext: {
+          minSdkVersion: {},
+        },
+      },
+      { minSdkVersion: 42 },
+    );
 
-    const source = project.vfs.get<string>(gradle!.filename)?.getData();
+    const source = project.vfs
+      .get<GradleFile>(gradle!.filename)
+      ?.getData()
+      ?.getDocument();
     expect(source?.trim()).toBe(`ext {
     minSdkVersion = 42
     compileSdkVersion = 30
