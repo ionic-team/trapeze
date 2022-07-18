@@ -30,6 +30,8 @@ platforms:
     version: 16.4
 ```
 
+Changes can be previewed using the `--diff` flag to see a unified diff of the changes to each file.
+
 ## Writing Configuration Files
 
 Configuration files are written in YAML. New to YAML? Read [Learn YAML in five minutes](https://www.codeproject.com/Articles/1214409/Learn-YAML-in-five-minutes).
