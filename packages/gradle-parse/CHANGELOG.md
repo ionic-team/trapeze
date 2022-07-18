@@ -1,5 +1,13 @@
 # @capacitor/gradle-parse
 
+## 4.0.0
+
+### Patch Changes
+
+- e920098: Fix for incrementBuild with pbx files when defaults aren't set
+- 7a91d46: Fixing deps
+- 6028709: 4.0.0
+
 ## 4.0.0-next.2
 
 ### Patch Changes

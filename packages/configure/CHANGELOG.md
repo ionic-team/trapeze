@@ -1,5 +1,17 @@
 # @trapezedev/configure
 
+## 4.0.0
+
+### Patch Changes
+
+- e920098: Fix for incrementBuild with pbx files when defaults aren't set
+- 7a91d46: Fixing deps
+- 6028709: 4.0.0
+- Updated dependencies [e920098]
+- Updated dependencies [7a91d46]
+- Updated dependencies [6028709]
+  - @trapezedev/project@4.0.0
+
 ## 4.0.0-next.2
 
 ### Patch Changes
