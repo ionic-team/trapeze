@@ -1,5 +1,13 @@
 # @trapezedev/project
 
+## 4.0.1
+
+### Patch Changes
+
+- Gradle exact targeting
+- Updated dependencies
+  - @trapezedev/gradle-parse@4.0.1
+
 ## 4.0.0
 
 ### Patch Changes

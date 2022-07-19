@@ -1,5 +1,11 @@
 # @capacitor/gradle-parse
 
+## 4.0.1
+
+### Patch Changes
+
+- Gradle exact targeting
+
 ## 4.0.0
 
 ### Patch Changes
