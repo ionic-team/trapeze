@@ -70,6 +70,38 @@ describe('project - android - gradle', () => {
     expect(nodes.length).not.toBe(0);
   });
 
+  it('Should find exact element in parsed Gradle', async () => {
+    const gradle = new GradleFile(join(project.config.android!.path!, 'build.gradle'), vfs);
+    await gradle.parse();
+
+    let nodes = gradle.find({
+      buildscript: {
+        repositories: {}
+      }
+    }, true);
+
+    expect(nodes.length).toBe(1);
+    expect(nodes[0].node.type).toBe('method');
+    expect(nodes[0].node.name).toBe('repositories');
+
+    // Should find the root node
+    nodes = gradle.find({
+      dependencies: {}
+    }, true);
+
+    expect(nodes.length).toBe(1);
+    expect(nodes[0].depth).toBe(1);
+
+    // Old non-exact mode still works
+    nodes = gradle.find({
+      dependencies: {}
+    });
+
+    expect(nodes.length).toBe(2);
+    expect(nodes[0].depth).toBe(2);
+    expect(nodes[1].depth).toBe(1);
+  });
+
   it('Should replace at spot', async () => {
     const gradle = new GradleFile(
       join('../common/test/fixtures/replace.gradle'),
@@ -276,6 +308,9 @@ allprojects {
             name 'Duo-SDK-Feed'
         }
     }
+}
+
+dependencies {
 }
 
 task clean(type: Delete) {
