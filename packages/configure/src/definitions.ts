@@ -22,7 +22,7 @@ export interface AndroidGradleOperation extends Operation {
     file: string;
     target: any;
     insert?: string | any[];
-    replace?: string | any[];
+    replace?: string | any;
     exact?: boolean;
   }[];
 }

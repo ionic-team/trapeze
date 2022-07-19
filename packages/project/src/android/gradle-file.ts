@@ -12,6 +12,7 @@ export type GradleAST = any;
 export interface GradleASTNode {
   type: string;
   name: string;
+  children?: GradleASTNode[];
   source: {
     line: number;
     column: number;
@@ -376,15 +377,16 @@ export class GradleFile extends VFSStorable {
     }
 
     const found: { node: GradleASTNode; depth: number }[] = [];
-    this._find(pathObject, this.parsed, pathObject, exact, found);
+    this._find(pathObject, this.parsed, pathObject, exact, [], found);
     return found;
   }
 
   private _find(
     pathObject: any,
-    node: any,
+    node: GradleASTNode,
     pathNode: any,
     exact: boolean,
+    pathToNode: any[],
     found: any[],
     depth = 0,
   ) {
@@ -392,30 +394,73 @@ export class GradleFile extends VFSStorable {
       return;
     }
 
-    console.log('Path node', pathObject, pathNode, node);
-
     const targetKey = Object.keys(pathNode)?.[0];
     if (!targetKey) {
       return;
     }
 
-    for (const c of node.children) {
+    for (const c of (node.children ?? [])) {
       if (this.isTargetNode(c) && c.name === targetKey) {
         pathNode = pathNode[targetKey];
         if (!pathNode || Object.keys(pathNode).length == 0) {
           // We've run out of path nodes to match
-          found.push({ node: c, depth });
+          if (!exact) {
+            found.push({ node: c, depth });
+          } else if (exact && this.matchesExact(pathObject, c, [...pathToNode, c])) {
+            found.push({ node: c, depth });
+          }
+
         }
       }
+      const newPathToNode = this.isTargetNode(node) ? [...pathToNode, node] : pathToNode;
       this._find(
         pathObject,
         c,
         pathNode,
         exact,
+        newPathToNode,
         found,
         c.type === 'block' ? depth + 1 : depth,
       );
     }
+  }
+
+  private getDepth(pathObject: any) {
+    let depth = 0;
+    let n = pathObject;
+    while (n) {
+      const keys = Object.keys(n);
+      if (keys.length > 0) {
+        depth++;
+        n = n[keys[0]];
+      } else {
+        break;
+      }
+    }
+    return depth;
+  }
+
+  // When doing an exact match, need to check the path to the node
+  // and verify the hierarchy matches
+  private matchesExact(pathObject: any, node: GradleASTNode, pathToNode: any[]) {
+    const targetDepth = this.getDepth(pathObject);
+    const currentDepth = pathToNode.length;
+    if (currentDepth != targetDepth) {
+      return false;
+    }
+
+    let n = pathObject;
+    let m = pathToNode;
+    while (n && m) {
+      const key = Object.keys(n)[0];
+      if (key && key !== m[0]?.name) {
+        return false;
+      }
+      n = n[key];
+      m = m.slice(1);
+    }
+
+    return true;
   }
 
   private isTargetNode(node: any) {

@@ -75,19 +75,31 @@ describe('project - android - gradle', () => {
     await gradle.parse();
 
     let nodes = gradle.find({
-      dependencies: {}
+      buildscript: {
+        repositories: {}
+      }
     }, true);
-
-    console.log('Found exact nodes', nodes);
 
     expect(nodes.length).toBe(1);
     expect(nodes[0].node.type).toBe('method');
-    expect(nodes[0].node.name).toBe('dependencies');
+    expect(nodes[0].node.name).toBe('repositories');
 
     // Should find the root node
-    nodes = gradle.find({});
+    nodes = gradle.find({
+      dependencies: {}
+    }, true);
 
-    expect(nodes.length).not.toBe(0);
+    expect(nodes.length).toBe(1);
+    expect(nodes[0].depth).toBe(1);
+
+    // Old non-exact mode still works
+    nodes = gradle.find({
+      dependencies: {}
+    });
+
+    expect(nodes.length).toBe(2);
+    expect(nodes[0].depth).toBe(2);
+    expect(nodes[1].depth).toBe(1);
   });
 
   it('Should replace at spot', async () => {
