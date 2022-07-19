@@ -2,20 +2,20 @@ import c from '../colors';
 import { processOperations } from '../op';
 import { logger, log, error, warn } from '../util/log';
 import { logPrompt } from '../util/cli';
-import { loadConfig, YamlFile } from '../config';
+import { loadYamlConfig, YamlFile } from '../yaml-config';
 import { hasHandler, runOperation } from '../operations/index';
 import { Context } from '../ctx';
 import { Operation } from '../definitions';
-import { VFSRef } from '@capacitor/project/dist/vfs';
+import { VFSDiff } from '@trapezedev/project';
 
 export async function runCommand(ctx: Context, configFile: YamlFile) {
   let processed: Operation[];
   try {
-    const config = await loadConfig(ctx, configFile);
+    const config = await loadYamlConfig(ctx, configFile);
 
     processed = processOperations(config);
-  } catch (e: any) {
-    logger.error(`Unable to load config file: ${e.message}`);
+  } catch (e) {
+    logger.error(`Unable to load config file: ${(e as Error).message}`);
     throw e;
   }
 
@@ -57,7 +57,9 @@ async function verifyOperations(_ctx: Context, operations: Operation[]) {
   for (const op of operations) {
     if (op.platform === 'android' && op.id === 'android.gradle') {
       if (!process.env.JAVA_HOME) {
-        throw new Error('JAVA_HOME not set which is required for android.gradle modifications');
+        throw new Error(
+          'JAVA_HOME not set which is required for android.gradle modifications',
+        );
       }
     }
   }
@@ -76,7 +78,7 @@ async function executeOperations(ctx: Context, operations: Operation[]) {
       continue;
     }
 
-    await runOperation(ctx, op) || [];
+    (await runOperation(ctx, op)) || [];
   }
   await checkModifiedFiles(ctx);
 }
@@ -90,11 +92,29 @@ function printOp(op: Operation) {
   log(tag, platform, opName, opDisplay);
 }
 
+async function printDiff(diff: VFSDiff) {
+  const lines: string[] = diff.patch?.split(/\r?\n|\r/g) ?? [];
+
+  console.log(lines.map(line => {
+    switch (line[0]) {
+      case "+": return c.success(line.trimEnd());
+      case "-": return c.log.ERROR(line.trimEnd());
+      default: return line.trimEnd();
+    }
+  }).join('\n'));
+}
+
 async function checkModifiedFiles(ctx: Context) {
   const files = ctx.project.vfs.all();
+  const diffs = ctx.args.diff ? await ctx.project.vfs.diffAll() : [];
+
   Object.keys(files).map(k => {
     const file = files[k];
     log(c.log.WARN(c.strong(`updated`)), file.getFilename());
+    const diff = diffs.find(d => d.file === file);
+    if (diff && ctx.args.diff) {
+      printDiff(diff);
+    }
   });
 
   if (ctx.args.noCommit) {
@@ -104,7 +124,7 @@ async function checkModifiedFiles(ctx: Context) {
   if (!ctx.args.dryRun && !ctx.args.y) {
     const answers = await logPrompt(
       c.strong(`Apply changes?\n`) +
-      `Applying these changes will modify your source files. We recommend committing any changes before running this operation.`,
+        `Applying these changes will modify your source files. We recommend committing any changes before running this operation.`,
       {
         type: 'confirm',
         name: 'apply',

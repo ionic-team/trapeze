@@ -1,4 +1,5 @@
 import { copy } from '@ionic/utils-fs';
+import { JsonFile } from '@trapezedev/project';
 import { join } from 'path';
 import tempy from 'tempy';
 
@@ -35,8 +36,8 @@ describe('op: android.json', () => {
 
     await Op(ctx, op as Operation);
 
-    const file = ctx.project.vfs.get(join(dir, 'android/google-services.json'));
-    expect(file?.getData()).toEqual({
+    const file = ctx.project.vfs.get<JsonFile>(join(dir, 'android/google-services.json'));
+    expect(file?.getData()?.getDocument()).toEqual({
       client: [],
       project_info: {
         project_id: 'my-id',
@@ -60,8 +61,8 @@ describe('op: android.json', () => {
 
     await Op(ctx, op as Operation);
 
-    const file = ctx.project.vfs.get(join(dir, 'android/google-services.json'));
-    expect(file?.getData()).toEqual({
+    const file = ctx.project.vfs.get<JsonFile>(join(dir, 'android/google-services.json'));
+    expect(file?.getData()?.getDocument()).toEqual({
       client: [],
       project_info: {
         firebase_url: '',

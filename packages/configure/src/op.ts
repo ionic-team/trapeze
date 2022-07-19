@@ -166,18 +166,6 @@ function createOperation(
 }
 
 function getOpIdAlias(op: Partial<Operation>) {
-  switch (op.id) {
-    case 'ios.infoPlist':
-      // Transform the old infoPlist format to new plist format
-      return {
-        ...op,
-        id: 'ios.plist',
-        value: {
-          entries: [...op.value],
-        },
-      };
-  }
-
   return op;
 }
 
@@ -200,7 +188,7 @@ function createOpDisplayText(op: Partial<Operation>) {
         .map(k => `${k} = ${op.value[k]}`)
         .join(', ');
     case 'ios.entitlements':
-      return op.value.map((v: any) => Object.keys(v)).join(', ');
+      return (Array.isArray(op.value) ? op.value : op.value.entries).map((v: any) => Object.keys(v)).join(', ');
     case 'ios.frameworks':
       return op.value.join(', ');
     case 'ios.plist':

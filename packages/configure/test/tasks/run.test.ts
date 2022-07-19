@@ -52,7 +52,7 @@ describe('task: run', () => {
     process.argv.push('-y');
     process.argv.push('--quiet');
     process.argv.push('--noCommit');
-    const ctx = await loadContext();
+    const ctx = await loadContext(undefined, 'my-android-app', 'my-ios-app/App');
     ctx.args.quiet = true;
 
     expect(ctx.args.projectRoot).toBe(dir);

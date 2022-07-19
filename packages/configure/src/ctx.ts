@@ -3,10 +3,10 @@ import { join } from 'path';
 import { hideBin } from 'yargs/helpers';
 
 import { loadProject } from './project';
-import { CapacitorProject } from '@capacitor/project';
+import { MobileProject } from '@trapezedev/project';
 
 export interface Context {
-  project: CapacitorProject;
+  project: MobileProject;
   // Path the to the root of the capacitor project, if needed
   projectRootPath?: string;
   args: any;
@@ -23,17 +23,27 @@ export interface Variables {
   [variable: string]: Variable;
 }
 
-export async function loadContext(projectRootPath?: string): Promise<Context> {
+export async function loadContext(projectRootPath?: string, androidProject?: string, iosProject?: string): Promise<Context> {
   const rootDir = process.cwd();
 
-  const argv = yargs(hideBin(process.argv)).argv;
+  const args = yargs(hideBin(process.argv));
 
-  let project: CapacitorProject;
+  const argv = args.argv;
+
+  let project: MobileProject;
 
   try {
-    project = await loadProject(projectRootPath ?? argv.projectRoot as string | undefined);
-  } catch (e: any) {
-    throw new Error(`Unable to load Capacitor project: ${e.message}`);
+    project = await loadProject(
+      projectRootPath ?? (argv.projectRoot as string | undefined),
+      androidProject ?? argv.androidProject as string | undefined,
+      iosProject ?? argv.iosProject as string | undefined
+    );
+  } catch (e) {
+    throw new Error(
+      `Unable to load Capacitor project: ${(e as Error).message}: ${
+        (e as Error).stack
+      }`,
+    );
   }
 
   return {

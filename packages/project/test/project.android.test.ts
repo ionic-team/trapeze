@@ -1,15 +1,16 @@
 import tempy from 'tempy';
 
-import { CapacitorConfig } from "@capacitor/cli";
-import { CapacitorProject } from '../src';
+import { MobileProject, XmlFile } from '../src';
 
 import { join } from 'path';
 import { copy, pathExists, readFile, rm } from '@ionic/utils-fs';
-import { formatXml, serializeXml } from "../src/util/xml";
+import { serializeXml } from "../src/util/xml";
+import { MobileProjectConfig } from '../src/config';
+import { GradleFile } from '../src/android/gradle-file';
 
 describe('project - android', () => {
-  let config: CapacitorConfig;
-  let project: CapacitorProject;
+  let config: MobileProjectConfig;
+  let project: MobileProject;
   let dir: string;
   beforeEach(async () => {
     dir = tempy.directory();
@@ -17,14 +18,14 @@ describe('project - android', () => {
 
     config = {
       ios: {
-        path: join(dir, 'ios')
+        path: 'ios/App'
       },
       android: {
-        path: join(dir, 'android')
+        path: 'android'
       }
     }
 
-    project = new CapacitorProject(config);
+    project = new MobileProject(dir, config);
     await project.load();
   });
 
@@ -36,6 +37,10 @@ describe('project - android', () => {
     expect(project.android?.getAndroidManifest()).not.toBe(null);
     expect(project.android?.getBuildGradle()).not.toBe(null);
     expect(project.android?.getAppBuildGradle()).not.toBe(null);
+  });
+
+  it('should get main activity filename', async () => {
+    expect(project.android?.getMainActivityFilename()).toBe('MainActivity.java');
   });
 
   it('should set package name', async () => {
@@ -83,7 +88,7 @@ describe('project - android', () => {
     });
 
     const applicationNode = project.android?.getAndroidManifest().find('manifest/application')?.[0];
-    expect(applicationNode.getAttribute('android:name')).toBe('com.ionicframework.test.CoolApplication');
+    expect(applicationNode!.getAttribute('android:name')).toBe('com.ionicframework.test.CoolApplication');
 
     project.android?.getAndroidManifest().setAttrs("/manifest/application/meta-data[@*='com.google.android.geo.API_KEY']",
       {
@@ -92,13 +97,13 @@ describe('project - android', () => {
     );
 
     const metadataNode = project.android?.getAndroidManifest().find("/manifest/application/meta-data[@*='com.google.android.geo.API_KEY']")?.[0];
-    expect(metadataNode.getAttribute('android:value')).toBe('---API-KEY---');
+    expect(metadataNode!.getAttribute('android:value')).toBe('---API-KEY---');
 
-    const manifestFile = project.vfs.get((project.android as any).getAndroidManifestPath());
+    const manifestFile = project.vfs.get<XmlFile>((project.android as any).getAndroidManifestPath());
     expect(manifestFile).not.toBeNull();
 
     // Make sure the updated file hasn't been destroyed
-    expect(serializeXml(manifestFile?.getData())).toContain('<manifest');
+    expect(serializeXml(manifestFile?.getData()?.getDocumentElement())).toContain('<manifest');
   });
 
   it('should inject an XML fragment', async () => {
@@ -112,10 +117,10 @@ describe('project - android', () => {
 
     const queriesNode = project.android?.getAndroidManifest().find('manifest/queries')?.[0];
     expect(queriesNode).toBeDefined();
-    expect(queriesNode.nodeName).toBe('queries');
+    expect(queriesNode!.nodeName).toBe('queries');
     const intentNode = project.android?.getAndroidManifest().find('manifest/queries/intent')?.[0];
     expect(intentNode).toBeDefined();
-    expect(intentNode.nodeName).toBe('intent');
+    expect(intentNode!.nodeName).toBe('intent');
 
     const manifestFile = project.vfs.get((project.android as any).getAndroidManifestPath());
     expect(manifestFile).not.toBeNull();
@@ -133,7 +138,7 @@ describe('project - android', () => {
 
     const node = project.android?.getAndroidManifest().find('manifest/application/activity/intent-filter')?.[0];
     expect(node).toBeDefined();
-    const elements = Object.values(node.childNodes as any).filter((n: any) => n.nodeType === 1);
+    const elements = Object.values(node!.childNodes as any).filter((n: any) => n.nodeType === 1);
 
     const manifestFile = project.vfs.get((project.android as any).getAndroidManifestPath());
     expect(manifestFile).not.toBeNull();
@@ -150,7 +155,7 @@ describe('project - android', () => {
 
     const node = project.android?.getAndroidManifest().find('manifest/application/activity')?.[0];
     expect(node).toBeDefined();
-    const elements = Object.values(node.childNodes as any).filter((n: any) => n.nodeName?.indexOf('thing') == 0);
+    const elements = Object.values(node!.childNodes as any).filter((n: any) => n.nodeName?.indexOf('thing') == 0);
 
     const manifestFile = project.vfs.get((project.android as any).getAndroidManifestPath());
     expect(manifestFile).not.toBeNull();
@@ -169,10 +174,27 @@ describe('project - android', () => {
     const serialized = serializeXml(xml!.getDocumentElement());
     const node = xml!.find('resources/string[@name="app_name"]')?.[0];
     expect(node).toBeDefined();
-    expect(node.textContent).toBe('Awesome App');
+    expect(node!.textContent).toBe('Awesome App');
     expect(serialized).toBe(`
 <resources>
     <string name="app_name">Awesome App</string>
+    <string name="title_activity_main">capacitor-configure-test</string>
+    <string name="package_name">io.ionic.starter</string>
+    <string name="custom_url_scheme">io.ionic.starter</string>
+</resources>
+    `.trim());
+  });
+
+  it('should support deleting nodes in xml', async () => {
+    const xml = await project.android?.getXmlFile('app/src/main/res/values/strings.xml');
+    await xml!.load();
+
+    const node = xml!.find('resources/string[@name="app_name"]')?.[0];
+    node!.parentNode!.removeChild(node!);
+    const serialized = serializeXml(xml!.getDocumentElement());
+    expect(serialized).toBe(`
+<resources>
+    
     <string name="title_activity_main">capacitor-configure-test</string>
     <string name="package_name">io.ionic.starter</string>
     <string name="custom_url_scheme">io.ionic.starter</string>
@@ -194,9 +216,9 @@ describe('project - android', () => {
 
     const appBuildGradle = project.android?.getAppBuildGradle();
     expect(appBuildGradle).not.toBe(null);
-    const appBuildGradleSource = project.vfs.get(appBuildGradle?.filename!);
+    const appBuildGradleSource = project.vfs.get<GradleFile>(appBuildGradle?.filename!);
     expect(appBuildGradleSource).not.toBe(null);
-    expect(appBuildGradleSource!.getData()).toBe(`apply plugin: 'com.android.application'
+    expect(appBuildGradleSource!.getData()?.getDocument()).toBe(`apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion

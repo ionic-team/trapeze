@@ -1,27 +1,36 @@
 ---
 title: Configuration Tool
+sidebar_position: 3
 sidebar_label: Configuration Tool
 ---
 
-To configure projects using configuration and the configuration tool, install the `@capacitor/configure` package. This package uses the `@capacitor/project` API under the hood:
+To configure projects using configuration and the configuration tool, install the `@trapezedev/configure` package. This package uses the `@trapezedev/project` API under the hood:
 
 ```bash
-npm install @capacitor/configure
-```
-
-Add to your npm scripts:
-
-```json
-"scripts": {
-  "cap-config": "cap-config"
-}
+npm install @trapezedev/configure
 ```
 
 ## Usage
 
+Then, assuming you have a Trapeze YAML configuration file to use, use the `run` command to process it.
+
 ```bash
-npm run cap-config run config.yaml
+npx trapeze run config.yaml --android-project android --ios-project ios/App
 ```
+
+Where `--android-project` is the relative path to your Android project, and `--ios-project` is the relative path to your iOS Xcode project folder.
+
+Here's a basic example YAML file:
+
+```yaml title="config.yaml"
+platforms:
+  android:
+    versionName: 5.2.1
+  ios:
+    version: 16.4
+```
+
+Changes can be previewed using the `--diff` flag to see a unified diff of the changes to each file.
 
 ## Writing Configuration Files
 
@@ -47,32 +56,8 @@ In this case, `MY_APP_ID` has no default value, so `MY_APP_ID` must be found in 
 Here's one example of providing an environment variable to the command:
 
 ```shell
-MY_APP_ID="com.awesome.app" npm run cap-config 
+MY_APP_ID="com.awesome.app" npx trapeze
 ```
-
-## Supported Operations
-
-The configuration tool currently supports these project operations:
-
-
-| Platform | Operation                  | Supported          |
-| -------- | -------------------------- | ------------------ |
-| ios      | Bundle ID and Product Name | :white_check_mark: |
-| ios      | Version and Build Number   | :white_check_mark: |
-| ios      | Increment Build Number     | :white_check_mark: |
-| ios      | Build Settings             | :white_check_mark: |
-| ios      | Plist Modifications        | :white_check_mark: |
-| ios      | Add Frameworks             | :white_check_mark: |
-| ios      | Set Entitlements           | :white_check_mark: |
-| ios      | Add Source/Header files    | WIP                |
-| android  | Package Name               | :white_check_mark: |
-| android  | Version Name and Code      | :white_check_mark: |
-| android  | Version Code               | :white_check_mark: |
-| android  | Increment Version Code     | :white_check_mark: |
-| android  | Gradle Config              | :white_check_mark: |
-| android  | Resource Files             | :white_check_mark: |
-| android  | Manifest File Modification | :white_check_mark: |
-| android  | Add Source/Header files    | WIP                |
 
 ## Android
 
@@ -110,6 +95,7 @@ platforms:
   android:
     incrementVersionCode: true
 ```
+
 ### `packageName`
 
 Set the project package name. This operation will also rename the actual java package and folder structure to match. Currently, these modifications happen without confirmation when the tool is run. See [this discussion](https://github.com/ionic-team/capacitor-configure/issues/28) for more info.
@@ -126,11 +112,13 @@ The Manifest operation can modifications against the AndroidManifest XML file, a
 
 The operation supports three modes: `attrs`, `merge`, and `inject`:
 
-* `attrs` updates the attributes of the given `target` node.
-* `merge` merges the given XML tree supplied to `merge` with the given `target`
-* `inject` injects the given XML tree supplied to `inject` inside of the given `target`
+- `attrs` updates the attributes of the given `target` node.
+- `merge` merges the given XML tree supplied to `merge` with the given `target`
+- `inject` injects the given XML tree supplied to `inject` inside of the given `target`
+- `delete` deletes nodes specified by `delete` in XPath format.
+- `deleteAttributes` deletes the given attributes in `deleteAttributes` inside of the given `target`
 
-Example: 
+Example:
 
 ```yaml
 platforms:
@@ -143,9 +131,8 @@ platforms:
 
       - file: AndroidManifest.xml
         target: manifest/application
-        merge:
-          <queries>
-              <package android:name="com.azure.authenticator" />
+        merge: <queries>
+          <package android:name="com.azure.authenticator" />
           </queries>
 
       - file: AndroidManifest.xml
@@ -189,6 +176,14 @@ platforms:
                       android:scheme="msauth" />
               </intent-filter>
           </activity>
+
+      - file: AndroidManifest.xml
+        delete: //intent-filter
+
+      - file: AndroidManifest.xml
+        target: manifest/application/application
+        deleteAttributes:
+          - android:name
 ```
 
 ### `gradle`
@@ -199,10 +194,10 @@ The operation supports inserting arbitrary Gradle code, or when using `replace`,
 
 The Gradle commands supports two modes: `insert` or `replace`:
 
- * `insert` inserts new Gradle snippets at the desired location in the file
- * `replace` replaces existing entries in the Gradle file at the desired location
+- `insert` inserts new Gradle snippets at the desired location in the file
+- `replace` replaces existing entries in the Gradle file at the desired location
 
- Currently, the tool supports updating primitive types (numbers, strings, booleans), and arrays of primitives. Strings need additional quoting if necessary, in order to support non-quoted variable strings. See the example below for string quoting examples.
+Currently, the tool supports updating primitive types (numbers, strings, booleans), and arrays of primitives. Strings need additional quoting if necessary, in order to support non-quoted variable strings. See the example below for string quoting examples.
 
 ```yaml
 platforms:
@@ -250,7 +245,6 @@ platforms:
           implementation: "'test-implementation'"
 ```
 
-
 ### `res`
 
 Creates new resource files. Use `path` to specify the resource type.
@@ -277,6 +271,48 @@ platforms:
               }
             ]
           }
+```
+
+### `json`
+
+Modifies JSON files relative to the root of the Android project. Use `set` to override the element (and clobber any children), or `merge` to merge the values:
+
+```yaml
+platforms:
+  android:
+    json:
+      - file: google-services.json
+        set:
+          project_info:
+            project_id: "MY_ID"
+      - file: google-services.json
+        merge:
+          data:
+            field: "MY_FIELD"
+```
+
+### `xml`
+
+Modifies XML files relative to the root of the Android project. Can also modify files relative to the resource path using `resFile` instead of `file`. This operation supports the same options as the `manifest` operation:
+
+- `attrs` updates the attributes of the given `target` node.
+- `merge` merges the given XML tree supplied to `merge` with the given `target`
+- `inject` injects the given XML tree supplied to `inject` inside of the given `target`
+- `delete` deletes nodes specified by `delete` in XPath format.
+- `deleteAttributes` deletes the given attributes in `deleteAttributes` inside of the given `target`
+
+```yaml
+platforms:
+  android:
+    xml:
+      - file: app/file.xml
+        target: entries/field
+        merge: |
+          <string>Value</string>
+      - resFile: values/strings.xml
+        target: resources/string[@name="app_name"]
+        replace: |
+          <string name="app_name">Awesome App</string>
 ```
 
 ## iOS
@@ -350,7 +386,7 @@ platforms:
   ios:
     targets:
       App:
-        incrementBuildNumber: true
+        incrementBuild: true
 ```
 
 ### `bundleId`
@@ -386,7 +422,7 @@ platforms:
   ios:
     targets:
       App:
-        displayName: Awesome App
+        productName: Awesome App
 ```
 
 ### `buildSettings`
@@ -427,18 +463,59 @@ platforms:
 
 ### `entitlements`
 
-Updates the entitlements for a given target and build:
+Updates the entitlements for a given target and build. The value can either be an array of objects to merge into the existing entitlements list, or specify the edit operation manually. See examples below:
 
 ```yaml
 platforms:
   ios:
     targets:
       App:
+        # Passing an array of objects, these values will be merged by default
         entitlements:
-          - keychain-access-groups:
-              [
-                '$BUNDLE_ID',
-                'com.microsoft.intune.mam',
-                'com.microsoft.adalcache',
-              ]
+          - keychain-access-groups: ['$BUNDLE_ID', 'com.microsoft.intune.mam', 'com.microsoft.adalcache']
+        # Passing an object with options for the entitlements operation, and then an array of objects
+        entitlements:
+          replace: true
+          entries:
+            - keychain-access-groups: ['$BUNDLE_ID', 'com.microsoft.intune.mam', 'com.microsoft.adalcache']
+```
+
+### `json`
+
+Modifies JSON files relative to the root of the iOS project. Use `set` to override the element (and clobber any children), or `merge` to merge the values:
+
+```yaml
+platforms:
+  ios:
+    targets:
+      App:
+        json:
+          - file: google-services.json
+            set:
+              project_info:
+                project_id: "MY_ID"
+          - file: google-services.json
+            merge:
+              data:
+                field: "MY_FIELD"
+```
+
+### `xml`
+
+Modifies XML files relative to the root of the iOS project. This operation supports the following XML file modifications:
+
+- `attrs` updates the attributes of the given `target` node.
+- `merge` merges the given XML tree supplied to `merge` with the given `target`
+- `inject` injects the given XML tree supplied to `inject` inside of the given `target`
+- `delete` deletes nodes specified by `delete` in XPath format.
+- `deleteAttributes` deletes the given attributes in `deleteAttributes` inside of the given `target`
+
+```yaml
+platforms:
+  android:
+    xml:
+      - file: file.xml
+        target: entries/field
+        merge: |
+          <string>Value</string>
 ```

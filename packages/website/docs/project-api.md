@@ -1,12 +1,13 @@
 ---
 title: Project API
+sidebar_position: 4
 sidebar_label: Project API
 ---
 
-To write custom scripts and code that manage iOS and Android targets in your Capacitor project, install the `@capacitor/project` package:
+To write custom scripts and code that manage iOS and Android targets in your native projects, install the `@trapezedev/project` package:
 
 ```bash
-npm install @capacitor/project
+npm install @trapezedev/project
 ```
 
 ## TypeScript Note
@@ -21,15 +22,12 @@ For Android: `JAVA_HOME` must be set to use Gradle configuration. This is becaus
 
 ### API Usage
 
-To initialize the project, set the config and initialize a new `CapacitorProject` instance:
+To initialize the project, set the config and initialize a new `MobileProject` instance:
 
 ```typescript
-import { CapacitorProject } from '@capacitor/project';
-import { CapacitorConfig } from '@capacitor/cli';
+import { MobileProject, MobileProjectConfig } from '@trapezedev/project';
 
-// This takes a CapacitorConfig, such as the one in capacitor.config.ts, but only needs a few properties
-// to know where the ios and android projects are
-const config: CapacitorConfig = {
+const config: MobileProjectConfig = {
   ios: {
     path: 'ios',
   },
@@ -38,7 +36,7 @@ const config: CapacitorConfig = {
   },
 };
 
-const project = new CapacitorProject(config);
+const project = new MobileProject('project/root', config);
 await project.load();
 ```
 
@@ -54,7 +52,7 @@ To get a preview of changes that will be committed, the `VFS` object can be acce
 
 ```typescript
 const changedFiles = project.vfs.all();
-changedFiles.forEach(f => {
+changedFiles.forEach((f) => {
   console.log(f.getFilename(), f.getData());
 });
 ```
@@ -180,6 +178,33 @@ project.ios?.setBuildProperty(targetName, buildName, 'FAKE_PROPERTY', 'YES');
 project.ios?.getBuildProperty(targetName, buildName, 'FAKE_PROPERTY');
 ```
 
+#### JSON files
+
+Use `JsonFile` to make modifications against project JSON files:
+
+```typescript
+// Get a JSON file from the iOS project, or create a new one:
+const jsonFile = ctx.project.ios?.getProjectFile<JsonFile>(
+  filename,
+  (filename: string) => new JsonFile(filename, ctx.project.vfs),
+);
+
+// Load it
+await jsonFile.load();
+
+// Set values
+jsonFile.set({
+  field: 'value'
+});
+// Merge values
+jsonFile.merge({
+  field: {
+    field2: 'value'
+  }
+});
+```
+
+
 ## Android
 
 Android functionality currently supported includes making modifications to `AndroidManifest.xml` (attributes and new elements), updating package name, updating version name/code, adding resources files, and making Gradle modifications.
@@ -226,7 +251,7 @@ project.android?.getAndroidManifest().injectFragment(
   <intent>
   </intent>
 </queries>
-`,
+`
 );
 ```
 
@@ -273,7 +298,7 @@ buildGradleFile.insertProperties(
   {
     buildscript: {},
   },
-  [{ classpath: 'com.my.custom.gradle.plugin' }],
+  [{ classpath: 'com.my.custom.gradle.plugin' }]
 );
 ```
 
@@ -290,4 +315,30 @@ appBuildGradleFile.insertFragment({
     { name: 'Duo-SDK-Feed }
   ]
 }]
+```
+
+#### JSON files
+
+Use `JsonFile` to make modifications against project JSON files:
+
+```typescript
+// Get a JSON file from the iOS project, or create a new one:
+const jsonFile = ctx.project.android?.getProjectFile<JsonFile>(
+  filename,
+  (filename: string) => new JsonFile(filename, ctx.project.vfs),
+);
+
+// Load it
+await jsonFile.load();
+
+// Set values
+jsonFile.set({
+  field: 'value'
+});
+// Merge values
+jsonFile.merge({
+  field: {
+    field2: 'value'
+  }
+});
 ```

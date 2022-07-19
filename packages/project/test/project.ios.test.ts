@@ -1,12 +1,14 @@
 import tempy from 'tempy';
 import { join } from 'path';
 import { copy, pathExists, readFile, rm } from '@ionic/utils-fs';
-import { CapacitorConfig } from '@capacitor/cli';
-import { CapacitorProject } from '../src';
+import { MobileProject } from '../src';
+import { MobileProjectConfig } from '../src/config';
+import { PlistFile } from '../src/plist';
 
 describe('project - ios standard', () => {
-  let config: CapacitorConfig;
-  let project: CapacitorProject;
+  let config: MobileProjectConfig;
+  let project: MobileProject;
+
   let dir: string;
   beforeEach(async () => {
     dir = tempy.directory();
@@ -14,14 +16,14 @@ describe('project - ios standard', () => {
 
     config = {
       ios: {
-        path: join(dir, 'ios')
+        path: 'ios/App',
       },
       android: {
-        path: join(dir, 'android')
+        path: 'android'
       }
     }
 
-    project = new CapacitorProject(config);
+    project = new MobileProject(dir, config);
     await project.load();
   });
 
@@ -29,7 +31,7 @@ describe('project - ios standard', () => {
     await rm(dir, { force: true, recursive: true });
   });
 
-  it('should load project', async () => {
+  it('should load pbx project', async () => {
     expect(project.ios?.getPbxProject()).not.toBe(null);
   });
 
@@ -97,16 +99,16 @@ describe('project - ios standard', () => {
 
     // Make sure the info plist is updated to use the CURRENT_PROJECT_VERSION
     const filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
-    const updated = project.vfs.get(filename!)?.getData();
-    expect(updated['CFBundleVersion']).toBe('$(CURRENT_PROJECT_VERSION)');
+    const updated = project.vfs.get<PlistFile>(filename!)?.getData();
+    expect(updated?.getDocument()?.['CFBundleVersion']).toBe('$(CURRENT_PROJECT_VERSION)');
   });
 
   it('should set build number', async () => {
     await project.ios?.setBuild('App', 'Debug', 42);
     expect(await project.ios?.getBuild('App', 'Debug')).toBe(42);
     const filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
-    const updated = project.vfs.get(filename!)?.getData();
-    expect(updated['CFBundleVersion']).toBe('$(CURRENT_PROJECT_VERSION)');
+    const updated = project.vfs.get<PlistFile>(filename!)?.getData();
+    expect(updated?.getDocument()?.['CFBundleVersion']).toBe('$(CURRENT_PROJECT_VERSION)');
   });
 
   it('should set project version', async () => {
@@ -114,8 +116,8 @@ describe('project - ios standard', () => {
     expect(project.ios?.getVersion('App', 'Debug')).toBe('1.4.5');
     // Make sure the info plist is updated to use the MARKETING_VERSION
     const filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
-    const updated = project.vfs.get(filename!)?.getData();
-    expect(updated['CFBundleShortVersionString']).toBe('$(MARKETING_VERSION)');
+    const updated = project.vfs.get<PlistFile>(filename!)?.getData();
+    expect(updated?.getDocument()?.['CFBundleShortVersionString']).toBe('$(MARKETING_VERSION)');
   });
 
   it('should update build settings', async () => {
@@ -189,6 +191,34 @@ describe('project - ios standard', () => {
     });
   });
 
+  it('should set entitlements to file', async () => {
+    await project.ios?.setEntitlements('App', 'Debug', {
+      'keychain-access-groups': [
+        'group1', 'group2'
+      ]
+    });
+
+    let entitlements = await project.ios?.getEntitlements('App', 'Debug');
+    expect(entitlements).toEqual({
+      'keychain-access-groups': [
+        'group1', 'group2'
+      ]
+    });
+
+    await project.ios?.setEntitlements('App', null, {
+      'keychain-access-groups': [
+        'group3', 'group4'
+      ]
+    });
+
+    entitlements = await project.ios?.getEntitlements('App');
+    expect(entitlements).toEqual({
+      'keychain-access-groups': [
+        'group3', 'group4'
+      ]
+    });
+  });
+
   it('should create new entitlements file if one does not exist', async () => {
     await project.ios?.addEntitlements('My Share Extension', 'Debug', {
       'keychain-access-groups': [
@@ -212,8 +242,8 @@ describe('project - ios standard', () => {
     await project.ios?.setDisplayName('App', 'Debug', 'Super Duper App');
     expect(await project.ios?.getDisplayName('App', 'Debug')).toBe('Super Duper App');
     const filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
-    const updated = project.vfs.get(filename!)?.getData();
-    expect(updated['CFBundleDisplayName']).toBe('Super Duper App');
+    const updated = project.vfs.get<PlistFile>(filename!)?.getData();
+    expect(updated?.getDocument()?.['CFBundleDisplayName']).toBe('Super Duper App');
   });
 
   it('should update plist with entries', async () => {
@@ -222,8 +252,8 @@ describe('project - ios standard', () => {
     });
 
     const filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
-    const updated = project.vfs.get(filename!)?.getData();
-    expect(updated['NSFaceIDUsageDescription']).toBe('The better to see you with');
+    const updated = project.vfs.get<PlistFile>(filename!)?.getData();
+    expect(updated?.getDocument()?.['NSFaceIDUsageDescription']).toBe('The better to see you with');
   });
 
   it('should overwrite existing keys in plist', async () => {
@@ -236,8 +266,8 @@ describe('project - ios standard', () => {
     });
 
     const filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
-    const updated = project.vfs.get(filename!)?.getData();
-    expect(updated['NSFaceIDUsageDescription']).toBe('This is new');
+    const updated = project.vfs.get<PlistFile>(filename!)?.getData();
+    expect(updated?.getDocument()?.['NSFaceIDUsageDescription']).toBe('This is new');
   });
 
   it('should support replacing items to arrays in plist', async () => {
@@ -247,8 +277,8 @@ describe('project - ios standard', () => {
       ]
     });
     let filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
-    let updated = project.vfs.get(filename!)?.getData();
-    expect(updated['UISupportedInterfaceOrientations']).toEqual([
+    let updated = project.vfs.get<PlistFile>(filename!)?.getData();
+    expect(updated?.getDocument()?.['UISupportedInterfaceOrientations']).toEqual([
       'UIInterfaceOrientationPortrait',
       'UIInterfaceOrientationLandscapeLeft',
       'UIInterfaceOrientationLandscapeRight',
@@ -263,8 +293,8 @@ describe('project - ios standard', () => {
       replace: true
     });
     filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
-    updated = project.vfs.get(filename!)?.getData();
-    expect(updated['UISupportedInterfaceOrientations']).toEqual(['UIInterfaceOrientationPortrait']);
+    updated = project.vfs.get<PlistFile>(filename!)?.getData();
+    expect(updated?.getDocument()?.['UISupportedInterfaceOrientations']).toEqual(['UIInterfaceOrientationPortrait']);
   });
 
   it('should support merging objects in plist', async () => {
@@ -274,8 +304,8 @@ describe('project - ios standard', () => {
       }
     });
     let filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
-    let updated = project.vfs.get(filename!)?.getData();
-    expect(updated['TestDict']).toEqual({
+    let updated = project.vfs.get<PlistFile>(filename!)?.getData();
+    expect(updated?.getDocument()?.['TestDict']).toEqual({
       'Item1': 'String1',
       'Item2': true,
       'AppendThis': false
@@ -289,8 +319,8 @@ describe('project - ios standard', () => {
       replace: true
     });
     filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
-    updated = project.vfs.get(filename!)?.getData();
-    expect(updated['TestDict']).toEqual({
+    updated = project.vfs.get<PlistFile>(filename!)?.getData();
+    expect(updated?.getDocument()?.['TestDict']).toEqual({
       'AppendThis': false
     });
   });
@@ -315,8 +345,8 @@ describe('project - ios standard', () => {
       ]
     });
     let filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
-    let updated = project.vfs.get(filename!)?.getData();
-    expect(updated['CFBundleURLTypes']).toEqual([
+    let updated = project.vfs.get<PlistFile>(filename!)?.getData();
+    expect(updated?.getDocument()?.['CFBundleURLTypes']).toEqual([
       {
         CFBundleURLSchemes: [
           'MyApp'
@@ -338,9 +368,41 @@ describe('project - ios standard', () => {
 
 });
 
+describe('ios - no info plist case', () => {
+  let config: MobileProjectConfig;
+  let project: MobileProject;
+  let dir: string;
+  beforeEach(async () => {
+    dir = tempy.directory();
+    await copy('../common/test/fixtures/ios-no-info-plist', dir);
+
+    config = {
+      ios: {
+        path: 'ios/App'
+      }
+    }
+
+    project = new MobileProject(dir, config);
+    await project.load();
+  });
+
+  it('should create info plist when updating', async () => {
+    const plistName = await project.ios?.getInfoPlist('App');
+    const plistPath = join(project.config.ios?.path!, plistName!);
+    expect(await pathExists(plistPath)).toBe(false);
+    await project.ios?.updateInfoPlist('App', 'Debug', {
+      NSFaceIDUsageDescription: 'The better to see you with'
+    });
+    await project.commit();
+    expect(await pathExists(plistPath)).toBe(true);
+    const plistContents = await readFile(plistPath, { encoding: 'utf-8' });
+    expect(plistContents.indexOf('NSFaceIDUsageDescription') >= 0);
+  });
+});
+
 describe('ios - empty template case', () => {
-  let config: CapacitorConfig;
-  let project: CapacitorProject;
+  let config: MobileProjectConfig;
+  let project: MobileProject;
   let dir: string;
   beforeEach(async () => {
     dir = tempy.directory();
@@ -348,18 +410,49 @@ describe('ios - empty template case', () => {
 
     config = {
       ios: {
-        path: join(dir, 'ios')
+        path: 'ios/App'
       },
       android: {
-        path: join(dir, 'android')
+        path: 'android'
       }
     }
 
-    project = new CapacitorProject(config);
+    project = new MobileProject(dir, config);
     await project.load();
   });
 
   it('should get build number when CURRENT_PROJECT_VERSION missing', async () => {
     expect(await project.ios?.getBuild(null)).toBe("1");
+  });
+});
+
+https://github.com/ionic-team/trapeze/pull/83
+describe('ios - issue #83', () => {
+  let config: MobileProjectConfig;
+  let project: MobileProject;
+  let dir: string;
+  beforeEach(async () => {
+    dir = tempy.directory();
+    await copy('../common/test/fixtures/ios-cfbundleversion-pbx-83', dir);
+
+    config = {
+      ios: {
+        path: 'ios/App'
+      },
+      android: {
+        path: 'android'
+      }
+    }
+
+    project = new MobileProject(dir, config);
+    await project.load();
+  });
+
+  it('should increment build with empty target', async () => {
+    expect(await project.ios?.getBuild(null)).toBe("${CURRENT_PROJECT_VERSION}");
+    await project.ios!.incrementBuild();
+    expect(await project.ios?.getBuild(null)).toBe(1);
+    await project.ios!.incrementBuild();
+    expect(await project.ios?.getBuild(null)).toBe(2);
   });
 });

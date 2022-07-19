@@ -1,15 +1,24 @@
 import plist from 'plist';
 import path, { join } from 'path';
-import { writeFile } from '@ionic/utils-fs';
+import { pathExists, readdir, writeFile } from '@ionic/utils-fs';
 
 import { parsePbxProject, pbxReadString, pbxSerializeString } from "../util/pbx";
-import { parsePlist, updatePlist } from "../util/plist";
-import { CapacitorProject } from "../project";
+import { MobileProject } from "../project";
 import { IosPbxProject, IosEntitlements, IosFramework, IosBuildName, IosTarget, IosTargetName, IosTargetBuildConfiguration, IosFrameworkOpts } from '../definitions';
-import { VFSRef } from '../vfs';
+import { VFSRef, VFSFile } from '../vfs';
 import { XmlFile } from '../xml';
+import { PlistFile } from '../plist';
 
 const defaultEntitlementsPlist = `
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+</dict>
+</plist>
+`;
+
+const defaultInfoPlist = `
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -23,12 +32,12 @@ const defaultEntitlementsPlist = `
   so I've tried to accurately map what it expects. */
 
 /**
- * An instance of an IosProject in a Capacitor project
+ * An instance of an IosProject in a mobile project
  */
 export class IosProject {
   private pbxProject: IosPbxProject | null = null;
 
-  constructor(private project: CapacitorProject) {
+  constructor(private project: MobileProject) {
   }
 
   async load() {
@@ -61,6 +70,10 @@ export class IosProject {
 
   async getXmlFile(path: string) {
     return this.getProjectFile(path, (filename: string) => new XmlFile(filename, this.project.vfs));
+  }
+
+  async getPlistFile(path: string) {
+    return this.getProjectFile(path, (filename: string) => new PlistFile(filename, this.project.vfs));
   }
 
   getPbxProject() {
@@ -173,10 +186,10 @@ export class IosProject {
       throw new Error('Unable to load plist file');
     }
 
-    const filename = join(this.project.config.ios.path, 'App', file);
+    const filename = join(this.project.config.ios.path, file);
 
     const parsed = await this.plist(filename);
-    parsed['CFBundleVersion'] = '$(CURRENT_PROJECT_VERSION)';
+    parsed.set({ 'CFBundleVersion': '$(CURRENT_PROJECT_VERSION)' });
     this.project.vfs.set(filename, parsed);
   }
 
@@ -185,7 +198,7 @@ export class IosProject {
    * If the `targetName` is null the main app target is used. If the `buildName` is null the value is set for both builds (Debug/Release);
    */
   async getBuild(targetName: IosTargetName | null, buildName?: IosBuildName | null | undefined) {
-    const currentProjectVersion = this.pbxProject?.getBuildProperty('CURRENT_PROJECT_VERSION', buildName, targetName);
+    const currentProjectVersion = this.pbxProject?.getBuildProperty('CURRENT_PROJECT_VERSION', buildName ? buildName : undefined/* must use undefined if null */, targetName);
 
     if (currentProjectVersion) {
       return currentProjectVersion;
@@ -196,10 +209,11 @@ export class IosProject {
       throw new Error('Unable to load plist file');
     }
 
-    const filename = join(this.project.config.ios.path, 'App', file);
+    const filename = join(this.project.config.ios.path, file);
 
     const parsed = await this.plist(filename);
-    return parsed['CFBundleVersion'];
+    const doc = parsed.getDocument() ?? {};
+    return doc['CFBundleVersion'];
   }
 
   /**
@@ -211,10 +225,18 @@ export class IosProject {
 
     const num = await this.getBuild(targetName ?? null, buildName);
 
-    if (num) {
+    if (!isNaN(num)) {
+      // If the value is a number, increment it
       return this.setBuild(targetName ?? null, buildName ?? null, num + 1);
     } else {
-      return this.setBuild(targetName ?? null, buildName ?? null, 1);
+      // Otherwise, we need to check if there's a build property set for CURRENT_PROJECT_VERSION and create it if not
+      let currentProjectVersion = this.pbxProject?.getBuildProperty('CURRENT_PROJECT_VERSION', buildName ? buildName : undefined/* must use undefined if null */, targetName);
+      if (!currentProjectVersion) {
+        // Set an initial value for CURRENT_PROJECT_VERSION
+        this.pbxProject?.updateBuildProperty('CURRENT_PROJECT_VERSION', 1, buildName, targetName);
+      } else {
+        // There's already a CURRENT_PROJECT_VERSION set, which shouldn't happen, so do nothing
+      }
     }
   }
 
@@ -231,10 +253,10 @@ export class IosProject {
       throw new Error('Unable to load plist file');
     }
 
-    const filename = join(this.project.config.ios.path, 'App', file);
+    const filename = join(this.project.config.ios.path, file);
 
     const parsed = await this.plist(filename);
-    parsed['CFBundleShortVersionString'] = '$(MARKETING_VERSION)';
+    parsed.set({'CFBundleShortVersionString': '$(MARKETING_VERSION)'});
     this.project.vfs.set(filename, parsed);
   }
 
@@ -245,7 +267,7 @@ export class IosProject {
   getVersion(targetName: IosTargetName | null, buildName: IosBuildName | null) {
     targetName = this.assertTargetName(targetName || null);
 
-    return this.pbxProject?.getBuildProperty('MARKETING_VERSION', buildName, targetName);
+    return this.pbxProject?.getBuildProperty('MARKETING_VERSION', buildName ? buildName : undefined /* must use undefined if null */, targetName);
   }
 
   /**
@@ -315,35 +337,39 @@ export class IosProject {
   async addEntitlements(targetName: IosTargetName | null, buildName: IosBuildName | null, entitlements: IosEntitlements) {
     targetName = this.assertTargetName(targetName || null);
 
-    let file = this.getEntitlementsFile(targetName, buildName ?? undefined);
+    let file = await this.assertEntitlementsFile(targetName, buildName);
 
     if (!file) {
-      if (this.project?.config?.ios?.path) {
-        const targetDir = targetName || 'App';
-        const fname = `${(targetName || 'App').split(/\s+/).join('_')}.entitlements`;
-
-        // Create the default entitlements file
-        const target = join(this.project.config.ios.path, 'App', targetDir, fname)
-        await writeFile(target, defaultEntitlementsPlist);
-
-        // Always use posix paths
-        file = join(targetDir, fname).split(path.sep).join(path.posix.sep);
-
-        this.setBuildProperty(targetName, buildName, 'CODE_SIGN_ENTITLEMENTS', file);
-      } else {
-        return;
-      }
-    }
-
-    if (!file || !this.project?.config?.ios?.path) {
       return;
     }
 
-    const filename = join(this.project.config.ios.path, 'App', file);
+    const filename = join(this.project.config.ios!.path, file);
 
     const parsed = await this.plist(filename);
-    const updated = updatePlist(entitlements, parsed);
-    this.project.vfs.set(filename, updated);
+    parsed.update(entitlements);
+
+    this.project.vfs.set(filename, parsed);
+  }
+
+  /**
+   * Set entitlements for the given target and build.
+   * If the `targetName` is null the main app target is used. If the `buildName` is null the first
+   * build name is used.
+   */
+  async setEntitlements(targetName: IosTargetName | null, buildName: IosBuildName | null, entitlements: IosEntitlements) {
+    targetName = this.assertTargetName(targetName || null);
+
+    let file = await this.assertEntitlementsFile(targetName, buildName);
+
+    if (!file) {
+      return;
+    }
+
+    const filename = join(this.project.config.ios!.path, file);
+
+    const parsed = await this.plist(filename);
+    parsed.update(entitlements, true);
+    this.project.vfs.set(filename, parsed);
   }
 
   /**
@@ -359,9 +385,10 @@ export class IosProject {
       return;
     }
 
-    const filename = join(this.project.config.ios.path, 'App', file);
+    const filename = join(this.project.config.ios.path, file);
 
-    return this.plist(filename);
+    const plistFile = await this.plist(filename);
+    return plistFile.getDocument();
   }
 
   /**
@@ -382,8 +409,7 @@ export class IosProject {
     if (!this.project?.config.ios?.path) {
       return null;
     }
-    // TODO: Don't hardcode the 'App' folder
-    return join(this.project.config.ios.path, 'App', file);
+    return join(this.project.config.ios.path, file);
   }
 
   /**
@@ -399,10 +425,10 @@ export class IosProject {
       throw new Error('Unable to load plist file');
     }
 
-    const filename = join(this.project.config.ios.path, 'App', file);
+    const filename = join(this.project.config.ios.path, file);
 
     const parsed = await this.plist(filename);
-    parsed['CFBundleDisplayName'] = displayName;
+    parsed.set({ 'CFBundleDisplayName': displayName });
     this.project.vfs.set(filename, parsed);
   }
 
@@ -420,7 +446,8 @@ export class IosProject {
     }
 
     const parsed = await this.plist(filename);
-    return parsed['CFBundleDisplayName'];
+    const doc = parsed.getDocument() ?? {};
+    return doc['CFBundleDisplayName'] as string;
   }
 
   /**
@@ -435,13 +462,46 @@ export class IosProject {
     targetName = this.assertTargetName(targetName || null);
 
     const filename = await this.getInfoPlistFilename(targetName, buildName ?? undefined);
+
     if (!filename) {
       throw new Error('Unable to get plist filename to update');
     }
 
+    if (!await pathExists(filename)) {
+      await writeFile(filename, defaultInfoPlist);
+    }
+
     const parsed = await this.plist(filename);
-    const updated = updatePlist(entries, parsed, mergeMode?.replace ?? false);
-    this.project.vfs.set(filename, updated);
+    parsed.update(entries, mergeMode?.replace ?? false);
+    this.project.vfs.set(filename, parsed);
+  }
+
+  private async assertEntitlementsFile(targetName: IosTargetName, buildName: IosBuildName | null) {
+    let file = this.getEntitlementsFile(targetName, buildName ?? undefined);
+
+    if (!file) {
+      if (this.project?.config?.ios?.path) {
+        const targetDir = targetName || 'App';
+        const fname = `${(targetName || 'App').split(/\s+/).join('_')}.entitlements`;
+
+        // Create the default entitlements file
+        const target = join(this.project.config.ios.path, targetDir, fname)
+        await writeFile(target, defaultEntitlementsPlist);
+
+        // Always use posix paths
+        file = join(targetDir, fname).split(path.sep).join(path.posix.sep);
+
+        this.setBuildProperty(targetName, buildName, 'CODE_SIGN_ENTITLEMENTS', file);
+      } else {
+        return null;
+      }
+    }
+
+    if (!file || !this.project?.config?.ios?.path) {
+      return null;
+    }
+
+    return file;
   }
 
   // Used to get the target name for operations, defaulting to the main app target
@@ -491,34 +551,55 @@ export class IosProject {
     });
   }
 
-  private async plist(filename: string) {
+  private async plist(filename: string): Promise<PlistFile> {
     const open = this.project.vfs.get(filename);
 
     if (open) {
-      return open.getData();
+      return open.getData() as PlistFile;
     }
-    const parsed = await parsePlist(filename);
-    this.project.vfs.open(filename, parsed, this.plistCommitFn);
-    return parsed;
+
+    const plistFile = new PlistFile(filename, this.project.vfs);
+
+    await plistFile.load();
+
+    return plistFile;
+  }
+
+  private iosProjectRoot() {
+    return this.project?.config.ios?.path ?? '';
   }
 
   // Get the filename of the pbxproj
-  private pbxFilename(): string | null {
+  private async pbxFilename(): Promise<string | null> {
     if (!this.project?.config.ios?.path) {
       return null;
     }
 
+    const xcodeprojName = await this.xcodeprojName();
+    const pbxprojName = await this.pbxprojName();
+
     return join(
       this.project.config.ios.path,
-      'App',
-      'App.xcodeproj',
-      'project.pbxproj',
+      xcodeprojName,
+      pbxprojName
     )
+  }
+
+  public async xcodeprojName(): Promise<string> {
+    const files = await readdir(this.iosProjectRoot());
+    return files.find(f => f.indexOf('.xcodeproj') >= 0) ?? '';
+  }
+
+  public async pbxprojName(): Promise<string> {
+    const xcodeprojName = await this.xcodeprojName();
+    const xcodeprojDir = join(this.iosProjectRoot(), xcodeprojName);
+    const files = await readdir(xcodeprojDir);
+    return files.find(f => f.indexOf('.pbxproj') >= 0) ?? '';
   }
 
   // Parse and return a pbx project
   private async pbx() {
-    const filename = this.pbxFilename();
+    const filename = await this.pbxFilename();
     if (!filename) {
       throw new Error('Unable to load pbxproj');
     }
@@ -527,15 +608,15 @@ export class IosProject {
     return pbxParsed;
   }
 
-  private pbxCommitFn = async (file: VFSRef) => {
+  private pbxCommitFn = async (file: VFSFile) => {
     if (this.pbxProject) {
       await writeFile(file.getFilename(), this.pbxProject.writeSync());
     }
   }
 
-  private plistCommitFn = async (file: VFSRef) => {
-    const data = file.getData();
-    const xml = plist.build(data, {
+  private plistCommitFn = async (file: VFSFile) => {
+    const data = file.getData() as PlistFile;
+    const xml = plist.build(data.getDocument() ?? {}, {
       indent: '	', // Tab character
       offset: -1,
       newline: '\n'

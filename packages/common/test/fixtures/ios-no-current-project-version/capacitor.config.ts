@@ -1,8 +1,10 @@
 const config = {
-  appId: 'io.ionic.starter',
-  appName: 'capacitor-configure-test',
-  webDir: 'build',
-  bundledWebRuntime: false
+  ios: {
+    path: 'ios/App',
+  },
+  android: {
+    path: 'android',
+  },
 };
 
 export default config;

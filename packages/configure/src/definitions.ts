@@ -40,11 +40,13 @@ export interface XmlOperation extends Operation {
 
 export interface XmlOperationValue {
   file?: string;
-  target: any;
+  target?: any;
   attrs?: any;
   inject?: string;
   merge?: string;
   replace?: string;
+  delete?: string;
+  deleteAttributes?: string[];
 }
 
 export interface AndroidXmlOperationValue extends XmlOperationValue {
@@ -83,3 +85,24 @@ export interface IosJsonOperation extends JsonOperation {
   value: IosJsonOperationValue[];
 }
 export interface IosJsonOperationValue extends JsonOperationValue {}
+
+export type IosEntitlementsOperationValue = {
+  entries: any[]
+  replace?: boolean
+} | any[] ;
+export interface IosEntitlementsOperation {
+  value: IosEntitlementsOperationValue;
+}
+
+
+// New plist format
+export interface IosPlistOperation {
+  value: IosPlistOperationValue | IosPlistOperationValue[];
+}
+export type IosPlistOperationValue = {
+  file?: string;
+  replace?: boolean;
+  iosTarget?: string;
+  iosBuild?: string;
+  entries: any[];
+};

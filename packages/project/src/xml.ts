@@ -1,32 +1,75 @@
-import { parseXml, parseXmlString, serializeXml, writeXml } from "./util/xml";
-import { writeFile } from '@ionic/utils-fs';
-import xpath from 'xpath';
-import { difference, isEqual, isObject, transform } from 'lodash';
-import { VFS, VFSRef } from "./vfs";
+import { formatXml, parseXml, parseXmlString, serializeXml, writeXml } from './util/xml';
+import xpath, { XPathSelect } from 'xpath';
+import { difference } from 'lodash';
+import { VFS, VFSFile, VFSStorable } from './vfs';
+import { readFile } from 'fs-extra';
 
 const toArray = (o: any[]) => Array.prototype.slice.call(o || []);
 
-export class XmlFile {
+export class XmlFile extends VFSStorable {
   private doc: Document | null = null;
 
+  private select: XPathSelect = xpath.select;
+
   constructor(private path: string, private vfs: VFS) {
+    super();
   }
 
   async load() {
     this.doc = await parseXml(this.path);
-    this.vfs.open(this.path, this.doc, this.xmlCommitFn);
+    this.vfs.open(this.path, this, this.xmlCommitFn, this.xmlDiffFn);
+
+    const rootNode = this.getDocumentElement();
+    if (rootNode) {
+      const namespaces: { [ns: string]: string } = {};
+
+      for (const attr in rootNode.attributes) {
+        const attribute = rootNode.attributes[attr];
+        if (!attribute.name) {
+          continue;
+        }
+
+        if (attribute.name.indexOf('xmlns') >= 0) {
+          const nsName = attribute.name.split(':').slice(1).join();
+          namespaces[nsName] = attribute.value ?? '';
+        }
+      }
+      this.select = xpath.useNamespaces(namespaces);
+    }
   }
 
   getDocumentElement() {
     return this.doc?.documentElement;
   }
 
-  find(target: string): any[] | null {
+  find(target: string): Element[] | null {
     if (!this.doc) {
       return null;
     }
 
-    return xpath.select(target, this.doc) as any;
+    return this.select?.(target, this.doc) as Element[];
+  }
+
+  deleteNodes(target: string) {
+    if (!this.doc) {
+      return;
+    }
+
+    const nodes = this.select?.(target, this.doc) as Element[];
+    nodes.forEach(n => n.parentNode?.removeChild(n));
+
+    this.vfs.set(this.path, this);
+  }
+
+  deleteAttributes(target: string, attributes: string[]) {
+    if (!this.doc) {
+      return;
+    }
+
+    const nodes = this.select?.(target, this.doc) as Element[];
+    nodes.forEach(n => attributes.forEach(a => n.removeAttribute(a)));
+
+    this.vfs.set(this.path, this);
   }
 
   /**
@@ -39,13 +82,15 @@ export class XmlFile {
       return;
     }
 
-    const nodes = xpath.select(target, this.doc) as Element[];
+    const nodes = this.select?.(target, this.doc) as Element[];
     const parsed = parseXmlString(fragment);
     const docNodes = parsed.childNodes ?? [];
 
-    nodes.forEach(n => Array.prototype.forEach.call(docNodes, d => n.appendChild(d)))
+    nodes.forEach(n =>
+      Array.prototype.forEach.call(docNodes, d => n.appendChild(d)),
+    );
 
-    this.vfs.set(this.path, this.doc);
+    this.vfs.set(this.path, this);
   }
 
   /**
@@ -56,13 +101,16 @@ export class XmlFile {
       return;
     }
 
-    const nodes = xpath.select(target, this.doc) as Element[];
+    const nodes = this.select?.(target, this.doc) as Element[];
     const parsed = parseXmlString(fragment);
     const docNodes = parsed.childNodes ?? [];
 
     nodes.forEach(n => {
       Array.prototype.forEach.call(docNodes, doc => {
-        const existingChild = Array.prototype.find.call(n.childNodes, (en) => en.nodeName === doc.nodeName);
+        const existingChild = Array.prototype.find.call(
+          n.childNodes,
+          en => en.nodeName === doc.nodeName,
+        );
 
         // If the child doesn't exist, append it and finish
         if (!existingChild || !this.exists(n, doc)) {
@@ -74,11 +122,11 @@ export class XmlFile {
       });
     });
 
-    this.vfs.set(this.path, this.doc);
+    this.vfs.set(this.path, this);
   }
 
   _mergeNodes(oldEl: Element, newEl: Element) {
-    Array.prototype.forEach.call(newEl.childNodes ?? [], (n) => {
+    Array.prototype.forEach.call(newEl.childNodes ?? [], n => {
       const exists = this.exists(oldEl, n);
       if (!exists) {
         oldEl.appendChild(n);
@@ -95,18 +143,21 @@ export class XmlFile {
       return;
     }
 
-    const nodes = xpath.select(target, this.doc) as Element[];
+    const nodes = this.select?.(target, this.doc) as Element[];
     const parsed = parseXmlString(fragment);
 
     nodes.forEach(n => {
       const index = Array.prototype.indexOf.call(n.parentNode?.childNodes, n);
       if (index >= 0) {
         n.parentNode!.removeChild(n);
-        n.parentNode!.insertBefore(parsed.documentElement, n.parentNode?.childNodes[index] ?? null);
+        n.parentNode!.insertBefore(
+          parsed.documentElement,
+          n.parentNode?.childNodes[index] ?? null,
+        );
       }
     });
 
-    this.vfs.set(this.path, this.doc);
+    this.vfs.set(this.path, this);
   }
 
   /**
@@ -119,15 +170,14 @@ export class XmlFile {
       return;
     }
 
-    const nodes = xpath.select(target, this.doc);
+    const nodes = this.select?.(target, this.doc) ?? [];
     nodes.forEach((n: any) => {
       Object.keys(attrs).forEach(attr => {
         n.setAttribute(attr, attrs[attr]);
       });
     });
 
-
-    this.vfs.set(this.path, this.doc);
+    this.vfs.set(this.path, this);
   }
 
   /**
@@ -151,7 +201,21 @@ export class XmlFile {
     return false;
   }
 
-  private xmlCommitFn = async (file: VFSRef) => {
-    return writeXml(file.getData(), file.getFilename());
-  }
+  private xmlCommitFn = async (file: VFSFile) => {
+    const data = file.getData() as XmlFile;
+    return writeXml(data.doc, file.getFilename());
+  };
+
+  private xmlDiffFn = async (file: VFSFile) => {
+    const data = file.getData() as XmlFile;
+    const xmlString = await formatXml(data.doc);
+    const currentString = await readFile(file.getFilename(), {
+      encoding: 'utf-8',
+    });
+
+    return {
+      old: currentString,
+      new: xmlString,
+    };
+  };
 }

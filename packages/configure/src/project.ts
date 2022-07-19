@@ -1,52 +1,46 @@
-import { CapacitorConfig } from '@capacitor/cli';
 import { join } from 'path';
-import { CapacitorProject } from '@capacitor/project';
+import { MobileProject, MobileProjectConfig } from '@trapezedev/project';
+import { Context } from './ctx';
+import { pathExists } from '@ionic/utils-fs';
+import { error } from './util/log';
 
-import { loadExtConfig } from './capacitor';
+export async function loadProject(
+  projectRootPath?: string,
+  androidProject?: string,
+  iosProject?: string
+): Promise<MobileProject> {
 
-export async function loadProject(projectRootPath?: string): Promise<CapacitorProject> {
-  const config = await loadCapacitorConfig(projectRootPath);
-  const project = new CapacitorProject(config);
-  await project.load();
+  if (androidProject && !(await pathExists(join(projectRootPath ?? '', androidProject)))) {
+    throw new Error(`Unable to find Android project at ${join(projectRootPath ?? '', androidProject)}`);
+  }
+
+  if (iosProject && !(await pathExists(join(projectRootPath ?? '', iosProject)))) {
+    throw new Error(`Unable to find iOS project at ${join(projectRootPath ?? '', iosProject)}`);
+  }
+
+  const config = (await loadConfig(projectRootPath, androidProject, iosProject)) as MobileProjectConfig;
+  const project = new MobileProject(projectRootPath ?? '', config);
+
+  try {
+    await project.load();
+  } catch (e) {
+    error('Unable to load projects. Ensure Android and iOS paths are correct');
+    throw e;
+  }
   return project;
 }
 
-async function loadCapacitorConfig(projectRootPath?: string): Promise<CapacitorConfig> {
-  let extConfig: CapacitorConfig | null = null;
-
-  try {
-    extConfig = await loadExtConfig(projectRootPath ?? '');
-    if (extConfig?.android?.path) {
-      extConfig.android.path = join(projectRootPath ?? '', extConfig.android.path);
-    } else {
-      extConfig = {
-        ...extConfig,
-        android: {
-          path: projectRootPath ? join(projectRootPath, 'android') : 'android'
-        }
-      }
-    }
-
-    if (extConfig?.ios?.path) {
-      extConfig.ios.path = join(projectRootPath ?? '', extConfig.ios.path);
-    } else {
-      extConfig = {
-        ...extConfig,
-        ios: {
-          path: projectRootPath ? join(projectRootPath, 'ios') : 'ios'
-        }
-      }
-    }
-  } catch (e) {
-    console.warn('Unable to load external Capacitor config', e);
-  }
-
-  return extConfig || {
-    ios: {
-      path: projectRootPath ? join(projectRootPath, 'ios') : 'ios'
-    },
+async function loadConfig(
+  projectRootPath?: string,
+  androidProject?: string,
+  iosProject?: string
+): Promise<MobileProjectConfig> {
+  return <MobileProjectConfig>{
     android: {
-      path: projectRootPath ? join(projectRootPath, 'android') : 'android'
+      path: androidProject ?? 'android'
+    },
+    ios: {
+      path: iosProject ?? 'ios/App'
     }
   }
 }

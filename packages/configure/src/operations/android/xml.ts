@@ -1,5 +1,5 @@
 import { Context } from "../../ctx";
-import { XmlFile } from '@capacitor/project';
+import { XmlFile } from '@trapezedev/project';
 import { AndroidXmlOperation, Operation } from "../../definitions";
 
 export default async function execute(ctx: Context, op: Operation) {
@@ -35,6 +35,10 @@ export default async function execute(ctx: Context, op: Operation) {
       await xmlFile.mergeFragment(entry.target, entry.merge);
     } else if (entry.replace) {
       await xmlFile.replaceFragment(entry.target, entry.replace);
+    } else if (entry.delete) {
+      await xmlFile.deleteNodes(entry.delete);
+    } else if (entry.deleteAttributes) {
+      await xmlFile.deleteAttributes(entry.target, entry.deleteAttributes);
     }
   }
 }

@@ -2,7 +2,7 @@ import { join } from 'path';
 
 import { Context } from '../../ctx';
 import { AndroidPropertiesOperation, Operation } from '../../definitions';
-import { PropertiesFile } from '@capacitor/project';
+import { PropertiesFile } from '@trapezedev/project';
 
 export default async function execute(ctx: Context, op: Operation) {
   const xmlOp = op as AndroidPropertiesOperation

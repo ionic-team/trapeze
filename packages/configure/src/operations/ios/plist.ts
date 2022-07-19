@@ -1,24 +1,48 @@
 import { Context } from '../../ctx';
-import { Operation } from '../../definitions';
+import { IosPlistOperationValue, Operation } from '../../definitions';
+import { logger } from '../../util/log';
 
 export default async function execute(ctx: Context, op: Operation) {
-  const plistOp = op.value;
+  if (Array.isArray(op.value)) {
+    const plistOp = op.value as IosPlistOperationValue[];
+    for (const pop of plistOp) {
+      if (pop.file) {
+        const file = await ctx.project.ios?.getPlistFile(pop.file);
+        if (!file) {
+          throw new Error(`No such plist file for plist operation: ${pop.file}`);
+        }
 
-  // Support arrays of ops or single ops
+        await file.load();
 
-  if (Array.isArray(plistOp)) {
-    for (const op of plistOp) {
-      for (const entries of op.entries) {
-        await ctx.project.ios?.updateInfoPlist(op.iosTarget, op.iosBuild, entries, {
-          replace: op.replace ?? false
-        });
+        for (const entries of pop.entries) {
+          if (pop.replace) {
+            file.set(entries);
+          } else {
+            file.merge(entries);
+          }
+        }
+      } else {
+        for (const entries of pop.entries) {
+          try {
+            await ctx.project.ios?.updateInfoPlist(pop.iosTarget ?? null, pop.iosBuild ?? null, entries, {
+              replace: pop.replace ?? false
+            });
+          } catch (e) {
+            logger.warn(`Skipping ${op.id} (${(e as any).message})`);
+          }
+        }
       }
     }
   } else {
+    const plistOp = op.value as IosPlistOperationValue;
     for (const entries of plistOp.entries) {
-      await ctx.project.ios?.updateInfoPlist(op.iosTarget, op.iosBuild, entries, {
-        replace: plistOp.replace ?? false
-      });
+      try {
+        await ctx.project.ios?.updateInfoPlist(op.iosTarget ?? null, op.iosBuild ?? null, entries, {
+          replace: plistOp.replace ?? false
+        });
+      } catch (e) {
+        logger.warn(`Skipping ${op.id} (${(e as any).message})`);
+      }
     }
   }
 }

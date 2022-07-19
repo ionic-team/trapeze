@@ -1,5 +1,6 @@
 import { Context } from "../../ctx";
 import { AndroidGradleOperation, Operation } from "../../definitions";
+import { logger } from "../../util/log";
 
 export default async function execute(ctx: Context, op: Operation) {
   const entries = (op as AndroidGradleOperation).value;
@@ -7,7 +8,8 @@ export default async function execute(ctx: Context, op: Operation) {
   for (let entry of entries) {
     const gradleFile = await ctx.project.android?.getGradleFile(entry.file);
     if (!gradleFile) {
-      throw new Error(`Unable to modify gradle file ${entry.file}. Options are build.gradle or app/build.gradle`);
+      logger.warn(`Skipping ${op.id} - can't locate Gradle file ${entry.file}`);
+      continue;
     }
 
     if (entry.replace) {
