@@ -102,37 +102,55 @@ export class XmlFile extends VFSStorable {
     }
 
     const nodes = this.select?.(target, this.doc) as Element[];
+
+    console.log('Checking against', nodes.length, 'nodes');
     const parsed = parseXmlString(fragment);
+
     const docNodes = parsed.childNodes ?? [];
 
     nodes.forEach(n => {
       Array.prototype.forEach.call(docNodes, doc => {
-        const existingChild = Array.prototype.find.call(
-          n.childNodes,
-          en => en.nodeName === doc.nodeName,
-        );
+        if (n.tagName !== doc.tagName || n.nodeName !== doc.nodeName) {
+          return;
+        }
 
-        // If the child doesn't exist, append it and finish
-        if (!existingChild || !this.exists(n, doc)) {
-          n.appendChild(doc);
+        let existingChild = null;
+        const attrsToCheck = doc.attributes;
+        for (const attr in attrsToCheck) {
+          const checkAttr = attrsToCheck[attr];
+          const nodeAttr = n.attributes[attr as any];
+          if (typeof nodeAttr === 'function') {
+            continue;
+          }
+          if (checkAttr.name && nodeAttr.name === checkAttr.name && nodeAttr.value === checkAttr.value) {
+            // Greedily match against the first matching attr
+            existingChild = n;
+            break;
+          }
+        }
+
+        if (existingChild) {
+          console.log(`Found match`);
+          console.log(`<${n.tagName} ${n.attributes[0].name}="${n.attributes[0].value}" />`);
+          console.log(`<${existingChild.tagName} ${existingChild.attributes[0].name}="${existingChild.attributes[0].value}" />`);
+        }
+
+        // If the child exists, replace its children with this one
+        if (existingChild) {
+          for (const n of Array.prototype.slice.call(existingChild.childNodes)) {
+            existingChild.removeChild(n);
+          }
+          for (const o of Array.prototype.slice.call(doc.childNodes)) {
+            existingChild.appendChild(o);
+          }
+          // TODO: merge attributes
         } else {
-          // Child exists, so merge the two nodes
-          this._mergeNodes(existingChild, doc);
+          // Child doesn't exist, we need to inject here?
         }
       });
     });
 
     this.vfs.set(this.path, this);
-  }
-
-  _mergeNodes(oldEl: Element, newEl: Element) {
-    Array.prototype.forEach.call(newEl.childNodes ?? [], n => {
-      const exists = this.exists(oldEl, n);
-      if (!exists) {
-        oldEl.appendChild(n);
-      }
-      // TODO: make this recursive?
-    });
   }
 
   /**

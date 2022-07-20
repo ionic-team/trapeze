@@ -25,6 +25,19 @@ describe('xml file', () => {
     `.trim());
   });
 
+  it('Should delete nodes', async () => {
+    const node = file.find('string');
+
+    file.deleteNodes('//string');
+    const doc = file.getDocumentElement();
+
+    const serialized = serializeXml(doc).replaceAll(/\s+/g, '');
+    expect(serialized).toBe(`
+<resources></resources>
+    `.trim());
+  });
+
+
   it('Should delete attributes', async () => {
     file.deleteAttributes('//string', ['name']);
     const doc = file.getDocumentElement();
@@ -37,6 +50,68 @@ describe('xml file', () => {
     <string>io.ionic.starter</string>
 </resources>
     `.trim());
+  });
+
+  it('Should inject', async () => {
+    const doc = file.getDocumentElement();
+    const node = file.find('resources');
+    file.injectFragment('resources', `
+    <string name="app_name">$PRODUCT_NAME</string>
+    <string name="title_activity_main">$PRODUCT_NAME</string>
+    <string name="package_name">$ANDROID_PACKAGE_NAME</string>
+    <string name="custom_url_scheme">$ANDROID_PACKAGE_NAME</string>
+    `.trim());
+    const serialized = serializeXml(doc);
+    expect(serialized).toBe(`
+<resources>
+    <string name="app_name">capacitor-configure-test</string>
+    <string name="title_activity_main">capacitor-configure-test</string>
+    <string name="package_name">io.ionic.starter</string>
+    <string name="custom_url_scheme">io.ionic.starter</string>
+    <string name="app_name">$PRODUCT_NAME</string>
+    <string name="title_activity_main">$PRODUCT_NAME</string>
+    <string name="package_name">$ANDROID_PACKAGE_NAME</string>
+    <string name="custom_url_scheme">$ANDROID_PACKAGE_NAME</string>
+</resources>
+    `.trim());
+  });
+
+  it('Should merge', async () => {
+    file.mergeFragment('//string', `
+      <string name="app_name">$PRODUCT_NAME</string>
+      <string name="title_activity_main">$PRODUCT_NAME</string>
+      <string name="package_name">$ANDROID_PACKAGE_NAME</string>
+      <string name="custom_url_scheme">$ANDROID_PACKAGE_NAME</string>
+    `.trim());
+
+    const doc = file.getDocumentElement();
+    const serialized = serializeXml(doc);
+    console.log(serialized);
+    expect(serialized).toBe(`
+<resources>
+    <string name="app_name">$PRODUCT_NAME</string>
+    <string name="title_activity_main">$PRODUCT_NAME</string>
+    <string name="package_name">$ANDROID_PACKAGE_NAME</string>
+    <string name="custom_url_scheme">$ANDROID_PACKAGE_NAME</string>
+</resources>
+    `.trim());
+  });
+
+  it('Should replace', async () => {
+    file.replaceFragment('resources/string[@name="app_name"]', `
+      <string name="app_name">$PRODUCT_NAME</string>
+    `);
+
+    const doc = file.getDocumentElement();
+
+    const serialized = serializeXml(doc);
+    expect(serialized.trim()).toBe(`
+<resources>
+    <string name="app_name">$PRODUCT_NAME</string>
+    <string name="title_activity_main">capacitor-configure-test</string>
+    <string name="package_name">io.ionic.starter</string>
+    <string name="custom_url_scheme">io.ionic.starter</string>
+</resources>`.trim());
   });
 
   describe('GitHub Issue Tests', () => {
