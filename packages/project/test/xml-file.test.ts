@@ -1,5 +1,5 @@
 import { XmlFile } from '../src';
-import { serializeXml } from '../src/util/xml';
+import { formatXml, serializeXml } from '../src/util/xml';
 import { VFS } from '../src/vfs';
 
 describe('xml file', () => {
@@ -76,23 +76,50 @@ describe('xml file', () => {
     `.trim());
   });
 
-  it('Should merge', async () => {
-    file.mergeFragment('//string', `
+  it('Should merge simple tree', async () => {
+    await file.mergeTrees('/resources', `
+    <resources>
       <string name="app_name">$PRODUCT_NAME</string>
       <string name="title_activity_main">$PRODUCT_NAME</string>
       <string name="package_name">$ANDROID_PACKAGE_NAME</string>
       <string name="custom_url_scheme">$ANDROID_PACKAGE_NAME</string>
+    </resources>
     `.trim());
 
     const doc = file.getDocumentElement();
-    const serialized = serializeXml(doc);
-    console.log(serialized);
-    expect(serialized).toBe(`
+    const serialized = await formatXml(doc);
+    expect(serialized.trim()).toBe(`
 <resources>
     <string name="app_name">$PRODUCT_NAME</string>
     <string name="title_activity_main">$PRODUCT_NAME</string>
     <string name="package_name">$ANDROID_PACKAGE_NAME</string>
     <string name="custom_url_scheme">$ANDROID_PACKAGE_NAME</string>
+</resources>
+    `.trim());
+  });
+
+  it('Should merge complex tree', async () => {
+    await file.mergeTrees('/resources', `
+    <resources>
+      <string name="app_name">$PRODUCT_NAME</string>
+      <string name="title_activity_main">$PRODUCT_NAME</string>
+      <thing>
+        <another-thing name="this">thing</another-thing>
+      </thing>
+    </resources>
+    `.trim());
+
+    const doc = file.getDocumentElement();
+    const serialized = await formatXml(doc);
+    expect(serialized.trim()).toBe(`
+<resources>
+    <string name="app_name">$PRODUCT_NAME</string>
+    <string name="title_activity_main">$PRODUCT_NAME</string>
+    <string name="package_name">io.ionic.starter</string>
+    <string name="custom_url_scheme">io.ionic.starter</string>
+    <thing>
+        <another-thing name="this">thing</another-thing>
+    </thing>
 </resources>
     `.trim());
   });

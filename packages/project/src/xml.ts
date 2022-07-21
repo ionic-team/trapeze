@@ -1,6 +1,8 @@
 import { formatXml, parseXml, parseXmlString, serializeXml, writeXml } from './util/xml';
 import xpath, { XPathSelect } from 'xpath';
-import { difference } from 'lodash';
+import MergeXML from 'mergexml';
+import { difference, isEqual, mergeWith } from 'lodash';
+import { xml2js, js2xml } from 'xml-js';
 import { VFS, VFSFile, VFSStorable } from './vfs';
 import { readFile } from 'fs-extra';
 
@@ -114,6 +116,8 @@ export class XmlFile extends VFSStorable {
           return;
         }
 
+        console.log('Checking', doc.tagName, 'against', n.tagName);
+
         let existingChild = null;
         const attrsToCheck = doc.attributes;
         for (const attr in attrsToCheck) {
@@ -145,12 +149,81 @@ export class XmlFile extends VFSStorable {
           }
           // TODO: merge attributes
         } else {
+          console.log('DOING AN APPEND HERE', `<${doc.tagName} ${doc.attributes[0]?.name}="${doc.attributes[0]?.value}" />`);
+          // n.appendChild(doc);
           // Child doesn't exist, we need to inject here?
         }
       });
     });
 
     this.vfs.set(this.path, this);
+  }
+
+  async mergeTrees(target: string, fragment: string) {
+    if (!this.doc) {
+      return;
+    }
+
+    // Get the target element
+    const node = this.select?.(target, this.doc) as Element[];
+
+    if (!node.length) {
+      return;
+    }
+
+    const targetSerialized = serializeXml(node[0]);
+    const targetParsed = xml2js(targetSerialized);
+    const fragmentParsed = xml2js(fragment);
+
+    const newTree = await this.mergeJsonTree(targetParsed, fragmentParsed);
+
+    const xml = js2xml(newTree);
+
+    const newTreeElement = parseXmlString(xml);
+
+    for (const n of Array.prototype.slice.call(node[0].childNodes)) {
+      node[0].removeChild(n);
+    }
+    for (const n of Array.prototype.slice.call(newTreeElement.documentElement.childNodes)) {
+      node[0].appendChild(n);
+    }
+  }
+
+  mergeJsonTree(target: any, fragment: any) {
+    this._mergeJson(target, fragment);
+
+    return target;
+  }
+
+  // Recursively merge nodes with some heuristics based on
+  // likely merge expectations
+  _mergeJson(target: any, fragment: any) {
+    for (const e of fragment.elements) {
+      let child: Element | null = null;
+
+      for (const t of target.elements) {
+        if (e.name && t.name && e.name === t.name && isEqual(e.attributes, t.attributes)) {
+          child = t;
+          break;
+        }
+      }
+
+      if (!child) {
+        // If these are both terminal text nodes, replace the text
+        // content instead of appending
+        if (target.elements && 
+            target.elements.every((a: any) => a.type === 'text') &&
+            e.type === 'text') {
+          target.elements = [e];
+        } else {
+          target.elements.push(e);
+        }
+      } else if (e.elements) {
+        this._mergeJson(child, e);
+      }
+    }
+
+    return fragment;
   }
 
   /**
