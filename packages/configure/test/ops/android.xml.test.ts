@@ -125,10 +125,12 @@ describe('op: android.xml', () => {
         resFile: 'values/strings.xml',
         target: 'resources',
         merge: `
+        <resources>
           <string name="app_name">$PRODUCT_NAME</string>
           <string name="title_activity_main">$PRODUCT_NAME</string>
           <string name="package_name">$ANDROID_PACKAGE_NAME</string>
           <string name="custom_url_scheme">$ANDROID_PACKAGE_NAME</string>
+        </resources>
         `
       },
     ]);
@@ -138,14 +140,9 @@ describe('op: android.xml', () => {
     await ctx.project.commit();
 
     const file = await readFile(join(dir, 'android/app/src/main/res/values/strings.xml'), { encoding: 'utf-8' });
-    //console.log(file);
     expect(file.trim()).toBe(`
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version='1.0' encoding='utf-8' ?>
 <resources>
-    <string name="app_name">capacitor-configure-test</string>
-    <string name="title_activity_main">capacitor-configure-test</string>
-    <string name="package_name">io.ionic.starter</string>
-    <string name="custom_url_scheme">io.ionic.starter</string>
     <string name="app_name">$PRODUCT_NAME</string>
     <string name="title_activity_main">$PRODUCT_NAME</string>
     <string name="package_name">$ANDROID_PACKAGE_NAME</string>

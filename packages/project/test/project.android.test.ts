@@ -140,7 +140,6 @@ describe('project - android', () => {
 
     const node = project.android?.getAndroidManifest().find('manifest/application/activity/intent-filter')?.[0];
     expect(node).toBeDefined();
-    console.log(await formatXml(node));
     const elements = Object.values(node!.childNodes as any).filter((n: any) => n.nodeType === 1);
 
     const manifestFile = project.vfs.get((project.android as any).getAndroidManifestPath());

@@ -112,8 +112,8 @@ export class XmlFile extends VFSStorable {
 
 
     const targetSerialized = serializeXml(node[0]);
-    const targetParsed = xml2js(targetSerialized);
-    const fragmentParsed = xml2js(fragment);
+    const targetParsed = xml2js(targetSerialized.trim());
+    const fragmentParsed = xml2js(fragment.trim());
 
     const newTree = this.mergeJsonTree(targetParsed, fragmentParsed);
 
