@@ -61,8 +61,8 @@ describe('xml file', () => {
     <string name="package_name">$ANDROID_PACKAGE_NAME</string>
     <string name="custom_url_scheme">$ANDROID_PACKAGE_NAME</string>
     `.trim());
-    const serialized = serializeXml(doc);
-    expect(serialized).toBe(`
+    const serialized = await formatXml(doc);
+    expect(serialized.trim()).toBe(`
 <resources>
     <string name="app_name">capacitor-configure-test</string>
     <string name="title_activity_main">capacitor-configure-test</string>
@@ -77,7 +77,7 @@ describe('xml file', () => {
   });
 
   it('Should merge simple tree', async () => {
-    await file.mergeTrees('/resources', `
+    file.mergeFragment('/resources', `
     <resources>
       <string name="app_name">$PRODUCT_NAME</string>
       <string name="title_activity_main">$PRODUCT_NAME</string>
@@ -99,7 +99,7 @@ describe('xml file', () => {
   });
 
   it('Should merge complex tree', async () => {
-    await file.mergeTrees('/resources', `
+    await file.mergeFragment('/resources', `
     <resources>
       <string name="app_name">$PRODUCT_NAME</string>
       <string name="title_activity_main">$PRODUCT_NAME</string>
@@ -119,6 +119,30 @@ describe('xml file', () => {
     <string name="custom_url_scheme">io.ionic.starter</string>
     <thing>
         <another-thing name="this">thing</another-thing>
+    </thing>
+</resources>
+    `.trim());
+  });
+
+  it('Should merge insert simple tree', async () => {
+    await file.mergeFragment('/resources', `
+    <resources>
+      <thing>
+        <this />
+      </thing>
+    </resources>
+    `.trim());
+
+    const doc = file.getDocumentElement();
+    const serialized = await formatXml(doc);
+    expect(serialized.trim()).toBe(`
+<resources>
+    <string name="app_name">capacitor-configure-test</string>
+    <string name="title_activity_main">capacitor-configure-test</string>
+    <string name="package_name">io.ionic.starter</string>
+    <string name="custom_url_scheme">io.ionic.starter</string>
+    <thing>
+        <this />
     </thing>
 </resources>
     `.trim());

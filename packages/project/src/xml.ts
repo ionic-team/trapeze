@@ -103,67 +103,6 @@ export class XmlFile extends VFSStorable {
       return;
     }
 
-    const nodes = this.select?.(target, this.doc) as Element[];
-
-    console.log('Checking against', nodes.length, 'nodes');
-    const parsed = parseXmlString(fragment);
-
-    const docNodes = parsed.childNodes ?? [];
-
-    nodes.forEach(n => {
-      Array.prototype.forEach.call(docNodes, doc => {
-        if (n.tagName !== doc.tagName || n.nodeName !== doc.nodeName) {
-          return;
-        }
-
-        console.log('Checking', doc.tagName, 'against', n.tagName);
-
-        let existingChild = null;
-        const attrsToCheck = doc.attributes;
-        for (const attr in attrsToCheck) {
-          const checkAttr = attrsToCheck[attr];
-          const nodeAttr = n.attributes[attr as any];
-          if (typeof nodeAttr === 'function') {
-            continue;
-          }
-          if (checkAttr.name && nodeAttr.name === checkAttr.name && nodeAttr.value === checkAttr.value) {
-            // Greedily match against the first matching attr
-            existingChild = n;
-            break;
-          }
-        }
-
-        if (existingChild) {
-          console.log(`Found match`);
-          console.log(`<${n.tagName} ${n.attributes[0].name}="${n.attributes[0].value}" />`);
-          console.log(`<${existingChild.tagName} ${existingChild.attributes[0].name}="${existingChild.attributes[0].value}" />`);
-        }
-
-        // If the child exists, replace its children with this one
-        if (existingChild) {
-          for (const n of Array.prototype.slice.call(existingChild.childNodes)) {
-            existingChild.removeChild(n);
-          }
-          for (const o of Array.prototype.slice.call(doc.childNodes)) {
-            existingChild.appendChild(o);
-          }
-          // TODO: merge attributes
-        } else {
-          console.log('DOING AN APPEND HERE', `<${doc.tagName} ${doc.attributes[0]?.name}="${doc.attributes[0]?.value}" />`);
-          // n.appendChild(doc);
-          // Child doesn't exist, we need to inject here?
-        }
-      });
-    });
-
-    this.vfs.set(this.path, this);
-  }
-
-  async mergeTrees(target: string, fragment: string) {
-    if (!this.doc) {
-      return;
-    }
-
     // Get the target element
     const node = this.select?.(target, this.doc) as Element[];
 
@@ -171,11 +110,12 @@ export class XmlFile extends VFSStorable {
       return;
     }
 
+
     const targetSerialized = serializeXml(node[0]);
     const targetParsed = xml2js(targetSerialized);
     const fragmentParsed = xml2js(fragment);
 
-    const newTree = await this.mergeJsonTree(targetParsed, fragmentParsed);
+    const newTree = this.mergeJsonTree(targetParsed, fragmentParsed);
 
     const xml = js2xml(newTree);
 
@@ -202,7 +142,13 @@ export class XmlFile extends VFSStorable {
       let child: Element | null = null;
 
       for (const t of target.elements) {
-        if (e.name && t.name && e.name === t.name && isEqual(e.attributes, t.attributes)) {
+        const attrs = e.attributes ?? [];
+        const attrsMatch = Object.keys(attrs).every((a: string) => (t.attributes ?? {})[a] === attrs[a]);
+
+        // Match the same tag names and, if the node to be merged has attributes, make sure
+        // every attribute matches with the source tag to count this as a match (heuristic)
+        if (e.name && t.name && e.name === t.name &&
+           (Object.keys(attrs).length > 0 ? attrsMatch : true)) {
           child = t;
           break;
         }
@@ -222,8 +168,6 @@ export class XmlFile extends VFSStorable {
         this._mergeJson(child, e);
       }
     }
-
-    return fragment;
   }
 
   /**
@@ -269,27 +213,6 @@ export class XmlFile extends VFSStorable {
     });
 
     this.vfs.set(this.path, this);
-  }
-
-  /**
-   * Check if a node already contains a given fragment. This is a
-   * rather naive way to avoid duplicating fragments
-   */
-  private exists(node: any, fragment: any) {
-    for (let child of toArray(node.childNodes)) {
-      if (child.nodeName == fragment.nodeName) {
-        if (
-          difference(
-            toArray(fragment.attributes).map(a => `${a.name}${a.value}`),
-            toArray(child.attributes).map(a => `${a.name}${a.value}`),
-          ).length == 0
-        ) {
-          return true;
-        }
-      }
-    }
-
-    return false;
   }
 
   private xmlCommitFn = async (file: VFSFile) => {
