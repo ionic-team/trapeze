@@ -88,11 +88,16 @@ export function initVarsFromEnv(ctx: Context, vars: Variables) {
   }
 
   for (const v in vars) {
-    const existing = process.env[v];
-    if (existing) {
-      ctx.vars[v] = {
-        value: existing,
-      };
+    try {
+      const existing = process.env[v] && JSON.parse(process.env[v]!);
+      console.log('ENV VAR', v, existing);
+      if (existing) {
+        ctx.vars[v] = {
+          value: existing,
+        };
+      }
+    } catch (e) {
+      console.log(`Unable to parse environment variable ${v}`, e);
     }
   }
 }
