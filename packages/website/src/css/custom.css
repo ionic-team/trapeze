@@ -4,8 +4,11 @@
  * work well for content-centric websites.
  */
 
+@import '~@ionic-internal/design-system/dist/tokens/index.css';
+
 /* You can override the default Infima variables here. */
 :root {
+  --ifm-heading-color: var(--c-carbon-100);
   --ifm-color-primary: #f4a23a;
   --ifm-color-primary-dark: #a9671b;
   --ifm-color-primary-darker: #7b470c;
@@ -15,6 +18,36 @@
   --ifm-color-primary-lightest: #f6bc79;
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+
+  /* navbar */
+  --ifm-navbar-link-color: var(--c-carbon-70);
+  --ifm-navbar-link-hover-color: var(--c-carbon-100);
+  --ifm-navbar-height: 4rem;
+}
+
+.navbar {
+  font-size: 0.975rem;
+  font-weight: 500;
+}
+
+.navbar__link {
+  display: flex;
+  align-items: center;
+}
+
+.navbar .link-icon {
+  --ifm-navbar-item-padding-horizontal: 0.5rem;
+}
+
+.navbar .separator {
+  width: 1px;
+  height: 100%;
+
+  padding-block-start: 0.875rem;
+  padding-block-end: 0.875rem;
+  margin-inline-end: 0.25rem;
+
+  background: var(--c-indigo-40);
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
