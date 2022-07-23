@@ -131,9 +131,12 @@ platforms:
 
       - file: AndroidManifest.xml
         target: manifest/application
-        merge: <queries>
-          <package android:name="com.azure.authenticator" />
-          </queries>
+        merge: |
+          <application>
+            <queries>
+              <package android:name="com.azure.authenticator" />
+            </queries>
+          </application>
 
       - file: AndroidManifest.xml
         target: manifest
@@ -296,7 +299,7 @@ platforms:
 Modifies XML files relative to the root of the Android project. Can also modify files relative to the resource path using `resFile` instead of `file`. This operation supports the same options as the `manifest` operation:
 
 - `attrs` updates the attributes of the given `target` node.
-- `merge` merges the given XML tree supplied to `merge` with the given `target`
+- `merge` merges the given XML tree supplied to `merge` with the given `target`. Merge expects a matching root node to be supplied. The merge algorithm merges any nodes that match with _at least all_ of the supplied node's attributes, or appends any new children not found in the target node.
 - `inject` injects the given XML tree supplied to `inject` inside of the given `target`
 - `delete` deletes nodes specified by `delete` in XPath format.
 - `deleteAttributes` deletes the given attributes in `deleteAttributes` inside of the given `target`
@@ -308,7 +311,9 @@ platforms:
       - file: app/file.xml
         target: entries/field
         merge: |
-          <string>Value</string>
+          <field>
+            <string>Value</string>
+          </field>
       - resFile: values/strings.xml
         target: resources/string[@name="app_name"]
         replace: |
@@ -505,7 +510,7 @@ platforms:
 Modifies XML files relative to the root of the iOS project. This operation supports the following XML file modifications:
 
 - `attrs` updates the attributes of the given `target` node.
-- `merge` merges the given XML tree supplied to `merge` with the given `target`
+- `merge` merges the given XML tree supplied to `merge` with the given `target`. Merge expects a matching root node to be supplied. The merge algorithm merges any nodes that match with _at least all_ of the supplied node's attributes, or appends any new children not found in the target node.
 - `inject` injects the given XML tree supplied to `inject` inside of the given `target`
 - `delete` deletes nodes specified by `delete` in XPath format.
 - `deleteAttributes` deletes the given attributes in `deleteAttributes` inside of the given `target`
@@ -517,5 +522,7 @@ platforms:
       - file: file.xml
         target: entries/field
         merge: |
-          <string>Value</string>
+          <field>
+            <string>Value</string>
+          </field>
 ```
