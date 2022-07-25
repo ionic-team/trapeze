@@ -38,6 +38,22 @@ describe('xml file', () => {
   });
 
 
+  it('Should add attributes', async () => {
+    file.setAttrs('/resources', {
+      test: 'thing'
+    });
+    const doc = file.getDocumentElement();
+    const serialized = serializeXml(doc);
+    expect(serialized).toBe(`
+<resources test="thing">
+    <string name="app_name">capacitor-configure-test</string>
+    <string name="title_activity_main">capacitor-configure-test</string>
+    <string name="package_name">io.ionic.starter</string>
+    <string name="custom_url_scheme">io.ionic.starter</string>
+</resources>
+    `.trim());
+  });
+
   it('Should delete attributes', async () => {
     file.deleteAttributes('//string', ['name']);
     const doc = file.getDocumentElement();
