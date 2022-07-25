@@ -89,6 +89,7 @@ function interpolateVarsInTree(ctx: Context, yaml: YamlFile) {
   each(yaml, (val, key) => {
     if (typeof val === 'string') {
       newObject[key] = str(ctx, val);
+      console.log(key, newObject[key], typeof newObject[key]);
     } else if (typeof val === 'object' || Array.isArray(val)) {
       newObject[key] = interpolateVarsInTree(ctx, val);
     }

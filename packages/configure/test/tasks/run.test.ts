@@ -5,8 +5,50 @@ import plist from 'plist';
 
 import { loadContext } from '../../src/ctx';
 import { runCommand } from '../../src/tasks/run';
+import { loadYamlConfig } from '../../src/yaml-config';
 
 describe('task: run', () => {
+  it('should process variables operations', async () => {
+    const dir = tempy.directory();
+    await copy('../common/test/fixtures/basic.yml', join(dir, 'basic.yml'));
+
+    const ctx = await loadContext(dir);
+
+    await loadYamlConfig(ctx, join(dir, 'basic.yml'));
+
+    expect(ctx.vars).toMatchObject({
+      BUNDLE_ID: {
+        default: 'io.ionic.fixtureTest',
+        value: 'io.ionic.fixtureTest',
+      },
+      PACKAGE_NAME: {
+        default: 'io.ionic.fixtureTest',
+        value: 'io.ionic.fixtureTest',
+      },
+      KEYCHAIN_GROUPS: {
+        default: [
+          '$BUNDLE_ID',
+          'com.microsoft.intune.mam',
+          'com.microsoft.adalcache',
+        ],
+        value: [
+          '$BUNDLE_ID',
+          'com.microsoft.intune.mam',
+          'com.microsoft.adalcache',
+        ]
+      }
+    });
+  });
+
+  it('should handle JSON-values in variables', async () => {
+    const dir = tempy.directory();
+    await copy('../common/test/fixtures/basic.yml', join(dir, 'basic.yml'));
+
+    const ctx = await loadContext(dir);
+
+    await loadYamlConfig(ctx, join(dir, 'basic.yml'));
+  });
+
   it('should run operations', async () => {
     const dir = tempy.directory();
 
