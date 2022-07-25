@@ -1,7 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 
-import styles from './index.module.css';
+import styles from './index.module.scss';
 
 export default function PlatformBar(props) {
   return (

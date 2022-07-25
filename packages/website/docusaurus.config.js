@@ -1,7 +1,7 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-const lightCodeTheme = require('prism-react-renderer/themes/github');
+const lightCodeTheme = require('prism-react-renderer/themes/oceanicNext');
 const darkCodeTheme = require('prism-react-renderer/themes/palenight');
 
 /** @type {import('@docusaurus/types').Config} */
@@ -45,7 +45,7 @@ const config = {
           // editUrl: 'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
         },
         theme: {
-          customCss: require.resolve('./src/css/custom.css'),
+          customCss: require.resolve('./src/css/custom.scss'),
         },
       }),
     ],
@@ -108,47 +108,142 @@ const config = {
         ],
       },
       footer: {
-        style: 'dark',
+        style: 'light',
+        logo: {
+          alt: 'Ionic Logo',
+          src: 'img/logo-footer.svg',
+          href: 'https://ionic.io',
+          width: 80,
+          height: 21,
+        },
         links: [
           {
             title: 'Docs',
             items: [
               {
                 label: 'Overview',
-                to: '/docs/',
+                to: '/',
+              },
+              {
+                label: 'Configuration Tool',
+                to: '/configuration-tool',
+              },
+              {
+                label: 'API',
+                to: '/project-api',
+              },
+              {
+                label: 'CI/CD',
+                to: '/ci-cd',
               },
             ],
           },
           {
-            title: 'Community',
+            title: 'Frameworks',
             items: [
               {
-                label: 'Twitter',
-                href: 'https://twitter.com/trapezedev',
+                label: 'Native iOS',
+                to: '/frameworks/native-ios',
+              },
+              {
+                label: 'Native Android',
+                to: '/frameworks/native-android',
+              },
+              {
+                label: 'Capacitor',
+                to: '/frameworks/capacitor',
+              },
+              {
+                label: 'React Native',
+                to: '/frameworks/react-native',
+              },
+              {
+                label: 'Flutter',
+                to: '/frameworks/flutter',
               },
             ],
           },
           {
-            title: 'More',
+            title: 'Social',
             items: [
               {
                 label: 'GitHub',
                 href: 'https://github.com/ionic-team/trapeze',
               },
+              {
+                label: 'Twitter',
+                href: 'https://github.com/ionic-team/trapeze',
+              },
+              {
+                label: 'Discord',
+                href: 'https://github.com/ionic-team/trapeze',
+              },
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} Drifty, Co. Built with Docusaurus.`,
+        copyright: `© ${new Date().getFullYear()}  |  MIT License`,
       },
       prism: {
         theme: lightCodeTheme,
+        // {
+        //   plain: {
+        //     color: 'var(--c-carbon-0)',
+        //     backgroundColor: '#0A1220',
+        //   },
+        //   styles: [
+        //     {
+        //       types: ['atrule'],
+        //       style: {
+        //         color: 'var(--c-orange-50)',
+        //       },
+        //     },
+        //     {
+        //       types: ['keyword', 'boolean'],
+        //       style: {
+        //         color: 'var(--c-purple-40)',
+        //       },
+        //     },
+        //     {
+        //       types: ['string', 'function', 'property-access'],
+        //       style: {
+        //         color: 'var(--c-green-40)',
+        //       },
+        //     },
+        //     {
+        //       types: ['class-name', 'literal-property'],
+        //       style: {
+        //         color: 'var(--c-blue-40)',
+        //       },
+        //     },
+        //     {
+        //       types: ['comment'],
+        //       style: {
+        //         color: 'var(--c-carbon-40)',
+        //       },
+        //     },
+        //     {
+        //       types: ['property'],
+        //       style: {
+        //         color: 'var(--c-yellow-40)',
+        //       },
+        //     },
+        //   ],
+        // },
         darkTheme: darkCodeTheme,
         additionalLanguages: ['yaml'],
       },
       colorMode: { defaultMode: 'light', disableSwitch: true, respectPrefersColorScheme: false },
     }),
 
-  plugins: ['@docusaurus/plugin-ideal-image'],
+  plugins: [
+    [
+      '@docusaurus/plugin-ideal-image',
+      {
+        quality: 70,
+      },
+    ],
+    'docusaurus-plugin-sass',
+  ],
 };
 
 module.exports = config;
