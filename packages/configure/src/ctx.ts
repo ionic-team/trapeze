@@ -73,7 +73,7 @@ export function str(ctx: Context, s: string): string | any {
     if (typeof foundVar.value === 'string') {
       return s.replace(/\$[^\(][\w.]+/g, foundVar.value);
     }
-    return foundVar;
+    return foundVar.value;
   }
 
   // Otherwise do a string interpolation of each value
@@ -104,7 +104,6 @@ export function initVarsFromEnv(ctx: Context, vars: Variables) {
   for (const v in vars) {
     try {
       const existing = process.env[v] && JSON.parse(process.env[v]!);
-      console.log('ENV VAR', v, existing);
       if (existing) {
         ctx.vars[v] = {
           value: existing,
