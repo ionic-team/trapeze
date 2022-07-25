@@ -7,6 +7,7 @@
     "@trapezedev/project": "4.0.1"
   },
   "changesets": [
-    "moody-snakes-buy"
+    "moody-snakes-buy",
+    "quiet-toys-care"
   ]
 }
