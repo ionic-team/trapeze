@@ -19,8 +19,6 @@ export default async function execute(ctx: Context, op: Operation) {
   }
 
   for (const entitlement of entitlementsList) {
-    console.log('Setting entitlement', entitlement);
-    
     try {
       if (build) {
         // If build is specified, apply only to that build
