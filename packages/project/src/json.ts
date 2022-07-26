@@ -15,6 +15,10 @@ export class JsonFile extends VFSStorable {
   }
 
   async load() {
+    if (this.vfs.isOpen(this.path)) {
+      return;
+    }
+
     this.json = await readJson(this.path);
     this.vfs.open(this.path, this, this.commitFn, this.diffFn);
   }

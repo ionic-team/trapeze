@@ -130,7 +130,8 @@ describe('op: android.xml', () => {
 
     let data = ctx.project.android?.getXmlFile('app/src/main/AndroidManifest.xml');
 
-    console.log(data!.getDocumentElement());
+    // The document element should be null at this point as we deleted the root node
+    expect(data!.getDocumentElement()).toBeNull();
 
     op = makeOp('android', 'xml', [
       {
@@ -140,11 +141,10 @@ describe('op: android.xml', () => {
       },
     ]);
 
-    data = ctx.project.android?.getXmlFile('app/src/main/AndroidManifest.xml');
-
-    console.log(data!.getDocumentElement());
-
     await Op(ctx, op as Operation);
+
+    // The document element should be null at this point as we deleted the root node
+    expect(data!.getDocumentElement()).not.toBeNull();
 
     await ctx.project.commit();
 

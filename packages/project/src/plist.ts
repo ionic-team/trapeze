@@ -21,6 +21,10 @@ export class PlistFile extends VFSStorable {
   }
 
   async load() {
+    if (this.vfs.isOpen(this.path)) {
+      return;
+    }
+
     this.doc = await parsePlist(this.path);
     this.vfs.open(this.path, this, this.plistCommitFn, this.plistDiffFn);
   }

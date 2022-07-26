@@ -19,7 +19,7 @@ export class XmlFile extends VFSStorable {
 
   async load() {
     // Don't load the file if it's already open
-    if (!!this.vfs.get(this.path)) {
+    if (this.vfs.isOpen(this.path)) {
       return;
     }
 
