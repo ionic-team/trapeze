@@ -14,7 +14,8 @@
   ],
   "scripts": {
     "build": "turbo run build",
-    "test": "turbo run test"
+    "test": "turbo run test",
+    "shipit": "npm run build && npm run test && npx changeset publish"
   },
   "volta": {
     "node": "16.13.2",
