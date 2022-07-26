@@ -32,10 +32,8 @@ export default function Footer() {
             <div key={i} className={clsx(`col col--${i === links.length - 1 ? 2 : 3}`)}>
               <h3 className="footer__title">{title}</h3>
               <ul className="footer__items clean-list">
-                {console.log(items)}
                 {items.map((props, i) => (
                   <li key={i}>
-                    {console.log(props)}
                     <LinkItem key={i} item={props} />
                   </li>
                 ))}
