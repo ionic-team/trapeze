@@ -5,6 +5,7 @@
  */
 
 @import '~@ionic-internal/design-system/dist/tokens/index.css';
+// @import '~modern-normalize/modern-normalize.css';
 
 /* You can override the default Infima variables here. */
 :root {
@@ -33,34 +34,49 @@
 
   --ifm-footer-link-color: var(--c-indigo-80);
   --ifm-footer-link-hover-color: var(--c-indigo-100);
+
+  --ifm-link-hover-decoration: none;
 }
 
 .navbar {
-  font-size: 0.975rem;
+  font-size: 0.875rem;
   font-weight: 500;
+
+  &__item svg {
+    vertical-align: middle;
+  }
+
+  .link-icon {
+    --ifm-navbar-item-padding-horizontal: 0.5rem;
+
+    path {
+      transition: fill 0.2s ease-out;
+    }
+
+    &:hover,
+    &:focus {
+      path {
+        fill: var(--ifm-navbar-link-hover-color);
+      }
+    }
+  }
+
+  .separator {
+    width: 1px;
+    height: 100%;
+
+    padding-block-start: 0.875rem;
+    padding-block-end: 0.875rem;
+    margin-inline-end: 0.25rem;
+
+    background: var(--c-indigo-40);
+  }
 }
 
-.navbar__item svg {
-  vertical-align: middle;
-}
-
-.navbar .link-icon {
-  --ifm-navbar-item-padding-horizontal: 0.5rem;
-}
-
-.navbar-sidebar .separator {
-  display: none;
-}
-
-.navbar .separator {
-  width: 1px;
-  height: 100%;
-
-  padding-block-start: 0.875rem;
-  padding-block-end: 0.875rem;
-  margin-inline-end: 0.25rem;
-
-  background: var(--c-indigo-40);
+.navbar-sidebar {
+  .separator {
+    display: none;
+  }
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */

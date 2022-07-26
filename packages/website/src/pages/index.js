@@ -15,7 +15,7 @@ import styles from './index.module.scss';
 export default function Home() {
   const { siteConfig } = useDocusaurusContext();
   return (
-    <Layout title={`Hello from ${siteConfig.title}`} description="Description will go into a meta tag in <head />">
+    <Layout description={siteConfig.tagline}>
       <main className={styles.page}>
         <Top />
         <Features />
@@ -161,7 +161,10 @@ function Customize() {
             <div className={styles.overline}>Customizable</div>
             <h2>Custom config scripts.</h2>
             <p className={styles.p2}>
-              Write custom iOS and Android configuration scripts using the powerful Trapeze API
+              Write custom iOS and Android configuration scripts using the powerful{' '}
+              <Link autoAddBaseUrl href="/docs/project-api">
+                Trapeze API
+              </Link>
             </p>
           </div>
           <div className="col col--6 col--offset-1">
@@ -239,7 +242,7 @@ function Community() {
         </header>
         <ul className={clsx(styles.community__cards, 'row row--no-gutters clean-list')}>
           <li className="col">
-            <a className={styles.community__card}>
+            <a className={styles.community__card} href="https://twitter.com/trapezedev" target="_blank" rel="noopener">
               <div className={styles['community__card__image-wrapper']}>
                 <Image img={require('/img/index/community-0.png')} width={30} height={24} />
               </div>
@@ -248,7 +251,12 @@ function Community() {
             </a>
           </li>
           <li className="col">
-            <a className={styles.community__card}>
+            <a
+              className={styles.community__card}
+              href="https://discord.com/invite/UPYYRhtyzp"
+              target="_blank"
+              rel="noopener"
+            >
               <div className={styles['community__card__image-wrapper']}>
                 <Image img={require('/img/index/community-1.png')} width={34} height={27.55} />
               </div>
@@ -257,7 +265,12 @@ function Community() {
             </a>
           </li>
           <li className="col">
-            <a className={styles.community__card}>
+            <a
+              className={styles.community__card}
+              href="https://github.com/ionic-team/trapeze"
+              target="_blank"
+              rel="noopener"
+            >
               <div className={styles['community__card__image-wrapper']}>
                 <Image img={require('/img/index/community-2.png')} width={28} height={28} />
               </div>

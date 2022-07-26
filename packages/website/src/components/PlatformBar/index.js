@@ -52,7 +52,7 @@ export default function PlatformBar(props) {
         </svg>
       </a>
       <span className={styles.end}>
-        <em>Trapeze</em> is a part of the <a href="https://ionic.io">Ionic Ecosystem →</a>
+        <em>Trapeze</em> is part of the <a href="https://ionic.io">Ionic Ecosystem →</a>
       </span>
     </div>
   );

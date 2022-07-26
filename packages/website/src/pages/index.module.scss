@@ -3,10 +3,11 @@
     sans-serif;
   --ifm-heading-font-family: Inter, -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', Helvetica, Arial,
     sans-serif;
+
   --ifm-font-family-monospace: 'Roboto Mono', 'SF Mono', Menlo, monospace;
 
-  --ifm-container-width: 70rem;
-  --ifm-container-width-xl: 70rem;
+  --ifm-container-width: 72rem;
+  --ifm-container-width-xl: 72rem;
 
   --ifm-h1-font-size: 5rem;
   --ifm-h2-font-size: 2.5rem;
@@ -22,9 +23,16 @@
   --ifm-button-font-weight: 600;
   --ifm-button-font-size: 1rem;
 
+  --ifm-pre-line-height: 1.9;
+
+  font-family: var(--ifm-font-family-base);
+
+  p {
+    letter-spacing: -0.01em;
+  }
+
   .p2 {
     font-size: 1.25rem;
-    letter-spacing: -0.01em;
   }
 
   .p3 {
