@@ -118,6 +118,46 @@ describe('op: android.xml', () => {
     `.trim());
   });
 
+  it('should delete root and replace', async () => {
+    let op: AndroidXmlOperation = makeOp('android', 'xml', [
+      {
+        file: 'app/src/main/AndroidManifest.xml',
+        delete: '/manifest'
+      },
+    ]);
+
+    await Op(ctx, op as Operation);
+
+    let data = ctx.project.android?.getXmlFile('app/src/main/AndroidManifest.xml');
+
+    console.log(data!.getDocumentElement());
+
+    op = makeOp('android', 'xml', [
+      {
+        file: 'app/src/main/AndroidManifest.xml',
+        target: '/',
+        inject: `<tag><thing /></tag>`
+      },
+    ]);
+
+    data = ctx.project.android?.getXmlFile('app/src/main/AndroidManifest.xml');
+
+    console.log(data!.getDocumentElement());
+
+    await Op(ctx, op as Operation);
+
+    await ctx.project.commit();
+
+    const file = await readFile(join(dir, 'android/app/src/main/AndroidManifest.xml'), { encoding: 'utf-8' });
+    //console.log(file);
+    expect(file.trim()).toBe(`
+<?xml version="1.0" encoding="utf-8" ?>
+<tag>
+    <thing />
+</tag>
+    `.trim());
+  });
+
   // per https://github.com/ionic-team/trapeze/issues/87
   it('should merge nodes', async () => {
     const op: AndroidXmlOperation = makeOp('android', 'xml', [
