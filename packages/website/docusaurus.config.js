@@ -112,7 +112,7 @@ const config = {
         logo: {
           alt: 'Ionic Logo',
           src: 'img/logo-footer.svg',
-          href: 'https://ionic.io',
+          href: '/',
           width: 80,
           height: 21,
         },
