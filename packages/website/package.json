@@ -18,6 +18,7 @@
     "@docusaurus/plugin-ideal-image": "^2.0.0-rc.1",
     "@docusaurus/preset-classic": "^2.0.0-rc.1",
     "@ionic-internal/design-system": "^0.0.0",
+    "@ionic-internal/docusaurus-plugin-tag-manager": "^2.0.0",
     "@ionic/prettier-config": "^2.0.0",
     "@mdx-js/react": "^1.6.21",
     "@svgr/webpack": "^5.5.0",

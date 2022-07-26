@@ -5,8 +5,8 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import CodeBlock from '@theme/CodeBlock';
 
-import snippets from './assets/snippets.js';
-import snippetsAutomate from './assets/snippets-automate.js';
+import snippets from './_assets/snippets.js';
+import snippetsAutomate from './_assets/snippets-automate.js';
 
 import Image from '@theme/IdealImage';
 

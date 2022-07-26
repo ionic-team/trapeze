@@ -191,6 +191,9 @@ const config = {
         additionalLanguages: ['yaml'],
       },
       colorMode: { defaultMode: 'light', disableSwitch: true, respectPrefersColorScheme: false },
+      tagManager: {
+        trackingID: 'GTM-TKMGCBC',
+      },
     }),
 
   plugins: [
@@ -201,6 +204,7 @@ const config = {
       },
     ],
     'docusaurus-plugin-sass',
+    '@ionic-internal/docusaurus-plugin-tag-manager',
   ],
 };
 
