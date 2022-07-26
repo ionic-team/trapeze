@@ -11,7 +11,6 @@ import snippetsAutomate from './assets/snippets-automate.js';
 import Image from '@theme/IdealImage';
 
 import styles from './index.module.scss';
-import IconExternalLink from '@theme/Icon/ExternalLink';
 
 export default function Home() {
   const { siteConfig } = useDocusaurusContext();
@@ -52,7 +51,14 @@ function Top() {
             rel="noopener"
           >
             GitHub
-            <IconExternalLink />
+            <svg width="10" height="10" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M4.38.47c0 .26-.21.47-.47.47H1.25a.31.31 0 0 0-.31.31v7.5c0 .17.14.31.31.31h7.5c.17 0 .31-.14.31-.31V6.09a.47.47 0 0 1 .94 0v2.66C10 9.44 9.44 10 8.75 10h-7.5C.56 10 0 9.44 0 8.75v-7.5C0 .56.56 0 1.25 0h2.66c.26 0 .46.21.46.47Zm5.15 3.9a.47.47 0 0 1-.47-.46V1.6L4.33 6.33a.47.47 0 0 1-.66-.66L8.4.94H6.1a.47.47 0 0 1 0-.94h3.28c.34 0 .62.28.62.63V3.9c0 .26-.21.46-.47.46Z"
+                fill="#677483"
+              />
+            </svg>
           </a>
         </div>
         <Image img={require('/img/index/top-0.png')} width={117.23} height={14} />
