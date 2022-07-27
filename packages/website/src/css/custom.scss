@@ -197,8 +197,9 @@
 
 @font-face {
   font-family: 'Roboto Mono';
-  src: local('Roboto Mono'),
-    url('https://code.ionicframework.com/assets/fonts/roboto-mono/roboto-mono-var.woff2') format('woff2-variations');
+  src: local('Roboto Mono Variable'),
+    url('https://code.ionicframework.com/assets/fonts/roboto-mono/roboto-mono-var.woff2') format('woff2-variations'),
+    url('/fonts/roboto-mono/roboto-mono-var.woff2') format('woff2-variations');
   font-display: swap;
   font-weight: 1 1000;
 }
@@ -209,7 +210,8 @@
   font-style: normal;
   font-weight: 1 1000;
   unicode-range: U+000-5FF;
-  src: local('Inter Regular'),
+  src: local('Inter Variable'),
     url('https://code.ionicframework.com/assets/fonts/inter/Inter-variable-ASCII-subset.woff2')
-      format('woff2-variations');
+      format('woff2-variations'),
+    url('/fonts/inter/Inter-variable-ASCII-subset.woff2') format('woff2-variations');
 }
