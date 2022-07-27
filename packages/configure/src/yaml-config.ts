@@ -88,7 +88,13 @@ function interpolateVarsInTree(ctx: Context, yaml: YamlFile) {
 
   each(yaml, (val, key) => {
     if (typeof val === 'string') {
-      newObject[key] = str(ctx, val);
+      const interped = str(ctx, val);
+      if (typeof interped === 'object') {
+        // Recur into the new object value to interp any sub-fields
+        newObject[key] = interpolateVarsInTree(ctx, interped);
+      } else {
+        newObject[key] = interped;
+      }
     } else if (typeof val === 'object' || Array.isArray(val)) {
       newObject[key] = interpolateVarsInTree(ctx, val);
     }

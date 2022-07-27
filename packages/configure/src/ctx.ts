@@ -64,17 +64,31 @@ export function setArguments(ctx: Context, args: any) {
 
 // Given a variable of the form $VARIABLE, resolve the
 // actual value from the environment
-export function str(ctx: Context, s: string) {
+export function str(ctx: Context, s: string): string | any {
+  // Check for situations where our string exactly matches a var and
+  // then use that as a special case to either interpolate the string
+  // or return the variables value (to support JSON-values);
+  const foundVar = ctx.vars[s.slice(1)];
+  if (foundVar) {
+    if (typeof foundVar.value === 'string') {
+      return s.replace(/\$[^\(][\w.]+/g, foundVar.value);
+    }
+    return foundVar.value;
+  }
+
+  // Otherwise do a string interpolation of each value
   // Replace any variables in the string, ignoring
   // ones of the type $(blah) which are handled by the platform (i.e. iOS)
   s = s.replace(/\$[^\(][\w.]+/g, (m: string) => {
     const foundVar = ctx.vars[m.slice(1)];
 
-    if (foundVar) {
+    if (foundVar && typeof foundVar.value === 'string') {
       return foundVar.value || '';
+    } else {
+      // We're in a string so the only thing to do at this point is
+      // serialize any JSON values
+      return foundVar ? JSON.stringify(foundVar.value) : '';
     }
-
-    return '';
   });
 
   return s;
@@ -88,11 +102,15 @@ export function initVarsFromEnv(ctx: Context, vars: Variables) {
   }
 
   for (const v in vars) {
-    const existing = process.env[v];
-    if (existing) {
-      ctx.vars[v] = {
-        value: existing,
-      };
+    try {
+      const existing = process.env[v] && JSON.parse(process.env[v]!);
+      if (existing) {
+        ctx.vars[v] = {
+          value: existing,
+        };
+      }
+    } catch (e) {
+      console.log(`Unable to parse environment variable ${v}`, e);
     }
   }
 }
