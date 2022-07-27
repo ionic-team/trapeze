@@ -59,6 +59,26 @@ Here's one example of providing an environment variable to the command:
 MY_APP_ID="com.awesome.app" npx trapeze
 ```
 
+### JSON Variables
+
+Variables can be strings or any JSON-parsable value. This makes them capable of being used for more complex configuration. Additionally, variable substitution also applies to any JSON values so references to other variables can be made:
+
+```yaml
+vars:
+    KEYCHAIN_GROUPS:
+      default:
+        [
+          '$BUNDLE_ID',
+        ]
+
+platforms:
+  ios:
+    targets:
+      App:
+        entitlements:
+          - keychain-access-groups: $KEYCHAIN_GROUPS
+```
+
 ## Android
 
 To provide Android project operations, use the `android` platform key under the top-level `platforms` key:
@@ -113,7 +133,7 @@ The Manifest operation can modifications against the AndroidManifest XML file, a
 The operation supports three modes: `attrs`, `merge`, and `inject`:
 
 - `attrs` updates the attributes of the given `target` node.
-- `merge` merges the given XML tree supplied to `merge` with the given `target`
+- `merge` merges the given XML tree supplied to `merge` with the given `target`. This requires a matching sub-tree root node to be provided (see example below).
 - `inject` injects the given XML tree supplied to `inject` inside of the given `target`
 - `delete` deletes nodes specified by `delete` in XPath format.
 - `deleteAttributes` deletes the given attributes in `deleteAttributes` inside of the given `target`
