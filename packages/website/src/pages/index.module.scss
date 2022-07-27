@@ -145,11 +145,11 @@
 
 .features {
   padding-block-start: 10rem;
-}
 
-.features li h3 {
-  margin-block-start: 2rem;
-  margin-block-end: 1rem;
+  li h3 {
+    margin-block-start: 2rem;
+    margin-block-end: 1rem;
+  }
 }
 
 .automate {
@@ -162,6 +162,8 @@
 
   &__button {
     cursor: pointer;
+
+    text-align: start;
 
     width: 100%;
 
@@ -238,7 +240,7 @@
 
 .community {
   margin-block-start: 12.5rem;
-  margin-block-end: 12.5rem;
+  margin-block-end: 9.75rem;
 
   header {
     max-width: 32.875rem;
