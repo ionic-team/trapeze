@@ -9,7 +9,7 @@
   --ifm-container-width: 72rem;
   --ifm-container-width-xl: 72rem;
 
-  --ifm-h1-font-size: 5rem;
+  --ifm-h1-font-size: clamp(3.5rem, 10vw, 5rem);
   --ifm-h2-font-size: 2.5rem;
   --ifm-h3-font-size: 1.25rem;
 
@@ -26,6 +26,10 @@
   --ifm-pre-line-height: 1.9;
 
   font-family: var(--ifm-font-family-base);
+
+  img {
+    display: block;
+  }
 
   p {
     letter-spacing: -0.01em;
@@ -133,6 +137,10 @@
     align-items: center;
     justify-content: center;
   }
+
+  &__image-sprite {
+    display: inline-block;
+  }
 }
 
 .features {
@@ -191,6 +199,10 @@
   &__end {
     position: relative;
     overflow: hidden;
+
+    pre {
+      max-height: 34rem;
+    }
 
     > * {
       opacity: 0;

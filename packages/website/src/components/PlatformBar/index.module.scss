@@ -4,6 +4,8 @@
   justify-content: space-between;
   gap: 2rem;
 
+  line-height: 1.2;
+
   background: black;
 
   color: #fff;
@@ -20,10 +22,10 @@
   color: var(--c-indigo-10);
 
   font-size: 0.75rem;
-}
 
-.end em,
-.end a {
-  font-style: normal;
-  color: #fff;
+  em,
+  a {
+    font-style: normal;
+    color: #fff;
+  }
 }

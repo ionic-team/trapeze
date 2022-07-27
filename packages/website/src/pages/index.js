@@ -9,6 +9,7 @@ import snippets from './_assets/snippets.js';
 import snippetsAutomate from './_assets/snippets-automate.js';
 
 import Image from '@theme/IdealImage';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 import styles from './index.module.scss';
 
@@ -61,7 +62,12 @@ function Top() {
             </svg>
           </a>
         </div>
-        <Image img={require('/img/index/top-0.png')} width={117.23} height={14} />
+        {/* <img src={useBaseUrl('/img/index/top-0.png')} width={117.23} height={14} /> */}
+        <Image
+          img={require('/img/index/top-0.png')}
+          style={{ width: 117.23, height: 14 }}
+          className={styles['top__image-sprite']}
+        />
       </div>
     </header>
   );
@@ -72,7 +78,7 @@ function Features() {
     <section id="features" className={clsx('container', styles.features)}>
       <ul className="row clean-list">
         <li className="col col--4">
-          <Image img={require('/img/index/features-0.png')} width={40} height={40} />
+          <Image img={require('/img/index/features-0.png')} style={{ width: 40, height: 40 }} />
           <h3>Easy to Use</h3>
           <p className={styles.p3}>
             Trapeze modifies native iOS and Android projects with a simple configuration-driven experience or
@@ -80,7 +86,7 @@ function Features() {
           </p>
         </li>
         <li className="col col--4">
-          <Image img={require('/img/index/features-1.png')} width={40} height={40} />
+          <Image img={require('/img/index/features-1.png')} style={{ width: 40, height: 40 }} />
           <h3>Great Mobile Support</h3>
           <p className={styles.p3}>
             Trapeze works with most popular mobile frameworks—traditional iOS and Android, Capacitor, React Native, and
@@ -88,7 +94,7 @@ function Features() {
           </p>
         </li>
         <li className="col  col--4">
-          <Image img={require('/img/index/features-2.png')} width={58} height={32} />
+          <Image img={require('/img/index/features-2.png')} style={{ width: 58, height: 32 }} />
           <h3>CI/CD Ready</h3>
           <p className={styles.p3}>
             Trapeze integrates well into Mobile CI/CD and DevOps services like Appflow for powerful project automation
@@ -244,7 +250,7 @@ function Community() {
           <li className="col">
             <a className={styles.community__card} href="https://twitter.com/trapezedev" target="_blank" rel="noopener">
               <div className={styles['community__card__image-wrapper']}>
-                <Image img={require('/img/index/community-0.png')} width={30} height={24} />
+                <Image img={require('/img/index/community-0.png')} style={{ width: 30, height: 24 }} />
               </div>
               <h3>Twitter</h3>
               <p className={styles.p4}>For announcements, blog posts, and general Trapeze news.</p>
@@ -258,7 +264,7 @@ function Community() {
               rel="noopener"
             >
               <div className={styles['community__card__image-wrapper']}>
-                <Image img={require('/img/index/community-1.png')} width={34} height={27.55} />
+                <Image img={require('/img/index/community-1.png')} style={{ width: 34, height: 27.55 }} />
               </div>
               <h3>Discord</h3>
               <p className={styles.p4}>To get involved in the community, ask questions, and share tips.</p>
@@ -272,7 +278,7 @@ function Community() {
               rel="noopener"
             >
               <div className={styles['community__card__image-wrapper']}>
-                <Image img={require('/img/index/community-2.png')} width={28} height={28} />
+                <Image img={require('/img/index/community-2.png')} style={{ width: 28, height: 28 }} />
               </div>
               <h3>GitHub</h3>
               <p className={styles.p4}>File issues, request features, and contribute on our GitHub page.</p>

@@ -4,9 +4,11 @@
   --ifm-container-width-xl: 72rem;
   --ifm-container-width: 72rem;
 
-  border-block-start: 1px solid var(--ifm-toc-border-color);
-
   font-size: 0.875rem;
+
+  :global(.row) {
+    row-gap: 4rem;
+  }
 
   &__copyright,
   &__description {

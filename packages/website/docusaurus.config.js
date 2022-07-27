@@ -194,13 +194,23 @@ const config = {
       tagManager: {
         trackingID: 'GTM-TKMGCBC',
       },
+      algolia: {
+        appId: 'TDGJR2RFFS',
+        apiKey: '23ab6acf8db1d7ec18ebe8995dc53c2f',
+        indexName: 'trapeze',
+        contextualSearch: true,
+      },
     }),
 
   plugins: [
     [
       '@docusaurus/plugin-ideal-image',
       {
-        quality: 70,
+        quality: 60,
+        max: 1030, // max resized image's size.
+        min: 640, // min resized image's size. if original is lower, use that size.
+        steps: 2, // the max number of images generated between min and max (inclusive)
+        disableInDev: false,
       },
     ],
     'docusaurus-plugin-sass',
