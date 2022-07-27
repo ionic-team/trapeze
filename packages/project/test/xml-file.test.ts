@@ -68,6 +68,14 @@ describe('xml file', () => {
     `.trim());
   });
 
+  it('Should delete and replace root', async () => {
+    file.deleteNodes('/resources');
+    file.injectFragment('/', `<tag><thing/></tag>`);
+    const doc = file.getDocumentElement();
+    const serialized = serializeXml(doc);
+    expect(serialized).toBe(`<tag><thing/></tag>`);
+  });
+
   it('Should inject', async () => {
     const doc = file.getDocumentElement();
     const node = file.find('resources');

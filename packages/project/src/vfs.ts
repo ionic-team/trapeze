@@ -82,6 +82,10 @@ export class VFS {
     return this.openFiles[filename] ?? null;
   }
 
+  isOpen(filename: string) {
+    return !!this.get(filename);
+  }
+
   all() {
     return Object.keys(this.openFiles).reduce((files, fname) => {
       files[fname] = this.openFiles[fname];

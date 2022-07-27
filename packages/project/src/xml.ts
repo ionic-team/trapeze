@@ -18,6 +18,11 @@ export class XmlFile extends VFSStorable {
   }
 
   async load() {
+    // Don't load the file if it's already open
+    if (this.vfs.isOpen(this.path)) {
+      return;
+    }
+
     this.doc = await parseXml(this.path);
     this.vfs.open(this.path, this, this.xmlCommitFn, this.xmlDiffFn);
 

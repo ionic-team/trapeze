@@ -118,6 +118,90 @@ describe('op: android.xml', () => {
     `.trim());
   });
 
+  it('should delete root and replace', async () => {
+    let op: AndroidXmlOperation = makeOp('android', 'xml', [
+      {
+        file: 'app/src/main/AndroidManifest.xml',
+        delete: '/manifest'
+      },
+    ]);
+
+    await Op(ctx, op as Operation);
+
+    let data = ctx.project.android?.getXmlFile('app/src/main/AndroidManifest.xml');
+
+    // The document element should be null at this point as we deleted the root node
+    expect(data!.getDocumentElement()).toBeNull();
+
+    op = makeOp('android', 'xml', [
+      {
+        file: 'app/src/main/AndroidManifest.xml',
+        target: '/',
+        inject: `<tag><thing /></tag>`
+      },
+    ]);
+
+    await Op(ctx, op as Operation);
+
+    // The document element should be null at this point as we deleted the root node
+    expect(data!.getDocumentElement()).not.toBeNull();
+
+    await ctx.project.commit();
+
+    const file = await readFile(join(dir, 'android/app/src/main/AndroidManifest.xml'), { encoding: 'utf-8' });
+    //console.log(file);
+    expect(file.trim()).toBe(`
+<?xml version="1.0" encoding="utf-8" ?>
+<tag>
+    <thing />
+</tag>
+    `.trim());
+  });
+
+
+  it('should process multiple replaces', async () => {
+    let op: AndroidXmlOperation = makeOp('android', 'xml', [
+      {
+        resFile: 'values/strings.xml',
+        target: 'resources/string[@name="app_name"]',
+        replace: '<string name="app_name">$PRODUCT_NAME</string>'
+      },
+      {
+        resFile: 'values/strings.xml',
+        target: 'resources/string[@name="title_activity_main"]',
+        replace: '<string name="title_activity_main">$PRODUCT_NAME</string>'
+      },
+      {
+        resFile: 'values/strings.xml',
+        target: 'resources/string[@name="package_name"]',
+        replace: '<string name="package_name">$ANDROID_PACKAGE_NAME</string>'
+      },
+      {
+        resFile: 'values/strings.xml',
+        target: 'resources/string[@name="custom_url_scheme"]',
+        replace: '<string name="custom_url_scheme">$ANDROID_PACKAGE_NAME</string>'
+      },
+    ]);
+
+    await Op(ctx, op as Operation);
+
+    let data = ctx.project.android?.getResourceXmlFile('values/strings.xml');
+
+    await ctx.project.commit();
+
+    const file = await readFile(join(dir, 'android/app/src/main/res/values/strings.xml'), { encoding: 'utf-8' });
+    //console.log(file);
+    expect(file.trim()).toBe(`
+<?xml version='1.0' encoding='utf-8' ?>
+<resources>
+    <string name="app_name">$PRODUCT_NAME</string>
+    <string name="title_activity_main">$PRODUCT_NAME</string>
+    <string name="package_name">$ANDROID_PACKAGE_NAME</string>
+    <string name="custom_url_scheme">$ANDROID_PACKAGE_NAME</string>
+</resources>
+    `.trim());
+  });
+
   // per https://github.com/ionic-team/trapeze/issues/87
   it('should merge nodes', async () => {
     const op: AndroidXmlOperation = makeOp('android', 'xml', [
