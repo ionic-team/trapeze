@@ -32,12 +32,20 @@ await project.commit();`,
     default: dev.trapeze.defaultBundleId
   PACKAGE_NAME:
     default: dev.trapeze.defaultPackageName
+  KEYCHAIN_GROUPS:
+    default:
+        [
+          '$BUNDLE_ID',
+        ]
+  
 
 platforms:
   ios:
     targets:
       App:
         bundleId: $BUNDLE_ID
+        entitlements:
+          - keychain-access-groups: $KEYCHAIN_GROUPS
         
   android:
     packageName: $PACKAGE_NAME

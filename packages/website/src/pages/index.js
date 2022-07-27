@@ -199,7 +199,7 @@ function Variables() {
           <div className="col col--5">
             <div className={styles.overline}>Variables</div>
             <h2>Environment variables</h2>
-            <p className={styles.p2}>Pull values from environment variables for easy templating and customization.</p>
+            <p className={styles.p2}>Pull values from environment variables for easy templating and customization. Supports JSON values that can even reference existing variables.</p>
           </div>
           <div className="col col--6 col--offset-1">
             {variables.map(({ language, code }, i) => (
