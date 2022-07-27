@@ -97,8 +97,11 @@ function Features() {
           <Image img={require('/img/index/features-2.png')} style={{ width: 58, height: 32 }} />
           <h3>CI/CD Ready</h3>
           <p className={styles.p3}>
-            Trapeze integrates well into Mobile CI/CD and DevOps services like Appflow for powerful project automation
-            at scale.
+            Trapeze integrates well into Mobile CI/CD and DevOps services like{' '}
+            <a href="https://ionic.io/appflow" rel="noopener" target="_blank">
+              Appflow
+            </a>{' '}
+            for powerful project automation at scale.
           </p>
         </li>
       </ul>
