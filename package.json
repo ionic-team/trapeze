@@ -19,7 +19,7 @@
     "shipit": "npm run build && npm run test && npx changeset publish"
   },
   "volta": {
-    "node": "16.13.2",
+    "node": "16.16.0",
     "npm": "8.3.0"
   },
   "packageManager": "npm@8.3.0"
