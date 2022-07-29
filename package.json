@@ -5,7 +5,7 @@
     "@changesets/changelog-github": "^0.4.4",
     "@changesets/cli": "^2.20.0",
     "sync-cordova-xml2": "^0.0.3",
-    "turbo": "^1.1.2"
+    "turbo": "^1.3.4"
   },
   "workspaces": [
     "packages/configure",
@@ -20,7 +20,7 @@
   },
   "volta": {
     "node": "16.16.0",
-    "npm": "8.3.0"
+    "npm": "8.15.1"
   },
-  "packageManager": "npm@8.3.0"
+  "packageManager": "npm@8.15.1"
 }
