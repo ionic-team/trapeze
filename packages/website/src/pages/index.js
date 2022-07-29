@@ -259,15 +259,7 @@ function Community() {
                 <Image img={require('/img/index/community-0.png')} style={{ width: 30, height: 24 }} />
               </div>
               <h3>Twitter</h3>
-              <p className={styles.p4}>
-                Follow{' '}
-                <code>
-                  <a href="https://twitter.com/trapezedev" target="_blank">
-                    @trapezedev
-                  </a>
-                </code>{' '}
-                for announcements, blog posts, and updates.
-              </p>
+              <p className={styles.p4}>Follow @trapezedev for announcements, blog posts, and updates.</p>
             </a>
           </li>
           <li className="col">
@@ -281,9 +273,7 @@ function Community() {
                 <Image img={require('/img/index/community-1.png')} style={{ width: 34, height: 27.55 }} />
               </div>
               <h3>Discord</h3>
-              <p className={styles.p4}>
-                Join <code>#trapeze</code> to get involved in the community and ask questions.
-              </p>
+              <p className={styles.p4}>Join #trapeze to get involved in the community and ask questions.</p>
             </a>
           </li>
           <li className="col">
