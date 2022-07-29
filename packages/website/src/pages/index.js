@@ -199,7 +199,10 @@ function Variables() {
           <div className="col col--5">
             <div className={styles.overline}>Variables</div>
             <h2>Environment variables</h2>
-            <p className={styles.p2}>Pull values from environment variables for easy templating and customization. Supports JSON values that can even reference existing variables.</p>
+            <p className={styles.p2}>
+              Pull values from environment variables for easy templating and customization. Supports JSON values that
+              can even reference existing variables.
+            </p>
           </div>
           <div className="col col--6 col--offset-1">
             {variables.map(({ language, code }, i) => (
@@ -270,7 +273,9 @@ function Community() {
                 <Image img={require('/img/index/community-1.png')} style={{ width: 34, height: 27.55 }} />
               </div>
               <h3>Discord</h3>
-              <p className={styles.p4}>To get involved in the community, ask questions, and share tips.</p>
+              <p className={styles.p4}>
+                Join <code>#trapeze</code> to get involved in the community and ask questions.
+              </p>
             </a>
           </li>
           <li className="col">
