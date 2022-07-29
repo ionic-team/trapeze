@@ -261,9 +261,11 @@ function Community() {
               <h3>Twitter</h3>
               <p className={styles.p4}>
                 Follow{' '}
-                <a href="https://twitter.com/trapezedev" target="_blank">
-                  @trapezedev
-                </a>{' '}
+                <code>
+                  <a href="https://twitter.com/trapezedev" target="_blank">
+                    @trapezedev
+                  </a>
+                </code>{' '}
                 for announcements, blog posts, and updates.
               </p>
             </a>
