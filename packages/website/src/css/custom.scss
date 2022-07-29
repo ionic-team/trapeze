@@ -1,0 +1,217 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+@import '~@ionic-internal/design-system/dist/tokens/index.css';
+// @import '~modern-normalize/modern-normalize.css';
+
+/* You can override the default Infima variables here. */
+:root {
+  --ifm-font-color-base: var(--c-carbon-80);
+
+  --ifm-heading-color: var(--c-carbon-100);
+  --ifm-color-primary: #f4a23a;
+  --ifm-color-primary-dark: #a9671b;
+  --ifm-color-primary-darker: #7b470c;
+  --ifm-color-primary-darkest: #543510;
+  --ifm-color-primary-light: #bd8e59;
+  --ifm-color-primary-lighter: #d99b55;
+  --ifm-color-primary-lightest: #f6bc79;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+
+  /* navbar */
+  --ifm-navbar-link-color: var(--c-carbon-70);
+  --ifm-navbar-link-hover-color: var(--c-carbon-100);
+  --ifm-navbar-height: 4rem;
+
+  // footer
+  --ifm-footer-background-color: transparent;
+
+  --ifm-footer-padding-vertical: 3.125rem;
+
+  --ifm-footer-link-color: var(--c-indigo-80);
+  --ifm-footer-link-hover-color: var(--c-indigo-100);
+
+  --ifm-link-hover-decoration: none;
+
+  --docsearch-searchbox-background: #fff;
+  --docsearch-searchbox-focus-background: #fff;
+}
+
+#__docusaurus {
+  --docsearch-text-color: var(--c-carbon-30);
+  --docsearch-searchbox-background: #fff;
+  --docsearch-searchbox-focus-background: #fff;
+  --docsearch-searchbox-shadow: 0px 0px 0px 1px var(--c-indigo-30);
+  --docsearch-key-gradient: #fff;
+  --docsearch-key-shadow: 0px 0px 0px 1px var(--c-indigo-30);
+
+  [class*='searchBox_'] {
+    --ifm-navbar-item-padding-vertical: 0;
+
+    flex-basis: 14rem;
+  }
+
+  .DocSearch-Button {
+    font-size: inherit;
+    font-weight: 400;
+
+    box-shadow: var(--docsearch-searchbox-shadow);
+
+    width: 100%;
+
+    border-radius: 8px;
+
+    &:hover,
+    &:focus {
+      --docsearch-searchbox-shadow: 0px 0px 0px 1px var(--c-indigo-50);
+    }
+
+    &-Container {
+      &::before {
+        content: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGgKICAgIGQ9Ik0xMy43OSAxMi42IDEwLjYgOS40MWE1LjkgNS45IDAgMSAwLTEuMiAxLjJsMy4xOCAzLjE3YS44NC44NCAwIDAgMCAxLjItMS4yWk0xLjY5IDUuOWE0LjIxIDQuMjEgMCAxIDEgOC40MSAwIDQuMjEgNC4yMSAwIDAgMS04LjQyIDBaIgogICAgZmlsbD0iI0IyQkVDRCIKICAvPgo8L3N2Zz4K');
+
+        margin-inline-start: 0.188rem;
+        margin-block-start: 0.125rem;
+
+        @media (max-width: 996px) {
+          display: none;
+        }
+      }
+
+      svg {
+        display: none;
+      }
+    }
+
+    &-Keys {
+      display: flex;
+      gap: 0.25rem;
+
+      min-width: 0;
+    }
+
+    &-Key {
+      font-size: 1rem;
+      padding: 0;
+      margin: 0;
+
+      height: auto;
+      top: 0;
+
+      + .DocSearch-Button-Key {
+        font-size: 0.75rem;
+      }
+    }
+
+    &-Placeholder {
+      font-size: inherit;
+
+      margin-block-end: 0.125rem;
+    }
+  }
+}
+
+[class*='docsWrapper_'] {
+  border-block-end: 1px solid var(--ifm-toc-border-color);
+}
+
+.navbar {
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  &__logo {
+    img {
+      height: auto;
+    }
+  }
+
+  &__items {
+    flex: 0 1 auto;
+  }
+
+  &__items--right {
+    flex-grow: 1;
+  }
+
+  .link-icon {
+    display: flex;
+    align-items: center;
+
+    --ifm-navbar-item-padding-horizontal: 0.5rem;
+
+    @media (max-width: 996px) {
+      display: none;
+    }
+
+    path {
+      transition: fill 0.2s ease-out;
+    }
+
+    &:hover,
+    &:focus {
+      path {
+        fill: var(--ifm-navbar-link-hover-color);
+      }
+    }
+  }
+
+  .separator {
+    width: 1px;
+    height: 100%;
+
+    padding-block-start: 0.875rem;
+    padding-block-end: 0.875rem;
+    margin-inline-end: 0.25rem;
+
+    background: var(--c-indigo-40);
+  }
+}
+
+.navbar-sidebar {
+  .separator {
+    display: none;
+  }
+}
+
+.footer {
+  &__link-item {
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* For readability concerns, you should choose a lighter palette in dark mode. */
+[data-theme='dark'] {
+  --ifm-color-primary-dark: #e29134;
+  --ifm-color-primary-darker: #f29f41;
+  --ifm-color-primary-darkest: #cb7f28;
+  --ifm-color-primary-light: #f7a94f;
+  --ifm-color-primary-lighter: #f9ae59;
+  --ifm-color-primary-lightest: #f6bc79;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+@font-face {
+  font-family: 'Roboto Mono';
+  src: local('Roboto Mono Variable'),
+    url('https://code.ionicframework.com/assets/fonts/roboto-mono/roboto-mono-var.woff2') format('woff2-variations'),
+    url('/fonts/roboto-mono/roboto-mono-var.woff2') format('woff2-variations');
+  font-display: swap;
+  font-weight: 1 1000;
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-display: swap;
+  font-style: normal;
+  font-weight: 1 1000;
+  unicode-range: U+000-5FF;
+  src: local('Inter Variable'),
+    url('https://code.ionicframework.com/assets/fonts/inter/Inter-variable-ASCII-subset.woff2')
+      format('woff2-variations'),
+    url('/fonts/inter/Inter-variable-ASCII-subset.woff2') format('woff2-variations');
+}

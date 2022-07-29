@@ -1,0 +1,31 @@
+.platformBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+
+  line-height: 1.2;
+
+  background: black;
+
+  color: #fff;
+
+  padding: 0.625rem var(--ifm-navbar-padding-horizontal);
+}
+
+.start {
+  display: flex;
+  align-items: center;
+}
+
+.end {
+  color: var(--c-indigo-10);
+
+  font-size: 0.75rem;
+
+  em,
+  a {
+    font-style: normal;
+    color: #fff;
+  }
+}

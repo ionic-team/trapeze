@@ -1,0 +1,43 @@
+.footer {
+  --ifm-heading-margin-bottom: 0;
+
+  --ifm-container-width-xl: 72rem;
+  --ifm-container-width: 72rem;
+
+  font-size: 0.875rem;
+
+  :global(.row) {
+    row-gap: 4rem;
+  }
+
+  &__copyright,
+  &__description {
+    font-size: 0.75rem;
+    line-height: 120%;
+
+    color: var(--c-indigo-70);
+  }
+
+  &__description {
+    --ifm-link-color: var(--c-indigo-90);
+    --ifm-link-hover-color: var(--c-indigo-100);
+
+    margin-block-start: 1rem;
+  }
+}
+
+:global([class*='footerLogoLink_']) {
+  display: block;
+
+  opacity: 1;
+
+  margin-block-end: 1.5rem;
+}
+
+:global(.footer__logo) {
+  margin-block-start: 0;
+}
+
+:global(.footer__items li) {
+  margin-block-start: 1rem;
+}
