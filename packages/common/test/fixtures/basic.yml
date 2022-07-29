@@ -3,6 +3,13 @@ vars:
     default: io.ionic.fixtureTest
   PACKAGE_NAME:
     default: io.ionic.fixtureTest
+  KEYCHAIN_GROUPS:
+    default:
+      [
+        '$BUNDLE_ID',
+        'com.microsoft.intune.mam',
+        'com.microsoft.adalcache',
+      ]
 
 platforms:
   ios:
@@ -39,12 +46,7 @@ platforms:
                       - msauth.com.microsoft.intunemam
 
         entitlements:
-          - keychain-access-groups:
-              [
-                '$BUNDLE_ID',
-                'com.microsoft.intune.mam',
-                'com.microsoft.adalcache',
-              ]
+          - keychain-access-groups: $KEYCHAIN_GROUPS
 
         frameworks:
           - AudioToolbox.framework

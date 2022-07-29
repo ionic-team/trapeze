@@ -49,6 +49,10 @@ export class PropertiesFile extends VFSStorable {
   }
 
   async load() {
+    if (this.vfs.isOpen(this.path)) {
+      return;
+    }
+
     if (!await pathExists(this.path)) {
       throw new Error(`Unable to locate file at ${this.path}`);
     }

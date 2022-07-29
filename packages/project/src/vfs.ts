@@ -47,7 +47,6 @@ export class VFSRef<T extends VFSStorable> {
   }
 
   async diff(): Promise<VFSDiff> {
-    console.log('RUNNING DIFF FOR FILE', this.getFilename(), this.diffFn);
     const diff = (await this.diffFn?.(this)) ?? Promise.resolve({ file: this });
 
     return {
@@ -81,6 +80,10 @@ export class VFS {
 
   get<T extends VFSStorable>(filename: string): VFSRef<T> | null {
     return this.openFiles[filename] ?? null;
+  }
+
+  isOpen(filename: string) {
+    return !!this.get(filename);
   }
 
   all() {
