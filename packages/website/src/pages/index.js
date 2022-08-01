@@ -259,7 +259,7 @@ function Community() {
                 <Image img={require('/img/index/community-0.png')} style={{ width: 30, height: 24 }} />
               </div>
               <h3>Twitter</h3>
-              <p className={styles.p4}>Follow @trapezedev for announcements, blog posts, and updates.</p>
+              <p className={styles.p4}>Follow us for announcements, blog posts, and updates.</p>
             </a>
           </li>
           <li className="col">
