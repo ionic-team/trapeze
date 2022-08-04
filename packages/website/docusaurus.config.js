@@ -6,7 +6,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/palenight');
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'Trapeze',
+  title: 'Trapeze - Easy mobile project configuration',
   tagline: 'Native mobile project configuration tool and API',
   url: 'https://trapeze.dev',
   baseUrl: '/',
