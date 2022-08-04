@@ -273,7 +273,7 @@ function Community() {
                 <Image img={require('/img/index/community-1.png')} style={{ width: 34, height: 27.55 }} />
               </div>
               <h3>Discord</h3>
-              <p className={styles.p4}>Join #trapeze to get involved in the community and ask questions.</p>
+              <p className={styles.p4}>Join #trapeze to get involved in the community.</p>
             </a>
           </li>
           <li className="col">
