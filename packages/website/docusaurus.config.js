@@ -195,8 +195,8 @@ const config = {
         trackingID: 'GTM-TKMGCBC',
       },
       algolia: {
-        appId: 'TDGJR2RFFS',
-        apiKey: '23ab6acf8db1d7ec18ebe8995dc53c2f',
+        appId: 'R7DDMNY34C',
+        apiKey: '0e6f4d0738f04128de55343eeeb38f38',
         indexName: 'trapeze',
         contextualSearch: true,
       },
