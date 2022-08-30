@@ -16,9 +16,7 @@ Make sure the `dom` lib is enabled in your `tsconfig.json` in the `lib` entry un
 
 ## Requirements
 
-For iOS: the tool currently expects your iOS project to be in an `App` folder inside of the Capacitor platform project folder. For example: `ios/App`.
-
-For Android: `JAVA_HOME` must be set to use Gradle configuration. This is because the Gradle modification functionality uses a Java utility under the hood for accuracy, as Gradle is a Groovy DSL and Groovy is a JVM language. If you have Android Studio installed, you can use [the JDK bundled with it](https://stackoverflow.com/questions/43211282/using-jdk-that-is-bundled-inside-android-studio-as-java-home-on-mac).
+For Android: `JAVA_HOME` must be set to use Gradle configuration. This is because the Gradle modification functionality uses a Java utility under the hood for accuracy, as Gradle is a Groovy DSL and Groovy is a JVM language. If you have Android Studio installed, you can use [the JDK bundled with it](https://stackoverflow.com/questions/43211282/using-jdk-that-is-bundled-inside-android-studio-as-java-home-on-mac). Note: `JAVA_HOME` should be set to the root of the JDK installation, *not* the `/bin` folder.
 
 ### API Usage
 
