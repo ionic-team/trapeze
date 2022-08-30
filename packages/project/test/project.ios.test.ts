@@ -366,6 +366,14 @@ describe('project - ios standard', () => {
     }
   });
 
+  it('should copy file', async () => {
+    await project.ios?.copyFile('json-file.json', 'json-file2.json');
+    const src = join(dir, 'ios/App', 'json-file.json');
+    const srcContents = await readFile(src);
+    const dest = join(dir, 'ios/App', 'json-file2.json');
+    const destContents = await readFile(dest);
+    expect(srcContents).toEqual(destContents);
+  });
 });
 
 describe('ios - no info plist case', () => {

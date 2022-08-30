@@ -1,6 +1,6 @@
 import plist from 'plist';
 import path, { join } from 'path';
-import { pathExists, readdir, writeFile } from '@ionic/utils-fs';
+import { copy, pathExists, readdir, writeFile } from '@ionic/utils-fs';
 
 import { parsePbxProject, pbxReadString, pbxSerializeString } from "../util/pbx";
 import { MobileProject } from "../project";
@@ -8,6 +8,7 @@ import { IosPbxProject, IosEntitlements, IosFramework, IosBuildName, IosTarget, 
 import { VFSRef, VFSFile } from '../vfs';
 import { XmlFile } from '../xml';
 import { PlistFile } from '../plist';
+import { PlatformProject } from '../platform-project';
 
 const defaultEntitlementsPlist = `
 <?xml version="1.0" encoding="UTF-8"?>
@@ -34,10 +35,11 @@ const defaultInfoPlist = `
 /**
  * An instance of an IosProject in a mobile project
  */
-export class IosProject {
+export class IosProject extends PlatformProject {
   private pbxProject: IosPbxProject | null = null;
 
-  constructor(private project: MobileProject) {
+  constructor(project: MobileProject) {
+    super(project);
   }
 
   async load() {
@@ -474,6 +476,15 @@ export class IosProject {
     const parsed = await this.plist(filename);
     parsed.update(entries, mergeMode?.replace ?? false);
     this.project.vfs.set(filename, parsed);
+  }
+
+  copyFile(src: string, dest: string): Promise<void> {
+    if (!this.project?.config?.ios?.path) {
+      return Promise.reject();
+    }
+    const srcPath = join(this.project.config.ios.path, src);
+    const destPath = join(this.project.config.ios.path, dest);
+    return copy(srcPath, destPath);
   }
 
   private async assertEntitlementsFile(targetName: IosTargetName, buildName: IosBuildName | null) {

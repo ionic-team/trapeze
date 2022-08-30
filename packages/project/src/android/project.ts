@@ -8,6 +8,7 @@ import {
   remove,
   rmdir,
   writeFile,
+  copy,
 } from '@ionic/utils-fs';
 
 import { MobileProject } from '../project';
@@ -15,13 +16,16 @@ import { AndroidResDir } from '../definitions';
 import { GradleFile } from './gradle-file';
 import { XmlFile } from '../xml';
 import { PropertiesFile } from '../properties';
+import { PlatformProject } from '../platform-project';
 
-export class AndroidProject {
+export class AndroidProject extends PlatformProject {
   private manifest: XmlFile;
   private buildGradle: GradleFile | null = null;
   private appBuildGradle: GradleFile | null = null;
 
-  constructor(private project: MobileProject) {
+  constructor(project: MobileProject) {
+    super(project);
+
     const manifestPath = this.getAndroidManifestPath();
     if (!manifestPath) {
       throw new Error('Unable to load AndroidManifest.xml for project');
@@ -253,6 +257,15 @@ export class AndroidProject {
     return writeFile(join(dir, file), contents);
   }
 
+  copyFile(src: string, dest: string): Promise<void> {
+    if (!this.project?.config?.android?.path) {
+      return Promise.reject();
+    }
+    const srcPath = join(this.project.config.android.path, src);
+    const destPath = join(this.project.config.android.path, dest);
+    return copy(srcPath, destPath);
+  }
+
   /**
    * Copy the given source into the given resources directory with the
    * given file name
@@ -271,20 +284,6 @@ export class AndroidProject {
 
     const sourceData = await readFile(source);
     return writeFile(join(dir, file), sourceData);
-  }
-
-  /**
-   * Copy the given source into the given top level directory with the
-   * given file name
-   **/
-  async copyFile(file: string, source: string) {
-    const root = this.getAppRoot();
-    if (!root) {
-      return;
-    }
-
-    const sourceData = await readFile(source);
-    return writeFile(join(root, file), sourceData);
   }
 
   private getAndroidManifestPath(): string | null {

@@ -17,6 +17,20 @@ export interface IosVersionOperationValue extends OperationValueObject {
 }
 */
 
+export interface AndroidCopyOperation extends Operation {
+  value: {
+    src: string;
+    dest: any;
+  }[];
+}
+
+export interface IosCopyOperation extends Operation {
+  value: {
+    src: string;
+    dest: any;
+  }[];
+}
+
 export interface AndroidGradleOperation extends Operation {
   value: {
     file: string;

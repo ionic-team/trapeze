@@ -303,4 +303,13 @@ try {
       'android.enableJetifier': true
     });
   });
+
+  it('should copy file', async () => {
+    await project.android?.copyFile('variables.gradle', 'variables2.gradle');
+    const src = join(dir, 'android', 'variables.gradle');
+    const srcContents = await readFile(src);
+    const dest = join(dir, 'android', 'variables2.gradle');
+    const destContents = await readFile(dest);
+    expect(srcContents).toEqual(destContents);
+  });
 });
