@@ -1,5 +1,11 @@
 # @capacitor/gradle-parse
 
+## 5.0.1
+
+### Patch Changes
+
+- Fixed JSON parsing and added copy operation
+
 ## 5.0.0
 
 ### Major Changes
