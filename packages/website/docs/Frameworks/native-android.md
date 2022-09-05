@@ -29,7 +29,7 @@ npx trapeze run config.yaml
 
 ## API
 
-Pass the main iOS project directory to the `MobileProject` constructor, and then the relative path to the Android project (such as `'.'` if the root and Android project paths are the same):
+Pass the main Android project directory to the `MobileProject` constructor, and then the relative path to the Android project (such as `'.'` if the root and Android project paths are the same):
 
 ```typescript
 import { MobileProject, MobileProjectConfig } from '@trapezedev/project';
