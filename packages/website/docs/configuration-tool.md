@@ -344,6 +344,20 @@ platforms:
           <string name="app_name">Awesome App</string>
 ```
 
+### `copy`
+
+Copies files and directories relative to the root of the android project (`./android` by default).
+
+```yaml
+platforms:
+  android:
+    copy:
+      - src: ../firebase/google-services.json
+        dest: app/google-services.json
+      - src: old/path/of/directory
+        dest: new/path/of/directory
+```
+
 ## iOS
 
 iOS supports multiple operations and can perform them against different project targets and build types. If a target is not specified, the tool will infer the app target in the project. If a build is not specified commands will operate on all builds in a target (Debug and Release, for example). Thus, complex projects should specify at least the target name to avoid issues.
@@ -541,12 +555,30 @@ Modifies XML files relative to the root of the iOS project. This operation suppo
 
 ```yaml
 platforms:
-  android:
-    xml:
-      - file: file.xml
-        target: entries/field
-        merge: |
-          <field>
-            <string>Value</string>
-          </field>
+  ios:
+    targets:
+      App:
+        xml:
+          - file: file.xml
+            target: entries/field
+            merge: |
+              <field>
+                <string>Value</string>
+              </field>
+```
+
+### `copy`
+
+Copies files and directories relative to the root of the iOS project (`./ios/App` by default).
+
+```yaml
+platforms:
+  ios:
+    targets:
+      App:
+        copy:
+          - src: ../firebase/GoogleService-Info.plist
+            dest: App/GoogleService-Info.plist
+          - src: old/path/of/directory
+            dest: new/path/of/directory
 ```
