@@ -27,7 +27,7 @@ describe('op: ios.copy', () => {
 
   it('should copy file', async () => {
     makeOp
-    const op: IosCopyOperation = makeOp('android', 'copy',
+    const op: IosCopyOperation = makeOp('ios', 'copy',
       [
         {
           src: 'json-file.json',
