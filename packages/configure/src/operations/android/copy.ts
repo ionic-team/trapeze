@@ -8,7 +8,6 @@ export default async function execute(ctx: Context, op: Operation) {
   for (let c of copyOp.value) {
     try {
       const { src, dest } = c;
-      console.log('Copying', src, dest);
       await ctx.project.android?.copyFile(src, dest);
     } catch (e) {
       logger.warn(`Unable to copy file: ${(e as any).message}`);
