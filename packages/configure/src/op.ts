@@ -197,6 +197,8 @@ function createOpDisplayText(op: Partial<Operation>) {
       return `${op.value.entries.length} modifications`;
     case 'ios.json':
       return `${op.value.entries.length} modifications`;
+    case 'ios.copy':
+      return op.value.map((r: any) => r.dest).join(', ');
     // android
     case 'android.packageName':
       return op.value;
@@ -216,6 +218,8 @@ function createOpDisplayText(op: Partial<Operation>) {
       return '';
     case 'android.res':
       return op.value.map((r: any) => r.file).join(', ');
+    case 'android.copy':
+      return op.value.map((r: any) => r.dest).join(', ');
   }
 
   return '';
