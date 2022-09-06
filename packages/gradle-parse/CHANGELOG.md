@@ -1,5 +1,11 @@
 # @capacitor/gradle-parse
 
+## 5.0.2
+
+### Patch Changes
+
+- More copy operation work
+
 ## 5.0.1
 
 ### Patch Changes

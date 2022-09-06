@@ -1,5 +1,13 @@
 # @trapezedev/project
 
+## 5.0.2
+
+### Patch Changes
+
+- More copy operation work
+- Updated dependencies
+  - @trapezedev/gradle-parse@5.0.2
+
 ## 5.0.1
 
 ### Patch Changes

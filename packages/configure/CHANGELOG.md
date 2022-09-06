@@ -1,5 +1,13 @@
 # @trapezedev/configure
 
+## 5.0.2
+
+### Patch Changes
+
+- More copy operation work
+- Updated dependencies
+  - @trapezedev/project@5.0.2
+
 ## 5.0.1
 
 ### Patch Changes
