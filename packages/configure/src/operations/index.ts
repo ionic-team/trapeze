@@ -5,6 +5,7 @@ import executeAndroidManifest from './android/manifest';
 import executeAndroidVersion from './android/version';
 import executeAndroidXml from './android/xml';
 import executeAndroidJson from './android/json';
+import executeAndroidCopy from './android/copy';
 
 import executeIosProject from './ios/project';
 import executeIosFrameworks from './ios/frameworks';
@@ -14,6 +15,7 @@ import executeIosBuildVersion from './ios/buildVersion';
 import executeIosBuildSettings from './ios/buildSettings';
 import executeIosXml from './ios/xml';
 import executeIosJson from './ios/json';
+import executeIosCopy from './ios/copy';
 
 import { Context } from '../ctx';
 import { Operation } from '../definitions';
@@ -38,6 +40,7 @@ const operations: OperationHandlers = {
   'ios.build.gradle': executeAndroidGradle,
   'ios.xml': executeIosXml,
   'ios.json': executeIosJson,
+  'ios.copy': executeIosCopy,
   'android.manifest': executeAndroidManifest,
   'android.res': executeAndroidRes,
   'android.gradle': executeAndroidGradle,
@@ -47,6 +50,7 @@ const operations: OperationHandlers = {
   'android.incrementVersionCode': executeAndroidVersion,
   'android.json': executeAndroidJson,
   'android.xml': executeAndroidXml,
+  'android.copy': executeAndroidCopy,
 };
 
 const enabled: string[] | null = null; //['ios.plist'];
