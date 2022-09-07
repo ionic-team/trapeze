@@ -1,5 +1,13 @@
 # @trapezedev/configure
 
+## 5.0.3
+
+### Patch Changes
+
+- 5.0.3
+- Updated dependencies
+  - @trapezedev/project@5.0.3
+
 ## 5.0.2
 
 ### Patch Changes
