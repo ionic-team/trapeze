@@ -1,0 +1,8 @@
+Expression=1
+Assignment=2
+Value=3
+Identifier=4
+IncludeDirective=5
+Newline=6
+Whitespace=7
+LineComment=8
