@@ -1,8 +1,11 @@
 Expression=1
 Assignment=2
-Value=3
-Identifier=4
-IncludeDirective=5
-Newline=6
-Whitespace=7
-LineComment=8
+EQUALS=3
+Value=4
+Identifier=5
+IncludeDirective=6
+Newline=7
+Whitespace=8
+SINGLE_LINE_COMMENT=9
+WS=10
+'='=3

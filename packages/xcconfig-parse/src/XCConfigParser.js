@@ -2,10 +2,10 @@
 // jshint ignore: start
 import antlr4 from 'antlr4';
 import XCConfigListener from './XCConfigListener.js';
-const serializedATN = [4,1,8,11,2,0,7,0,1,0,5,0,4,8,0,10,0,12,0,7,9,0,1,
-0,1,0,1,0,0,0,1,0,0,1,2,0,1,1,8,8,10,0,5,1,0,0,0,2,4,7,0,0,0,3,2,1,0,0,0,
-4,7,1,0,0,0,5,3,1,0,0,0,5,6,1,0,0,0,6,8,1,0,0,0,7,5,1,0,0,0,8,9,5,0,0,1,
-9,1,1,0,0,0,1,5];
+const serializedATN = [4,1,10,11,2,0,7,0,1,0,5,0,4,8,0,10,0,12,0,7,9,0,1,
+0,1,0,1,0,0,0,1,0,0,0,10,0,5,1,0,0,0,2,4,5,1,0,0,3,2,1,0,0,0,4,7,1,0,0,0,
+5,3,1,0,0,0,5,6,1,0,0,0,6,8,1,0,0,0,7,5,1,0,0,0,8,9,5,0,0,1,9,1,1,0,0,0,
+1,5];
 
 
 const atn = new antlr4.atn.ATNDeserializer().deserialize(serializedATN);
@@ -17,10 +17,11 @@ const sharedContextCache = new antlr4.PredictionContextCache();
 export default class XCConfigParser extends antlr4.Parser {
 
     static grammarFileName = "java-escape";
-    static literalNames = [  ];
-    static symbolicNames = [ null, "Expression", "Assignment", "Value", 
-                             "Identifier", "IncludeDirective", "Newline", 
-                             "Whitespace", "LineComment" ];
+    static literalNames = [ null, null, null, "'='" ];
+    static symbolicNames = [ null, "Expression", "Assignment", "EQUALS", 
+                             "Value", "Identifier", "IncludeDirective", 
+                             "Newline", "Whitespace", "SINGLE_LINE_COMMENT", 
+                             "WS" ];
     static ruleNames = [ "xcconfig" ];
 
     constructor(input) {
@@ -46,16 +47,9 @@ export default class XCConfigParser extends antlr4.Parser {
 	        this.state = 5;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        while(_la===1 || _la===8) {
+	        while(_la===1) {
 	            this.state = 2;
-	            _la = this._input.LA(1);
-	            if(!(_la===1 || _la===8)) {
-	            this._errHandler.recoverInline(this);
-	            }
-	            else {
-	            	this._errHandler.reportMatch(this);
-	                this.consume();
-	            }
+	            this.match(XCConfigParser.Expression);
 	            this.state = 7;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
@@ -82,12 +76,14 @@ export default class XCConfigParser extends antlr4.Parser {
 XCConfigParser.EOF = antlr4.Token.EOF;
 XCConfigParser.Expression = 1;
 XCConfigParser.Assignment = 2;
-XCConfigParser.Value = 3;
-XCConfigParser.Identifier = 4;
-XCConfigParser.IncludeDirective = 5;
-XCConfigParser.Newline = 6;
-XCConfigParser.Whitespace = 7;
-XCConfigParser.LineComment = 8;
+XCConfigParser.EQUALS = 3;
+XCConfigParser.Value = 4;
+XCConfigParser.Identifier = 5;
+XCConfigParser.IncludeDirective = 6;
+XCConfigParser.Newline = 7;
+XCConfigParser.Whitespace = 8;
+XCConfigParser.SINGLE_LINE_COMMENT = 9;
+XCConfigParser.WS = 10;
 
 XCConfigParser.RULE_xcconfig = 0;
 
@@ -108,18 +104,6 @@ class XcconfigContext extends antlr4.ParserRuleContext {
 	EOF() {
 	    return this.getToken(XCConfigParser.EOF, 0);
 	};
-
-	LineComment = function(i) {
-		if(i===undefined) {
-			i = null;
-		}
-	    if(i===null) {
-	        return this.getTokens(XCConfigParser.LineComment);
-	    } else {
-	        return this.getToken(XCConfigParser.LineComment, i);
-	    }
-	};
-
 
 	Expression = function(i) {
 		if(i===undefined) {

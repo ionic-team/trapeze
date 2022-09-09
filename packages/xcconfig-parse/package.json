@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "clean": "rimraf ./dist",
-    "build": "npm run clean && tsc",
+    "build": "bash antlr.sh && npm run clean && tsc",
     "watch": "tsc -w",
     "test": "jest"
   },

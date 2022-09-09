@@ -1,15 +1,17 @@
 grammar XCConfig;
 
-xcconfig : (LineComment | Expression )* EOF;
+xcconfig : Expression* EOF;
 
 Expression
-  : Assignment;
+  : IncludeDirective | Assignment;
 
 Assignment
-    :  Identifier Whitespace* '=' Whitespace* Value ';'?;
+    :  Identifier Whitespace* EQUALS Whitespace* Value ';'?;
+
+EQUALS : '=';
 
 Value
-: [^\n]* ;
+: ~('\n')* ;
 
 Identifier
     :   IdentifierNondigit
@@ -56,7 +58,13 @@ Whitespace
         -> skip
     ;
 
-LineComment
-    :   '//' ~[\r\n]*
-        -> skip
-    ;
+SINGLE_LINE_COMMENT
+   : WS* '//' .*? (NEWLINE | EOF) -> skip
+   ;
+
+fragment NEWLINE
+   : '\r\n'
+   | [\r\n\u2028\u2029]
+   ;
+
+WS  :   (('\r')? '\n' |  ' ' | '\t')+  -> skip;
