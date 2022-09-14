@@ -16,13 +16,13 @@ async function run() {
   parser.buildParseTrees = true;
   const tree = parser.xcconfig();
 
-  console.log(tree);
+  // console.log(tree);
 
   const printer = new AssignementPrinter();
 
   const t = (antlr4 as any).tree;
-  t.ParseTreeWalker.DEFAULT.walk(printer, tree);
-  // tree.accept(new Visitor() as any);
+  // t.ParseTreeWalker.DEFAULT.walk(printer, tree);
+  tree.accept(new Visitor() as any);
   // walkTree(tree);
 }
 
@@ -39,17 +39,19 @@ function walkTree(t: any) {
 
 class Visitor {
   visitChildren(ctx: any) {
-    console.log('Visiting children', ctx);
+    // console.log('Visiting children', ctx);
     if (!ctx) {
       return;
     }
 
     if (ctx.children) {
-      console.log('IN HERE CHILDREN', ctx.children.length);
+      console.log('IN HERE CHILDREN', ctx.children.length, ctx.getText());
       return ctx.children.map((child: any) => {
         if (child.children && child.children.length != 0) {
+          // console.log('Child has children?', child);
           return child.accept(this);
         } else {
+          console.log('Child has no children', child.getText());// child.getSymbol());
           return child.getText();
         }
       });
@@ -59,7 +61,7 @@ class Visitor {
 
 class AssignementPrinter extends MyGrammarListener {
   // override default listener behavior
-  exitRule(ctx: any) {
+  enterRule(ctx: any) {
     console.log('Assignment', ctx);
   }
 }

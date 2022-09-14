@@ -1,50 +1,30 @@
 grammar XCConfig;
 
-xcconfig : Expression* EOF;
+xcconfig : expression* EOF;
 
-Expression
-  : IncludeDirective | Assignment;
-
-Assignment
-    :  Identifier Whitespace* EQUALS Whitespace* Value ';'?;
-
-EQUALS : '=';
-
-Value
-: ~('\n')* ;
-
-Identifier
-    :   IdentifierNondigit
-        (   IdentifierNondigit
-        |   Digit
-        | Conditional
-        )*
+includeDirective
+    :   '#' Whitespace? 'include' Whitespace? String Whitespace? Newline
     ;
 
-fragment
-IdentifierNondigit
-    :   Nondigit
+expression
+  : includeDirective | assignment;
+
+assignment
+    :  identifier Whitespace* EQUALS Whitespace* value? ';'?;
+
+identifier
+    :   text
     ;
 
-fragment
-Conditional
-  : '[' [^\]]* ']'
-  ;
+value
+: text;
 
-fragment
-Nondigit
-    :   [a-zA-Z_]
-    ;
 
-fragment
-Digit
-    :   [0-9]
-    ;
+/** Lexer rules **/
+text :TEXT;
+TEXT: ( 'a' .. 'z' | 'A' .. 'Z' | '_' | '0' .. '9' | '/' | '\\' | ':' | '*' | '.' | ',' | '@' | '[' | ']' | ' ') +;
+        //( 'a' .. 'z' | 'A' .. 'Z' | '_' | '0' .. '9' | '/'| '\\' | ':')* 
 
-IncludeDirective
-    :   '#' Whitespace? 'include' Whitespace? (('"' ~[\r\n]* '"')) Whitespace? Newline
-        -> skip
-    ;
 
 Newline
     :   (   '\r' '\n'?
@@ -57,6 +37,10 @@ Whitespace
     :   [ \t]+
         -> skip
     ;
+
+String : (('"' ~[\r\n]* '"')) ;
+
+EQUALS : '=';
 
 SINGLE_LINE_COMMENT
    : WS* '//' .*? (NEWLINE | EOF) -> skip
