@@ -27,16 +27,17 @@ export class AndroidProject extends PlatformProject {
     super(project);
 
     const manifestPath = this.getAndroidManifestPath();
-    if (!manifestPath) {
-      throw new Error('Unable to load AndroidManifest.xml for project');
-    }
-    this.manifest = new XmlFile(manifestPath, project.vfs);
+    this.manifest = new XmlFile(manifestPath!, project.vfs);
   }
 
   async load() {
-    await this.manifest.load();
-    this.buildGradle = await this.loadGradle('build.gradle');
-    this.appBuildGradle = await this.loadGradle('app/build.gradle');
+    try {
+      await this.manifest.load();
+      this.buildGradle = await this.loadGradle('build.gradle');
+      this.appBuildGradle = await this.loadGradle('app/build.gradle');
+    } catch (e) {
+      this.setError(e as Error);
+    }
   }
 
   getBuildGradle() {

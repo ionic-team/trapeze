@@ -43,9 +43,13 @@ export class IosProject extends PlatformProject {
   }
 
   async load() {
-    const proj = await this.pbx();
+    try {
+      const proj = await this.pbx();
+      this.pbxProject = proj;
+    } catch (e) {
+      this.setError(e as Error);
+    }
 
-    this.pbxProject = proj;
   }
 
   /**
