@@ -13,7 +13,12 @@ export default async function execute(ctx: Context, op: Operation) {
         }
 
         await file.load();
-
+        
+        if(pop.raw) {
+          file.set(pop.raw);
+          continue
+        }
+        
         for (const entries of pop.entries) {
           if (pop.replace) {
             file.set(entries);
