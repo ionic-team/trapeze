@@ -13,7 +13,6 @@ export default async function execute(ctx: Context, op: Operation) {
         }
 
         await file.load();
-        
         if(pop.raw) {
           file.set(pop.raw);
           continue
