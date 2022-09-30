@@ -1,5 +1,13 @@
 # @trapezedev/configure
 
+## 5.0.6
+
+### Patch Changes
+
+- Tweaked logging for variable processing per #96
+- Updated dependencies
+  - @trapezedev/project@5.0.6
+
 ## 5.0.5
 
 ### Patch Changes

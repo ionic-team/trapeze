@@ -1,5 +1,12 @@
 # @trapezedev/project
 
+## 5.0.6
+
+### Patch Changes
+
+- Tweaked logging for variable processing per #96
+  - @trapezedev/gradle-parse@5.0.6
+
 ## 5.0.5
 
 ### Patch Changes
