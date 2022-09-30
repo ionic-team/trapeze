@@ -4,7 +4,7 @@ import { hideBin } from 'yargs/helpers';
 
 import { loadProject } from './project';
 import { MobileProject } from '@trapezedev/project';
-import { log } from './util/log';
+import { log, warn } from './util/log';
 
 export interface Context {
   project: MobileProject;
@@ -107,7 +107,7 @@ export function initVarsFromEnv(ctx: Context, vars: Variables) {
     try {
       existing = existing && JSON.parse(existing!);
     } catch (e) {
-      log(`Unable to parse environment variable ${v} as JSON, processing as string instead`, e);
+      warn(`Unable to parse environment variable ${v} as JSON, processing as string instead`);
     } finally {
       if (existing) {
         ctx.vars[v] = {
