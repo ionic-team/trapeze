@@ -80,7 +80,7 @@ export function str(ctx: Context, s: string): string | any {
   // Otherwise do a string interpolation of each value
   // Replace any variables in the string, ignoring
   // ones of the type $(blah) which are handled by the platform (i.e. iOS)
-  s = s.replace(/\$[^\(][\w.]+/g, (m: string) => {
+  s = s.replace(/\$[^\(][\w]+/g, (m: string) => {
     const foundVar = ctx.vars[m.slice(1)];
 
     if (foundVar && typeof foundVar.value === 'string') {
