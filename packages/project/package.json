@@ -30,7 +30,7 @@
     "@types/lodash": "^4.14.175",
     "@types/plist": "^3.0.2",
     "@types/slice-ansi": "^5.0.0",
-    "@xmldom/xmldom": "^0.7.5",
+    "@xmldom/xmldom": "^0.8.3",
     "conventional-changelog": "^3.1.4",
     "cross-spawn": "^7.0.3",
     "diff": "^5.1.0",
