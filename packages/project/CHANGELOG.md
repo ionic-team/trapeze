@@ -1,5 +1,12 @@
 # @trapezedev/project
 
+## 5.0.7
+
+### Patch Changes
+
+- Reverted variable change to support use in string values with dots. #112
+  - @trapezedev/gradle-parse@5.0.7
+
 ## 5.0.6
 
 ### Patch Changes

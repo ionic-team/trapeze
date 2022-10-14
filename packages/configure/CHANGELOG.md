@@ -1,5 +1,13 @@
 # @trapezedev/configure
 
+## 5.0.7
+
+### Patch Changes
+
+- Reverted variable change to support use in string values with dots. #112
+- Updated dependencies
+  - @trapezedev/project@5.0.7
+
 ## 5.0.6
 
 ### Patch Changes
