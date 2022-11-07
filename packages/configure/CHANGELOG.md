@@ -1,5 +1,13 @@
 # @trapezedev/configure
 
+## 5.0.8
+
+### Patch Changes
+
+- Fixed setBuild when value is null
+- Updated dependencies
+  - @trapezedev/project@5.0.8
+
 ## 5.0.7
 
 ### Patch Changes

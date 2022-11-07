@@ -1,6 +1,6 @@
 {
   "name": "@trapezedev/gradle-parse",
-  "version": "5.0.7",
+  "version": "5.0.8",
   "description": "Simple, acurrent Gradle parsing tool for tool modifications to Gradle files",
   "author": "Ionic Team <hi@ionic.io> (https://ionicframework.com) ",
   "license": "SEE LICENSE",

@@ -1,5 +1,12 @@
 # @trapezedev/project
 
+## 5.0.8
+
+### Patch Changes
+
+- Fixed setBuild when value is null
+  - @trapezedev/gradle-parse@5.0.8
+
 ## 5.0.7
 
 ### Patch Changes
