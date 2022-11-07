@@ -184,8 +184,8 @@ export class IosProject extends PlatformProject {
    * Set the build number (aka the `CURRENT_PROJECT_VERSION`) for the given target and build.
    * If the `targetName` is null the main app target is used. If the `buildName` is null the value is set for both builds (Debug/Release);
    */
-  async setBuild(targetName: IosTargetName | null, buildName: IosBuildName | null, buildNumber: number) {
-    this.pbxProject?.updateBuildProperty('CURRENT_PROJECT_VERSION', buildNumber, buildName, targetName);
+  async setBuild(targetName: IosTargetName | null, buildName: IosBuildName | null, buildNumber: number | null) {
+    this.pbxProject?.updateBuildProperty('CURRENT_PROJECT_VERSION', buildNumber ?? 1, buildName, targetName);
 
     const file = await this.getInfoPlist(targetName, buildName ?? undefined);
     if (!file || !this.project?.config.ios?.path) {
