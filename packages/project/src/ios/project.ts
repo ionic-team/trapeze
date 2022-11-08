@@ -1,5 +1,6 @@
 import plist from 'plist';
 import path, { join } from 'path';
+import fetch from 'cross-fetch';
 import { copy, pathExists, readdir, writeFile } from '@ionic/utils-fs';
 
 import { parsePbxProject, pbxReadString, pbxSerializeString } from "../util/pbx";
@@ -482,12 +483,18 @@ export class IosProject extends PlatformProject {
     this.project.vfs.set(filename, parsed);
   }
 
-  copyFile(src: string, dest: string): Promise<void> {
+  async copyFile(src: string, dest: string): Promise<void> {
     if (!this.project?.config?.ios?.path) {
       return Promise.reject();
     }
-    const srcPath = join(this.project.config.ios.path, src);
+
     const destPath = join(this.project.config.ios.path, dest);
+
+    if (/^(https?:\/\/)/.test(src)) {
+      const res = await fetch(src);
+      return writeFile(destPath, Buffer.from(await res.arrayBuffer()));
+    }
+    const srcPath = join(this.project.config.ios.path, src);
     return copy(srcPath, destPath);
   }
 

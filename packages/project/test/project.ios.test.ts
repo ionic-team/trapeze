@@ -374,6 +374,13 @@ describe('project - ios standard', () => {
     const destContents = await readFile(dest);
     expect(srcContents).toEqual(destContents);
   });
+
+  it('should copy URL', async () => {
+    await project.ios?.copyFile('https://via.placeholder.com/150C', 'placeholder.png');
+    const dest = join(dir, 'ios/App', 'placeholder.png');
+    const destContents = await readFile(dest);
+    expect(destContents.length).toBeGreaterThan(0);
+  });
 });
 
 describe('ios - no info plist case', () => {
