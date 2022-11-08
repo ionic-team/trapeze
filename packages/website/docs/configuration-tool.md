@@ -300,6 +300,19 @@ platforms:
           }
 ```
 
+Files can also be copied by using the `source` option instead of `text`:
+
+```yaml
+platforms:
+  android:
+    res:
+      - path: drawable
+        file: icon.png
+        source: ../common/test/fixtures/icon.png
+```
+
+`source` supports a URL instead of a local path for remote resource loading.
+
 ### `json`
 
 Modifies JSON files relative to the root of the Android project. Use `set` to override the element (and clobber any children), or `merge` to merge the values:
@@ -346,7 +359,7 @@ platforms:
 
 ### `copy`
 
-Copies files and directories relative to the root of the android project (`./android` by default).
+Copies files, directories, or URLs relative to the root of the android project (`./android` by default).
 
 ```yaml
 platforms:
@@ -356,6 +369,8 @@ platforms:
         dest: app/google-services.json
       - src: old/path/of/directory
         dest: new/path/of/directory
+      - src: https://example.com/file.png
+        dest: new/path/of/file.png
 ```
 
 ## iOS
@@ -569,7 +584,7 @@ platforms:
 
 ### `copy`
 
-Copies files and directories relative to the root of the iOS project (`./ios/App` by default).
+Copies files, directories, or URLs relative to the root of the iOS project (`./ios/App` by default).
 
 ```yaml
 platforms:
@@ -581,4 +596,6 @@ platforms:
             dest: App/GoogleService-Info.plist
           - src: old/path/of/directory
             dest: new/path/of/directory
+          - src: https://example.com/file.png
+            dest: new/path/of/file.png
 ```

@@ -273,6 +273,8 @@ await project.android?.copyToResources('drawable', 'icon.png', source);
 const data = await project.android?.getResource('raw', 'test.json');
 ```
 
+`copyToResources` supports a URL as the last `source` option which will fetch the remote file instead.
+
 #### Gradle
 
 Gradle modifications are the most complicated and powerful of the capabilities in this library. Remember, `JAVA_HOME` must be set before using these methods.

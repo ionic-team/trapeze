@@ -1,4 +1,5 @@
 import { join } from 'path';
+import fetch from 'cross-fetch';
 import {
   pathExists,
   move,
@@ -259,12 +260,18 @@ export class AndroidProject extends PlatformProject {
     return writeFile(join(dir, file), contents);
   }
 
-  copyFile(src: string, dest: string): Promise<void> {
+  async copyFile(src: string, dest: string): Promise<void> {
     if (!this.project?.config?.android?.path) {
       return Promise.reject();
     }
-    const srcPath = join(this.project.config.android.path, src);
     const destPath = join(this.project.config.android.path, dest);
+
+    if (/^(https?:\/\/)/.test(src)) {
+      const res = await fetch(src);
+      return writeFile(destPath, Buffer.from(await res.arrayBuffer()));
+    }
+
+    const srcPath = join(this.project.config.android.path, src);
     return copy(srcPath, destPath);
   }
 
