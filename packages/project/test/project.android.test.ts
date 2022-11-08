@@ -3,7 +3,7 @@ import tempy from 'tempy';
 import { MobileProject, XmlFile } from '../src';
 
 import { join } from 'path';
-import { copy, pathExists, readFile, rm } from '@ionic/utils-fs';
+import { copy, pathExists, readFile, rm, stat } from '@ionic/utils-fs';
 import { formatXml, serializeXml } from "../src/util/xml";
 import { MobileProjectConfig } from '../src/config';
 import { GradleFile } from '../src/android/gradle-file';
@@ -292,6 +292,13 @@ try {
     const destContents = await project.android?.getResource('drawable', 'icon.png', null) as Buffer;
 
     expect(Buffer.compare(srcContents, destContents)).toBe(0);
+  });
+
+  it('should copy resources file from url', async () => {
+    await project.android?.copyToResources('drawable', 'icon.png', 'https://via.placeholder.com/150C');
+    const destContents = await project.android?.getResource('drawable', 'icon.png', null) as Buffer;
+
+    expect(destContents.length).toBeGreaterThan(0);
   });
 
   it('should load properties file', async () => {

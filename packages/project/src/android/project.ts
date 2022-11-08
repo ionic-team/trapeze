@@ -17,6 +17,7 @@ import { GradleFile } from './gradle-file';
 import { XmlFile } from '../xml';
 import { PropertiesFile } from '../properties';
 import { PlatformProject } from '../platform-project';
+import { readSource } from '../read-src';
 
 export class AndroidProject extends PlatformProject {
   private manifest: XmlFile;
@@ -283,7 +284,7 @@ export class AndroidProject extends PlatformProject {
       await mkdir(dir);
     }
 
-    const sourceData = await readFile(source);
+    const sourceData = await readSource(source);
     return writeFile(join(dir, file), sourceData);
   }
 
