@@ -1,5 +1,13 @@
 # @trapezedev/configure
 
+## 5.0.9
+
+### Patch Changes
+
+- Added support for loading URLs for certain operations
+- Updated dependencies
+  - @trapezedev/project@5.0.9
+
 ## 5.0.8
 
 ### Patch Changes
