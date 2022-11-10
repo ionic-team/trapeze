@@ -8,6 +8,7 @@
     "configure-website": "0.0.0"
   },
   "changesets": [
+    "giant-years-float",
     "light-years-smash"
   ]
 }

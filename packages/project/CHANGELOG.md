@@ -1,5 +1,12 @@
 # @trapezedev/project
 
+## 5.0.9-next.1
+
+### Patch Changes
+
+- 5.0.9-next.1
+  - @trapezedev/gradle-parse@5.0.9-next.1
+
 ## 5.0.9-next.0
 
 ### Patch Changes
