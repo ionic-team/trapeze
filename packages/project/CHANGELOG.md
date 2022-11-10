@@ -1,5 +1,12 @@
 # @trapezedev/project
 
+## 5.0.10
+
+### Patch Changes
+
+- Version bump
+  - @trapezedev/gradle-parse@5.0.10
+
 ## 5.0.9
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @trapezedev/configure
 
+## 5.0.10
+
+### Patch Changes
+
+- Version bump
+- Updated dependencies
+  - @trapezedev/project@5.0.10
+
 ## 5.0.9
 
 ### Patch Changes

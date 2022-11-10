@@ -1,5 +1,7 @@
 # @capacitor/gradle-parse
 
+## 5.0.10
+
 ## 5.0.9
 
 ### Patch Changes
