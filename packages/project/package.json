@@ -1,6 +1,6 @@
 {
   "name": "@trapezedev/project",
-  "version": "5.0.8",
+  "version": "5.0.9-next.0",
   "description": "Trapeze mobile configuration API for managing projects through code",
   "author": "Ionic Team <hi@ionic.io> (https://ionicframework.com) ",
   "license": "SEE LICENSE",
@@ -21,7 +21,7 @@
     "@ionic/utils-fs": "^3.1.5",
     "@ionic/utils-subprocess": "^2.1.8",
     "@prettier/plugin-xml": "^2.2.0",
-    "@trapezedev/gradle-parse": "5.0.8",
+    "@trapezedev/gradle-parse": "5.0.9-next.0",
     "@types/cross-spawn": "^6.0.2",
     "@types/diff": "^5.0.2",
     "@types/fs-extra": "^9.0.13",

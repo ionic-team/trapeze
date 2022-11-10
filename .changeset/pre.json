@@ -1,0 +1,13 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "@trapezedev/configure": "5.0.8",
+    "@trapezedev/gradle-parse": "5.0.8",
+    "@trapezedev/project": "5.0.8",
+    "configure-website": "0.0.0"
+  },
+  "changesets": [
+    "light-years-smash"
+  ]
+}

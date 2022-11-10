@@ -1,5 +1,11 @@
 # @capacitor/gradle-parse
 
+## 5.0.9-next.0
+
+### Patch Changes
+
+- Support finding java on PATH in addition to JAVA_HOME
+
 ## 5.0.8
 
 ## 5.0.7

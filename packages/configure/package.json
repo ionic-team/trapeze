@@ -1,6 +1,6 @@
 {
   "name": "@trapezedev/configure",
-  "version": "5.0.8",
+  "version": "5.0.9-next.0",
   "description": "Trapeze configuration tool for automatically configuring projects",
   "author": "Ionic Team <hi@ionic.io> (https://ionicframework.com) ",
   "license": "SEE LICENSE",
@@ -22,7 +22,7 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "dependencies": {
-    "@trapezedev/project": "5.0.8",
+    "@trapezedev/project": "5.0.9-next.0",
     "@ionic/cli-framework-output": "^2.2.2",
     "@ionic/utils-fs": "^3.1.5",
     "@ionic/utils-subprocess": "^2.1.8",
