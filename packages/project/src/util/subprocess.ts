@@ -28,7 +28,7 @@ export async function runCommand(command: string, args: string[], options = {}):
   }
 }
 
-export async function spawnCommand(command: string, args: string[], options = {}): Promise<string> {
+export async function spawnCommand(command: string, args: string[], options: any = {}): Promise<string> {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, options);
     const stderr: string[] = [];
@@ -37,11 +37,16 @@ export async function spawnCommand(command: string, args: string[], options = {}
       stdout.push(e.toString());
     });
     child.stderr?.addListener('data', e => {
-      stderr.push(e.toString());
+      if (options.combineStreams) {
+        stdout.push(e.toString());
+      } else {
+        stderr.push(e.toString());
+      }
     });
     child.on('exit', e => {
     });
     child.on('error', e => {
+      reject(e);
     });
     child.on('close', e => {
       if (e) {

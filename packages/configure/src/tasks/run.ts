@@ -25,43 +25,9 @@ export async function runCommand(ctx: Context, configFile: YamlFile) {
   }
 
   try {
-    await verifyOperations(ctx, processed);
-  } catch (e) {
-    throw e;
-  }
-
-  try {
     await executeOperations(ctx, processed);
   } catch (e) {
     throw e;
-  }
-}
-
-/*
-async function previewOperations(operations: Operation[]) {
-  for (let op of operations) {
-    printOp(op);
-
-    if (!hasHandler(op)) {
-      throw new Error(
-        `Unsupported configuration option ${c.strong(
-          op.id,
-        )}. Check your configuration file and fix any issues before running again`,
-      );
-    }
-  }
-}
-*/
-
-async function verifyOperations(_ctx: Context, operations: Operation[]) {
-  for (const op of operations) {
-    if (op.platform === 'android' && op.id === 'android.gradle') {
-      if (!process.env.JAVA_HOME) {
-        throw new Error(
-          'JAVA_HOME not set which is required for android.gradle modifications',
-        );
-      }
-    }
   }
 }
 

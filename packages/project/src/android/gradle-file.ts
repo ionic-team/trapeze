@@ -194,8 +194,8 @@ export class GradleFile extends VFSStorable {
 
   /**
    * Parse the underlying Gradle file and build the AST. Note: this calls out to
-   * a Java process which incurs some overhead and requires JAVA_HOME be correctly
-   * set. This is because Gradle is actually a DSL for the Groovy language, which is
+   * a Java process which incurs some overhead and requires java to be installed
+   * This is because Gradle is actually a DSL for the Groovy language, which is
    * a JVM language. Additionally, the Groovy parser is based on a modified version
    * of the Antlr project that is tightly bound to the JVM. Ultimatley, this means
    * the only safe, accurate way to feasibly build a Gradle AST is to use the Groovy
@@ -224,7 +224,7 @@ export class GradleFile extends VFSStorable {
     }
 
     const parserRoot = this.getGradleParserPath();
-    const java = this.getJava();
+    const java = await this.getJava();
 
     if (!java) {
       throw new Error(this.gradleParseError());
@@ -467,16 +467,20 @@ export class GradleFile extends VFSStorable {
     return node.type === 'method' || node.type === 'variable';
   }
 
-  verifyJavaHome() {
-    if (!process.env.JAVA_HOME) {
-      return false;
-    }
-    return true;
-  }
-
-  getJava(): string | null {
-    if (process.env.JAVA_HOME) {
-      return join(process.env.JAVA_HOME, 'bin', 'java');
+  async getJava(): Promise<string | null> {
+    try {
+      const v = await spawnCommand('java', ['-version'], {
+        stdio: 'pipe',
+        combineStreams: true
+      });
+      if (!v) {
+        throw new Error('Unable to find java on PATH');
+      }
+      return 'java';
+    } catch(e) {
+      if (process.env.JAVA_HOME) {
+        return join(process.env.JAVA_HOME, 'bin', 'java');
+      }
     }
     return null;
   }
@@ -667,7 +671,7 @@ export class GradleFile extends VFSStorable {
   }
 
   private gradleParseError() {
-    return `JAVA_HOME not set or set incorrectly. Please set JAVA_HOME to the root of your Java installation.\n\nGradle parse functionality depends on a local Java install for accurate Gradle file modification.`;
+    return `java not found on path and JAVA_HOME not set. Please set JAVA_HOME to the root of your Java installation.\n\nGradle parse functionality depends on a local Java install for accurate Gradle file modification.`;
   }
 
   private gradleCommitFn = async (file: VFSFile) => {

@@ -38,15 +38,6 @@ describe('project - android - gradle', () => {
     expect(output).not.toBeNull();
   });
 
-  it.skip('Should throw an exception if no JAVA_HOME set', async () => {
-    process.env.JAVA_HOME = '';
-    const gradle = new GradleFile(
-      join(project.config.android!.path!, 'build.gradle'),
-      vfs,
-    );
-    await expect(gradle.parse()).rejects.toThrow();
-  });
-
   it('Should find target element in parsed Gradle', async () => {
     const gradle = new GradleFile(
       join(project.config.android!.path!, 'build.gradle'),
