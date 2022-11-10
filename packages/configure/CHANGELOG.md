@@ -1,5 +1,17 @@
 # @trapezedev/configure
 
+## 5.0.9
+
+### Patch Changes
+
+- 67b37ff: 5.0.9-next.1
+- 25c4995: Support finding java on PATH in addition to JAVA_HOME
+- Support finding java on path in addition to JAVA_HOME
+- Updated dependencies [67b37ff]
+- Updated dependencies [25c4995]
+- Updated dependencies
+  - @trapezedev/project@5.0.9
+
 ## 5.0.9-next.1
 
 ### Patch Changes
