@@ -1,5 +1,16 @@
 # @trapezedev/configure
 
+## 6.0.0
+
+### Major Changes
+
+- Added support for inserting gradle variables
+
+### Patch Changes
+
+- Updated dependencies
+  - @trapezedev/project@6.0.0
+
 ## 5.0.10
 
 ### Patch Changes

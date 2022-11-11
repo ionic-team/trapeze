@@ -1,5 +1,15 @@
 # @trapezedev/project
 
+## 6.0.0
+
+### Major Changes
+
+- Added support for inserting gradle variables
+
+### Patch Changes
+
+- @trapezedev/gradle-parse@6.0.0
+
 ## 5.0.10
 
 ### Patch Changes
