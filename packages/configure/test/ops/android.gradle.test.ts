@@ -1,4 +1,5 @@
 import { copy } from '@ionic/utils-fs';
+import { AndroidGradleInjectType } from '@trapezedev/project';
 import { GradleFile } from '@trapezedev/project/dist/android/gradle-file';
 import { join } from 'path';
 import tempy from 'tempy';
@@ -104,6 +105,41 @@ try {
     logger.warn("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
 }`.trim()
     );
+  });
+
+  it('Should insert with different types', async () => {
+    const op: AndroidGradleOperation = makeOp('gradle', [
+      {
+        file: 'variables.gradle',
+        target: {
+          ext: {}
+        },
+        insertType: AndroidGradleInjectType.Variable,
+        insert: [{
+          firebaseMessagingVersion: "'20.0.6'"
+        }]
+      },
+    ]);
+    await Op(ctx, op as Operation);
+
+    const file = ctx.project.vfs.get<GradleFile>(join(dir, 'android/variables.gradle'));
+    expect(file?.getData()?.getDocument()?.trim()).toEqual(`
+ext {
+    minSdkVersion = 21
+    compileSdkVersion = 30
+    targetSdkVersion = 30
+    androidxActivityVersion = '1.2.0'
+    androidxAppCompatVersion = '1.2.0'
+    androidxCoordinatorLayoutVersion = '1.1.0'
+    androidxCoreVersion = '1.3.2'
+    androidxFragmentVersion = '1.3.0'
+    junitVersion = '4.13.1'
+    androidxJunitVersion = '1.1.2'
+    androidxEspressoCoreVersion = '3.3.0'
+    cordovaAndroidVersion = '7.0.0'
+    firebaseMessagingVersion = '20.0.6'
+}
+    `.trim());
   });
 
   it('Should non-exact insert', async () => {

@@ -1,6 +1,6 @@
-import { MobileProject } from '../src';
+import { AndroidGradleInjectType, MobileProject } from '../src';
 import { MobileProjectConfig } from '../src/config';
-import { GradleFile, GradleInjectType } from '../src/android/gradle-file';
+import { GradleFile } from '../src/android/gradle-file';
 
 import { join } from 'path';
 import { VFS } from '../src/vfs';
@@ -432,7 +432,7 @@ allprojects {
       ext: {}
     }, [
       { firebaseMessagingVersion: "'20.0.6'" }
-    ], GradleInjectType.Variable);
+    ], AndroidGradleInjectType.Variable);
 
     const source = project.vfs
       .get<GradleFile>(gradle!.filename)

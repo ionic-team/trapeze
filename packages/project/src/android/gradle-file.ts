@@ -1,18 +1,12 @@
 import { dirname, join } from 'path';
 import os from 'os';
 import tempy from 'tempy';
-import { cloneDeep } from 'lodash';
 import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
-import { runCommand, spawnCommand } from '../util/subprocess';
-import { getIndentation, indent } from '../util/text';
-import { VFS, VFSRef, VFSFile, VFSStorable, VFSDiff } from '../vfs';
+import { spawnCommand } from '../util/subprocess';
+import { indent } from '../util/text';
+import { VFS, VFSFile, VFSStorable, VFSDiff } from '../vfs';
 import detectIndent from '../util/detect-indent';
-
-export const enum GradleInjectType {
-  Infer = 'infer',
-  Method = 'method',
-  Variable = 'variable'
-}
+import { AndroidGradleInjectType } from '../definitions';
 
 export type GradleAST = any;
 export interface GradleASTNode {
@@ -64,7 +58,7 @@ export class GradleFile extends VFSStorable {
       const foundParent = this.find(parent, exact);
 
       if (foundParent.length) {
-        this.insertIntoGradleFile([toReplace], foundParent[0], GradleInjectType.Infer);
+        this.insertIntoGradleFile([toReplace], foundParent[0], AndroidGradleInjectType.Infer);
         return;
       } else {
         throw new Error(
@@ -138,7 +132,7 @@ export class GradleFile extends VFSStorable {
       detectedIndent.indent,
       undefined,
       targetNode.node,
-      GradleInjectType.Infer
+      AndroidGradleInjectType.Infer
     );
 
     const resolvedLastLine = lastLine < 0 ? sourceLines.length : lastLine;
@@ -167,7 +161,7 @@ export class GradleFile extends VFSStorable {
    * exact specifies whether the pathObject should be exact from the root of the document or
    * if it can match on a sub-object
    **/
-  async insertProperties(pathObject: any, toInject: any[], type: GradleInjectType = GradleInjectType.Method, exact: boolean = false): Promise<void> {
+  async insertProperties(pathObject: any, toInject: any[], type: AndroidGradleInjectType = AndroidGradleInjectType.Method, exact: boolean = false): Promise<void> {
     await this.parse();
 
     if (!this.parsed) {
@@ -203,7 +197,7 @@ export class GradleFile extends VFSStorable {
 
     const target = found[0];
 
-    return this.insertIntoGradleFile(toInject, target, GradleInjectType.Infer);
+    return this.insertIntoGradleFile(toInject, target, AndroidGradleInjectType.Infer);
   }
 
   /**
@@ -294,7 +288,7 @@ export class GradleFile extends VFSStorable {
   private async insertIntoGradleFile(
     toInject: any[] | string,
     targetNode: { node: GradleASTNode; depth: number },
-    type: GradleInjectType
+    type: AndroidGradleInjectType
   ) {
     // These values are 1-indexed not 0-indexed
     let { line, column, lastLine, lastColumn } = targetNode.node.source;
@@ -613,7 +607,7 @@ export class GradleFile extends VFSStorable {
     indentation: string,
     depth = 0,
     targetNode: GradleASTNode,
-    type: GradleInjectType
+    type: AndroidGradleInjectType
   ) {
     for (const entry of injectObj) {
       const keys = Object.keys(entry);
@@ -636,7 +630,7 @@ export class GradleFile extends VFSStorable {
           } else {
             // Create a variable entry if the target node type is a variable or 
             // the provided type is a variable
-            if (targetNode.type === 'variable' || type === GradleInjectType.Variable) {
+            if (targetNode.type === 'variable' || type === AndroidGradleInjectType.Variable) {
               lines.push(`${key} = ${JSON.stringify(editEntry)}`);
             } else {
               lines.push(`${key} ${editEntry}`);
@@ -647,7 +641,7 @@ export class GradleFile extends VFSStorable {
           typeof editEntry === 'number' ||
           typeof editEntry === 'boolean'
         ) {
-          if (targetNode.type === 'variable' || type === GradleInjectType.Variable) {
+          if (targetNode.type === 'variable' || type === AndroidGradleInjectType.Variable) {
             lines.push(indent(`${key} = ${editEntry}`, indentation, depth));
           } else {
             lines.push(indent(`${key} ${editEntry}`, indentation, depth));

@@ -1,3 +1,5 @@
+import { AndroidGradleInjectType } from '@trapezedev/project';
+
 export interface Operation {
   id: string;
   platform: 'ios' | 'android' | 'web' | 'windows' | string;
@@ -37,6 +39,7 @@ export interface AndroidGradleOperation extends Operation {
     target: any;
     insert?: string | any[];
     replace?: string | any;
+    insertType?: AndroidGradleInjectType;
     exact?: boolean;
   }[];
 }

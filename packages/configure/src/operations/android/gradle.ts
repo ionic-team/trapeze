@@ -17,7 +17,7 @@ export default async function execute(ctx: Context, op: Operation) {
     } else if (typeof entry.insert === 'string') {
       await gradleFile.insertFragment(entry.target, entry.insert, entry.exact);
     } else if (Array.isArray(entry.insert)) {
-      await gradleFile.insertProperties(entry.target, entry.insert, entry.exact);
+      await gradleFile.insertProperties(entry.target, entry.insert, entry.insertType, entry.exact);
     } else {
       throw new Error(`Invalid \'insert\' type for gradle operation. Must be a string or array of objects: ${JSON.stringify(entry.insert, null, 2)}`);
     }

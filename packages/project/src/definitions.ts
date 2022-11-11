@@ -53,3 +53,9 @@ export type IosProjectName = string;
  */
 
 export type AndroidResDir = 'anim' | 'animator' | 'color' | 'drawable' | 'font' | 'interpolator' | 'layout' | 'menu' | 'mipmap' | 'navigation' | 'raw' | 'transition' | 'values' | 'xml' | string;
+
+export const enum AndroidGradleInjectType {
+  Infer = 'infer',
+  Method = 'method',
+  Variable = 'variable'
+}
