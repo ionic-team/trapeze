@@ -300,6 +300,15 @@ buildGradleFile.insertProperties(
   },
   [{ classpath: 'com.my.custom.gradle.plugin' }]
 );
+
+// To insert a variable assignment (thing = value) set the insertType to 'variable':
+buildGradleFile.insertProperties(
+  {
+    buildscript: {},
+  },
+  insertType: 'variable',
+  [{ firebaseMessagingVersion: '20.0.6' }]
+);
 ```
 
 To add raw Gradle strings:
