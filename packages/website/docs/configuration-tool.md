@@ -223,7 +223,8 @@ The Gradle commands supports two modes: `insert` or `replace`:
 
 - `insert` inserts new Gradle snippets at the desired location in the file
   - This operation takes either a raw string of Groovy-based Gradle, or an object. When using the object, make sure to set the `insertType` (see next line) to ensure the correct code is generated.
-  - This operation takes an `insertType` of either `'method'` (default) or `'variable'` which will create either a method call (`methodName methodArg`) or an assignment (`variable = value`).
+  - When using an object to insert, this operation takes an `insertType` of either `'method'` (default) or `'variable'` which will create either a method call (`methodName methodArg`) or an assignment (`variable = value`).
+  - See the examples below for more clarity on how to structure the insert operation
 - `replace` replaces existing entries in the Gradle file at the desired location
 
 Currently, the tool supports updating primitive types (numbers, strings, booleans), and arrays of primitives. Strings need additional quoting if necessary, in order to support non-quoted variable strings. See the example below for string quoting examples.
