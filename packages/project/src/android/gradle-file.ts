@@ -8,6 +8,12 @@ import { getIndentation, indent } from '../util/text';
 import { VFS, VFSRef, VFSFile, VFSStorable, VFSDiff } from '../vfs';
 import detectIndent from '../util/detect-indent';
 
+export const enum GradleInjectType {
+  Infer = 'infer',
+  Method = 'method',
+  Variable = 'variable'
+}
+
 export type GradleAST = any;
 export interface GradleASTNode {
   type: string;
@@ -37,6 +43,9 @@ export class GradleFile extends VFSStorable {
   /**
    * Replace the given properties at the specified point in the Gradle file or insert
    * if the replacement doesn't exist
+   * 
+   * exact specifies whether the pathObject should be exact from the root of the document or
+   * if it can match on a sub-object
    **/
   async replaceProperties(pathObject: any, toReplace: any, exact = false): Promise<void> {
     await this.parse();
@@ -55,7 +64,7 @@ export class GradleFile extends VFSStorable {
       const foundParent = this.find(parent, exact);
 
       if (foundParent.length) {
-        this.insertIntoGradleFile([toReplace], foundParent[0]);
+        this.insertIntoGradleFile([toReplace], foundParent[0], GradleInjectType.Infer);
         return;
       } else {
         throw new Error(
@@ -129,6 +138,7 @@ export class GradleFile extends VFSStorable {
       detectedIndent.indent,
       undefined,
       targetNode.node,
+      GradleInjectType.Infer
     );
 
     const resolvedLastLine = lastLine < 0 ? sourceLines.length : lastLine;
@@ -154,8 +164,10 @@ export class GradleFile extends VFSStorable {
 
   /**
    * Insert the given properties at the specified point in the Gradle file.
+   * exact specifies whether the pathObject should be exact from the root of the document or
+   * if it can match on a sub-object
    **/
-  async insertProperties(pathObject: any, toInject: any[], exact = false): Promise<void> {
+  async insertProperties(pathObject: any, toInject: any[], type: GradleInjectType = GradleInjectType.Method, exact: boolean = false): Promise<void> {
     await this.parse();
 
     if (!this.parsed) {
@@ -169,11 +181,13 @@ export class GradleFile extends VFSStorable {
 
     const target = found[0];
 
-    return this.insertIntoGradleFile(toInject, target);
+    return this.insertIntoGradleFile(toInject, target, type);
   }
 
   /**
    * Inject the given properties at the specified point in the Gradle file.
+   * exact specifies whether the pathObject should be exact from the root of the document or
+   * if it can match on a sub-object
    **/
   async insertFragment(pathObject: any, toInject: string, exact = false): Promise<void> {
     await this.parse();
@@ -189,7 +203,7 @@ export class GradleFile extends VFSStorable {
 
     const target = found[0];
 
-    return this.insertIntoGradleFile(toInject, target);
+    return this.insertIntoGradleFile(toInject, target, GradleInjectType.Infer);
   }
 
   /**
@@ -280,6 +294,7 @@ export class GradleFile extends VFSStorable {
   private async insertIntoGradleFile(
     toInject: any[] | string,
     targetNode: { node: GradleASTNode; depth: number },
+    type: GradleInjectType
   ) {
     // These values are 1-indexed not 0-indexed
     let { line, column, lastLine, lastColumn } = targetNode.node.source;
@@ -307,6 +322,7 @@ export class GradleFile extends VFSStorable {
         detectedIndent.indent,
         undefined,
         targetNode.node,
+        type
       );
     } else {
       lines = toInject.split(/\r?\n/);
@@ -597,6 +613,7 @@ export class GradleFile extends VFSStorable {
     indentation: string,
     depth = 0,
     targetNode: GradleASTNode,
+    type: GradleInjectType
   ) {
     for (const entry of injectObj) {
       const keys = Object.keys(entry);
@@ -613,10 +630,13 @@ export class GradleFile extends VFSStorable {
               indentation,
               depth + 1,
               targetNode,
+              type
             );
             lines.push('}');
           } else {
-            if (targetNode.type === 'variable') {
+            // Create a variable entry if the target node type is a variable or 
+            // the provided type is a variable
+            if (targetNode.type === 'variable' || type === GradleInjectType.Variable) {
               lines.push(`${key} = ${JSON.stringify(editEntry)}`);
             } else {
               lines.push(`${key} ${editEntry}`);
@@ -627,7 +647,7 @@ export class GradleFile extends VFSStorable {
           typeof editEntry === 'number' ||
           typeof editEntry === 'boolean'
         ) {
-          if (targetNode.type === 'variable') {
+          if (targetNode.type === 'variable' || type === GradleInjectType.Variable) {
             lines.push(indent(`${key} = ${editEntry}`, indentation, depth));
           } else {
             lines.push(indent(`${key} ${editEntry}`, indentation, depth));
@@ -650,6 +670,7 @@ export class GradleFile extends VFSStorable {
                 indentation,
                 depth + 1,
                 targetNode,
+                type
               );
               lines.push('}');
             }
