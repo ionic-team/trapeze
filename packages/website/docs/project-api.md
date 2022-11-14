@@ -184,7 +184,7 @@ Use `JsonFile` to make modifications against project JSON files:
 // Get a JSON file from the iOS project, or create a new one:
 const jsonFile = ctx.project.ios?.getProjectFile<JsonFile>(
   filename,
-  (filename: string) => new JsonFile(filename, ctx.project.vfs),
+  (filename: string) => new JsonFile(filename, ctx.project.vfs, ctx.project),
 );
 
 // Load it
@@ -334,7 +334,7 @@ Use `JsonFile` to make modifications against project JSON files:
 // Get a JSON file from the iOS project, or create a new one:
 const jsonFile = ctx.project.android?.getProjectFile<JsonFile>(
   filename,
-  (filename: string) => new JsonFile(filename, ctx.project.vfs),
+  (filename: string) => new JsonFile(filename, ctx.project.vfs, ctx.project),
 );
 
 // Load it

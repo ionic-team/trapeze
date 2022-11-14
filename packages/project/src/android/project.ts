@@ -19,6 +19,7 @@ import { XmlFile } from '../xml';
 import { PropertiesFile } from '../properties';
 import { PlatformProject } from '../platform-project';
 import { readSource } from '../read-src';
+import { Logger } from '../logger';
 
 export class AndroidProject extends PlatformProject {
   private manifest: XmlFile;
@@ -83,14 +84,14 @@ export class AndroidProject extends PlatformProject {
   getXmlFile(path: string) {
     return this.getProjectFile(
       path,
-      (filename: string) => new XmlFile(filename, this.project.vfs),
+      (filename: string) => new XmlFile(filename, this.project.vfs)
     );
   }
 
   getPropertiesFile(path: string) {
     return this.getProjectFile(
       path,
-      (filename: string) => new PropertiesFile(filename, this.project.vfs),
+      (filename: string) => new PropertiesFile(filename, this.project.vfs)
     );
   }
 
@@ -117,6 +118,8 @@ export class AndroidProject extends PlatformProject {
       .getDocumentElement()
       ?.getAttribute('package');
     const oldPackageParts = oldPackageName?.split('.') ?? [];
+
+    Logger.debug('Setting Android package name to', packageName, 'from', oldPackageName);
 
     if (packageName === oldPackageName) {
       return;

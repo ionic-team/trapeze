@@ -18,7 +18,7 @@ export default async function execute(ctx: Context, op: Operation) {
 
     jsonFile = ctx.project.ios?.getProjectFile<JsonFile>(
       filename!,
-      (filename: string) => new JsonFile(filename, ctx.project.vfs),
+      (filename: string) => new JsonFile(filename, ctx.project.vfs)
     );
 
     if (!jsonFile) {

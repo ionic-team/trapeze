@@ -1,12 +1,13 @@
 import c from '../colors';
 import { processOperations } from '../op';
-import { logger, log, error, warn } from '../util/log';
+import { logger, log, error, warn, debug } from '../util/log';
 import { logPrompt } from '../util/cli';
 import { loadYamlConfig, YamlFile } from '../yaml-config';
 import { hasHandler, runOperation } from '../operations/index';
 import { Context } from '../ctx';
 import { Operation } from '../definitions';
-import { VFSDiff } from '@trapezedev/project';
+import { Logger, VFSDiff } from '@trapezedev/project';
+import kleur from 'kleur';
 
 export async function runCommand(ctx: Context, configFile: YamlFile) {
   let processed: Operation[];
@@ -34,7 +35,13 @@ export async function runCommand(ctx: Context, configFile: YamlFile) {
 async function executeOperations(ctx: Context, operations: Operation[]) {
   for (const op of operations) {
     if (!ctx.args.quiet) {
-      printOp(op);
+      printOp(ctx, op);
+    }
+
+    const skipped = op.platform === 'ios' ? !ctx.project.ios : !ctx.project.android;
+    if (skipped) {
+      Logger.debug(`Skipping ${op.id} because ${op.platform} project does not exist`);
+      continue;
     }
 
     if (!hasHandler(op)) {
@@ -49,9 +56,10 @@ async function executeOperations(ctx: Context, operations: Operation[]) {
   await checkModifiedFiles(ctx);
 }
 
-function printOp(op: Operation) {
+function printOp(ctx: Context, op: Operation) {
+  const skipped = op.platform === 'ios' ? !ctx.project.ios : !ctx.project.android;
   // const env = c.weak(`[${op.env}]`);
-  const tag = c.weak(c.strong(`run`));
+  const tag = skipped ? c.weak(c.strong(`skip`)) : kleur.bold().magenta(`run`);
   const platform = c.success(c.strong(`${op.platform}`));
   const opName = c.strong(op.name);
   const opDisplay = op.displayText;

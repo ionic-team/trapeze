@@ -7,6 +7,8 @@ import { indent } from '../util/text';
 import { VFS, VFSFile, VFSStorable, VFSDiff } from '../vfs';
 import detectIndent from '../util/detect-indent';
 import { AndroidGradleInjectType } from '../definitions';
+import { MobileProject } from '../project';
+import { Logger } from '../logger';
 
 export type GradleAST = any;
 export interface GradleASTNode {
@@ -237,6 +239,9 @@ export class GradleFile extends VFSStorable {
     if (!java) {
       throw new Error(this.gradleParseError());
     }
+
+    Logger.debug(`Gradle File: Running Gradle parse with Java path ${java}`);
+    Logger.debug(`Gradle file contents at ${this.filename}`, await readFile(this.tempFile, { encoding: 'utf-8' }));
 
     try {
       let json: string | null = null;

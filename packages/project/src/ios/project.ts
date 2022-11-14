@@ -10,6 +10,7 @@ import { VFSRef, VFSFile } from '../vfs';
 import { XmlFile } from '../xml';
 import { PlistFile } from '../plist';
 import { PlatformProject } from '../platform-project';
+import { Logger } from '../logger';
 
 const defaultEntitlementsPlist = `
 <?xml version="1.0" encoding="UTF-8"?>
@@ -143,6 +144,8 @@ export class IosProject extends PlatformProject {
    */
   setBundleId(targetName: IosTargetName | null, buildName: IosBuildName | null, bundleId: string) {
     targetName = this.assertTargetName(targetName);
+
+    Logger.debug(`iOS: Setting bundle id to ${bundleId} for target ${targetName} and build ${buildName}`);
 
     this.pbxProject?.updateBuildProperty('PRODUCT_BUNDLE_IDENTIFIER', pbxSerializeString(bundleId), buildName, targetName);
   }

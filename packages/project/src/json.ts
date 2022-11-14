@@ -1,5 +1,6 @@
 import { readFile, readJson, writeJson } from '@ionic/utils-fs';
 import { mergeWith, union } from 'lodash';
+import { Logger } from './logger';
 
 import { VFS, VFSRef, VFSFile, VFSStorable } from './vfs';
 
@@ -20,6 +21,7 @@ export class JsonFile extends VFSStorable {
     }
 
     this.json = await readJson(this.path);
+    Logger.debug('Read json file', this.json);
     this.vfs.open(this.path, this, this.commitFn, this.diffFn);
   }
 

@@ -1,5 +1,7 @@
 import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
 import { mergeWith, union } from 'lodash';
+import { Logger } from './logger';
+import { MobileProject } from './project';
 import { parseProperties, writeProperties } from './util/properties';
 import { VFS, VFSRef, VFSFile, VFSStorable } from './vfs';
 
@@ -57,6 +59,7 @@ export class PropertiesFile extends VFSStorable {
       throw new Error(`Unable to locate file at ${this.path}`);
     }
     this.doc = await parseProperties(this.path);
+    Logger.debug(`Loaded properties file at ${this.path}`, this.doc);
     this.vfs.open(this.path, this.doc, this.commitFn);
   }
 

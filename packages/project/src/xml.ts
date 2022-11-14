@@ -5,6 +5,8 @@ import { difference, isEqual, mergeWith } from 'lodash';
 import { xml2js, js2xml } from 'xml-js';
 import { VFS, VFSFile, VFSStorable } from './vfs';
 import { readFile } from 'fs-extra';
+import { MobileProject } from './project';
+import { Logger } from './logger';
 
 const toArray = (o: any[]) => Array.prototype.slice.call(o || []);
 
@@ -24,6 +26,7 @@ export class XmlFile extends VFSStorable {
     }
 
     this.doc = await parseXml(this.path);
+    Logger.debug(`Read XML file at ${this.path}`, this.doc);
     this.vfs.open(this.path, this, this.xmlCommitFn, this.xmlDiffFn);
 
     const rootNode = this.getDocumentElement();
@@ -41,6 +44,7 @@ export class XmlFile extends VFSStorable {
           namespaces[nsName] = attribute.value ?? '';
         }
       }
+      Logger.debug(`Found root namespaces in XML file:`, Object.values(namespaces).join(' '));
       this.select = xpath.useNamespaces(namespaces);
     }
   }
