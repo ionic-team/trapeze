@@ -241,7 +241,7 @@ export class GradleFile extends VFSStorable {
     }
 
     Logger.debug(`android: running Gradle parse with Java path ${java}`);
-    Logger.debug(`android: gradle file contents at ${this.filename}`, await readFile(this.tempFile, { encoding: 'utf-8' }));
+    Logger.debug(`android: read gradle file at ${this.filename}`);
 
     try {
       let json: string | null = null;

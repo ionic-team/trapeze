@@ -20,6 +20,8 @@ export class PropertiesFile extends VFSStorable {
       return;
     }
 
+    Logger.debug(`android: updating properties file ${this.path} - ${properties}`);
+
     const merged = mergeWith(this.doc, properties, (objValue, srcValue) => {
       // Override the default merge behavior for arrays of objects that have the
       // same sub-key. Otherwise lodash merge doesn't work how we need it to

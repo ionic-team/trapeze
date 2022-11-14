@@ -214,6 +214,8 @@ export class XmlFile extends VFSStorable {
       return;
     }
 
+    Logger.debug(`android: updating manifest file attributes at ${this.path} - ${target}`);
+
     const nodes = this.select?.(target, this.doc) ?? [];
     nodes.forEach((n: any) => {
       Object.keys(attrs).forEach(attr => {

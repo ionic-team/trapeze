@@ -33,10 +33,6 @@ export class AndroidProject extends PlatformProject {
     this.manifest = new XmlFile(manifestPath!, project.vfs);
   }
 
-  private log(...args: any[]) {
-    Logger.debug('android', ...args);
-  }
-
   async load() {
     try {
       await this.manifest.load();
@@ -123,7 +119,7 @@ export class AndroidProject extends PlatformProject {
       ?.getAttribute('package');
     const oldPackageParts = oldPackageName?.split('.') ?? [];
 
-    Logger.debug('Setting Android package name to', packageName, 'from', oldPackageName);
+    Logger.debug('android: setting Android package name to', packageName, 'from', oldPackageName);
 
     if (packageName === oldPackageName) {
       return;
@@ -273,7 +269,7 @@ export class AndroidProject extends PlatformProject {
     }
     const destPath = join(this.project.config.android.path, dest);
 
-    Logger.debug(`Copying ${src} to ${destPath}`);
+    Logger.debug(`android: copying ${src} to ${destPath}`);
 
     if (/^(https?:\/\/)/.test(src)) {
       const res = await fetch(src);
@@ -300,7 +296,7 @@ export class AndroidProject extends PlatformProject {
       await mkdir(dir);
     }
 
-    Logger.debug(`Copying ${file} to Android resources at ${join(dir, file)}`);
+    Logger.debug(`android: copying ${file} to Android resources at ${join(dir, file)}`);
 
     const sourceData = await readSource(source);
     return writeFile(join(dir, file), sourceData);
