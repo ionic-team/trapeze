@@ -269,6 +269,8 @@ export class AndroidProject extends PlatformProject {
     }
     const destPath = join(this.project.config.android.path, dest);
 
+    Logger.debug(`Copying ${src} to ${destPath}`);
+
     if (/^(https?:\/\/)/.test(src)) {
       const res = await fetch(src);
       return writeFile(destPath, Buffer.from(await res.arrayBuffer()));
@@ -293,6 +295,8 @@ export class AndroidProject extends PlatformProject {
     if (!(await pathExists(dir))) {
       await mkdir(dir);
     }
+
+    Logger.debug(`Copying ${file} to Android resources at ${join(dir, file)}`);
 
     const sourceData = await readSource(source);
     return writeFile(join(dir, file), sourceData);

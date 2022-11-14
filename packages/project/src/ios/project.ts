@@ -44,6 +44,10 @@ export class IosProject extends PlatformProject {
     super(project);
   }
 
+  private log(targetName: string | null, buildName: string | null | undefined, msg: string) {
+    Logger.debug(`iOS(target: ${targetName}, build: ${buildName}): ${msg}`);
+  }
+
   async load() {
     try {
       const proj = await this.pbx();
@@ -145,7 +149,7 @@ export class IosProject extends PlatformProject {
   setBundleId(targetName: IosTargetName | null, buildName: IosBuildName | null, bundleId: string) {
     targetName = this.assertTargetName(targetName);
 
-    Logger.debug(`iOS: Setting bundle id to ${bundleId} for target ${targetName} and build ${buildName}`);
+    this.log(targetName, buildName, `Setting bundle id to ${bundleId}`);
 
     this.pbxProject?.updateBuildProperty('PRODUCT_BUNDLE_IDENTIFIER', pbxSerializeString(bundleId), buildName, targetName);
   }
@@ -172,6 +176,8 @@ export class IosProject extends PlatformProject {
   setProductName(targetName: IosTargetName | null, productName: string) {
     targetName = this.assertTargetName(targetName);
 
+    this.log(targetName, null, `Setting PRODUCT_NAME to ${productName}`);
+
     this.pbxProject?.updateBuildProperty('PRODUCT_NAME', pbxSerializeString(productName), null, targetName);
   }
 
@@ -191,6 +197,8 @@ export class IosProject extends PlatformProject {
   async setBuild(targetName: IosTargetName | null, buildName: IosBuildName | null, buildNumber: number | null) {
     this.pbxProject?.updateBuildProperty('CURRENT_PROJECT_VERSION', buildNumber ?? 1, buildName, targetName);
 
+    this.log(targetName, buildName, `Setting build number to ${buildNumber ?? 1}`);
+
     const file = await this.getInfoPlist(targetName, buildName ?? undefined);
     if (!file || !this.project?.config.ios?.path) {
       throw new Error('Unable to load plist file');
@@ -200,6 +208,7 @@ export class IosProject extends PlatformProject {
 
     const parsed = await this.plist(filename);
     parsed.set({ 'CFBundleVersion': '$(CURRENT_PROJECT_VERSION)' });
+    this.log(targetName, buildName, `Setting CFBundleVersion to $(CURRENT_PROJECT_VERSION)`);
     this.project.vfs.set(filename, parsed);
   }
 
@@ -242,6 +251,7 @@ export class IosProject extends PlatformProject {
       // Otherwise, we need to check if there's a build property set for CURRENT_PROJECT_VERSION and create it if not
       let currentProjectVersion = this.pbxProject?.getBuildProperty('CURRENT_PROJECT_VERSION', buildName ? buildName : undefined/* must use undefined if null */, targetName);
       if (!currentProjectVersion) {
+        this.log(targetName, buildName, `Setting initial value for CURRENT_PROJECT_VERSION to ensure incremented build number works`);
         // Set an initial value for CURRENT_PROJECT_VERSION
         this.pbxProject?.updateBuildProperty('CURRENT_PROJECT_VERSION', 1, buildName, targetName);
       } else {
@@ -258,6 +268,8 @@ export class IosProject extends PlatformProject {
 
     this.pbxProject?.updateBuildProperty('MARKETING_VERSION', pbxSerializeString(version), buildName, targetName);
 
+    this.log(targetName, buildName, `Setting version to ${pbxSerializeString(version)}`);
+
     const file = await this.getInfoPlist(targetName, buildName ?? undefined);
     if (!file || !this.project?.config.ios?.path) {
       throw new Error('Unable to load plist file');
@@ -266,6 +278,7 @@ export class IosProject extends PlatformProject {
     const filename = join(this.project.config.ios.path, file);
 
     const parsed = await this.plist(filename);
+    this.log(targetName, buildName, `Updated CFBundleShortVersionString to $(MARKETING_VERSION) to ensure updated version works`);
     parsed.set({'CFBundleShortVersionString': '$(MARKETING_VERSION)'});
     this.project.vfs.set(filename, parsed);
   }
@@ -286,6 +299,8 @@ export class IosProject extends PlatformProject {
    */
   setBuildProperty(targetName: IosTargetName | null, buildName: IosBuildName | null, key: string, value: string) {
     targetName = this.assertTargetName(targetName || null);
+
+    this.log(targetName, buildName, `Setting iOS build property ${key} = ${value}`);
 
     this.pbxProject?.updateBuildProperty(key, pbxSerializeString(value), buildName ? buildName : undefined /* must use undefined if null */, targetName);
   }
@@ -439,6 +454,7 @@ export class IosProject extends PlatformProject {
 
     const parsed = await this.plist(filename);
     parsed.set({ 'CFBundleDisplayName': displayName });
+    this.log(targetName, buildName, `Setting CFBundleDisplayName to ${displayName}`);
     this.project.vfs.set(filename, parsed);
   }
 
