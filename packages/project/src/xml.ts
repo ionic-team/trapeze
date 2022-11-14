@@ -26,7 +26,7 @@ export class XmlFile extends VFSStorable {
     }
 
     this.doc = await parseXml(this.path);
-    Logger.debug(`Read XML file at ${this.path}`, this.doc);
+    Logger.debug(`Loaded XML file at ${this.path}`);
     this.vfs.open(this.path, this, this.xmlCommitFn, this.xmlDiffFn);
 
     const rootNode = this.getDocumentElement();

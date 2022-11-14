@@ -1,4 +1,4 @@
-import { readFile, readJson, writeJson } from '@ionic/utils-fs';
+import { pathExists, readFile, readJson, writeFile, writeJson } from '@ionic/utils-fs';
 import { mergeWith, union } from 'lodash';
 import { Logger } from './logger';
 
@@ -15,12 +15,21 @@ export class JsonFile extends VFSStorable {
     return this.json;
   }
 
+  async exists() {
+    return pathExists(this.path);
+  }
+
   async load() {
     if (this.vfs.isOpen(this.path)) {
       return;
     }
 
-    this.json = await readJson(this.path);
+    if (await this.exists()) {
+      this.json = await readJson(this.path);
+    } else {
+      this.json = {};
+    }
+
     Logger.debug('Read json file', this.json);
     this.vfs.open(this.path, this, this.commitFn, this.diffFn);
   }
@@ -57,6 +66,8 @@ export class JsonFile extends VFSStorable {
         //}
       }
     });
+
+    console.log('SET JSON', this.json, merged);
 
     Object.assign(this.json, merged);
   }

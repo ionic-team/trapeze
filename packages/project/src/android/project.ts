@@ -33,6 +33,10 @@ export class AndroidProject extends PlatformProject {
     this.manifest = new XmlFile(manifestPath!, project.vfs);
   }
 
+  private log(...args: any[]) {
+    Logger.debug('android', ...args);
+  }
+
   async load() {
     try {
       await this.manifest.load();
