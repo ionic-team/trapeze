@@ -7,7 +7,6 @@ import { indent } from '../util/text';
 import { VFS, VFSFile, VFSStorable, VFSDiff } from '../vfs';
 import detectIndent from '../util/detect-indent';
 import { AndroidGradleInjectType } from '../definitions';
-import { MobileProject } from '../project';
 import { Logger } from '../logger';
 
 export type GradleAST = any;

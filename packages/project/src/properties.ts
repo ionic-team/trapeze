@@ -1,9 +1,8 @@
-import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
-import { mergeWith, union } from 'lodash';
+import { pathExists } from '@ionic/utils-fs';
+import { mergeWith } from 'lodash';
 import { Logger } from './logger';
-import { MobileProject } from './project';
 import { parseProperties, writeProperties } from './util/properties';
-import { VFS, VFSRef, VFSFile, VFSStorable } from './vfs';
+import { VFS, VFSFile, VFSStorable } from './vfs';
 
 export class PropertiesFile extends VFSStorable {
   private doc: any;

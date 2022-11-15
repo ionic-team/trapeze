@@ -41,18 +41,6 @@ export class MobileProject {
     }
   }
 
-  log(...args: any[]) {
-    this.logger?.info(args.map(a => '' + a).join(' '));
-  }
-
-  debug(...args: any[]) {
-    this.logger?.debug(args.map(a => '' + a).join(' '));
-  }
-
-  error(msg: string, exc: Error | null = null) {
-    this.logger?.error(exc ? `${msg} - ${exc.message}` : msg);
-  }
-
   getLogger() {
     return this.logger;
   }
