@@ -1,5 +1,4 @@
 import { pathExists } from '@ionic/utils-fs';
-import { Logger } from '@ionic/cli-framework-output';
 import { join } from 'path';
 
 import { AndroidProject } from './android/project';
@@ -24,8 +23,7 @@ export class MobileProject {
 
   constructor(
     public projectRoot: string,
-    public config: MobileProjectConfig = {},
-    public logger: Logger | null = null
+    public config: MobileProjectConfig = {}
   ) {
     this.vfs = new VFS();
     this.config.projectRoot = projectRoot;
@@ -39,10 +37,6 @@ export class MobileProject {
         this.config.android.path ?? '',
       );
     }
-  }
-
-  getLogger() {
-    return this.logger;
   }
 
   async detectFramework(): Promise<Framework | null> {
