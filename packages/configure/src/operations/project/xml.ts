@@ -1,5 +1,8 @@
-import { Context } from "../../ctx";
+
 import { VFS, XmlFile } from '@trapezedev/project';
+import { join } from 'path';
+
+import { Context } from "../../ctx";
 import { XmlOperation, Operation } from "../../definitions";
 
 function getXmlFile(path: string, vfs: VFS) {
@@ -20,7 +23,7 @@ export default async function execute(ctx: Context, op: Operation) {
     if (!filename) {
       continue;
     }
-    let xmlFile: XmlFile = getXmlFile(filename, ctx.project.vfs);
+    let xmlFile: XmlFile = getXmlFile(join(ctx.project.projectRoot, filename), ctx.project.vfs);
 
     try {
       await xmlFile.load();
