@@ -256,6 +256,8 @@ export class AndroidProject extends PlatformProject {
 
     const dir = join(root, resDir);
 
+    Logger.debug(`android: add res file ${file} to ${resDir}`);
+
     if (!(await pathExists(dir))) {
       await mkdir(dir);
     }
