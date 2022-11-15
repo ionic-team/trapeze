@@ -38,7 +38,7 @@ async function executeOperations(ctx: Context, operations: Operation[]) {
       printOp(ctx, op);
     }
 
-    const skipped = op.platform === 'ios' ? !ctx.project.ios : !ctx.project.android;
+    const skipped = op.platform !== 'project' && (op.platform === 'ios' ? !ctx.project.ios : !ctx.project.android);
     if (skipped) {
       Logger.debug(`Skipping ${op.id} because ${op.platform} project does not exist`);
       continue;
