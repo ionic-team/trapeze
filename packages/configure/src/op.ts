@@ -4,6 +4,8 @@ import { Operation } from './definitions';
 export function processOperations(yaml: any): Operation[] {
   return Object.keys(yaml.platforms || {})
     .map(p => createPlatform(p, yaml.platforms[p]))
+    .flat()
+    .concat(createPlatform('project', yaml.project))
     .flat();
 }
 
@@ -12,6 +14,8 @@ function createPlatform(platform: string, platformEntry: any) {
     return createAndroidPlatform(platform, platformEntry);
   } else if (platform === 'ios') {
     return createIosPlatform(platform, platformEntry);
+  } else if (platform === 'project') {
+    return createProjectPlatform(platform, platformEntry);
   }
   return [];
 }
@@ -20,6 +24,18 @@ function createAndroidPlatform(platform: string, platformEntry: any) {
   if (!platformEntry) {
     return [];
   }
+
+  return Object.keys(platformEntry || {})
+    .map(op => createOperation(platform, op, platformEntry[op]))
+    .flat();
+}
+
+function createProjectPlatform(platform: string, platformEntry: any) {
+  if (!platformEntry) {
+    return [];
+  }
+
+  console.log('Creating project platform', platform, platformEntry);
 
   return Object.keys(platformEntry || {})
     .map(op => createOperation(platform, op, platformEntry[op]))
