@@ -1,5 +1,12 @@
 # @trapezedev/project
 
+## 6.0.1
+
+### Patch Changes
+
+- Added more extensive logging #121
+  - @trapezedev/gradle-parse@6.0.1
+
 ## 6.0.0
 
 ### Major Changes
