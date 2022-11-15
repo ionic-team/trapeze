@@ -106,7 +106,7 @@ export class VFS {
         return null;
       })
     );
-    return diffs.filter(d => !!d).map(diff => ({
+    return diffs.filter(d => !!d && !!d!.new).map(diff => ({
       ...diff!,
       patch: Diff.createPatch(diff?.file?.getFilename() ?? '', diff?.old ?? '', diff?.new ?? '') // Diff.diffChars(diff!.old ?? '', diff!.new ?? '')
     })) as VFSDiff[];

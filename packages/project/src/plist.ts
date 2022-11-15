@@ -4,6 +4,8 @@ import { mergeWith, union } from 'lodash';
 
 import { parsePlist } from "./util/plist";
 import { VFS, VFSRef, VFSFile, VFSStorable } from "./vfs";
+import { MobileProject } from "./project";
+import { Logger } from "./logger";
 
 export class PlistFile extends VFSStorable {
   doc: PlistObject | null = null;
@@ -26,6 +28,7 @@ export class PlistFile extends VFSStorable {
     }
 
     this.doc = await parsePlist(this.path);
+    Logger.v('plist', 'read', `Loaded plist file at ${this.path}`, this.doc);
     this.vfs.open(this.path, this, this.plistCommitFn, this.plistDiffFn);
   }
 

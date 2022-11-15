@@ -7,6 +7,7 @@ import { indent } from '../util/text';
 import { VFS, VFSFile, VFSStorable, VFSDiff } from '../vfs';
 import detectIndent from '../util/detect-indent';
 import { AndroidGradleInjectType } from '../definitions';
+import { Logger } from '../logger';
 
 export type GradleAST = any;
 export interface GradleASTNode {
@@ -237,6 +238,9 @@ export class GradleFile extends VFSStorable {
     if (!java) {
       throw new Error(this.gradleParseError());
     }
+
+    Logger.v('gradle', 'parse', `running Gradle parse with Java path ${java}`);
+    Logger.v('gradle', 'parse', `read gradle file at ${this.filename}`);
 
     try {
       let json: string | null = null;
@@ -529,6 +533,7 @@ export class GradleFile extends VFSStorable {
     const source = await this.getGradleSource();
 
     if (source) {
+      Logger.v('gradle', 'setVersionCode', `to ${versionCode} in ${this.filename}`);
       this.source = source.replace(/(versionCode\s+)\w+/, `$1${versionCode}`);
     }
   }
@@ -556,6 +561,7 @@ export class GradleFile extends VFSStorable {
       }
       const num = parseInt(versionCode[1]);
       if (!isNaN(num)) {
+        Logger.v('gradle', 'incrementVersionCode', `to ${num} in ${this.filename}`);
         this.source = source.replace(/(versionCode\s+)\w+/, `$1${num + 1}`);
       }
     }
@@ -565,6 +571,7 @@ export class GradleFile extends VFSStorable {
     const source = await this.getGradleSource();
 
     if (source) {
+      Logger.v('gradle', 'setVersionName', `to ${versionName} in ${this.filename}`);
       this.source = source.replace(
         /(versionName\s+)["'][^"']+["']/,
         `$1"${versionName}"`,

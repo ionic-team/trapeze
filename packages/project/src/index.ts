@@ -1,6 +1,7 @@
 export * from './definitions';
 export * from './frameworks';
 export * from './config';
+export * from './logger';
 export * from './project';
 export * from './xml';
 export * from './json';

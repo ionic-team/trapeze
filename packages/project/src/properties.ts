@@ -1,7 +1,8 @@
-import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
-import { mergeWith, union } from 'lodash';
+import { pathExists } from '@ionic/utils-fs';
+import { mergeWith } from 'lodash';
+import { Logger } from './logger';
 import { parseProperties, writeProperties } from './util/properties';
-import { VFS, VFSRef, VFSFile, VFSStorable } from './vfs';
+import { VFS, VFSFile, VFSStorable } from './vfs';
 
 export class PropertiesFile extends VFSStorable {
   private doc: any;
@@ -17,6 +18,8 @@ export class PropertiesFile extends VFSStorable {
     if (!this.doc) {
       return;
     }
+
+    Logger.v('properties', 'update', `${this.path} - ${properties}`);
 
     const merged = mergeWith(this.doc, properties, (objValue, srcValue) => {
       // Override the default merge behavior for arrays of objects that have the
@@ -57,6 +60,7 @@ export class PropertiesFile extends VFSStorable {
       throw new Error(`Unable to locate file at ${this.path}`);
     }
     this.doc = await parseProperties(this.path);
+    Logger.v('properties', 'load', `at ${this.path}`, this.doc);
     this.vfs.open(this.path, this.doc, this.commitFn);
   }
 
