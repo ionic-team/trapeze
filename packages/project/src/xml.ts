@@ -1,14 +1,9 @@
 import { formatXml, parseXml, parseXmlString, serializeXml, writeXml } from './util/xml';
 import xpath, { XPathSelect } from 'xpath';
-import MergeXML from 'mergexml';
-import { difference, isEqual, mergeWith } from 'lodash';
 import { xml2js, js2xml } from 'xml-js';
 import { VFS, VFSFile, VFSStorable } from './vfs';
 import { readFile } from 'fs-extra';
-import { MobileProject } from './project';
 import { Logger } from './logger';
-
-const toArray = (o: any[]) => Array.prototype.slice.call(o || []);
 
 export class XmlFile extends VFSStorable {
   private doc: Document | null = null;
@@ -26,7 +21,7 @@ export class XmlFile extends VFSStorable {
     }
 
     this.doc = await parseXml(this.path);
-    Logger.debug(`Loaded XML file at ${this.path}`);
+    Logger.v('xml', 'load', `at ${this.path}`);
     this.vfs.open(this.path, this, this.xmlCommitFn, this.xmlDiffFn);
 
     const rootNode = this.getDocumentElement();
@@ -44,7 +39,7 @@ export class XmlFile extends VFSStorable {
           namespaces[nsName] = attribute.value ?? '';
         }
       }
-      Logger.debug(`Found root namespaces in XML file:`, Object.values(namespaces).join(' '));
+      Logger.v('xml', 'load', `Found root namespaces in XML file:`, Object.values(namespaces).join(' '));
       this.select = xpath.useNamespaces(namespaces);
     }
   }
@@ -66,6 +61,8 @@ export class XmlFile extends VFSStorable {
       return;
     }
 
+    Logger.v('xml', 'deleteNodes', `at ${target}`);
+
     const nodes = this.select?.(target, this.doc) as Element[];
     nodes.forEach(n => n.parentNode?.removeChild(n));
 
@@ -79,6 +76,8 @@ export class XmlFile extends VFSStorable {
 
     const nodes = this.select?.(target, this.doc) as Element[];
     nodes.forEach(n => attributes.forEach(a => n.removeAttribute(a)));
+
+    Logger.v('xml', 'deleteAttributes', `at ${target}`);
 
     this.vfs.set(this.path, this);
   }
@@ -97,6 +96,8 @@ export class XmlFile extends VFSStorable {
     const parsed = parseXmlString(fragment);
     const docNodes = parsed.childNodes ?? [];
 
+    Logger.v('xml', 'injectFragment', `at ${target}`);
+
     nodes.forEach(n =>
       Array.prototype.forEach.call(docNodes, d => n.appendChild(d)),
     );
@@ -114,6 +115,8 @@ export class XmlFile extends VFSStorable {
 
     // Get the target element
     const node = this.select?.(target, this.doc) as Element[];
+
+    Logger.v('xml', 'mergeFragment', `at ${target}`);
 
     if (!node.length) {
       return;
@@ -214,7 +217,7 @@ export class XmlFile extends VFSStorable {
       return;
     }
 
-    Logger.debug(`android: updating manifest file attributes at ${this.path} - ${target}`);
+    Logger.v('xml', 'setAttrs', `at ${this.path} - ${target}`);
 
     const nodes = this.select?.(target, this.doc) ?? [];
     nodes.forEach((n: any) => {

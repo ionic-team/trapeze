@@ -119,7 +119,7 @@ export class AndroidProject extends PlatformProject {
       ?.getAttribute('package');
     const oldPackageParts = oldPackageName?.split('.') ?? [];
 
-    Logger.debug('android: setting Android package name to', packageName, 'from', oldPackageName);
+    Logger.v('android', 'setPackageName', 'setting Android package name to', packageName, 'from', oldPackageName);
 
     if (packageName === oldPackageName) {
       return;
@@ -134,9 +134,11 @@ export class AndroidProject extends PlatformProject {
 
     this.manifest.getDocumentElement()?.setAttribute('package', packageName);
     await this.appBuildGradle?.setApplicationId(packageName);
+    Logger.v('android', 'setPackageName', `set manifest package attribute and applicationId to ${packageName}`);
     this.manifest.setAttrs('manifest/application/activity', {
       'android:name': `${packageName}.MainActivity`,
     });
+    Logger.v('android', 'setPackageName', `set <activity android:name="${packageName}.MainActivity"`);
 
     if (!this.getAppRoot()) {
       return;
@@ -146,10 +148,13 @@ export class AndroidProject extends PlatformProject {
 
     const destDir = join(sourceDir, ...newPackageParts);
 
-    // TODO: Don't hard code this
     const mainActivityName = this.getMainActivityFilename();
 
+    Logger.v('android', 'setPackageName', `Got main activity name ${mainActivityName}`);
+
     let activityFile = join(sourceDir, ...oldPackageParts, mainActivityName);
+
+    Logger.v('android', 'setPackageName', `Looking for old activity file at ${activityFile}`);
 
     // Make the new directory tree and any missing parents
     await mkdirp(destDir);
@@ -159,6 +164,8 @@ export class AndroidProject extends PlatformProject {
     // Try to delete the empty directories we left behind, starting
     // from the deepest
     let sourceDirLeaf = join(sourceDir, ...oldPackageParts);
+
+    Logger.v('android', 'setPackageName', `removing old source dirs for old package (${sourceDirLeaf})`);
 
     for (const _ of oldPackageParts) {
       try {
@@ -172,6 +179,7 @@ export class AndroidProject extends PlatformProject {
     // Rename the package in the main source file
     activityFile = join(sourceDir, ...newPackageParts, this.getMainActivityFilename());
     if (await pathExists(activityFile)) {
+      Logger.v('android', 'setPackageName', `renaming package in source for activity file ${activityFile}`);
       const activitySource = await readFile(activityFile, {
         encoding: 'utf-8',
       });
@@ -256,7 +264,7 @@ export class AndroidProject extends PlatformProject {
 
     const dir = join(root, resDir);
 
-    Logger.debug(`android: add res file ${file} to ${resDir}`);
+    Logger.v(`android`, 'addResource', `add res file ${file} to ${resDir}`);
 
     if (!(await pathExists(dir))) {
       await mkdir(dir);
@@ -271,7 +279,7 @@ export class AndroidProject extends PlatformProject {
     }
     const destPath = join(this.project.config.android.path, dest);
 
-    Logger.debug(`android: copying ${src} to ${destPath}`);
+    Logger.v(`android`, `copyFile`, `copying ${src} to ${destPath}`);
 
     if (/^(https?:\/\/)/.test(src)) {
       const res = await fetch(src);
@@ -298,7 +306,7 @@ export class AndroidProject extends PlatformProject {
       await mkdir(dir);
     }
 
-    Logger.debug(`android: copying ${file} to Android resources at ${join(dir, file)}`);
+    Logger.v(`android`, `copyToResources`, `copying ${file} to Android resources at ${join(dir, file)}`);
 
     const sourceData = await readSource(source);
     return writeFile(join(dir, file), sourceData);

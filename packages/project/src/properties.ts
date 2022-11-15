@@ -20,7 +20,7 @@ export class PropertiesFile extends VFSStorable {
       return;
     }
 
-    Logger.debug(`android: updating properties file ${this.path} - ${properties}`);
+    Logger.v('properties', 'update', `${this.path} - ${properties}`);
 
     const merged = mergeWith(this.doc, properties, (objValue, srcValue) => {
       // Override the default merge behavior for arrays of objects that have the
@@ -61,7 +61,7 @@ export class PropertiesFile extends VFSStorable {
       throw new Error(`Unable to locate file at ${this.path}`);
     }
     this.doc = await parseProperties(this.path);
-    Logger.debug(`Loaded properties file at ${this.path}`, this.doc);
+    Logger.v('properties', 'load', `at ${this.path}`, this.doc);
     this.vfs.open(this.path, this.doc, this.commitFn);
   }
 

@@ -7,6 +7,10 @@ export class Logger {
     }
   }
 
+  static v(platform: string, op: string, ...args: any[]) {
+    this.debug(`${kleur.yellow(platform)}(${kleur.cyan(op)})`, ...args);
+  }
+
   static log(...args: any[]) {
     console.log(...args);
   }

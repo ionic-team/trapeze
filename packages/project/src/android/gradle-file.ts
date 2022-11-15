@@ -240,8 +240,8 @@ export class GradleFile extends VFSStorable {
       throw new Error(this.gradleParseError());
     }
 
-    Logger.debug(`android: running Gradle parse with Java path ${java}`);
-    Logger.debug(`android: read gradle file at ${this.filename}`);
+    Logger.v('gradle', 'parse', `running Gradle parse with Java path ${java}`);
+    Logger.v('gradle', 'parse', `read gradle file at ${this.filename}`);
 
     try {
       let json: string | null = null;
@@ -534,7 +534,7 @@ export class GradleFile extends VFSStorable {
     const source = await this.getGradleSource();
 
     if (source) {
-      Logger.debug(`android: setting versionCode to ${versionCode} in ${this.filename}`);
+      Logger.v('gradle', 'setVersionCode', `to ${versionCode} in ${this.filename}`);
       this.source = source.replace(/(versionCode\s+)\w+/, `$1${versionCode}`);
     }
   }
@@ -562,7 +562,7 @@ export class GradleFile extends VFSStorable {
       }
       const num = parseInt(versionCode[1]);
       if (!isNaN(num)) {
-        Logger.debug(`android: incrementing versionCode to ${num} in ${this.filename}`);
+        Logger.v('gradle', 'incrementVersionCode', `to ${num} in ${this.filename}`);
         this.source = source.replace(/(versionCode\s+)\w+/, `$1${num + 1}`);
       }
     }
@@ -572,7 +572,7 @@ export class GradleFile extends VFSStorable {
     const source = await this.getGradleSource();
 
     if (source) {
-      Logger.debug(`android: setting versionName to ${versionName} in ${this.filename}`);
+      Logger.v('gradle', 'setVersionName', `to ${versionName} in ${this.filename}`);
       this.source = source.replace(
         /(versionName\s+)["'][^"']+["']/,
         `$1"${versionName}"`,

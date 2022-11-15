@@ -30,7 +30,7 @@ export class JsonFile extends VFSStorable {
       this.json = {};
     }
 
-    Logger.debug('Read json file', this.json);
+    Logger.v('json', 'read', this.json);
     this.vfs.open(this.path, this, this.commitFn, this.diffFn);
   }
 
@@ -66,8 +66,6 @@ export class JsonFile extends VFSStorable {
         //}
       }
     });
-
-    console.log('SET JSON', this.json, merged);
 
     Object.assign(this.json, merged);
   }

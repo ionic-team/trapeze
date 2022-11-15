@@ -28,7 +28,7 @@ export class PlistFile extends VFSStorable {
     }
 
     this.doc = await parsePlist(this.path);
-    Logger.debug(`Loaded plist file at ${this.path}`, this.doc);
+    Logger.v('plist', 'read', `Loaded plist file at ${this.path}`, this.doc);
     this.vfs.open(this.path, this, this.plistCommitFn, this.plistDiffFn);
   }
 
