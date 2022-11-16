@@ -1,5 +1,13 @@
 # @trapezedev/configure
 
+## 6.0.2
+
+### Patch Changes
+
+- Add support for project-level operations #107
+- Updated dependencies
+  - @trapezedev/project@6.0.2
+
 ## 6.0.1
 
 ### Patch Changes

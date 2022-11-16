@@ -1,5 +1,12 @@
 # @trapezedev/project
 
+## 6.0.2
+
+### Patch Changes
+
+- Add support for project-level operations #107
+  - @trapezedev/gradle-parse@6.0.2
+
 ## 6.0.1
 
 ### Patch Changes
