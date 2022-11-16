@@ -1,5 +1,13 @@
 # @trapezedev/configure
 
+## 6.0.3
+
+### Patch Changes
+
+- Added support for changing the Android appName
+- Updated dependencies
+  - @trapezedev/project@6.0.3
+
 ## 6.0.2
 
 ### Patch Changes

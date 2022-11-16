@@ -1,5 +1,12 @@
 # @trapezedev/project
 
+## 6.0.3
+
+### Patch Changes
+
+- Added support for changing the Android appName
+  - @trapezedev/gradle-parse@6.0.3
+
 ## 6.0.2
 
 ### Patch Changes
