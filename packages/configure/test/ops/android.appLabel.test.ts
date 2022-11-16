@@ -27,11 +27,7 @@ describe('op: android.appLabel', () => {
   });
 
   it('should update appLabel', async () => {
-    const op: AndroidAppLabelOperation = makeOp('android', 'appLabel',
-      {
-        appLabel: 'New App Name'
-      },
-    );
+    const op: AndroidAppLabelOperation = makeOp('android', 'appLabel', 'New App Name');
 
     await Op(ctx, op as Operation);
 
