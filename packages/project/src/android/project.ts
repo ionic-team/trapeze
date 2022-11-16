@@ -105,34 +105,37 @@ export class AndroidProject extends PlatformProject {
     return this.loadGradle(path);
   }
 
-  async setAppLabel(appLabel: string) {
+  async setAppName(appName: string) {
     const application = this.manifest.find('manifest/application');
     if (!application) {
-      Logger.v('android', 'setAppLabel', `No <application> node found in <manifest>`);
+      Logger.v('android', 'setAppName', `No <application> node found in <manifest>`);
       return;
     }
     const label = application[0].getAttribute('android:label');
-    Logger.v('android', 'setAppLabel', `current app label is ${label}`);
+    Logger.v('android', 'setAppName', `current app label is ${label}`);
 
     if (label) {
       if (label.indexOf('@string') === 0) {
-        Logger.v('android', 'setAppLabel', 'android:label pointing to strings.xml resource file. Reading values/strings.xml');
+        Logger.v('android', 'setAppName', 'android:label pointing to strings.xml resource file. Reading values/strings.xml');
 
         const stringsFile = await this.getResourceXmlFile('values/strings.xml');
 
         if (!stringsFile) {
-          Logger.v('android', 'setAppLabel', 'Unable to load values/strings.xml resource file');
+          Logger.v('android', 'setAppName', 'Unable to load values/strings.xml resource file');
           return;
         }
 
         await stringsFile.load();
 
-        Logger.v('android', 'setAppLabel', `Updated values/strings.xml <string name="app_name"> to <string name="app_name">${appLabel}</string>`);
-        stringsFile.replaceFragment('resources/string[@name="app_name"]', `<string name="app_name">${appLabel}</string>`);
+        const attr = label.replace('@string/', '');
+
+        // TODO: use the value specified in the @strings attribute 
+        Logger.v('android', 'setAppName', `Updated values/strings.xml <string name="${attr}"> to <string name="${attr}">${appName}</string>`);
+        stringsFile.replaceFragment(`resources/string[@name="${attr}"]`, `<string name="${attr}">${appName}</string>`);
       }
     } else {
-      Logger.v('android', 'setAppLabel', `No android:label on <application> node, setting value directly`);
-      application[0].setAttribute('android:label', appLabel);
+      Logger.v('android', 'setAppName', `No android:label on <application> node, setting value directly`);
+      application[0].setAttribute('android:label', appName);
     }
   }
 

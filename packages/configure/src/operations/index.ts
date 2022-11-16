@@ -1,4 +1,4 @@
-import executeAndroidAppLabel from './android/appLabel';
+import executeAndroidAppName from './android/appName';
 import executeAndroidPackageName from './android/packageName';
 import executeAndroidGradle from './android/gradle';
 import executeAndroidRes from './android/res';
@@ -47,7 +47,7 @@ const operations: OperationHandlers = {
   'ios.xml': executeIosXml,
   'ios.json': executeIosJson,
   'ios.copy': executeIosCopy,
-  'android.appLabel': executeAndroidAppLabel,
+  'android.appName': executeAndroidAppName,
   'android.manifest': executeAndroidManifest,
   'android.res': executeAndroidRes,
   'android.gradle': executeAndroidGradle,

@@ -220,7 +220,7 @@ function createOpDisplayText(op: Partial<Operation>) {
     case 'ios.copy':
       return op.value.map((r: any) => r.dest).join(', ');
     // android
-    case 'android.appLabel':
+    case 'android.appName':
       return op.value;
     case 'android.packageName':
       return op.value;

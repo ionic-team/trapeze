@@ -4,12 +4,12 @@ import { join } from 'path';
 import tempy from 'tempy';
 
 import { Context, loadContext } from '../../src/ctx';
-import { AndroidAppLabelOperation, Operation } from '../../src/definitions';
-import Op from '../../src/operations/android/appLabel';
+import { AndroidAppNameOperation, Operation } from '../../src/definitions';
+import Op from '../../src/operations/android/appName';
 
 import { makeOp } from '../utils';
 
-describe('op: android.appLabel', () => {
+describe('op: android.appName', () => {
   let dir: string;
   let ctx: Context;
 
@@ -26,8 +26,8 @@ describe('op: android.appLabel', () => {
     await rm(dir, { force: true, recursive: true });
   });
 
-  it('should update appLabel', async () => {
-    const op: AndroidAppLabelOperation = makeOp('android', 'appLabel', 'New App Name');
+  it('should update appName', async () => {
+    const op: AndroidAppNameOperation = makeOp('android', 'appName', 'New App Name');
 
     await Op(ctx, op as Operation);
 

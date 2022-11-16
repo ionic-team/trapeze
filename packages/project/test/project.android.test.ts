@@ -275,7 +275,7 @@ try {
   });
 
   it('should set android app label', async () => {
-    await project.android?.setAppLabel('Test Label');
+    await project.android?.setAppName('Test Label');
     const resPath = project.android?.getResourcesPath();
     console.log(project.vfs);
     const strings = project.vfs.get<XmlFile>(join(dir, 'android', resPath!, 'values/strings.xml'))?.getData();
