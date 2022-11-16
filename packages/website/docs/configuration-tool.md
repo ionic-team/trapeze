@@ -92,6 +92,16 @@ platforms:
   android:
 ```
 
+### `appName`
+
+Updates the app display name by setting either the `<application android:label` attribute in the `AndroidManifest.xml`, or setting the `strings` resource value entry when using a resource value reference in the manifest.
+
+```yaml
+platforms:
+  android:
+    appName: Great App Name
+```
+
 ### `versionName`
 
 Example:
