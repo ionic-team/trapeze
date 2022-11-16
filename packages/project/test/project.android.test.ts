@@ -274,6 +274,16 @@ try {
 `);
   });
 
+  it('should set android app label', async () => {
+    await project.android?.setAppLabel('Test Label');
+    const resPath = project.android?.getResourcesPath();
+    console.log(project.vfs);
+    const strings = project.vfs.get<XmlFile>(join(dir, 'android', resPath!, 'values/strings.xml'))?.getData();
+    console.log(join(dir, 'android', resPath!, 'values/strings.xml'));
+    const appName = strings!.find('resources/string[@name="app_name"]');
+    expect(appName![0].textContent).toBe('Test Label');
+  });
+
   it('should add resources file', async () => {
     await project.android?.addResource('raw', 'test.json', `{
       "thing": "cool"

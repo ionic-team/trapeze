@@ -19,6 +19,9 @@ export interface IosVersionOperationValue extends OperationValueObject {
 }
 */
 
+export interface AndroidAppLabelOperation extends Operation {
+  value: string;
+}
 export interface AndroidCopyOperation extends Operation {
   value: {
     src: string;
