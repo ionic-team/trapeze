@@ -9,6 +9,42 @@ describe('operation processing', () => {
     ctx = await loadContext('../common/test/fixtures');
   });
 
+  describe('Project', () => {
+    it('should process project operations', async () => {
+      const makeOp = (name: string, value: any): Operation => ({
+        id: `project.${name}`,
+        platform: 'project',
+        name,
+        value,
+        iosTarget: null,
+        iosBuild: null,
+        displayText: expect.anything(),
+      });
+      const parsed = await loadYamlConfig(
+        ctx,
+        '../common/test/fixtures/project.basic.yml',
+      );
+
+      const processed = processOperations(parsed);
+
+      expect(processed).toMatchObject([
+        makeOp('xml', [{
+          file: 'project-xml-strings.xml',
+          target: 'resources/string[@name="app_name"]',
+          replace: '<string name="app_name">Awesome App</string>\n'
+        }]),
+        makeOp('json', [{
+          file: 'project-json.json',
+          set: {
+            project_info: {
+              project_id: 'asdf'
+            }
+          }
+        }])
+      ] as Operation[]);
+    });
+  });
+
   describe('Android', () => {
     it('should process android operations', async () => {
       const makeOp = (name: string, value: any): Operation => ({

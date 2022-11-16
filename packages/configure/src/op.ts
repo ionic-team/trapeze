@@ -1,9 +1,12 @@
 import { Operation } from './definitions';
+import { pluralize } from './util/plural';
 
 // Given the parsed yaml file, generate a set of operations to perform against the project
 export function processOperations(yaml: any): Operation[] {
   return Object.keys(yaml.platforms || {})
     .map(p => createPlatform(p, yaml.platforms[p]))
+    .flat()
+    .concat(createPlatform('project', yaml.project))
     .flat();
 }
 
@@ -12,11 +15,23 @@ function createPlatform(platform: string, platformEntry: any) {
     return createAndroidPlatform(platform, platformEntry);
   } else if (platform === 'ios') {
     return createIosPlatform(platform, platformEntry);
+  } else if (platform === 'project') {
+    return createProjectPlatform(platform, platformEntry);
   }
   return [];
 }
 
 function createAndroidPlatform(platform: string, platformEntry: any) {
+  if (!platformEntry) {
+    return [];
+  }
+
+  return Object.keys(platformEntry || {})
+    .map(op => createOperation(platform, op, platformEntry[op]))
+    .flat();
+}
+
+function createProjectPlatform(platform: string, platformEntry: any) {
   if (!platformEntry) {
     return [];
   }
@@ -172,6 +187,11 @@ function getOpIdAlias(op: Partial<Operation>) {
 // TODO: Move this to per-operation for more powerful display
 function createOpDisplayText(op: Partial<Operation>) {
   switch (op.id) {
+    // project
+    case 'project.xml':
+      return `${op.value.length} ${pluralize(op.value.length, 'modification')}`;
+    case 'project.json':
+      return `${op.value.length} ${pluralize(op.value.length, 'modification')}`;
     // ios
     case 'ios.bundleId':
       return op.value;
@@ -194,9 +214,9 @@ function createOpDisplayText(op: Partial<Operation>) {
     case 'ios.plist':
       return `${op.value.entries.length} modifications`;
     case 'ios.xml':
-      return `${op.value.entries.length} modifications`;
+      return `${op.value.length} ${pluralize(op.value.length, 'modification')}`;
     case 'ios.json':
-      return `${op.value.entries.length} modifications`;
+      return `${op.value.length} ${pluralize(op.value.length, 'modification')}`;
     case 'ios.copy':
       return op.value.map((r: any) => r.dest).join(', ');
     // android
@@ -209,9 +229,9 @@ function createOpDisplayText(op: Partial<Operation>) {
     case 'android.manifest':
       return `${op.value.length} modifications`;
     case 'android.json':
-      return `${op.value.entries.length} modifications`;
+      return `${op.value.length} ${pluralize(op.value.length, 'modification')}`;
     case 'android.xml':
-      return `${op.value.entries.length} modifications`;
+      return `${op.value.length} ${pluralize(op.value.length, 'modification')}`;
     case 'android.build.gradle':
       return '';
     case 'android.app.build.gradle':

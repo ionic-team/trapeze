@@ -1,13 +1,14 @@
 import { copy, readFile } from '@ionic/utils-fs';
+import { XmlFile } from '@trapezedev/project';
 import { join } from 'path';
 import tempy from 'tempy';
 
 import { Context, loadContext } from '../../src/ctx';
-import { AndroidXmlOperation, Operation } from '../../src/definitions';
-import Op from '../../src/operations/android/xml';
+import { XmlOperation, Operation } from '../../src/definitions';
+import Op from '../../src/operations/project/xml';
 import { makeOp } from '../utils';
 
-describe('op: android.xml', () => {
+describe('op: project.xml', () => {
   let dir: string;
   let ctx: Context;
 
@@ -21,9 +22,9 @@ describe('op: android.xml', () => {
   });
 
   it('should delete attributes', async () => {
-    const op: AndroidXmlOperation = makeOp('android', 'xml', [
+    const op: XmlOperation = makeOp('project', 'xml', [
       {
-        file: 'app/src/main/AndroidManifest.xml',
+        file: 'project-xml.xml',
         target: '//activity',
         deleteAttributes: [
           'android:launchMode'
@@ -35,9 +36,8 @@ describe('op: android.xml', () => {
 
     await ctx.project.commit();
 
-    const file = await readFile(join(dir, 'android/app/src/main/AndroidManifest.xml'), { encoding: 'utf-8' });
+    const file = await readFile(join(dir, 'project-xml.xml'), { encoding: 'utf-8' });
     //console.log(file);
-    console.log(file.trim());
     expect(file.trim()).toBe(`
 <?xml version="1.0" encoding="utf-8" ?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="io.ionic.starter">
@@ -74,9 +74,9 @@ describe('op: android.xml', () => {
   });
 
   it('should delete nodes', async () => {
-    const op: AndroidXmlOperation = makeOp('android', 'xml', [
+    const op: XmlOperation = makeOp('project', 'xml', [
       {
-        file: 'app/src/main/AndroidManifest.xml',
+        file: 'project-xml.xml',
         delete: '//intent-filter'
       },
     ]);
@@ -85,7 +85,7 @@ describe('op: android.xml', () => {
 
     await ctx.project.commit();
 
-    const file = await readFile(join(dir, 'android/app/src/main/AndroidManifest.xml'), { encoding: 'utf-8' });
+    const file = await readFile(join(dir, 'project-xml.xml'), { encoding: 'utf-8' });
     //console.log(file);
     expect(file.trim()).toBe(`
 <?xml version="1.0" encoding="utf-8" ?>
@@ -120,23 +120,23 @@ describe('op: android.xml', () => {
   });
 
   it('should delete root and replace', async () => {
-    let op: AndroidXmlOperation = makeOp('android', 'xml', [
+    let op: XmlOperation = makeOp('project', 'xml', [
       {
-        file: 'app/src/main/AndroidManifest.xml',
+        file: 'project-xml.xml',
         delete: '/manifest'
       },
     ]);
 
     await Op(ctx, op as Operation);
 
-    let data = ctx.project.android?.getXmlFile('app/src/main/AndroidManifest.xml');
+    let data = ctx.project.vfs.get<XmlFile>(join(dir, 'project-xml.xml'))!.getData();
 
     // The document element should be null at this point as we deleted the root node
     expect(data!.getDocumentElement()).toBeNull();
 
-    op = makeOp('android', 'xml', [
+    op = makeOp('project', 'xml', [
       {
-        file: 'app/src/main/AndroidManifest.xml',
+        file: 'project-xml.xml',
         target: '/',
         inject: `<tag><thing /></tag>`
       },
@@ -149,7 +149,7 @@ describe('op: android.xml', () => {
 
     await ctx.project.commit();
 
-    const file = await readFile(join(dir, 'android/app/src/main/AndroidManifest.xml'), { encoding: 'utf-8' });
+    const file = await readFile(join(dir, 'project-xml.xml'), { encoding: 'utf-8' });
     //console.log(file);
     expect(file.trim()).toBe(`
 <?xml version="1.0" encoding="utf-8" ?>
@@ -161,24 +161,24 @@ describe('op: android.xml', () => {
 
 
   it('should process multiple replaces', async () => {
-    let op: AndroidXmlOperation = makeOp('android', 'xml', [
+    let op: XmlOperation = makeOp('project', 'xml', [
       {
-        resFile: 'values/strings.xml',
+        file: 'project-xml-strings.xml',
         target: 'resources/string[@name="app_name"]',
         replace: '<string name="app_name">$PRODUCT_NAME</string>'
       },
       {
-        resFile: 'values/strings.xml',
+        file: 'project-xml-strings.xml',
         target: 'resources/string[@name="title_activity_main"]',
         replace: '<string name="title_activity_main">$PRODUCT_NAME</string>'
       },
       {
-        resFile: 'values/strings.xml',
+        file: 'project-xml-strings.xml',
         target: 'resources/string[@name="package_name"]',
         replace: '<string name="package_name">$ANDROID_PACKAGE_NAME</string>'
       },
       {
-        resFile: 'values/strings.xml',
+        file: 'project-xml-strings.xml',
         target: 'resources/string[@name="custom_url_scheme"]',
         replace: '<string name="custom_url_scheme">$ANDROID_PACKAGE_NAME</string>'
       },
@@ -186,11 +186,9 @@ describe('op: android.xml', () => {
 
     await Op(ctx, op as Operation);
 
-    let data = ctx.project.android?.getResourceXmlFile('values/strings.xml');
-
     await ctx.project.commit();
 
-    const file = await readFile(join(dir, 'android/app/src/main/res/values/strings.xml'), { encoding: 'utf-8' });
+    const file = await readFile(join(dir, 'project-xml-strings.xml'), { encoding: 'utf-8' });
     //console.log(file);
     expect(file.trim()).toBe(`
 <?xml version='1.0' encoding='utf-8' ?>
@@ -205,9 +203,9 @@ describe('op: android.xml', () => {
 
   // per https://github.com/ionic-team/trapeze/issues/87
   it('should merge nodes', async () => {
-    const op: AndroidXmlOperation = makeOp('android', 'xml', [
+    const op: XmlOperation = makeOp('project', 'xml', [
       {
-        resFile: 'values/strings.xml',
+        file: 'project-xml-strings.xml',
         target: 'resources',
         merge: `
         <resources>
@@ -224,7 +222,7 @@ describe('op: android.xml', () => {
 
     await ctx.project.commit();
 
-    const file = await readFile(join(dir, 'android/app/src/main/res/values/strings.xml'), { encoding: 'utf-8' });
+    const file = await readFile(join(dir, 'project-xml-strings.xml'), { encoding: 'utf-8' });
     expect(file.trim()).toBe(`
 <?xml version='1.0' encoding='utf-8' ?>
 <resources>
@@ -237,9 +235,9 @@ describe('op: android.xml', () => {
   });
 
   it('should replace nodes', async () => {
-    const op: AndroidXmlOperation = makeOp('android', 'xml', [
+    const op: XmlOperation = makeOp('project', 'xml', [
       {
-        resFile: 'values/strings.xml',
+        file: 'project-xml-strings.xml',
         target: 'resources/string[@name="app_name"]',
         replace: `
           <string name="app_name">$PRODUCT_NAME</string>
@@ -251,7 +249,7 @@ describe('op: android.xml', () => {
 
     await ctx.project.commit();
 
-    const file = await readFile(join(dir, 'android/app/src/main/res/values/strings.xml'), { encoding: 'utf-8' });
+    const file = await readFile(join(dir, 'project-xml-strings.xml'), { encoding: 'utf-8' });
     //console.log(file);
     expect(file.trim()).toBe(`
 <?xml version='1.0' encoding='utf-8' ?>

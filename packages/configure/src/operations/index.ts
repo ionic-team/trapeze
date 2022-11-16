@@ -17,6 +17,9 @@ import executeIosXml from './ios/xml';
 import executeIosJson from './ios/json';
 import executeIosCopy from './ios/copy';
 
+import executeProjectJson from './project/json';
+import executeProjectXml from './project/xml';
+
 import { Context } from '../ctx';
 import { Operation } from '../definitions';
 
@@ -27,6 +30,8 @@ interface OperationHandlers {
 }
 
 const operations: OperationHandlers = {
+  'project.json': executeProjectJson,
+  'project.xml': executeProjectXml,
   'ios.plist': executeIosPlist,
   'ios.bundleId': executeIosProject,
   'ios.displayName': executeIosProject,
