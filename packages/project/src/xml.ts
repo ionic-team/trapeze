@@ -196,10 +196,11 @@ export class XmlFile extends VFSStorable {
     nodes.forEach(n => {
       const index = Array.prototype.indexOf.call(n.parentNode?.childNodes, n);
       if (index >= 0) {
-        n.parentNode!.removeChild(n);
-        n.parentNode!.insertBefore(
+        const parent = n.parentNode;
+        parent!.removeChild(n);
+        parent!.insertBefore(
           parsed.documentElement,
-          n.parentNode?.childNodes[index] ?? null,
+          parent?.childNodes[index] ?? null,
         );
       }
     });
