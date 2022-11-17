@@ -1,5 +1,12 @@
 # @trapezedev/project
 
+## 6.0.4
+
+### Patch Changes
+
+- Fixed XML replace issue #125
+  - @trapezedev/gradle-parse@6.0.4
+
 ## 6.0.3
 
 ### Patch Changes
