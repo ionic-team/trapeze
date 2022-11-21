@@ -192,6 +192,8 @@ function createOpDisplayText(op: Partial<Operation>) {
       return `${op.value.length} ${pluralize(op.value.length, 'modification')}`;
     case 'project.json':
       return `${op.value.length} ${pluralize(op.value.length, 'modification')}`;
+    case 'project.copy':
+      return op.value.map((r: any) => r.dest).join(', ');
     // ios
     case 'ios.bundleId':
       return op.value;

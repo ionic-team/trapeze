@@ -1,4 +1,4 @@
-import { pathExists } from '@ionic/utils-fs';
+import { copy, pathExists, writeFile } from '@ionic/utils-fs';
 import { join } from 'path';
 
 import { AndroidProject } from './android/project';
@@ -14,6 +14,7 @@ import { VFS } from './vfs';
 import { NativeIosFramework } from './frameworks/native-ios';
 import { NativeAndroidFramework } from './frameworks/native-android';
 import { NativeScriptFramework } from './frameworks/nativescript';
+import { Logger } from './logger';
 
 export class MobileProject {
   public framework: Framework | null = null;
@@ -76,5 +77,19 @@ export class MobileProject {
 
   commit(): Promise<void> {
     return this.vfs.commitAll();
+  }
+
+  async copyFile(src: string, dest: string): Promise<void> {
+    const destPath = join(this.projectRoot, dest);
+
+    Logger.v(`project`, `copyFile`, `copying ${src} to ${destPath}`);
+
+    if (/^(https?:\/\/)/.test(src)) {
+      const res = await fetch(src);
+      return writeFile(destPath, Buffer.from(await res.arrayBuffer()));
+    }
+
+    const srcPath = join(this.projectRoot, src);
+    return copy(srcPath, destPath);
   }
 }

@@ -22,18 +22,17 @@ export interface IosVersionOperationValue extends OperationValueObject {
 export interface AndroidAppNameOperation extends Operation {
   value: string;
 }
-export interface AndroidCopyOperation extends Operation {
+
+export interface CopyOperation {
   value: {
     src: string;
     dest: any;
   }[];
 }
+export interface AndroidCopyOperation extends CopyOperation {
+}
 
-export interface IosCopyOperation extends Operation {
-  value: {
-    src: string;
-    dest: any;
-  }[];
+export interface IosCopyOperation extends CopyOperation {
 }
 
 export interface AndroidGradleOperation extends Operation {
