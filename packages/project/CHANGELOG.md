@@ -1,5 +1,12 @@
 # @trapezedev/project
 
+## 6.0.5
+
+### Patch Changes
+
+- Added project.copy command to copy files in project
+  - @trapezedev/gradle-parse@6.0.5
+
 ## 6.0.4
 
 ### Patch Changes
