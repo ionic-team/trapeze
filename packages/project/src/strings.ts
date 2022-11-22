@@ -9,12 +9,12 @@ import { VFS, VFSFile, VFSStorable } from './vfs';
  * iOS .strings files
  */
 export class StringsFile extends VFSStorable {
-  private doc: any;
+  private doc: StringsEntries = [];
   constructor(public path: string, private vfs: VFS) {
     super();
   }
 
-  getProperties() {
+  getDocument() {
     return this.doc;
   }
 
