@@ -3,13 +3,12 @@ export function parseStrings(contents: string): StringsEntries {
 }
 
 enum State {
-  None,
-  Whitespace,
-  Comment,
-  Key,
-  AfterKey,
-  Value,
-  AfterValue,
+  None = "none",
+  Comment = "comment",
+  Key = "key",
+  AfterKey = "afterkey",
+  Value = "value",
+  AfterValue = "aftervalue",
 }
 
 export interface StringsEntry {
@@ -25,8 +24,15 @@ export interface StringsEntry {
 
 export type StringsEntries = StringsEntry[];
 
+function enter(state: State) {
+  console.log('ENTER', state);
+}
+function exit(state: State) {
+  console.log('EXIT', state);
+}
+
 function parse(contents: string): StringsEntries {
-  let state: State = State.None;
+  let state: State = State.None as State;
   let comment: string = "";
   let whitespace: string = "";
   let key: string = "";
@@ -39,15 +45,16 @@ function parse(contents: string): StringsEntries {
   let startCol = 0;
   let endCol = 0;
 
+  function setState(s: State) {
+    exit(state);
+    state = s;
+    enter(state);
+  }
+
   for (let i = 0; i < contents.length; i++) {
     const c = contents[i];
     if (isNewLine(c)) {
       // Keep track of lines
-      if (state === State.None) {
-        state = State.Whitespace;
-        startCol = col;
-        startLine = line;
-      }
       console.log('Found newline', line, col);
       whitespace += c;
       ++line;
@@ -62,7 +69,7 @@ function parse(contents: string): StringsEntries {
       startCol = col;
       startLine = line;
       whitespace = "";
-      state = State.Comment;
+      setState(State.Comment);
       comment = "";
     } else if (isEndComment(c, contents[i + 1])) {
       ++i;
@@ -74,17 +81,17 @@ function parse(contents: string): StringsEntries {
         comment, startLine, startCol, endLine, endCol
       });
       comment = "";
-      state = State.None;
+      setState(State.None);
     } else if (state === State.Comment) {
       // Build the comment
       comment += c;
     } else if (isEquals(c) && (state === State.AfterKey || state === State.AfterValue)) {
       // Valid state, do nothing
-    } else if ((isWhitespace(c)) && (state === State.AfterKey || state === State.AfterValue)) {
+    // } else if ((isWhitespace(c)) && (state === State.AfterKey || state === State.AfterValue)) {
       // Valid state, do nothing
     } else if (isQuote(c)) {
       // Quote encountered, check state
-      if (state === State.None || state === State.Whitespace) {
+      if (state === State.None) {
         endLine = line;
         endCol = col;
         commitEntry(entries, {
@@ -94,16 +101,16 @@ function parse(contents: string): StringsEntries {
         startLine = line;
         startCol = col;
 
-        state = State.Key;
+        setState(State.Key);
         key = "";
         whitespace = "";
       } else if (state === State.Key) {
         // Key ends
         console.log('KEY', key);
-        state = State.AfterKey;
+        setState(State.AfterKey);
       } else if (state === State.AfterKey) {
         // Start of value
-        state = State.Value;
+        setState(State.Value);
         value = "";
       } else if (state === State.Value) {
         // End of value, commit it
@@ -111,7 +118,7 @@ function parse(contents: string): StringsEntries {
 
         state = State.AfterValue;
       }
-    } else if (isSemi(c) && state === State.AfterValue) {
+    } else if (isSemi(c) && (state === State.AfterValue)) {
       console.log('Semicolon, committing');
       endLine = line;
       endCol = col;
@@ -122,19 +129,23 @@ function parse(contents: string): StringsEntries {
       comment = "";
       key = "";
       value = "";
-      state = State.None;
+      setState(State.None);
     } else if (state === State.Key) {
       key += c;
     } else if (state === State.Value) {
       value += c;
     } else if (isWhitespace(c)) {
-      if (state === State.None) {
-        state = State.Whitespace;
+      /*
+      if (state === State.None || state === State.AfterKey || state === State.AfterValue) {
+        setState(State.Whitespace);
         startCol = col;
         startLine = line;
       }
+      */
       // Valid to have whitespace before/after lines
       whitespace += c;
+    } else if (isSemi(c)) {
+      console.log('Semicolon but state is', state);
     } else {
       throw new Error(`Error parsing .strings file: unknown character at ${line}:${col}`);
     }
