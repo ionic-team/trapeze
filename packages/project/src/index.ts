@@ -7,4 +7,5 @@ export * from './xml';
 export * from './json';
 export * from './plist';
 export * from './properties';
+export * from './strings';
 export * from './vfs';
