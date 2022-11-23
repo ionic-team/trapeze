@@ -57,8 +57,10 @@ function parse(contents: string): StringsEntries {
         content: whitespace,
         startLine, startCol, endLine, endCol
       });
+      // Mark starting source location
       startCol = col;
       startLine = line;
+      // Clear state
       comment = "";
       whitespace = "";
       setState(State.Comment);
