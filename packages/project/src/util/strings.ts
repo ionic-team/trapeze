@@ -24,13 +24,6 @@ export interface StringsEntry {
 
 export type StringsEntries = StringsEntry[];
 
-function enter(state: State) {
-  console.log('ENTER', state);
-}
-function exit(state: State) {
-  console.log('EXIT', state);
-}
-
 function parse(contents: string): StringsEntries {
   let state: State = State.None as State;
   let comment: string = "";
@@ -46,16 +39,15 @@ function parse(contents: string): StringsEntries {
   let endCol = 0;
 
   function setState(s: State) {
-    exit(state);
+    console.log('EXIT', state);
     state = s;
-    enter(state);
+    console.log('ENTER', state);
   }
 
   for (let i = 0; i < contents.length; i++) {
     const c = contents[i];
     if (isNewLine(c)) {
       // Keep track of lines
-      console.log('Found newline', line, col);
       whitespace += c;
       ++line;
       col = 0;
@@ -81,6 +73,7 @@ function parse(contents: string): StringsEntries {
         comment, startLine, startCol, endLine, endCol
       });
       comment = "";
+      whitespace = "";
       setState(State.None);
     } else if (state === State.Comment) {
       // Build the comment
@@ -116,7 +109,7 @@ function parse(contents: string): StringsEntries {
         // End of value, commit it
         console.log('VALUE', value);
 
-        state = State.AfterValue;
+        setState(State.AfterValue);
       }
     } else if (isSemi(c) && (state === State.AfterValue)) {
       console.log('Semicolon, committing');
@@ -127,6 +120,7 @@ function parse(contents: string): StringsEntries {
       });
       // Clear state
       comment = "";
+      whitespace = "";
       key = "";
       value = "";
       setState(State.None);
@@ -203,7 +197,7 @@ export function generateStrings(entries: StringsEntries) {
 function generateLines(entry: StringsEntry) {
   const lines = [];
   if (entry.comment) {
-    lines.push(`/* ${entry.comment.trim()} */`);
+    lines.push(`/*${entry.comment}*/`);
   } else if (entry.key) {
     lines.push(`"${entry.key}" = "${entry.value}";`);
   } else if (entry.content) {

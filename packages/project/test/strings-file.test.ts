@@ -70,7 +70,7 @@ describe('strings file', () => {
 
 /****/
 
-   "This is a key"  ="This is a value";
+   "This is a key" = "This is a value";
     `);
   });
 });
