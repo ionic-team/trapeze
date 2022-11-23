@@ -39,9 +39,7 @@ function parse(contents: string): StringsEntries {
   let endCol = 0;
 
   function setState(s: State) {
-    console.log('EXIT', state);
     state = s;
-    console.log('ENTER', state);
   }
 
   for (let i = 0; i < contents.length; i++) {
@@ -54,18 +52,18 @@ function parse(contents: string): StringsEntries {
     } else if (isStartComment(c, contents[i + 1])) {
       // Comment start, step forward one character
       ++i;
+      // Commit any whitespace up to this point
       commitEntry(entries, {
         content: whitespace,
         startLine, startCol, endLine, endCol
       });
       startCol = col;
       startLine = line;
+      comment = "";
       whitespace = "";
       setState(State.Comment);
-      comment = "";
     } else if (isEndComment(c, contents[i + 1])) {
       ++i;
-      console.log('End comment', comment);
       // Commit the comment
       endLine = line;
       endCol = col;
@@ -79,8 +77,6 @@ function parse(contents: string): StringsEntries {
       // Build the comment
       comment += c;
     } else if (isEquals(c) && (state === State.AfterKey || state === State.AfterValue)) {
-      // Valid state, do nothing
-    // } else if ((isWhitespace(c)) && (state === State.AfterKey || state === State.AfterValue)) {
       // Valid state, do nothing
     } else if (isQuote(c)) {
       // Quote encountered, check state
@@ -99,7 +95,6 @@ function parse(contents: string): StringsEntries {
         whitespace = "";
       } else if (state === State.Key) {
         // Key ends
-        console.log('KEY', key);
         setState(State.AfterKey);
       } else if (state === State.AfterKey) {
         // Start of value
@@ -107,12 +102,9 @@ function parse(contents: string): StringsEntries {
         value = "";
       } else if (state === State.Value) {
         // End of value, commit it
-        console.log('VALUE', value);
-
         setState(State.AfterValue);
       }
     } else if (isSemi(c) && (state === State.AfterValue)) {
-      console.log('Semicolon, committing');
       endLine = line;
       endCol = col;
       commitEntry(entries, {
@@ -129,17 +121,10 @@ function parse(contents: string): StringsEntries {
     } else if (state === State.Value) {
       value += c;
     } else if (isWhitespace(c)) {
-      /*
-      if (state === State.None || state === State.AfterKey || state === State.AfterValue) {
-        setState(State.Whitespace);
-        startCol = col;
-        startLine = line;
-      }
-      */
       // Valid to have whitespace before/after lines
       whitespace += c;
     } else if (isSemi(c)) {
-      console.log('Semicolon but state is', state);
+      // Valid state?
     } else {
       throw new Error(`Error parsing .strings file: unknown character at ${line}:${col}`);
     }
