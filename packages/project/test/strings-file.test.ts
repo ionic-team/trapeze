@@ -91,7 +91,6 @@ describe('strings file', () => {
   });
 
   it('Should generate strings file', async () => {
-    console.log(generateStrings(file.getDocument()));
     expect(generateStrings(file.getDocument())).toBe(`
 /* Insert Element menu item */
 
@@ -102,6 +101,28 @@ describe('strings file', () => {
 "ErrorString_1" = "An unknown error occurred.";
 
 "KeyWithoutComment" = "This key has no comment";
+
+/****/
+
+   "This is a key" = "This is a value";
+    `.trim());
+  });
+
+  it('Should set strings key/value pairs', async () => {
+    file.set({
+      'Insert Element': 'New1',
+      'KeyWithoutComment': 'New2'
+    });
+    expect(generateStrings(file.getDocument())).toBe(`
+/* Insert Element menu item */
+
+"Insert Element" = "New1";
+
+/* Error string used for unknown error types. */
+
+"ErrorString_1" = "An unknown error occurred.";
+
+"KeyWithoutComment" = "New2";
 
 /****/
 
