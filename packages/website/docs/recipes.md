@@ -6,6 +6,26 @@ sidebar_position: 6
 
 This page documents various common automation tasks and how to achieve them with Trapeze.
 
+## Auto-incrementing Build Numbers
+
+Apps often need to automatically increment build numbers, such as those using a CI/CD workflow in a service like [Appflow](https://useappflow.com/).
+
+Assuming your CI/CD service provides an environment variable that automatically increments ([Appflow](https://useappflow.com/) does, using the `CI_BUILD_NUMBER` environment variable), then updating the build number for your app requires supplying that number when updating the iOS build number and Android version code:
+
+```yaml title="ci.yaml"
+vars:
+  CI_BUILD_NUMBER:
+    default: 1
+
+platforms:
+  ios:
+    buildNumber: $CI_BUILD_NUMBER
+  android:
+    versionCode: $CI_BUILD_NUMBER
+```
+
+Run this before every build in your CI/CD workflow to have auto-incrementing build numbers.
+
 ## Build-specific configuration settings
 
 Apps often need to distribute configuration files that contain different values for different builds or environments. For example, `google-services.json`, a common Google configuration file, will often contain different values for dev/qa/prod/etc. builds.
@@ -36,7 +56,7 @@ platforms:
                 project_id: $GOOGLE_PROJECT_ID
 ```
 
-## Plugin configuration
+## Plugin configuration on install
 
 For authors of native plugins in a cross-platform framework like Capacitor or React Native, Trapeze can be used to automatically configure the developer's project when installing a plugin.
 
@@ -71,7 +91,7 @@ platforms:
           </queries>
 ```
 
-The command the developer writes is then:
+The developer then installs the plugin and runs the configuration on install:
 
 ```shell
 npm install my-capacitor-plugin
