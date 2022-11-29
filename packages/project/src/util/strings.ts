@@ -3,18 +3,19 @@ export function parseStrings(contents: string): StringsEntries {
 }
 
 enum State {
-  None,
-  Comment,
-  Key,
-  AfterKey,
-  Value,
-  AfterValue,
+  None = "none",
+  Comment = "comment",
+  Key = "key",
+  AfterKey = "afterkey",
+  Value = "value",
+  AfterValue = "aftervalue",
 }
 
 export interface StringsEntry {
-  comment: string;
-  key: string;
-  value: string;
+  comment?: string;
+  key?: string;
+  value?: string;
+  content?: string;
   startLine: number;
   startCol: number;
   endLine: number;
@@ -24,8 +25,9 @@ export interface StringsEntry {
 export type StringsEntries = StringsEntry[];
 
 function parse(contents: string): StringsEntries {
-  let state: State = State.None;
+  let state: State = State.None as State;
   let comment: string = "";
+  let whitespace: string = "";
   let key: string = "";
   let value: string = "";
   let entries: StringsEntries = [];
@@ -36,68 +38,95 @@ function parse(contents: string): StringsEntries {
   let startCol = 0;
   let endCol = 0;
 
+  function setState(s: State) {
+    state = s;
+  }
+
   for (let i = 0; i < contents.length; i++) {
     const c = contents[i];
     if (isNewLine(c)) {
       // Keep track of lines
+      whitespace += c;
       ++line;
       col = 0;
     } else if (isStartComment(c, contents[i + 1])) {
       // Comment start, step forward one character
       ++i;
-      state = State.Comment;
+      // Commit any whitespace up to this point
+      commitEntry(entries, {
+        content: whitespace,
+        startLine, startCol, endLine, endCol
+      });
+      // Mark starting source location
+      startCol = col;
+      startLine = line;
+      // Clear state
       comment = "";
+      whitespace = "";
+      setState(State.Comment);
     } else if (isEndComment(c, contents[i + 1])) {
       ++i;
-      console.log('End comment', comment);
       // Commit the comment
-      state = State.None;
+      endLine = line;
+      endCol = col;
+      commitEntry(entries, {
+        comment, startLine, startCol, endLine, endCol
+      });
+      comment = "";
+      whitespace = "";
+      setState(State.None);
     } else if (state === State.Comment) {
       // Build the comment
       comment += c;
     } else if (isEquals(c) && (state === State.AfterKey || state === State.AfterValue)) {
       // Valid state, do nothing
-    } else if ((isWhitespace(c)) && (state === State.AfterKey || state === State.AfterValue)) {
-      // Valid state, do nothing
     } else if (isQuote(c)) {
       // Quote encountered, check state
       if (state === State.None) {
+        endLine = line;
+        endCol = col;
+        commitEntry(entries, {
+          content: whitespace,
+          startLine, startCol, endLine, endCol
+        });
         startLine = line;
         startCol = col;
 
-        state = State.Key;
+        setState(State.Key);
         key = "";
+        whitespace = "";
       } else if (state === State.Key) {
         // Key ends
-        console.log('KEY', key);
-        state = State.AfterKey;
+        setState(State.AfterKey);
       } else if (state === State.AfterKey) {
         // Start of value
-        state = State.Value;
+        setState(State.Value);
         value = "";
       } else if (state === State.Value) {
         // End of value, commit it
-        console.log('VALUE', value);
-
-        state = State.AfterValue;
+        setState(State.AfterValue);
       }
-    } else if (isSemi(c) && state === State.AfterValue) {
-      console.log('Semicolon, committing');
+    } else if (isSemi(c) && (state === State.AfterValue)) {
       endLine = line;
       endCol = col;
       commitEntry(entries, {
-        comment, key, value, startLine, startCol, endLine, endCol
+        key, value, startLine, startCol, endLine, endCol
       });
-
       // Clear state
       comment = "";
-      state = State.None;
+      whitespace = "";
+      key = "";
+      value = "";
+      setState(State.None);
     } else if (state === State.Key) {
       key += c;
     } else if (state === State.Value) {
       value += c;
     } else if (isWhitespace(c)) {
       // Valid to have whitespace before/after lines
+      whitespace += c;
+    } else if (isSemi(c)) {
+      // Valid state?
     } else {
       throw new Error(`Error parsing .strings file: unknown character at ${line}:${col}`);
     }
@@ -105,7 +134,6 @@ function parse(contents: string): StringsEntries {
     ++col;
   }
 
-  console.log(entries);
   return entries;
 }
 
@@ -139,4 +167,28 @@ function isTab(c: string) {
 }
 function isSemi(c: string) {
   return c === ';';
+}
+
+export function generateStrings(entries: StringsEntries) {
+  const lines = [];
+  let line = 1;
+  let col = 1;
+  for (const entry of entries) {
+    lines.push(...generateLines(entry));
+    col = entry.endCol;
+    line = entry.endLine;
+  }
+  return lines.join('');
+}
+
+function generateLines(entry: StringsEntry) {
+  const lines = [];
+  if (entry.comment) {
+    lines.push(`/*${entry.comment}*/`);
+  } else if (entry.key) {
+    lines.push(`"${entry.key}" = "${entry.value}";`);
+  } else if (entry.content) {
+    lines.push(entry.content);
+  }
+  return lines;
 }
