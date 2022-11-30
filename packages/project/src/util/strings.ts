@@ -52,6 +52,7 @@ function parse(contents: string): StringsEntries {
     } else if (isStartComment(c, contents[i + 1])) {
       // Comment start, step forward one character
       ++i;
+      ++col;
       // Commit any whitespace up to this point
       commitEntry(entries, {
         content: whitespace,
@@ -65,7 +66,9 @@ function parse(contents: string): StringsEntries {
       whitespace = "";
       setState(State.Comment);
     } else if (isEndComment(c, contents[i + 1])) {
+      // Comment end, step forward one character
       ++i;
+      ++col;
       // Commit the comment
       endLine = line;
       endCol = col;
@@ -119,8 +122,10 @@ function parse(contents: string): StringsEntries {
       value = "";
       setState(State.None);
     } else if (state === State.Key) {
+      // Build the key
       key += c;
     } else if (state === State.Value) {
+      // Build the value
       value += c;
     } else if (isWhitespace(c)) {
       // Valid to have whitespace before/after lines
@@ -171,12 +176,8 @@ function isSemi(c: string) {
 
 export function generateStrings(entries: StringsEntries) {
   const lines = [];
-  let line = 1;
-  let col = 1;
   for (const entry of entries) {
     lines.push(...generateLines(entry));
-    col = entry.endCol;
-    line = entry.endLine;
   }
   return lines.join('');
 }

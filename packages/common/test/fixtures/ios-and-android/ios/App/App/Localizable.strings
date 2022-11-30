@@ -1,0 +1,7 @@
+/* Insert Element menu item */
+
+"Insert Element" = "Insert Element";
+
+/* Error string used for unknown error types. */
+
+"ErrorString_1" = "An unknown error occurred.";

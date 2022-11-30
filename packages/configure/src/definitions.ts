@@ -125,3 +125,12 @@ export type IosPlistOperationValue = {
   iosBuild?: string;
   entries: any[];
 };
+
+export interface IosStringsOperation {
+  value: IosStringsOperationValue[];
+}
+export type IosStringsOperationValue = {
+  file?: string;
+  set?: any;
+  setFromJson?: any;
+}

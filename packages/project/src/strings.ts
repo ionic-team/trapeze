@@ -1,8 +1,8 @@
-import { pathExists, readFile } from '@ionic/utils-fs';
+import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
 import { mergeWith } from 'lodash';
 import { Logger } from './logger';
 import { parseProperties, writeProperties } from './util/properties';
-import { parseStrings, StringsEntries } from './util/strings';
+import { generateStrings, parseStrings, StringsEntries } from './util/strings';
 import { VFS, VFSFile, VFSStorable } from './vfs';
 
 /**
@@ -18,12 +18,18 @@ export class StringsFile extends VFSStorable {
     return this.doc;
   }
 
-  async set(values: any): Promise<void> {
+  async setFromJson(jsonFile: any): Promise<void> {
+    const json = JSON.parse(await readFile(jsonFile, { encoding: 'utf-8' }));
+
+    this.set(json);
+  }
+
+  async set(values: any) {
     if (!this.doc) {
       return;
     }
 
-    Logger.v('strings', 'update', `${this.path} - ${values}`);
+    Logger.v('strings', 'update', `${this.path}`);
 
     Object.keys(values).forEach(k => {
       this.doc = this.doc.map(e => {
@@ -44,11 +50,16 @@ export class StringsFile extends VFSStorable {
     }
 
     if (!await pathExists(this.path)) {
-      throw new Error(`Unable to locate file at ${this.path}`);
+      this.doc = [];
+    } else {
+      this.doc = await this.parse(this.path);
     }
-    this.doc = await this.parse(this.path);
-    Logger.v('strings', 'load', `at ${this.path}`, this.doc);
-    this.vfs.open(this.path, this.doc, this.commitFn);
+    Logger.v('strings', 'load', `at ${this.path}`);
+    this.vfs.open(this.path, this, this.commitFn);
+  }
+
+  generate() {
+    return generateStrings(this.doc);
   }
 
   private async parse(path: string): Promise<StringsEntries> {
@@ -57,6 +68,8 @@ export class StringsFile extends VFSStorable {
   }
 
   private commitFn = async (file: VFSFile) => {
-    return writeProperties(file.getFilename(), file.getData());
+    const entries = file.getData() as StringsEntries;
+    const src = generateStrings(entries);
+    return writeFile(file.getFilename(), src);
   }
 }
