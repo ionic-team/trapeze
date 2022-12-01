@@ -29,9 +29,6 @@ export class StringsFile extends VFSStorable {
 
     Logger.v('strings', 'update', `${this.path}`);
 
-    console.log('Setting', values);
-    console.log('For', this.doc);
-
     Object.keys(values).forEach(k => {
       let found = false;
       this.doc = this.doc.map(e => {
@@ -48,13 +45,15 @@ export class StringsFile extends VFSStorable {
       const lastEntry = this.doc[Math.max(0, this.doc.length - 1)];
 
       if (!found) {
-        this.doc.push({
-          content: '\n\n',
-          startLine: lastEntry ? lastEntry.endLine + 1 : 0,
-          startCol: 0,
-          endLine: lastEntry ? lastEntry.endLine + 2 : 0,
-          endCol: 0
-        })
+        if (lastEntry) {
+          this.doc.push({
+            content: '\n\n',
+            startLine: lastEntry ? lastEntry.endLine + 1 : 0,
+            startCol: 0,
+            endLine: lastEntry ? lastEntry.endLine + 2 : 0,
+            endCol: 0
+          });
+        }
         this.doc.push({
           key: k,
           value: values[k],
@@ -62,7 +61,7 @@ export class StringsFile extends VFSStorable {
           startCol: 0,
           endLine: lastEntry ? lastEntry.endLine + 4 : 0,
           endCol: 0
-        })
+        });
       }
     });
   }

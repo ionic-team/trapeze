@@ -89,12 +89,9 @@ describe('op: ios.strings', () => {
     const file = ctx.project.vfs.get<StringsFile>(
       join(ctx.project.config.ios?.path ?? '', 'App', 'New.strings'),
     );
-    expect(file?.getData()?.generate()).toEqual(`
-/* Insert Element menu item */
-
+    const generated = file?.getData()?.generate();
+    expect(generated).toEqual(`
 "Insert Element" = "New3";
-
-/* Error string used for unknown error types. */
 
 "ErrorString_1" = "New4";
 `.trim());
