@@ -7,7 +7,7 @@ Trapeze makes it easy to automate the configuration of your React Native project
 
 ## Configuration Tool
 
-To use the [Configuration-driven](../configuration-tool) experience, first create a yaml file using the [options available](../configuration-tool):
+To use the [Configuration-driven](../operations/getting-started) experience, first create a yaml file using the [options available](../operations/getting-started):
 
 Here's an example:
 

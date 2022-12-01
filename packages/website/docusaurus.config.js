@@ -128,7 +128,7 @@ const config = {
               },
               {
                 label: 'Configuration Tool',
-                to: '/docs/configuration-tool',
+                to: '/docs/operations/getting-started',
               },
               {
                 label: 'API',

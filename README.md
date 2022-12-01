@@ -33,7 +33,7 @@ platforms:
     versionCode: $VERSION_CODE
 ```
 
-Each one of these variables can be supplied from the environment or interactively when running the command. There are <a href="https://trapeze.dev/docs/configuration-tool">many more configuration options</a> available.
+Each one of these variables can be supplied from the environment or interactively when running the command. There are <a href="https://trapeze.dev/docs/operations/getting-started">many more configuration options</a> available.
 
 A Project API is also available for writing custom JavaScript/TypeScript project modification scripts for full control. The configuration tool uses this API under the hood.
 

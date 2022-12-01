@@ -4,7 +4,7 @@ sidebar_position: 4
 sidebar_label: iOS
 ---
 
-To provide iOS project operations using the [Configuration Tool](./configuration-tool), use the `ios` platform key under the top-level `platforms` key:
+To provide iOS project operations using the [Configuration Tool](./operations/getting-started), use the `ios` platform key under the top-level `platforms` key:
 
 ```yaml
 platforms:

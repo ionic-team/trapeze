@@ -6,7 +6,7 @@ sidebar_label: Android
 
 ## Android
 
-To provide Android project operations using the [Configuration Tool](./configuration-tool), use the `android` platform key under the top-level `platforms` key:
+To provide Android project operations using the [Configuration Tool](./operations/getting-started), use the `android` platform key under the top-level `platforms` key:
 
 ```yaml
 platforms:
