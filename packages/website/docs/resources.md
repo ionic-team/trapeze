@@ -1,7 +1,7 @@
 ---
-title: Examples
-sidebar_position: 7
-sidebar_label: Examples
+title: Resources
+sidebar_position: 12
+sidebar_label: Resources
 ---
 
 ## Configuration

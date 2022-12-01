@@ -1,7 +1,7 @@
 ---
 title: Project API
-sidebar_position: 4
-sidebar_label: Project API
+sidebar_position: 5
+sidebar_label: API
 ---
 
 To write custom scripts and code that manage iOS and Android targets in your native projects, install the `@trapezedev/project` package:

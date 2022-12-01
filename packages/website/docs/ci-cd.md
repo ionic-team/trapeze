@@ -1,6 +1,6 @@
 ---
 title: CI/CD Workflows
-sidebar_position: 5
+sidebar_position: 7
 sidebar_label: CI/CD
 ---
 
