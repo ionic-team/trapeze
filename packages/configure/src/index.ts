@@ -40,6 +40,7 @@ export function runProgram(ctx: Context) {
       }),
     );
 
+  program.addHelpCommand();
   program.arguments('[command]').action(
     wrapAction((_: any) => {
       program.outputHelp();
