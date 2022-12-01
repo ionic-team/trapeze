@@ -1,7 +1,7 @@
 {
   "cleanUrls": true,
   "redirects": [
-    { "source": "/docs/configuration-tool", "destination": "/docs/operations/getting-started" }
+    { "source": "/docs/configuration-tool", "destination": "/docs/operations/getting-started" },
     { "source": "/docs/examples", "destination": "/docs/resources" }
   ]
 }
