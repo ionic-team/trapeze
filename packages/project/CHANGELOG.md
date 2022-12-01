@@ -1,5 +1,12 @@
 # @trapezedev/project
 
+## 6.0.6
+
+### Patch Changes
+
+- Added support for modifying iOS .strings files
+  - @trapezedev/gradle-parse@6.0.6
+
 ## 6.0.5
 
 ### Patch Changes
