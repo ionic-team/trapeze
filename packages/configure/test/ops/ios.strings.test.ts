@@ -73,4 +73,30 @@ describe('op: ios.strings', () => {
 "ErrorString_1" = "New4";
 `.trim());
   });
+
+  it('should create new strings file if one does not exist', async () => {
+    const op: IosStringsOperation = {
+      value: [
+        {
+          file: 'App/New.strings',
+          setFromJson: '../common/test/fixtures/strings.json'
+        },
+      ],
+    };
+
+    await Op(ctx, op as Operation);
+
+    const file = ctx.project.vfs.get<StringsFile>(
+      join(ctx.project.config.ios?.path ?? '', 'App', 'New.strings'),
+    );
+    expect(file?.getData()?.generate()).toEqual(`
+/* Insert Element menu item */
+
+"Insert Element" = "New3";
+
+/* Error string used for unknown error types. */
+
+"ErrorString_1" = "New4";
+`.trim());
+  });
 });

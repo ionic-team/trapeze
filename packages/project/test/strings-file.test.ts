@@ -130,6 +130,29 @@ describe('strings file', () => {
     `.trim());
   });
 
+  it('Should set new keys', async () => {
+    file.set({
+      'New key': 'Yes'
+    });
+    expect(generateStrings(file.getDocument())).toBe(`
+/* Insert Element menu item */
+
+"Insert Element" = "Insert Element";
+
+/* Error string used for unknown error types. */
+
+"ErrorString_1" = "An unknown error occurred.";
+
+"KeyWithoutComment" = "This key has no comment";
+
+/****/
+
+   "This is a key" = "This is a value";
+
+"New key" = "Yes";
+    `.trim());
+  });
+
   it('Should set from JSON file', async () => {
     await file.setFromJson('../common/test/fixtures/strings.json');
     expect(generateStrings(file.getDocument())).toBe(`
@@ -139,9 +162,9 @@ describe('strings file', () => {
 
 /* Error string used for unknown error types. */
 
-"ErrorString_1" = "An unknown error occurred.";
+"ErrorString_1" = "New4";
 
-"KeyWithoutComment" = "New4";
+"KeyWithoutComment" = "This key has no comment";
 
 /****/
 

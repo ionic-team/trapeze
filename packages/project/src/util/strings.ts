@@ -52,7 +52,6 @@ function parse(contents: string): StringsEntries {
     } else if (isStartComment(c, contents[i + 1])) {
       // Comment start, step forward one character
       ++i;
-      ++col;
       // Commit any whitespace up to this point
       commitEntry(entries, {
         content: whitespace,
@@ -68,7 +67,6 @@ function parse(contents: string): StringsEntries {
     } else if (isEndComment(c, contents[i + 1])) {
       // Comment end, step forward one character
       ++i;
-      ++col;
       // Commit the comment
       endLine = line;
       endCol = col;

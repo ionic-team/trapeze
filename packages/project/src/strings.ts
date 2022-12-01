@@ -1,7 +1,5 @@
 import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
-import { mergeWith } from 'lodash';
 import { Logger } from './logger';
-import { parseProperties, writeProperties } from './util/properties';
 import { generateStrings, parseStrings, StringsEntries } from './util/strings';
 import { VFS, VFSFile, VFSStorable } from './vfs';
 
@@ -31,9 +29,14 @@ export class StringsFile extends VFSStorable {
 
     Logger.v('strings', 'update', `${this.path}`);
 
+    console.log('Setting', values);
+    console.log('For', this.doc);
+
     Object.keys(values).forEach(k => {
+      let found = false;
       this.doc = this.doc.map(e => {
         if (e.key === k) {
+          found = true;
           return {
             ...e,
             value: values[k]
@@ -41,6 +44,26 @@ export class StringsFile extends VFSStorable {
         }
         return e;
       });
+
+      const lastEntry = this.doc[Math.max(0, this.doc.length - 1)];
+
+      if (!found) {
+        this.doc.push({
+          content: '\n\n',
+          startLine: lastEntry ? lastEntry.endLine + 1 : 0,
+          startCol: 0,
+          endLine: lastEntry ? lastEntry.endLine + 2 : 0,
+          endCol: 0
+        })
+        this.doc.push({
+          key: k,
+          value: values[k],
+          startLine: lastEntry ? lastEntry.endLine + 3 : 0,
+          startCol: 0,
+          endLine: lastEntry ? lastEntry.endLine + 4 : 0,
+          endCol: 0
+        })
+      }
     });
   }
 
