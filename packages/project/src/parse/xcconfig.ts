@@ -57,12 +57,13 @@ function parse(contents: string): XCConfigEntries {
     value = "";
     comment = "";
     include = "";
-  }
+}
 
 
   function commit(entry: XCConfigEntry) {
     console.log('COMMIT', entry);
-    console.trace();
+    printContext();
+    // console.trace();
     entries.push(entry);
   }
 
@@ -186,6 +187,7 @@ function parse(contents: string): XCConfigEntries {
           key, value,
         });
         setState(State.None);
+        clearState();
       }
       // Valid to have whitespace before/after lines
       whitespace += c;
