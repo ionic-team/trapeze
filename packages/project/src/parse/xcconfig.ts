@@ -19,10 +19,6 @@ export interface XCConfigEntry {
   key?: string;
   value?: string;
   content?: string;
-  startLine: number;
-  startCol: number;
-  endLine: number;
-  endCol: number;
 }
 
 export type XCConfigEntries = XCConfigEntry[];
@@ -38,16 +34,13 @@ function parse(contents: string): XCConfigEntries {
   let entries: XCConfigEntries = [];
   let line = 1;
   let col = 1;
-  let startLine = 0;
-  let endLine = 0;
-  let startCol = 0;
-  let endCol = 0;
 
   function printContext() {
     console.log(`
     Key: ${key}
     Value: ${value}
     Comment: ${comment}
+    Whitespace: ${whitespace?.replace(' ', '_').replace('\n', 'N')}
     Include: ${include}
     `);
   }
@@ -66,27 +59,38 @@ function parse(contents: string): XCConfigEntries {
     include = "";
   }
 
+
+  function commit(entry: XCConfigEntry) {
+    console.log('COMMIT', entry);
+    console.trace();
+    entries.push(entry);
+  }
+
   for (let i = 0; i < contents.length; i++) {
     c = contents[i];
 
     if (isNewLine(c)) {
       // Keep track of lines
       whitespace += c;
-      ++line;
-      col = 0;
 
       if (state === State.Comment) {
-        commitEntry(entries, {
+        commit({
           comment,
-          startLine, startCol, endLine, endCol
         });
       } else if (state === State.Value) {
-        commitEntry(entries, {
+        commit({
           key,
           value,
-          startLine, startCol, endLine, endCol
         });
       }
+
+      commit({
+        content: '\n',
+        value,
+      });
+
+      ++line;
+      col = 0;
       // Everything is single-line, so newlines terminate
       clearState();
       setState(State.None);
@@ -96,16 +100,13 @@ function parse(contents: string): XCConfigEntries {
       // Comment start, step forward one character
       ++i;
       // Commit any whitespace up to this point
-      commitEntry(entries, {
-        content: whitespace,
-        startLine, startCol, endLine, endCol
-      });
-      // Mark starting source location
-      startCol = col;
-      startLine = line;
-      // Clear state
-      comment = "";
-      whitespace = "";
+      if (whitespace.length) {
+        commit({
+          content: whitespace,
+        });
+      }
+
+      clearState();
       setState(State.Comment);
     }
     
@@ -121,25 +122,18 @@ function parse(contents: string): XCConfigEntries {
     else if (isQuote(c)) {
       // Quote encountered, check state
       if (state === State.None) {
-        endLine = line;
-        endCol = col;
-        commitEntry(entries, {
+        commit({
           content: whitespace,
-          startLine, startCol, endLine, endCol
         });
-        startLine = line;
-        startCol = col;
-
         setState(State.Key);
-        key = "";
-        whitespace = "";
+        clearState();
       } 
       else if (state === State.IncludeValue) {
-        commitEntry(entries, {
+        commit({
           include,
-          startLine, startCol, endLine, endCol
         });
         setState(State.None);
+        clearState();
       }
       else if (state === State.Include) {
         setState(State.IncludeValue);
@@ -159,7 +153,7 @@ function parse(contents: string): XCConfigEntries {
       }
     }
 
-    else if (isInclude(contents, i)) {
+    else if (isInclude(contents, i) && state !== State.Include) {
       // Start of include statement
       i += 8;
       setState(State.Include);
@@ -183,30 +177,18 @@ function parse(contents: string): XCConfigEntries {
       }
     }
     
-    else if (isSemi(c) && (state === State.AfterValue)) {
-      endLine = line;
-      endCol = col;
-      commitEntry(entries, {
-        key, value, startLine, startCol, endLine, endCol
-      });
-      // Clear state
-      comment = "";
-      whitespace = "";
-      key = "";
-      value = "";
-      setState(State.None);
-    }
     
     else if (isWhitespace(c)) {
       if (state === State.Key) {
         setState(State.AfterKey);
+      } else if (state === State.Value) {
+        commit({
+          key, value,
+        });
+        setState(State.None);
       }
       // Valid to have whitespace before/after lines
       whitespace += c;
-    }
-    
-    else if (isSemi(c)) {
-      // Valid state?
     }
     
     else {
@@ -216,12 +198,19 @@ function parse(contents: string): XCConfigEntries {
     ++col;
   }
 
+  if (state === State.Comment) {
+    commit({
+      comment,
+    });
+  } else if (state === State.Value) {
+    commit({
+      key, value,
+    });
+  }
+
   return entries;
 }
 
-function commitEntry(entries: XCConfigEntries, entry: XCConfigEntry) {
-  entries.push(entry);
-}
 
 function isNewLine(c: string) {
   return c === '\n';
@@ -248,9 +237,6 @@ function isSpace(c: string) {
 function isTab(c: string) {
   return c === '\t';
 }
-function isSemi(c: string) {
-  return c === ';';
-}
 function isVariable(c: string) {
   return /[a-zA-Z0-9_$()=*\[\]]/.test(c);
 }
@@ -265,10 +251,12 @@ export function generateXCConfig(entries: XCConfigEntries) {
 
 function generateLines(entry: XCConfigEntry) {
   const lines = [];
-  if (entry.comment) {
-    lines.push(`/*${entry.comment}*/`);
+  if (typeof entry.comment !== 'undefined') {
+    lines.push(`//${entry.comment}`);
   } else if (entry.key) {
-    lines.push(`"${entry.key}" = "${entry.value}";`);
+    lines.push(`${entry.key} = ${entry.value}`);
+  } else if (entry.include) {
+    lines.push(`#include "${entry.include}"`);
   } else if (entry.content) {
     lines.push(entry.content);
   }

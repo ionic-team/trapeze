@@ -42,19 +42,11 @@ export class XCConfigFile extends VFSStorable {
         if (lastEntry) {
           this.doc.push({
             content: '\n\n',
-            startLine: lastEntry ? lastEntry.endLine + 1 : 0,
-            startCol: 0,
-            endLine: lastEntry ? lastEntry.endLine + 2 : 0,
-            endCol: 0
           });
         }
         this.doc.push({
           key: k,
           value: values[k],
-          startLine: lastEntry ? lastEntry.endLine + 3 : 0,
-          startCol: 0,
-          endLine: lastEntry ? lastEntry.endLine + 4 : 0,
-          endCol: 0
         });
       }
     });

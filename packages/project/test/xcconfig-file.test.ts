@@ -1,6 +1,5 @@
 import { XCConfigFile } from '../src';
 import { generateXCConfig } from '../src/parse/xcconfig';
-import { generateStrings } from '../src/util/strings';
 import { VFS } from '../src/vfs';
 
 describe('strings file', () => {
@@ -15,100 +14,72 @@ describe('strings file', () => {
 
   it('Should load xcconfig file', async () => {
     console.log(file.getDocument());
-    /*
-    expect(file.getDocument()).toMatchObject([
-      { content: '', startLine: 0, startCol: 0, endLine: 0, endCol: 0 },
+    expect(file.getDocument()).toMatchObject(
+          [
+      { comment: '' },
+      { comment: ' Config.xcconfig' },
+      { comment: '' },
+      { content: '\n', value: '' },
+      { include: 'test.xcconfig' },
+      { content: '\n', value: '' },
+      { content: '\n', value: '' },
+      { key: 'PRODUCT_NAME', value: 'testing' },
+      { key: 'PRODUCT_NAME_ORIGINAL', value: '$(PRODUCT_NAME)' },
+      { content: '   ' },
       {
-        comment: ' Insert Element menu item ',
-        startLine: 1,
-        startCol: 1,
-        endLine: 1,
-        endCol: 28
+        comment: ' The value of `PRODUCT_NAME_ORIGINAL` would seem to be "testing"'
       },
-      { content: '\n\n', startLine: 1, startCol: 1, endLine: 3, endCol: 1 },
+      { content: '                                        ' },
       {
-        key: 'Insert Element',
-        value: 'Insert Element',
-        startLine: 3,
-        startCol: 1,
-        endLine: 3,
-        endCol: 36
+        comment: ' as assigned by the line before in the xcconfig file. The value '
       },
+      { content: '                                        ' },
       {
-        content: '\n\n',
-        startLine: 3,
-        startCol: 1,
-        endLine: 3,
-        endCol: 36
+        comment: ' is "MyApp", because the inheritance takes prescedence '
       },
+      { content: '                                        ' },
+      { comment: ' over assignment.' },
+      { content: '\n', value: '' },
+      { comment: ' ...' },
+      { content: '\n', value: '' },
+      { key: 'FOO_MyApp', value: 'MyAppsName' },
+      { key: 'FOO_testing', value: 'MyAppsNewName' },
+      { key: 'FOO[sdk=macosx*][arch=i386]', value: 'bar' },
+      { key: 'BAR', value: '$(FOO_$(PRODUCT_NAME))' },
+      { content: '              ' },
       {
-        comment: ' Error string used for unknown error types. ',
-        startLine: 5,
-        startCol: 1,
-        endLine: 5,
-        endCol: 46
+        comment: ' This will also use the value "MyApp" for "PRODUCT_NAME",'
       },
-      { content: '\n\n', startLine: 5, startCol: 1, endLine: 7, endCol: 1 },
-      {
-        key: 'ErrorString_1',
-        value: 'An unknown error occurred.',
-        startLine: 7,
-        startCol: 1,
-        endLine: 7,
-        endCol: 47
-      },
-      { content: '\n\n', startLine: 7, startCol: 1, endLine: 9, endCol: 1 },
-      {
-        key: 'KeyWithoutComment',
-        value: 'This key has no comment',
-        startLine: 9,
-        startCol: 1,
-        endLine: 9,
-        endCol: 54
-      },
-      {
-        content: '\n\n',
-        startLine: 9,
-        startCol: 1,
-        endLine: 9,
-        endCol: 54
-      },
-      { comment: '**', startLine: 11, startCol: 1, endLine: 11, endCol: 4 },
-      {
-        content: '\n\n   ',
-        startLine: 11,
-        startCol: 1,
-        endLine: 13,
-        endCol: 4
-      },
-      {
-        key: 'This is a key',
-        value: 'This is a value',
-        startLine: 13,
-        startCol: 4,
-        endLine: 13,
-        endCol: 39
-      }
+      { content: '                                        ' },
+      { comment: ' and resolve to be "$(FOO_MyApp)".' }
     ]
     );
-    */
   });
 
   it('Should generate xcconfig file', async () => {
+    const generated = generateXCConfig(file.getDocument());
+    console.log(generated);
+
     expect(generateXCConfig(file.getDocument())).toBe(`
-/* Insert Element menu item */
+//
+// Config.xcconfig
+//
 
-"Insert Element" = "Insert Element";
+#include "test.xcconfig"
 
-/* Error string used for unknown error types. */
+PRODUCT_NAME = testing
+PRODUCT_NAME_ORIGINAL = $(PRODUCT_NAME) // The value of \`PRODUCT_NAME_ORIGINAL\` would seem to be "testing"
+                                        // as assigned by the line before in the xcconfig file. The value 
+                                        // is "MyApp", because the inheritance takes prescedence 
+                                        // over assignment.
 
-"ErrorString_1" = "An unknown error occurred.";
+// ...
 
-"KeyWithoutComment" = "This key has no comment";
-
-/****/
-
-   "This is a key" = "This is a value";
+FOO_MyApp = MyAppsName
+FOO_testing = MyAppsNewName
+FOO[sdk=macosx*][arch=i386] = bar
+BAR = $(FOO_$(PRODUCT_NAME))            // This will also use the value "MyApp" for "PRODUCT_NAME",
+                                        // and resolve to be "$(FOO_MyApp)".
     `.trim());
   });
 
@@ -117,7 +88,7 @@ describe('strings file', () => {
       'Insert Element': 'New1',
       'KeyWithoutComment': 'New2'
     });
-    expect(generateStrings(file.getDocument())).toBe(`
+    expect(generateXCConfig(file.getDocument())).toBe(`
 /* Insert Element menu item */
 
 "Insert Element" = "New1";
@@ -138,7 +109,7 @@ describe('strings file', () => {
     file.set({
       'New key': 'Yes'
     });
-    expect(generateStrings(file.getDocument())).toBe(`
+    expect(generateXCConfig(file.getDocument())).toBe(`
 /* Insert Element menu item */
 
 "Insert Element" = "Insert Element";
