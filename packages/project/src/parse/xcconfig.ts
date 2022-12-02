@@ -6,6 +6,7 @@ enum State {
   None = "none",
   Comment = "comment",
   Include = "include",
+  IncludeValue = "includevalue",
   Key = "key",
   AfterKey = "afterkey",
   Value = "value",
@@ -14,6 +15,7 @@ enum State {
 
 export interface XCConfigEntry {
   comment?: string;
+  include?: string;
   key?: string;
   value?: string;
   content?: string;
@@ -41,6 +43,7 @@ function parse(contents: string): XCConfigEntries {
   let endCol = 0;
 
   function setState(s: State) {
+    console.log(state, '->', s);
     state = s;
   }
 
@@ -55,8 +58,6 @@ function parse(contents: string): XCConfigEntries {
 
       if (state === State.Comment) {
         // Comments are always single-line, so newlines terminate them
-        setState(State.None);
-      } else if (state === State.Include) {
         setState(State.None);
       }
     }
@@ -83,18 +84,8 @@ function parse(contents: string): XCConfigEntries {
       comment += c;
     }
 
-    else if (state === State.Include) {
-      include += c;
-    }
-    
     else if (isEquals(c) && (state === State.AfterKey || state === State.AfterValue)) {
       // Valid state, do nothing
-    }
-    
-    else if (isInclude(contents, i)) {
-      // Start of include statement
-      i += 8;
-      setState(State.Include);
     }
     
     else if (isQuote(c)) {
@@ -112,19 +103,42 @@ function parse(contents: string): XCConfigEntries {
         setState(State.Key);
         key = "";
         whitespace = "";
-      } else if (state === State.Key) {
+      } 
+      else if (state === State.IncludeValue) {
+        commitEntry(entries, {
+          include,
+          startLine, startCol, endLine, endCol
+        });
+        setState(State.None);
+      }
+      else if (state === State.Include) {
+        setState(State.IncludeValue);
+      }
+      else if (state === State.Key) {
         // Key ends
         setState(State.AfterKey);
-      } else if (state === State.AfterKey) {
+      }
+      else if (state === State.AfterKey) {
         // Start of value
         setState(State.Value);
         value = "";
-      } else if (state === State.Value) {
+      }
+      else if (state === State.Value) {
         // End of value, commit it
         setState(State.AfterValue);
       }
     }
 
+    else if (isInclude(contents, i)) {
+      // Start of include statement
+      i += 8;
+      setState(State.Include);
+    }
+
+    else if (state === State.IncludeValue) {
+      include += c;
+    }
+    
     else if (isVariable(c)) {
       key += c;
       setState(State.Key);
