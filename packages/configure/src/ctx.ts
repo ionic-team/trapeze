@@ -105,6 +105,10 @@ export function initVarsFromEnv(ctx: Context, vars: Variables) {
   for (const v in vars) {
     let existing = process.env[v];
     try {
+      if (parseInt(existing!) === 0) {
+        existing = existing && '0';
+      }
+
       existing = existing && JSON.parse(existing!);
     } catch (e) {
       warn(`Unable to parse environment variable ${v} as JSON, processing as string instead`);
