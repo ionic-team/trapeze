@@ -47,7 +47,8 @@ function parse(contents: string): XCConfigEntries {
   function setState(s: State) {
     if (state !== s) {
       console.log(state, '->', s, `(${c})`);
-      printContext();
+      console.trace();
+      // printContext();
     }
     state = s;
   }
@@ -61,8 +62,8 @@ function parse(contents: string): XCConfigEntries {
 
 
   function commit(entry: XCConfigEntry) {
-    console.log('COMMIT', entry);
-    printContext();
+    // console.log('COMMIT', entry);
+    // printContext();
     // console.trace();
     entries.push(entry);
   }
@@ -79,15 +80,15 @@ function parse(contents: string): XCConfigEntries {
           comment,
         });
       } else if (state === State.Value) {
+        console.log('Committing value at end of line', key, value);
         commit({
           key,
           value,
         });
-      }
+      } 
 
       commit({
         content: '\n',
-        value,
       });
 
       ++line;
@@ -156,7 +157,8 @@ function parse(contents: string): XCConfigEntries {
 
     else if (isInclude(contents, i) && state !== State.Include) {
       // Start of include statement
-      i += 8;
+      i += 7;
+      col += 7;
       setState(State.Include);
     }
 
@@ -164,7 +166,7 @@ function parse(contents: string): XCConfigEntries {
       include += c;
     }
     
-    else if (isVariable(c)) {
+    else if (isKey(c) && state !== State.Value) {
       if (state === State.AfterKey) {
         setState(State.Value);
       } else if (state === State.None) {
@@ -173,24 +175,32 @@ function parse(contents: string): XCConfigEntries {
       
       if (state === State.Key) {
         key += c;
-      } else if (state === State.Value) {
+      }
+    }
+
+    else if (isValue(c) && state !== State.Key) {
+      if (state === State.AfterKey) {
+        setState(State.Value);
+      } else if (state === State.None) {
+        setState(State.Key);
+      }
+      
+      if (state === State.Value) {
         value += c;
       }
     }
     
-    
     else if (isWhitespace(c)) {
       if (state === State.Key) {
         setState(State.AfterKey);
-      } else if (state === State.Value) {
-        commit({
-          key, value,
-        });
-        setState(State.None);
-        clearState();
       }
+
       // Valid to have whitespace before/after lines
       whitespace += c;
+    }
+
+    else if (isSemi(c)) {
+      // Semi's are ignored
     }
     
     else {
@@ -209,6 +219,8 @@ function parse(contents: string): XCConfigEntries {
       key, value,
     });
   }
+
+  console.log('Ending in state', state);
 
   return entries;
 }
@@ -239,8 +251,14 @@ function isSpace(c: string) {
 function isTab(c: string) {
   return c === '\t';
 }
-function isVariable(c: string) {
-  return /[a-zA-Z0-9_$()=*\[\]]/.test(c);
+function isSemi(c: string) {
+  return c === ';';
+}
+function isKey(c: string) {
+  return /[a-zA-Z0-9_$()=*<>@\/\[\]]/.test(c);
+}
+function isValue(c: string) {
+  return /[a-zA-Z0-9_$()=* <>@\/\[\]]/.test(c);
 }
 
 export function generateXCConfig(entries: XCConfigEntries) {

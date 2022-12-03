@@ -4,6 +4,8 @@
 // a configuration file for a specific type of target.
 //
 
+#include"thing.xcconfig"
+
 // Where to find embedded frameworks
 LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/Frameworks @loader_path/Frameworks
 
@@ -12,4 +14,6 @@ LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/Frameworks @loader_path/
 SDKROOT = watchos
 
 // Supported device families
-TARGETED_DEVICE_FAMILY = 4
+TARGETED_DEVICE_FAMILY = 4;
+
+FOO[sdk=<sdk>][arch=<arch>] = asdf

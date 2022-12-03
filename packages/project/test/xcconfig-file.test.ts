@@ -8,12 +8,11 @@ describe('strings file', () => {
 
   beforeEach(async () => {
     vfs = new VFS();
-    file = new XCConfigFile('../common/test/fixtures/test.xcconfig', vfs);
-    await file.load();
   });
 
   it('Should load xcconfig file', async () => {
-    console.log(file.getDocument());
+    file = new XCConfigFile('../common/test/fixtures/test.xcconfig', vfs);
+    await file.load();
     expect(file.getDocument()).toMatchObject(
           [
       { comment: '' },
@@ -56,7 +55,15 @@ describe('strings file', () => {
     );
   });
 
+  it('Should load xcconfig file 2', async () => {
+    file = new XCConfigFile('../common/test/fixtures/test2.xcconfig', vfs);
+    await file.load();
+    console.log(file.getDocument());
+  });
+
   it('Should generate xcconfig file', async () => {
+    file = new XCConfigFile('../common/test/fixtures/test.xcconfig', vfs);
+    await file.load();
     const generated = generateXCConfig(file.getDocument());
     console.log(generated);
 
@@ -84,6 +91,8 @@ BAR = $(FOO_$(PRODUCT_NAME))            // This will also use the value "MyApp" 
   });
 
   it('Should set strings key/value pairs', async () => {
+    file = new XCConfigFile('../common/test/fixtures/test.xcconfig', vfs);
+    await file.load();
     file.set({
       'Insert Element': 'New1',
       'KeyWithoutComment': 'New2'
@@ -106,6 +115,8 @@ BAR = $(FOO_$(PRODUCT_NAME))            // This will also use the value "MyApp" 
   });
 
   it('Should set new keys', async () => {
+    file = new XCConfigFile('../common/test/fixtures/test.xcconfig', vfs);
+    await file.load();
     file.set({
       'New key': 'Yes'
     });
