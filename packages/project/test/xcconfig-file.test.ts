@@ -13,6 +13,7 @@ describe('strings file', () => {
   it('Should load xcconfig file', async () => {
     file = new XCConfigFile('../common/test/fixtures/test.xcconfig', vfs);
     await file.load();
+    console.log(file.getDocument());
     expect(file.getDocument()).toMatchObject(
           [
       { comment: '' },
@@ -58,7 +59,53 @@ describe('strings file', () => {
   it('Should load xcconfig file 2', async () => {
     file = new XCConfigFile('../common/test/fixtures/test2.xcconfig', vfs);
     await file.load();
-    console.log(file.getDocument());
+
+    expect(file.getDocument()).toMatchObject([
+      { comment: '' },
+      { content: '\n' },
+      {
+        comment: ' This file defines additional configuration options that are appropriate only'
+      },
+      { content: '\n' },
+      {
+        comment: ' for watchOS. This file is not standalone -- it is meant to be included into'
+      },
+      { content: '\n' },
+      { comment: ' a configuration file for a specific type of target.' },
+      { content: '\n' },
+      { comment: '' },
+      { content: '\n' },
+      { content: '\n' },
+      { include: 'thing.xcconfig' },
+      { content: '\n' },
+      { content: '\n' },
+      { comment: ' Where to find embedded frameworks' },
+      { content: '\n' },
+      {
+        key: 'LD_RUNPATH_SEARCH_PATHS',
+        value: '$(inherited) @executable_path/Frameworks @loader_path/Frameworks'
+      },
+      { content: '\n' },
+      { content: '\n' },
+      {
+        comment: ' The base SDK to use (if no version is specified, the latest version is'
+      },
+      { content: '\n' },
+      { comment: ' assumed)' },
+      { content: '\n' },
+      { key: 'SDKROOT', value: 'watchos' },
+      { content: '\n' },
+      { content: '\n' },
+      { comment: ' Supported device families' },
+      { content: '\n' },
+      { key: 'TARGETED_DEVICE_FAMILY', value: '4' },
+      { content: '\n' },
+      { content: '\n' },
+      { key: 'KEY_ONLY', value: '' },
+      { content: '\n' },
+      { content: '\n' },
+      { key: 'FOO[sdk=<sdk>][arch=<arch>]', value: 'asdf' }
+    ]);
   });
 
   it('Should generate xcconfig file', async () => {

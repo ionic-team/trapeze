@@ -45,11 +45,6 @@ function parse(contents: string): XCConfigEntries {
     `);
   }
   function setState(s: State) {
-    if (state !== s) {
-      console.log(state, '->', s, `(${c})`);
-      console.trace();
-      // printContext();
-    }
     state = s;
   }
   function clearState() {
@@ -62,9 +57,6 @@ function parse(contents: string): XCConfigEntries {
 
 
   function commit(entry: XCConfigEntry) {
-    // console.log('COMMIT', entry);
-    // printContext();
-    // console.trace();
     entries.push(entry);
   }
 
@@ -80,7 +72,7 @@ function parse(contents: string): XCConfigEntries {
           comment,
         });
       } else if (state === State.Value) {
-        console.log('Committing value at end of line', key, value);
+        // xcconfigs are newline-delimited so ends-of-lines commit values
         commit({
           key,
           value,
@@ -183,9 +175,8 @@ function parse(contents: string): XCConfigEntries {
         setState(State.Value);
       } else if (state === State.None) {
         setState(State.Key);
-      }
-      
-      if (state === State.Value) {
+      } else if (state === State.Value) {
+        // Else-if here to make sure we wait for the next character before consuming
         value += c;
       }
     }
