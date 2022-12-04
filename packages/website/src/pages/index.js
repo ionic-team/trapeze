@@ -39,7 +39,7 @@ function Top() {
           <br /> apps with <em>confidence.</em>
         </h1>
         <p className={clsx(styles.p2, styles.top__description)}>
-          A simple, easy to use native mobile project configuration tool and API.
+          A powerful native and cross-platform mobile project configuration toolbox
         </p>
         <div className={styles.top__buttons}>
           <Link className="button button--primary" to="/docs/">
