@@ -176,10 +176,8 @@ function parse(contents: string): XCConfigEntries {
       include += c;
     }
     
-    else if (isKey(c) && state !== State.Value) {
-      if (state === State.AfterKey) {
-        setState(State.Value);
-      } else if (state === State.None) {
+    else if (isKey(c) && state !== State.Value && state !== State.AfterKey) {
+      if (state === State.None) {
         setState(State.Key);
       }
       
@@ -188,15 +186,17 @@ function parse(contents: string): XCConfigEntries {
       }
     }
 
-    else if (isValue(c) && state !== State.Key) {
+    else if (isValueStart(c) && state !== State.Key && state !== State.Value) {
       if (state === State.AfterKey) {
         setState(State.Value);
       } else if (state === State.None) {
         setState(State.Key);
-      } else if (state === State.Value) {
-        // Else-if here to make sure we wait for the next character before consuming
-        value += c;
       }
+      value += c;
+    }
+
+    else if (isValue(c) && state === State.Value) {
+      value += c;
     }
     
     else if (isWhitespace(c)) {
@@ -266,7 +266,12 @@ function isSemi(c: string) {
 function isKey(c: string) {
   return /[a-zA-Z0-9_$()=*<>@\/\[\]]/.test(c);
 }
+function isValueStart(c: string) {
+  // No spaces
+  return /[a-zA-Z0-9_$()=*<>@\/\[\]]/.test(c);
+}
 function isValue(c: string) {
+  // Spaces allowed
   return /[a-zA-Z0-9_$()=* <>@\/\[\]]/.test(c);
 }
 
