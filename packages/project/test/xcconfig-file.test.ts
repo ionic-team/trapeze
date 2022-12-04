@@ -56,9 +56,10 @@ describe('strings file', () => {
     );
   });
 
-  it.skip('Should load xcconfig file 2', async () => {
+  it('Should load xcconfig file 2', async () => {
     file = new XCConfigFile('../common/test/fixtures/test2.xcconfig', vfs);
     await file.load();
+    console.log(file.getDocument());
 
     expect(file.getDocument()).toMatchObject([
       { comment: '' },

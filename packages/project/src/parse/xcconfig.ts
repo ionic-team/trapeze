@@ -86,6 +86,12 @@ function parse(contents: string): XCConfigEntries {
           key,
           value,
         });
+      } else if (state === State.Key || state === State.AfterKey) {
+        // xcconfigs are newline-delimited so ends-of-lines commit values
+        commit({
+          key,
+          value: '',
+        });
       } 
 
       commit({
@@ -226,6 +232,10 @@ function parse(contents: string): XCConfigEntries {
   } else if (state === State.Value) {
     commit({
       key, value,
+    });
+  } else if (state === State.Key || state === State.AfterKey) {
+    commit({
+      key, value: '',
     });
   }
 
