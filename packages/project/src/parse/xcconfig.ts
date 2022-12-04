@@ -40,7 +40,7 @@ function parse(contents: string): XCConfigEntries {
     Key: ${key}
     Value: ${value}
     Comment: ${comment}
-    Whitespace: ${whitespace?.replace(' ', '_').replace('\n', 'N')}
+    Whitespace: ${whitespace?.replaceAll(' ', '_').replaceAll('\n', 'N')}
     Include: ${include}
     `);
   }
@@ -63,8 +63,8 @@ function parse(contents: string): XCConfigEntries {
 
   function commit(entry: XCConfigEntry) {
     console.log('COMMIT', entry);
-    // printContext();
-    // console.trace();
+    printContext();
+    console.trace();
     entries.push(entry);
   }
 
@@ -75,7 +75,6 @@ function parse(contents: string): XCConfigEntries {
       // Keep track of lines
       whitespace += c;
 
-      console.log('NEWLINE, comitting');
       if (state === State.Comment) {
         commit({
           comment,
@@ -109,7 +108,6 @@ function parse(contents: string): XCConfigEntries {
       // Comment start, step forward one character
       ++i;
 
-      // Commit any whitespace up to this point
       if (state === State.Value) {
         // Handle comments after values
         commit({
@@ -118,7 +116,9 @@ function parse(contents: string): XCConfigEntries {
         });
       }
 
+      // Commit any whitespace up to this point
       if (whitespace.length) {
+        console.log('start of comment, committing whitepsace', whitespace.replaceAll(' ', '_'));
         commit({
           content: whitespace,
         });
@@ -193,6 +193,7 @@ function parse(contents: string): XCConfigEntries {
     }
 
     else if (isValueStart(c) && state !== State.Key && state !== State.Value) {
+      whitespace = "";
       if (state === State.AfterKey) {
         setState(State.Value);
       } else if (state === State.None) {

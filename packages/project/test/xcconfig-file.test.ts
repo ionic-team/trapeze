@@ -10,7 +10,7 @@ describe('strings file', () => {
     vfs = new VFS();
   });
 
-  it('Should load xcconfig file', async () => {
+  it('Should load xcconfig file 1', async () => {
     file = new XCConfigFile('../common/test/fixtures/test.xcconfig', vfs);
     await file.load();
     console.log(file.getDocument());
