@@ -10,6 +10,7 @@ export class XCConfigFile extends VFSStorable {
   // Match key = value pairs that are terminated
   // by newlines or by the start of comments
   private keyValueRegex = /^\s*([^ \/]+)\s*=[^\S\r\n]*(([^\n;](?!\/\/))*)/gm;
+
   constructor(public path: string, private vfs: VFS) {
     super();
   }

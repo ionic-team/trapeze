@@ -134,3 +134,11 @@ export type IosStringsOperationValue = {
   set?: any;
   setFromJson?: any;
 }
+
+export interface IosXCConfigOperation {
+  value: IosXCConfigOperationValue[];
+}
+export type IosXCConfigOperationValue = {
+  file?: string;
+  set?: any;
+}
