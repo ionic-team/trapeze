@@ -32,7 +32,6 @@ describe('strings file', () => {
       'KEY': 'value',
       'NEW_KEY[sdk=ios]': 'NEW VALUE'
     });
-    console.log(file.getDocument());
     expect(file.getDocument()).toBe(`
 //
 // Config.xcconfig
@@ -41,7 +40,7 @@ describe('strings file', () => {
 #include "test.xcconfig"
 
 PRODUCT_NAME = testing
-PRODUCT_NAME_ORIGINAL = $(thing)// The value of \`PRODUCT_NAME_ORIGINAL\` would seem to be "testing"
+PRODUCT_NAME_ORIGINAL = $(thing) // The value of \`PRODUCT_NAME_ORIGINAL\` would seem to be "testing"
                                         // as assigned by the line before in the xcconfig file. The value 
                                         // is "MyApp", because the inheritance takes prescedence 
                                         // over assignment.
@@ -61,85 +60,45 @@ NEW_KEY[sdk=ios] = NEW VALUE
   it('Should load xcconfig file 2', async () => {
     file = new XCConfigFile('../common/test/fixtures/test2.xcconfig', vfs);
     await file.load();
+    expect(file.getPairs()).toMatchObject({
+      'LD_RUNPATH_SEARCH_PATHS': '$(inherited) @executable_path/Frameworks @loader_path/Frameworks',
+      'SDKROOT': 'watchos',
+      'TARGETED_DEVICE_FAMILY': '4',
+      'KEY_ONLY': '',
+      'FOO[sdk=<sdk>][arch=<arch>]': 'asdf',
+    });
+  });
+
+  it('Should modify variables in file 2', async () => {
+    file = new XCConfigFile('../common/test/fixtures/test2.xcconfig', vfs);
+    await file.load();
+    file.set({
+      'FOO[sdk=<sdk>][arch=<arch>]': 'new',
+      'KEY_ONLY': 'VALUE_ONLY',
+      'SDKROOT': '$(inherited) @executable_path/Frameworks @loader_path/Frameworks',
+      'LD_RUNPATH_SEARCH_PATHS': ''
+    });
     console.log(file.getDocument());
-
-  });
-
-  it('Should generate xcconfig file', async () => {
-    file = new XCConfigFile('../common/test/fixtures/test.xcconfig', vfs);
-    await file.load();
-    const generated = file.generate();
-    console.log(generated);
-
-    expect(file.generate()).toBe(`
+    expect(file.getDocument()).toBe(`
 //
-// Config.xcconfig
+// This file defines additional configuration options that are appropriate only
+// for watchOS. This file is not standalone -- it is meant to be included into
+// a configuration file for a specific type of target.
 //
 
-#include "test.xcconfig"
+#include"thing.xcconfig"
 
-PRODUCT_NAME = testing
-PRODUCT_NAME_ORIGINAL = $(PRODUCT_NAME) // The value of \`PRODUCT_NAME_ORIGINAL\` would seem to be "testing"
-                                        // as assigned by the line before in the xcconfig file. The value 
-                                        // is "MyApp", because the inheritance takes prescedence 
-                                        // over assignment.
+// Where to find embedded frameworks
+LD_RUNPATH_SEARCH_PATHS = 
 
-// ...
+// The base SDK to use (if no version is specified, the latest version is
+// assumed)
+SDKROOT = $(inherited) @executable_path/Frameworks @loader_path/Frameworks
 
-FOO_MyApp = MyAppsName
-FOO_testing = MyAppsNewName
-FOO[sdk=macosx*][arch=i386] = bar
-BAR = $(FOO_$(PRODUCT_NAME))            // This will also use the value "MyApp" for "PRODUCT_NAME",
-                                        // and resolve to be "$(FOO_MyApp)".
-    `.trim());
-  });
-
-  it('Should set strings key/value pairs', async () => {
-    file = new XCConfigFile('../common/test/fixtures/test.xcconfig', vfs);
-    await file.load();
-    file.set({
-      'Insert Element': 'New1',
-      'KeyWithoutComment': 'New2'
-    });
-    expect(file.generate()).toBe(`
-/* Insert Element menu item */
-
-"Insert Element" = "New1";
-
-/* Error string used for unknown error types. */
-
-"ErrorString_1" = "An unknown error occurred.";
-
-"KeyWithoutComment" = "New2";
-
-/****/
-
-   "This is a key" = "This is a value";
-    `.trim());
-  });
-
-  it('Should set new keys', async () => {
-    file = new XCConfigFile('../common/test/fixtures/test.xcconfig', vfs);
-    await file.load();
-    file.set({
-      'New key': 'Yes'
-    });
-    expect(file.generate()).toBe(`
-/* Insert Element menu item */
-
-"Insert Element" = "Insert Element";
-
-/* Error string used for unknown error types. */
-
-"ErrorString_1" = "An unknown error occurred.";
-
-"KeyWithoutComment" = "This key has no comment";
-
-/****/
-
-   "This is a key" = "This is a value";
-
-"New key" = "Yes";
+// Supported device families
+TARGETED_DEVICE_FAMILY = 4;
+KEY_ONLY = VALUE_ONLY
+FOO[sdk=<sdk>][arch=<arch>] = new
     `.trim());
   });
 });

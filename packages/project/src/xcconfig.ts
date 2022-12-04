@@ -7,7 +7,9 @@ import { VFS, VFSFile, VFSStorable } from './vfs';
  */
 export class XCConfigFile extends VFSStorable {
   private doc: string = "";
-  private regex = /^\s*([^ \/]+)\s*=\s*([^\n\/]*)/gm;
+  // Match key = value pairs that are terminated
+  // by newlines or by the start of comments
+  private keyValueRegex = /^\s*([^ \/]+)\s*=[^\S\r\n]*(([^\n;](?!\/\/))*)/gm;
   constructor(public path: string, private vfs: VFS) {
     super();
   }
@@ -17,11 +19,10 @@ export class XCConfigFile extends VFSStorable {
   }
 
   getPairs() {
-    const found = this.doc.matchAll(this.regex);
+    const found = this.doc.matchAll(this.keyValueRegex);
     const pairs: any = {};
     for (const group of found) {
-      console.log(group[1],'=',group[2]);
-      pairs[group[1]] = group[2]?.trimEnd() ?? '';
+      pairs[group[1]] = group[2].trimEnd() ?? '';
     }
     return pairs;
   }
@@ -45,11 +46,9 @@ export class XCConfigFile extends VFSStorable {
     }
 
 
-    this.doc = this.doc.replace(this.regex, replace);
+    this.doc = this.doc.replace(this.keyValueRegex, replace);
 
-    console.log('Found keys', foundKeys);
     const newKeys = Object.keys(values).filter(k => !!!foundKeys.find(fk => fk === k));
-    console.log('Need to add new keys', newKeys);
 
     for (const key of newKeys) {
       this.doc += `\n${key} = ${values[key]}`;
@@ -66,7 +65,6 @@ export class XCConfigFile extends VFSStorable {
     } else {
       this.doc = await this.parse(this.path);
     }
-    console.log(this.doc);
     Logger.v('xcconfig', 'load', `at ${this.path}`);
     this.vfs.open(this.path, this, this.commitFn);
   }
