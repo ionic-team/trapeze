@@ -45,6 +45,11 @@ function parse(contents: string): XCConfigEntries {
     `);
   }
   function setState(s: State) {
+    if (state !== s) {
+      console.log(state, '->', s, `(${c})`);
+      // console.trace();
+      // printContext();
+    }
     state = s;
   }
   function clearState() {
@@ -57,6 +62,9 @@ function parse(contents: string): XCConfigEntries {
 
 
   function commit(entry: XCConfigEntry) {
+    console.log('COMMIT', entry);
+    // printContext();
+    // console.trace();
     entries.push(entry);
   }
 
@@ -67,6 +75,7 @@ function parse(contents: string): XCConfigEntries {
       // Keep track of lines
       whitespace += c;
 
+      console.log('NEWLINE, comitting');
       if (state === State.Comment) {
         commit({
           comment,
@@ -93,7 +102,16 @@ function parse(contents: string): XCConfigEntries {
     else if (isStartComment(c, contents[i + 1])) {
       // Comment start, step forward one character
       ++i;
+
       // Commit any whitespace up to this point
+      if (state === State.Value) {
+        // Handle comments after values
+        commit({
+          key,
+          value: value.trimEnd()
+        });
+      }
+
       if (whitespace.length) {
         commit({
           content: whitespace,
