@@ -219,6 +219,8 @@ function createOpDisplayText(op: Partial<Operation>) {
       return `${op.value.length} ${pluralize(op.value.length, 'modification')}`;
     case 'ios.json':
       return `${op.value.length} ${pluralize(op.value.length, 'modification')}`;
+    case 'ios.xcconfig':
+      return `${op.value.length} ${pluralize(op.value.length, 'modification')}`;
     case 'ios.copy':
       return op.value.map((r: any) => r.dest).join(', ');
     // android
