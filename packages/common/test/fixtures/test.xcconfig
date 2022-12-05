@@ -1,0 +1,21 @@
+//
+// Config.xcconfig
+//
+
+#include "test.xcconfig"
+
+PRODUCT_NAME = testing
+PRODUCT_NAME_ORIGINAL = $(PRODUCT_NAME) // The value of `PRODUCT_NAME_ORIGINAL` would seem to be "testing"
+                                        // as assigned by the line before in the xcconfig file. The value 
+                                        // is "MyApp", because the inheritance takes prescedence 
+                                        // over assignment.
+
+// ...
+
+FOO_MyApp = MyAppsName
+FOO_testing = MyAppsNewName
+FOO[sdk=macosx*][arch=i386] = bar
+BAR = $(FOO_$(PRODUCT_NAME))            // This will also use the value "MyApp" for "PRODUCT_NAME",
+                                        // and resolve to be "$(FOO_MyApp)".
+
+KEY =

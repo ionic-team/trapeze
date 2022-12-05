@@ -8,4 +8,5 @@ export * from './json';
 export * from './plist';
 export * from './properties';
 export * from './strings';
+export * from './xcconfig';
 export * from './vfs';
