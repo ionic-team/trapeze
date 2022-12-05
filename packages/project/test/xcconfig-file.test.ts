@@ -78,7 +78,6 @@ NEW_KEY[sdk=ios] = NEW VALUE
       'SDKROOT': '$(inherited) @executable_path/Frameworks @loader_path/Frameworks',
       'LD_RUNPATH_SEARCH_PATHS': ''
     });
-    console.log(file.getDocument());
     expect(file.getDocument()).toBe(`
 //
 // This file defines additional configuration options that are appropriate only

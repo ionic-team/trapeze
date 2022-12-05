@@ -29,10 +29,6 @@ export class XCConfigFile extends VFSStorable {
   }
 
   async set(values: any) {
-    if (!this.doc) {
-      return;
-    }
-
     Logger.v('xcconfig', 'update', `${this.path}`);
     const foundKeys: string[] = [];
 
@@ -71,8 +67,7 @@ export class XCConfigFile extends VFSStorable {
   }
 
   generate() {
-    return "";
-    // return generateXCConfig(this.doc);
+    return this.doc;
   }
 
   private async parse(path: string): Promise<string> {
