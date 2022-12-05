@@ -17,6 +17,7 @@ import executeIosBuildSettings from './ios/buildSettings';
 import executeIosXml from './ios/xml';
 import executeIosJson from './ios/json';
 import executeIosCopy from './ios/copy';
+import executeIosStrings from './ios/strings';
 import executeIosXCConfig from './ios/xcconfig';
 
 import executeProjectCopy from './project/copy';
@@ -50,6 +51,7 @@ const operations: OperationHandlers = {
   'ios.xml': executeIosXml,
   'ios.json': executeIosJson,
   'ios.copy': executeIosCopy,
+  'ios.strings': executeIosStrings,
   'ios.xcconfig': executeIosXCConfig,
   'android.appName': executeAndroidAppName,
   'android.manifest': executeAndroidManifest,
