@@ -240,7 +240,9 @@ platforms:
 
 ### `strings`
 
-Modify iOS `.strings` files to create and modify localization/translation files.
+*Since: 6.0.7*
+
+Modify iOS `.strings` files to create and modify localization/translation strings.
 
 Use `set` to set values directly by supplying an object, or `setFromJson` to supply a JSON file with mappings.
 
@@ -255,4 +257,23 @@ platforms:
               "Insert Element": "Insert Element"
           - file: App/Localizable.strings
             setFromJson: "lang/en.json"
+```
+
+### `xcconfig`
+
+*Since: 6.0.7*
+
+Modify iOS `.xcconfig` files to create and modify build configuration.
+
+Use `set` to set values directly by supplying an object:
+
+```yaml
+platforms:
+  ios:
+    targets:
+      App:
+        xcconfig:
+          - file: App/Config.xcconfig
+            set:
+              "PRODUCT_NAME": "$(NAME)"
 ```
