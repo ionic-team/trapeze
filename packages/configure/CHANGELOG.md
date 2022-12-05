@@ -1,5 +1,13 @@
 # @trapezedev/configure
 
+## 6.0.7
+
+### Patch Changes
+
+- Added support for XCConfig files on iOS
+- Updated dependencies
+  - @trapezedev/project@6.0.7
+
 ## 6.0.6
 
 ### Patch Changes

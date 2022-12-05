@@ -1,5 +1,12 @@
 # @trapezedev/project
 
+## 6.0.7
+
+### Patch Changes
+
+- Added support for XCConfig files on iOS
+  - @trapezedev/gradle-parse@6.0.7
+
 ## 6.0.6
 
 ### Patch Changes
