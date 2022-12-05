@@ -64,6 +64,10 @@ const operations: OperationHandlers = {
   'android.copy': executeAndroidCopy,
 };
 
+export function isOpRegistered(opName: string) {
+  return opName in operations;
+}
+
 const enabled: string[] | null = null; //['ios.plist'];
 
 export function runOperation(ctx: Context, op: Operation) {
