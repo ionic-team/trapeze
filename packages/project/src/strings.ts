@@ -90,8 +90,8 @@ export class StringsFile extends VFSStorable {
   }
 
   private commitFn = async (file: VFSFile) => {
-    const entries = file.getData() as StringsEntries;
-    const src = generateStrings(entries);
+    const f = file.getData() as StringsFile;
+    const src = generateStrings(f.doc);
     return writeFile(file.getFilename(), src);
   }
 }

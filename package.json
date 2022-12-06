@@ -16,7 +16,7 @@
   "scripts": {
     "build": "turbo run build",
     "test": "turbo run test",
-    "shipit": "npm run build-jar -w packages/gradle-parse && npm run build && npm run test && npx changeset publish && git push --tags"
+    "shipit": "npm run build-jar -w packages/gradle-parse && npm run build -- --force && npm run test && npx changeset publish && git push --tags"
   },
   "volta": {
     "node": "16.18.1",

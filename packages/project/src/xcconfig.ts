@@ -76,7 +76,6 @@ export class XCConfigFile extends VFSStorable {
   }
 
   private commitFn = async (file: VFSFile) => {
-    const entries = file.getData() as string;
     const src = this.generate();
     return writeFile(file.getFilename(), src);
   }
