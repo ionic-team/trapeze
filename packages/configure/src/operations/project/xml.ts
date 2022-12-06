@@ -4,6 +4,7 @@ import { join } from 'path';
 
 import { Context } from "../../ctx";
 import { XmlOperation, Operation } from "../../definitions";
+import { error } from '../../util/log';
 
 function getXmlFile(path: string, vfs: VFS) {
   const existing = vfs.get(path);
@@ -28,7 +29,8 @@ export default async function execute(ctx: Context, op: Operation) {
     try {
       await xmlFile.load();
     } catch (e) {
-      console.log('Unable to load the XML file here', e);
+      error('Unable to load the XML file here', e);
+      return;
     }
 
     if (entry.attrs) {

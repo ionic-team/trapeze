@@ -1,3 +1,4 @@
+/// <reference lib="dom" />
 
 import { dirname } from 'path';
 import { readFile, writeFile } from '@ionic/utils-fs';
@@ -6,7 +7,10 @@ import prettier from 'prettier/standalone';
 import prettierXml from '@prettier/plugin-xml';
 
 export async function parseXml(filename: string) {
-  const contents = await readFile(filename, { encoding: 'utf-8' });
+  let contents = await readFile(filename, { encoding: 'utf-8' });
+  if (!contents) {
+    contents = '<?xml version="1.0" encoding="utf-8" ?>\n<root />';
+  }
   return new xmldom.DOMParser().parseFromString(contents);
 }
 

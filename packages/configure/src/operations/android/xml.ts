@@ -1,6 +1,7 @@
 import { Context } from "../../ctx";
 import { XmlFile } from '@trapezedev/project';
 import { AndroidXmlOperation, Operation } from "../../definitions";
+import { error } from "../../util/log";
 
 export default async function execute(ctx: Context, op: Operation) {
   const xmlOp = op as AndroidXmlOperation;
@@ -24,7 +25,8 @@ export default async function execute(ctx: Context, op: Operation) {
     try {
       await xmlFile.load();
     } catch (e) {
-      console.log('Unable to load the XML file here', e);
+      error('Unable to load the XML file here', e);
+      return;
     }
 
     if (entry.attrs) {

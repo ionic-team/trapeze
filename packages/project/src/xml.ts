@@ -20,7 +20,12 @@ export class XmlFile extends VFSStorable {
       return;
     }
 
-    this.doc = await parseXml(this.path);
+    try {
+      this.doc = await parseXml(this.path);
+    } catch (e) {
+      console.error('Unable to load XML file', e);
+    }
+
     Logger.v('xml', 'load', `at ${this.path}`);
     this.vfs.open(this.path, this, this.xmlCommitFn, this.xmlDiffFn);
 
@@ -232,7 +237,9 @@ export class XmlFile extends VFSStorable {
 
   private xmlCommitFn = async (file: VFSFile) => {
     const data = file.getData() as XmlFile;
-    return writeXml(data.doc, file.getFilename());
+    if (data.doc) {
+      return writeXml(data.doc, file.getFilename());
+    }
   };
 
   private xmlDiffFn = async (file: VFSFile) => {

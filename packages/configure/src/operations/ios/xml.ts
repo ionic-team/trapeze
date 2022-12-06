@@ -1,6 +1,6 @@
 import { Context } from "../../ctx";
 import { IosXmlOperation, Operation } from "../../definitions";
-import { logger } from "../../util/log";
+import { error, logger } from "../../util/log";
 
 export default async function execute(ctx: Context, op: Operation) {
   const xmlOp = op as IosXmlOperation;
@@ -13,7 +13,12 @@ export default async function execute(ctx: Context, op: Operation) {
       throw new Error(`No such XML file for xml operation: ${entry.file}`);
     }
 
-    await xmlFile.load();
+    try {
+      await xmlFile.load();
+    } catch (e) {
+      error('Unable to load the XML file here', e);
+      return;
+    }
 
     try {
       if (entry.attrs) {
