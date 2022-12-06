@@ -1,5 +1,13 @@
 # @trapezedev/configure
 
+## 6.0.8
+
+### Patch Changes
+
+- Fixed strings and some XML handling
+- Updated dependencies
+  - @trapezedev/project@6.0.8
+
 ## 6.0.7
 
 ### Patch Changes
