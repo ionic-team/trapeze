@@ -1,5 +1,12 @@
 # @trapezedev/project
 
+## 6.0.9
+
+### Patch Changes
+
+- Create parent directories when writing new files
+  - @trapezedev/gradle-parse@6.0.9
+
 ## 6.0.8
 
 ### Patch Changes

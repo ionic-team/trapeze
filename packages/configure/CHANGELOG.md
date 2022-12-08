@@ -1,5 +1,13 @@
 # @trapezedev/configure
 
+## 6.0.9
+
+### Patch Changes
+
+- Create parent directories when writing new files
+- Updated dependencies
+  - @trapezedev/project@6.0.9
+
 ## 6.0.8
 
 ### Patch Changes
