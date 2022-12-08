@@ -1,5 +1,6 @@
 import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
 import { Logger } from './logger';
+import { assertParentDirs } from './util/fs';
 import { generateStrings, parseStrings, StringsEntries } from './util/strings';
 import { VFS, VFSFile, VFSStorable } from './vfs';
 
@@ -92,6 +93,7 @@ export class StringsFile extends VFSStorable {
   private commitFn = async (file: VFSFile) => {
     const f = file.getData() as StringsFile;
     const src = generateStrings(f.doc);
+    await assertParentDirs(file.getFilename());
     return writeFile(file.getFilename(), src);
   }
 }

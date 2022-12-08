@@ -8,6 +8,7 @@ import { VFS, VFSFile, VFSStorable, VFSDiff } from '../vfs';
 import detectIndent from '../util/detect-indent';
 import { AndroidGradleInjectType } from '../definitions';
 import { Logger } from '../logger';
+import { assertParentDirs } from '../util/fs';
 
 export type GradleAST = any;
 export interface GradleASTNode {
@@ -697,6 +698,7 @@ export class GradleFile extends VFSStorable {
   }
 
   private gradleCommitFn = async (file: VFSFile) => {
+    await assertParentDirs(file.getFilename());
     return writeFile(
       file.getFilename(),
       (file.getData() as GradleFile).getDocument(),

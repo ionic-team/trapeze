@@ -1,10 +1,11 @@
 import { Command } from 'commander';
-import { Context, loadContext, setArguments } from './ctx';
+import { Context, initLogging, loadContext, setArguments } from './ctx';
 import { fatal, logger } from './util/log';
 import { wrapAction } from './util/cli';
 
 export async function run() {
   try {
+    initLogging(process.argv);
     const ctx = await loadContext();
     runProgram(ctx);
   } catch (e: any) {

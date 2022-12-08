@@ -6,6 +6,7 @@ import { parsePlist } from "./util/plist";
 import { VFS, VFSRef, VFSFile, VFSStorable } from "./vfs";
 import { MobileProject } from "./project";
 import { Logger } from "./logger";
+import { assertParentDirs } from "./util/fs";
 
 export class PlistFile extends VFSStorable {
   doc: PlistObject | null = null;
@@ -39,6 +40,7 @@ export class PlistFile extends VFSStorable {
       offset: -1,
       newline: '\n'
     });
+    await assertParentDirs(file.getFilename());
     return writeFile(file.getFilename(), xml);
   }
 

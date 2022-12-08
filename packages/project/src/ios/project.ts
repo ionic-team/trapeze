@@ -11,6 +11,7 @@ import { XmlFile } from '../xml';
 import { PlistFile } from '../plist';
 import { PlatformProject } from '../platform-project';
 import { Logger } from '../logger';
+import { assertParentDirs } from '../util/fs';
 
 const defaultEntitlementsPlist = `
 <?xml version="1.0" encoding="UTF-8"?>
@@ -662,6 +663,7 @@ export class IosProject extends PlatformProject {
       offset: -1,
       newline: '\n'
     });
+    await assertParentDirs(file.getFilename());
     return writeFile(file.getFilename(), xml);
   }
 }

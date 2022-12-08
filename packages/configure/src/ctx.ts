@@ -58,9 +58,12 @@ export async function loadContext(projectRootPath?: string, androidProject?: str
   };
 }
 
+export function initLogging(args: string[]) {
+  process.env.VERBOSE = process.env.VERBOSE || '' + !!args.find(a => a === '--verbose');
+}
+
 export function setArguments(ctx: Context, args: any) {
   ctx.args = args;
-  process.env.VERBOSE = '' + !!args.verbose;
 }
 
 // Given a variable of the form $VARIABLE, resolve the

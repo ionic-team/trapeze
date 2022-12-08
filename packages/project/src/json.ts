@@ -1,6 +1,7 @@
 import { pathExists, readFile, readJson, writeFile, writeJson } from '@ionic/utils-fs';
 import { mergeWith, union } from 'lodash';
 import { Logger } from './logger';
+import { assertParentDirs } from './util/fs';
 
 import { VFS, VFSRef, VFSFile, VFSStorable } from './vfs';
 
@@ -85,6 +86,7 @@ export class JsonFile extends VFSStorable {
   }
 
   private commitFn = async (file: VFSFile) => {
+    await assertParentDirs(file.getFilename());
     return writeJson(file.getFilename(), (file.getData() as JsonFile | null)?.getDocument(), {
       spaces: 2
     });

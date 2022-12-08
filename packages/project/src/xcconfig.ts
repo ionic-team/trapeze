@@ -1,5 +1,6 @@
 import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
 import { Logger } from './logger';
+import { assertParentDirs } from './util/fs';
 import { VFS, VFSFile, VFSStorable } from './vfs';
 
 /**
@@ -77,6 +78,7 @@ export class XCConfigFile extends VFSStorable {
 
   private commitFn = async (file: VFSFile) => {
     const src = this.generate();
+    await assertParentDirs(file.getFilename());
     return writeFile(file.getFilename(), src);
   }
 }

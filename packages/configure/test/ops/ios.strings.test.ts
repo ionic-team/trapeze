@@ -83,7 +83,7 @@ describe('op: ios.strings', () => {
     const op: IosStringsOperation = {
       value: [
         {
-          file: 'App/New.strings',
+          file: 'App/path/to/New.strings',
           setFromJson: '../common/test/fixtures/strings.json'
         },
       ],
@@ -92,7 +92,7 @@ describe('op: ios.strings', () => {
     await Op(ctx, op as Operation);
 
     const file = ctx.project.vfs.get<StringsFile>(
-      join(ctx.project.config.ios?.path ?? '', 'App', 'New.strings'),
+      join(ctx.project.config.ios?.path ?? '', 'App', 'path', 'to', 'New.strings'),
     );
     const generated = file?.getData()?.generate();
     expect(generated).toEqual(`

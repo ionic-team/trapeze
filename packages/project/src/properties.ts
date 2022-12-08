@@ -1,6 +1,7 @@
 import { pathExists } from '@ionic/utils-fs';
 import { mergeWith } from 'lodash';
 import { Logger } from './logger';
+import { assertParentDirs } from './util/fs';
 import { parseProperties, writeProperties } from './util/properties';
 import { VFS, VFSFile, VFSStorable } from './vfs';
 
@@ -65,6 +66,7 @@ export class PropertiesFile extends VFSStorable {
   }
 
   private commitFn = async (file: VFSFile) => {
+    await assertParentDirs(file.getFilename());
     return writeProperties(file.getFilename(), file.getData());
   }
 }

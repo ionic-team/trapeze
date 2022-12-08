@@ -4,6 +4,7 @@ import { xml2js, js2xml } from 'xml-js';
 import { VFS, VFSFile, VFSStorable } from './vfs';
 import { readFile } from 'fs-extra';
 import { Logger } from './logger';
+import { assertParentDirs } from './util/fs';
 
 export class XmlFile extends VFSStorable {
   private doc: Document | null = null;
@@ -238,6 +239,7 @@ export class XmlFile extends VFSStorable {
   private xmlCommitFn = async (file: VFSFile) => {
     const data = file.getData() as XmlFile;
     if (data.doc) {
+      await assertParentDirs(file.getFilename());
       return writeXml(data.doc, file.getFilename());
     }
   };
