@@ -484,6 +484,9 @@ export class GradleFile extends VFSStorable {
 
   async getJava(): Promise<string | null> {
     try {
+      if (process.env.JAVA_HOME) {
+        return join(process.env.JAVA_HOME, 'bin', 'java');
+      }
       const v = await spawnCommand('java', ['-version'], {
         stdio: 'pipe',
         combineStreams: true
@@ -493,9 +496,6 @@ export class GradleFile extends VFSStorable {
       }
       return 'java';
     } catch(e) {
-      if (process.env.JAVA_HOME) {
-        return join(process.env.JAVA_HOME, 'bin', 'java');
-      }
     }
     return null;
   }
