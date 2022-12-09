@@ -1,7 +1,7 @@
 import { lstat, readdirp } from '@ionic/utils-fs';
 import { Context } from '../ctx';
 import { Operation } from '../definitions';
-import { dirname, relative } from 'path';
+import { extname } from 'path';
 
 type OperationHandler = (ctx: Context, op: Operation) => Promise<any>;
 
@@ -15,6 +15,11 @@ export async function loadHandlers() {
 
   const files = await readdirp(__dirname);
   for (const file of files) {
+    const ext = extname(file);
+    if (ext !== '.js') {
+      continue;
+    }
+
     const stat = await lstat(file);
     if (stat.isDirectory()) {
       continue;
