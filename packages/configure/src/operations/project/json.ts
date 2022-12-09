@@ -2,7 +2,7 @@ import { join } from 'path';
 
 import { JsonFile, VFS } from '@trapezedev/project';
 import { Context } from '../../ctx';
-import { JsonOperation, Operation } from '../../definitions';
+import { JsonOperation, Operation, OperationMeta } from '../../definitions';
 
 function getJsonFile(path: string, vfs: VFS) {
   const existing = vfs.get(path);
@@ -35,3 +35,7 @@ export default async function execute(ctx: Context, op: Operation) {
     }
   }
 }
+
+export const OPS: OperationMeta = [
+  'project.json'
+]

@@ -1,5 +1,5 @@
 import { Context } from "../../ctx";
-import { Operation } from "../../definitions";
+import { Operation, OperationMeta } from "../../definitions";
 
 export default async function execute(ctx: Context, op: Operation) {
   if (op.id === 'android.versionCode') {
@@ -10,3 +10,9 @@ export default async function execute(ctx: Context, op: Operation) {
     return ctx.project.android?.incrementVersionCode();
   }
 }
+
+export const OPS: OperationMeta = [
+  'android.versionCode',
+  'android.versionName',
+  'android.incrementVersionCode'
+]

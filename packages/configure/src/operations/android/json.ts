@@ -2,7 +2,7 @@ import { join } from 'path';
 
 import { JsonFile } from '@trapezedev/project';
 import { Context } from '../../ctx';
-import { AndroidJsonOperation, Operation } from '../../definitions';
+import { AndroidJsonOperation, Operation, OperationMeta } from '../../definitions';
 
 export default async function execute(ctx: Context, op: Operation) {
   const xmlOp = op as AndroidJsonOperation;
@@ -39,3 +39,7 @@ export default async function execute(ctx: Context, op: Operation) {
     }
   }
 }
+
+export const OPS: OperationMeta = [
+  'android.json'
+]

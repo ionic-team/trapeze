@@ -1,5 +1,5 @@
 import { Context } from '../../ctx';
-import { Operation } from '../../definitions';
+import { Operation, OperationMeta } from '../../definitions';
 import { logger } from '../../util/log';
 
 export default async function execute(ctx: Context, op: Operation) {
@@ -15,3 +15,7 @@ export default async function execute(ctx: Context, op: Operation) {
     }
   }
 }
+
+export const OPS: OperationMeta = [
+  'ios.buildSettings'
+]

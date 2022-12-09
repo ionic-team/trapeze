@@ -3,7 +3,7 @@ import { processOperations } from '../op';
 import { logger, log, error, warn, debug } from '../util/log';
 import { logPrompt } from '../util/cli';
 import { loadYamlConfig, YamlFile } from '../yaml-config';
-import { hasHandler, runOperation } from '../operations/index';
+import { isOpRegistered, loadHandlers, OperationHandlers, runOperation } from '../operations/index';
 import { Context } from '../ctx';
 import { Operation } from '../definitions';
 import { Logger, VFSDiff } from '@trapezedev/project';
@@ -11,6 +11,8 @@ import kleur from 'kleur';
 
 export async function runCommand(ctx: Context, configFile: YamlFile) {
   let processed: Operation[];
+  let handlers: OperationHandlers = await loadHandlers();
+
   try {
     const config = await loadYamlConfig(ctx, configFile);
 
@@ -26,13 +28,13 @@ export async function runCommand(ctx: Context, configFile: YamlFile) {
   }
 
   try {
-    await executeOperations(ctx, processed);
+    await executeOperations(ctx, handlers, processed);
   } catch (e) {
     throw e;
   }
 }
 
-async function executeOperations(ctx: Context, operations: Operation[]) {
+async function executeOperations(ctx: Context, handlers: OperationHandlers, operations: Operation[]) {
   for (const op of operations) {
     if (!ctx.args.quiet) {
       printOp(ctx, op);
@@ -44,14 +46,14 @@ async function executeOperations(ctx: Context, operations: Operation[]) {
       continue;
     }
 
-    if (!hasHandler(op)) {
+    if (!isOpRegistered(handlers, op.id)) {
       logger.warn(
         `Unsupported configuration option ${c.strong(op.id)}. Skipping`,
       );
       continue;
     }
 
-    (await runOperation(ctx, op)) || [];
+    (await runOperation(ctx, handlers, op)) || [];
   }
   await checkModifiedFiles(ctx);
 }

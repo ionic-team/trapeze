@@ -1,5 +1,6 @@
 import { AndroidGradleInjectType } from '@trapezedev/project';
 
+export type OperationMeta = string[];
 export interface Operation {
   id: string;
   platform: 'ios' | 'android' | 'web' | 'windows' | string;

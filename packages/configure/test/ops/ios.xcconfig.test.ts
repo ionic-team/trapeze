@@ -3,7 +3,6 @@ import { XCConfigFile } from '@trapezedev/project/src';
 import { join } from 'path';
 import tempy from 'tempy';
 
-import { isOpRegistered } from '../../src/operations';
 import { Context, loadContext } from '../../src/ctx';
 import { IosXCConfigOperation, Operation } from '../../src/definitions';
 import Op from '../../src/operations/ios/xcconfig';
@@ -19,10 +18,6 @@ describe('op: ios.strings', () => {
 
     ctx = await loadContext(dir);
     ctx.args.quiet = true;
-  });
-
-  it('should register ios.xcconfig', async () => {
-    expect(isOpRegistered('ios.xcconfig')).toBe(true);
   });
 
   it('should set ios.xcconfig', async () => {

@@ -2,7 +2,7 @@ import { join } from 'path';
 
 import { JsonFile } from '@trapezedev/project';
 import { Context } from '../../ctx';
-import { IosJsonOperation, Operation } from '../../definitions';
+import { IosJsonOperation, Operation, OperationMeta } from '../../definitions';
 
 export default async function execute(ctx: Context, op: Operation) {
   const xmlOp = op as IosJsonOperation;
@@ -35,3 +35,7 @@ export default async function execute(ctx: Context, op: Operation) {
     }
   }
 }
+
+export const OPS: OperationMeta = [
+  'ios.json'
+]
