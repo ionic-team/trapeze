@@ -2,6 +2,7 @@ import { lstat, readdirp } from '@ionic/utils-fs';
 import { Context } from '../ctx';
 import { Operation } from '../definitions';
 import { extname } from 'path';
+import { error } from '../util/log';
 
 type OperationHandler = (ctx: Context, op: Operation) => Promise<any>;
 
@@ -36,9 +37,8 @@ export async function loadHandlers() {
         }
       }
     } catch (e) {
-      console.error('Unable to import', e);
+      error('Unable to import operation JS file', e);
     }
-    // operations.push(
   }
 
   return operations;
