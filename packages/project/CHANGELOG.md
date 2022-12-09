@@ -1,5 +1,12 @@
 # @trapezedev/project
 
+## 6.0.10
+
+### Patch Changes
+
+- Tweaked method for finding java
+  - @trapezedev/gradle-parse@6.0.10
+
 ## 6.0.9
 
 ### Patch Changes
