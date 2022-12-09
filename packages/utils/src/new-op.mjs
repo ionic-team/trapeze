@@ -5,18 +5,18 @@ import { exit } from './utils.mjs';
 
 
 export default async function newOp({ name, platform }) {
-  const { newName } = name ?? await prompt({
+  console.log(name, platform);
+  let newName = name ?? await prompt({
     type: 'text',
     name: 'name',
     message: 'New op name?'
-  });
+  }).name;
 
   if (!newName) {
     exit('Missing name');
   }
 
-
-  const { newPlatform } = platform ?? await prompt({
+  let newPlatform = platform ?? await prompt({
     type: 'select',
     name: 'platform',
     message: 'New op platform?',
@@ -25,7 +25,7 @@ export default async function newOp({ name, platform }) {
       { title: 'Android', value: 'android' },
       { title: 'Project', value: 'project' },
     ],
-  });
+  }).platform;
 
   if (!newPlatform) {
     exit('Missing platform');
@@ -35,14 +35,14 @@ export default async function newOp({ name, platform }) {
 }
 
 function addFile(vfs, path, contents) {
-  console.log(kleur.green('ADD'), kleur.grey(path));
+  console.log(kleur.green('ADD'), kleur.bold(path));
   vfs.open(path, contents);
 }
 
 async function create(name, platform) {
   var vfs = new VFS();
-  const id = `${platform}.${nameLower}`;
   const nameLower = name.toLocaleLowerCase();
+  const id = `${platform}.${nameLower}`;
 
   console.log(`Adding new op ${id}`);
 
@@ -50,5 +50,6 @@ async function create(name, platform) {
     return addFile(vfs, path, contents);
   }
 
-  add(`operations/${platform}/${name}.ts`, '');
+  add(`configure/src/operations/${platform}/${name}.ts`, '');
+  add(`configure/test/ops/${platform}/${name}.test.ts`, '');
 }
