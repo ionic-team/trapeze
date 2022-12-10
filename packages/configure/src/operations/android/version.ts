@@ -6,6 +6,8 @@ export default async function execute(ctx: Context, op: Operation) {
     return ctx.project.android?.setVersionCode(op.value);
   } else if (op.id === 'android.versionName') {
     return ctx.project.android?.setVersionName(op.value);
+  } else if (op.id === 'android.versionNameSuffix') {
+    return ctx.project.android?.setVersionNameSuffix(op.value);
   } else if (op.id === 'android.incrementVersionCode') {
     return ctx.project.android?.incrementVersionCode();
   }
@@ -14,5 +16,6 @@ export default async function execute(ctx: Context, op: Operation) {
 export const OPS: OperationMeta = [
   'android.versionCode',
   'android.versionName',
+  'android.versionNameSuffix',
   'android.incrementVersionCode'
 ]

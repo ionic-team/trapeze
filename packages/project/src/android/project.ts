@@ -264,6 +264,14 @@ export class AndroidProject extends PlatformProject {
     return this.appBuildGradle?.getVersionName() ?? Promise.resolve(null);
   }
 
+  setVersionNameSuffix(versionNameSuffix: string) {
+    return this.appBuildGradle?.setVersionNameSuffix(versionNameSuffix);
+  }
+
+  getVersionNameSuffix(): Promise<string | null> {
+    return this.appBuildGradle?.getVersionNameSuffix() ?? Promise.resolve(null);
+  }
+
   /**
    * Add a new file to the given resources directory with the given contents and
    * given file name
