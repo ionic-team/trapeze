@@ -18,7 +18,7 @@ export async function loadHandlers() {
 
   for (const file of files) {
     const ext = extname(file);
-    if (ext !== '.js' && ext !== '.ts') {
+    if (ext !== '.js' && ext !== '.ts' && ext !== '.mjs') {
       continue;
     }
 
