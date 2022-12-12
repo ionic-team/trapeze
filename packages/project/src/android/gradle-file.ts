@@ -51,6 +51,7 @@ export class GradleFile extends VFSStorable {
     }
 
     const found = this.find(pathObject, exact);
+
     if (!found.length) {
       // Create a parent selector object since we're going to insert instead
       const parent = this._makeReplacePathObject(
@@ -535,7 +536,15 @@ export class GradleFile extends VFSStorable {
 
     if (source) {
       Logger.v('gradle', 'setVersionCode', `to ${versionCode} in ${this.filename}`);
-      this.source = source.replace(/(versionCode\s+)\w+/, `$1${versionCode}`);
+      return this.replaceProperties({
+        android: {
+          defaultConfig: {
+            versionCode: {}
+          }
+        }
+      }, {
+        versionCode
+      });
     }
   }
 
@@ -563,7 +572,7 @@ export class GradleFile extends VFSStorable {
       const num = parseInt(versionCode[1]);
       if (!isNaN(num)) {
         Logger.v('gradle', 'incrementVersionCode', `to ${num} in ${this.filename}`);
-        this.source = source.replace(/(versionCode\s+)\w+/, `$1${num + 1}`);
+        return this.setVersionCode(num + 1);
       }
     }
   }
@@ -573,10 +582,15 @@ export class GradleFile extends VFSStorable {
 
     if (source) {
       Logger.v('gradle', 'setVersionName', `to ${versionName} in ${this.filename}`);
-      this.source = source.replace(
-        /(versionName\s+)["'][^"']+["']/,
-        `$1"${versionName}"`,
-      );
+      return this.replaceProperties({
+        android: {
+          defaultConfig: {
+            versionName: {}
+          }
+        }
+      }, {
+        versionName: `"${versionName}"`
+      });
     }
   }
 
@@ -601,12 +615,15 @@ export class GradleFile extends VFSStorable {
     if (source) {
       Logger.v('gradle', 'setVersionNameSuffix', `to ${versionNameSuffix} in ${this.filename}`);
 
-      if (source.indexOf('versionNameSuffix') >= 0) {
-        this.source = source.replace(
-          /(versionName\s+)["'][^"']+["']/,
-          `$1"${versionNameSuffix}"`,
-        );
-      }
+      return this.replaceProperties({
+        android: {
+          defaultConfig: {
+            versionNameSuffix: {}
+          }
+        }
+      }, {
+        versionNameSuffix: `"${versionNameSuffix}"`
+      });
     }
   }
 
