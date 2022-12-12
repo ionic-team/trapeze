@@ -208,8 +208,8 @@ describe('project - android', () => {
     await project.android?.setVersionName('5.0.2');
     expect(await project.android?.getVersionName()).toBe('5.0.2');
 
-    // await project.android?.setVersionNameSuffix('beta');
-    // expect(await project.android?.getVersionNameSuffix()).toBe('beta');
+    await project.android?.setVersionNameSuffix('beta');
+    expect(await project.android?.getVersionNameSuffix()).toBe('beta');
 
     await project.android?.setVersionCode(123);
     expect(await project.android?.getVersionCode()).toBe(123);
@@ -239,6 +239,7 @@ android {
              // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
+        versionNameSuffix "beta"
     }
     buildTypes {
         release {
