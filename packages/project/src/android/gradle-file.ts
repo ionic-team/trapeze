@@ -51,7 +51,6 @@ export class GradleFile extends VFSStorable {
     }
 
     const found = this.find(pathObject, exact);
-    console.log('Replacing properties', pathObject, toReplace, exact);
 
     if (!found.length) {
       // Create a parent selector object since we're going to insert instead
@@ -60,8 +59,6 @@ export class GradleFile extends VFSStorable {
         Object.keys(toReplace)[0],
       );
       const foundParent = this.find(parent, exact);
-
-      console.log('Not found, inserting in', parent, foundParent);
 
       if (foundParent.length) {
         this.insertIntoGradleFile([toReplace], foundParent[0], AndroidGradleInjectType.Infer);
