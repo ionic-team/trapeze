@@ -25,6 +25,8 @@ platforms:
 
 ### `versionName`
 
+Update the `versionName` in `android { defaultConfig {} }` in `app/build.gradle`. To target a different `versionName`, use the generic [gradle](#gradle) operation.
+
 Example:
 
 ```yaml
@@ -35,6 +37,8 @@ platforms:
 
 ### `versionCode`
 
+Update the `versionCode` in `android { defaultConfig {} }` in `app/build.gradle`. To target a different `versionCode`, use the generic [gradle](#gradle) operation.
+
 ```yaml
 platforms:
   android:
@@ -43,12 +47,28 @@ platforms:
 
 ### `incrementVersionCode`
 
-This operation will increment the integer `versionCode` each time. This is useful for auto-incrementing version codes during build, for example.
+This operation will increment the integer `versionCode` in `android { defaultConfig {} }` in `app/build.gradle`. This is useful for auto-incrementing version codes during build, for example.
+
+To target a different `versionCode`, use the generic [gradle](#gradle) operation.
 
 ```yaml
 platforms:
   android:
     incrementVersionCode: true
+```
+
+### `versionNameSuffix`
+
+Since: 6.0.11
+
+Set the `versionNameSuffix` in `android { defaultConfig {} }`.  To target a different `versionNameSuffix`, use the generic [gradle](#gradle) operation.
+
+Example:
+
+```yaml
+platforms:
+  android:
+    versionNameSuffix: "beta"
 ```
 
 ### `packageName`

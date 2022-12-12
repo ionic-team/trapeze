@@ -228,6 +228,8 @@ await project.android?.getVersionName();
 await project.android?.setVersionCode(11);
 await project.android?.getVersionCode();
 await project.android?.incrementVersionCode();
+await project.android?.setVersionNameSuffix('beta');
+await project.android?.getVersionNameSuffix();
 ```
 
 #### Android Manifest
