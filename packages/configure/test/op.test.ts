@@ -43,6 +43,8 @@ describe('operation processing', () => {
         }
       }
 
+      console.log('Got detected', numDetectedOps);
+
       expect(numDetectedOps).toBe(Object.keys(operations).length);
     });
   });

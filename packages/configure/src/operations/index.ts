@@ -15,9 +15,10 @@ export async function loadHandlers() {
   const operations: OperationHandlers = {};
 
   const files = await readdirp(__dirname);
+
   for (const file of files) {
     const ext = extname(file);
-    if (ext !== '.js') {
+    if (ext !== '.js' && ext !== '.ts') {
       continue;
     }
 
