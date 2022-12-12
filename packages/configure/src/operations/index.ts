@@ -1,7 +1,7 @@
 import { lstat, readdirp } from '@ionic/utils-fs';
 import { Context } from '../ctx';
 import { Operation } from '../definitions';
-import { extname } from 'path';
+import { basename, extname } from 'path';
 import { error } from '../util/log';
 
 type OperationHandler = (ctx: Context, op: Operation) => Promise<any>;
@@ -18,7 +18,10 @@ export async function loadHandlers() {
 
   for (const file of files) {
     const ext = extname(file);
-    if (ext !== '.js' && ext !== '.ts' && ext !== '.mjs') {
+
+    // Only load .js, .ts, or .mjs (no .d.ts) files
+    if (basename(file).indexOf('.d.ts') >= 0 ||
+       (ext !== '.js' && ext !== '.ts' && ext !== '.mjs')) {
       continue;
     }
 
