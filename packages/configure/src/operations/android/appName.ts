@@ -1,5 +1,5 @@
 import { Context } from '../../ctx';
-import { AndroidAppNameOperation, Operation } from '../../definitions';
+import { AndroidAppNameOperation, Operation, OperationMeta } from '../../definitions';
 import { logger } from '../../util/log';
 
 export default async function execute(ctx: Context, op: Operation) {
@@ -11,3 +11,7 @@ export default async function execute(ctx: Context, op: Operation) {
     logger.warn(`Unable to set appName: ${(e as any).message}`);
   }
 }
+
+export const OPS: OperationMeta = [
+  'android.appName'
+]

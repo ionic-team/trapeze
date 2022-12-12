@@ -1,5 +1,5 @@
 import { Context } from "../../ctx";
-import { IosXmlOperation, Operation } from "../../definitions";
+import { IosXmlOperation, Operation, OperationMeta } from "../../definitions";
 import { error, logger } from "../../util/log";
 
 export default async function execute(ctx: Context, op: Operation) {
@@ -39,3 +39,7 @@ export default async function execute(ctx: Context, op: Operation) {
     }
   }
 }
+
+export const OPS: OperationMeta = [
+  'ios.xml'
+]

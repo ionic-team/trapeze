@@ -1,6 +1,6 @@
 import { Context } from "../../ctx";
 import { XmlFile } from '@trapezedev/project';
-import { AndroidXmlOperation, Operation } from "../../definitions";
+import { AndroidXmlOperation, Operation, OperationMeta } from "../../definitions";
 import { error } from "../../util/log";
 
 export default async function execute(ctx: Context, op: Operation) {
@@ -44,3 +44,7 @@ export default async function execute(ctx: Context, op: Operation) {
     }
   }
 }
+
+export const OPS: OperationMeta = [
+  'android.xml'
+]

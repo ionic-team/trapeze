@@ -595,6 +595,36 @@ export class GradleFile extends VFSStorable {
     return null;
   }
 
+  async setVersionNameSuffix(versionNameSuffix: string) {
+    const source = await this.getGradleSource();
+
+    if (source) {
+      Logger.v('gradle', 'setVersionNameSuffix', `to ${versionNameSuffix} in ${this.filename}`);
+
+      if (source.indexOf('versionNameSuffix') >= 0) {
+        this.source = source.replace(
+          /(versionName\s+)["'][^"']+["']/,
+          `$1"${versionNameSuffix}"`,
+        );
+      }
+    }
+  }
+
+  async getVersionNameSuffix(): Promise<string | null> {
+    const source = await this.getGradleSource();
+
+    if (source) {
+      const versionName =
+        source.match(/versionNameSuffix\s+["']([^"']+)["']/) || null;
+      if (!versionName) {
+        return null;
+      }
+      return versionName[1];
+    }
+
+    return null;
+  }
+
   /*
   Generate a fragment of Gradle/Groovy code given the inject object
 

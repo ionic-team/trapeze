@@ -1,5 +1,5 @@
 import { Context } from "../../ctx";
-import { AndroidGradleOperation, Operation } from "../../definitions";
+import { AndroidGradleOperation, Operation, OperationMeta } from "../../definitions";
 import { logger } from "../../util/log";
 
 export default async function execute(ctx: Context, op: Operation) {
@@ -23,3 +23,7 @@ export default async function execute(ctx: Context, op: Operation) {
     }
   }
 }
+
+export const OPS: OperationMeta = [
+  'android.gradle'
+]

@@ -1,78 +1,58 @@
-import executeAndroidAppName from './android/appName';
-import executeAndroidPackageName from './android/packageName';
-import executeAndroidGradle from './android/gradle';
-import executeAndroidRes from './android/res';
-import executeAndroidManifest from './android/manifest';
-import executeAndroidVersion from './android/version';
-import executeAndroidXml from './android/xml';
-import executeAndroidJson from './android/json';
-import executeAndroidCopy from './android/copy';
-
-import executeIosProject from './ios/project';
-import executeIosFrameworks from './ios/frameworks';
-import executeIosEntitlements from './ios/entitlements';
-import executeIosPlist from './ios/plist';
-import executeIosBuildVersion from './ios/buildVersion';
-import executeIosBuildSettings from './ios/buildSettings';
-import executeIosXml from './ios/xml';
-import executeIosJson from './ios/json';
-import executeIosCopy from './ios/copy';
-import executeIosStrings from './ios/strings';
-import executeIosXCConfig from './ios/xcconfig';
-
-import executeProjectCopy from './project/copy';
-import executeProjectJson from './project/json';
-import executeProjectXml from './project/xml';
-
+import { lstat, readdirp } from '@ionic/utils-fs';
 import { Context } from '../ctx';
 import { Operation } from '../definitions';
+import { extname } from 'path';
+import { error } from '../util/log';
 
 type OperationHandler = (ctx: Context, op: Operation) => Promise<any>;
 
-interface OperationHandlers {
+export interface OperationHandlers {
   [id: string]: OperationHandler;
 }
 
-const operations: OperationHandlers = {
-  'project.json': executeProjectJson,
-  'project.xml': executeProjectXml,
-  'project.copy': executeProjectCopy,
-  'ios.plist': executeIosPlist,
-  'ios.bundleId': executeIosProject,
-  'ios.displayName': executeIosProject,
-  'ios.productName': executeIosProject,
-  'ios.version': executeIosBuildVersion,
-  'ios.buildNumber': executeIosBuildVersion,
-  'ios.incrementBuild': executeIosBuildVersion,
-  'ios.buildSettings': executeIosBuildSettings,
-  'ios.frameworks': executeIosFrameworks,
-  'ios.entitlements': executeIosEntitlements,
-  'ios.build.gradle': executeAndroidGradle,
-  'ios.xml': executeIosXml,
-  'ios.json': executeIosJson,
-  'ios.copy': executeIosCopy,
-  'ios.strings': executeIosStrings,
-  'ios.xcconfig': executeIosXCConfig,
-  'android.appName': executeAndroidAppName,
-  'android.manifest': executeAndroidManifest,
-  'android.res': executeAndroidRes,
-  'android.gradle': executeAndroidGradle,
-  'android.packageName': executeAndroidPackageName,
-  'android.versionName': executeAndroidVersion,
-  'android.versionCode': executeAndroidVersion,
-  'android.incrementVersionCode': executeAndroidVersion,
-  'android.json': executeAndroidJson,
-  'android.xml': executeAndroidXml,
-  'android.copy': executeAndroidCopy,
-};
 
-export function isOpRegistered(opName: string) {
+export async function loadHandlers() {
+  const operations: OperationHandlers = {};
+
+  const files = await readdirp(__dirname);
+
+  for (const file of files) {
+    const ext = extname(file);
+    if (ext !== '.js' && ext !== '.ts' && ext !== '.mjs') {
+      continue;
+    }
+
+    const stat = await lstat(file);
+    if (stat.isDirectory()) {
+      continue;
+    }
+
+    try {
+      const f = await import(file);
+
+      const meta = f.OPS;
+
+      if (meta) {
+        for (const id of meta) {
+          operations[id] = f.default;
+        }
+      }
+    } catch (e) {
+      error('Unable to import operation JS file', e);
+    }
+  }
+
+  return operations;
+}
+
+
+export function isOpRegistered(operations: OperationHandlers, opName: string) {
   return opName in operations;
 }
 
 const enabled: string[] | null = null; //['ios.plist'];
 
-export function runOperation(ctx: Context, op: Operation) {
+export function runOperation(ctx: Context, operations: OperationHandlers, op: Operation) {
   const handler = operations[op.id];
 
   if (enabled !== null && !enabled.find((e: string) => e === op.id)) {
@@ -84,8 +64,4 @@ export function runOperation(ctx: Context, op: Operation) {
   } else {
     return Promise.reject(`No handler for operation ${op.id}`);
   }
-}
-
-export function hasHandler(op: Operation) {
-  return !!operations[op.id];
 }

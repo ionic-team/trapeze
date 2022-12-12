@@ -1,5 +1,5 @@
 import { Context } from '../../ctx';
-import { IosXCConfigOperation, Operation } from '../../definitions';
+import { IosXCConfigOperation, Operation, OperationMeta } from '../../definitions';
 import { XCConfigFile } from '@trapezedev/project';
 
 export default async function execute(ctx: Context, op: Operation) {
@@ -30,3 +30,7 @@ export default async function execute(ctx: Context, op: Operation) {
     }
   }
 }
+
+export const OPS: OperationMeta = [
+  'ios.xcconfig'
+]

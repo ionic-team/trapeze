@@ -3,7 +3,7 @@ import { VFS, XmlFile } from '@trapezedev/project';
 import { join } from 'path';
 
 import { Context } from "../../ctx";
-import { XmlOperation, Operation } from "../../definitions";
+import { XmlOperation, Operation, OperationMeta } from "../../definitions";
 import { error } from '../../util/log';
 
 function getXmlFile(path: string, vfs: VFS) {
@@ -48,3 +48,7 @@ export default async function execute(ctx: Context, op: Operation) {
     }
   }
 }
+
+export const OPS: OperationMeta = [
+  'project.xml'
+]

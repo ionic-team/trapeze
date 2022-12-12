@@ -208,6 +208,9 @@ describe('project - android', () => {
     await project.android?.setVersionName('5.0.2');
     expect(await project.android?.getVersionName()).toBe('5.0.2');
 
+    // await project.android?.setVersionNameSuffix('beta');
+    // expect(await project.android?.getVersionNameSuffix()).toBe('beta');
+
     await project.android?.setVersionCode(123);
     expect(await project.android?.getVersionCode()).toBe(123);
     expect(await project.android?.getVersionName()).toBe('5.0.2');

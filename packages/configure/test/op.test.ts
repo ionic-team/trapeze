@@ -1,12 +1,52 @@
 import { Context, loadContext } from '../src/ctx';
 import { loadYamlConfig } from '../src/yaml-config';
 import { processOperations } from '../src/op';
+import { loadHandlers } from '../src/operations';
 import { Operation } from '../src/definitions';
+import { lstat, readdirp } from '@ionic/utils-fs';
+
+import { join } from 'path';
 
 describe('operation processing', () => {
   let ctx: Context;
   beforeEach(async () => {
     ctx = await loadContext('../common/test/fixtures');
+  });
+
+  describe('Loader', () => {
+    // Verify that all the operations are loading correctly
+    it('should load dynamic operations', async () => {
+      const operations = await loadHandlers();
+      const opFiles = await readdirp('./src/operations');
+      let numDetectedOps = 0;
+
+      for (const file of opFiles) {
+        const s = await lstat(file);
+        if (s.isDirectory()) {
+          continue;
+        }
+
+        try {
+          const f = await import(join('../', file));
+
+          const meta = f.OPS;
+
+          console.log(meta);
+
+          if (meta) {
+            for (const _ of meta) {
+              numDetectedOps++;
+            }
+          }
+        } catch (e) {
+          console.error('Unable to import', e);
+        }
+      }
+
+      console.log('Got detected', numDetectedOps);
+
+      expect(numDetectedOps).toBe(Object.keys(operations).length);
+    });
   });
 
   describe('Project', () => {

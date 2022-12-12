@@ -3,7 +3,6 @@ import { StringsFile } from '@trapezedev/project';
 import { join } from 'path';
 import tempy from 'tempy';
 
-import { isOpRegistered } from '../../src/operations';
 import { Context, loadContext } from '../../src/ctx';
 import { IosStringsOperation, Operation } from '../../src/definitions';
 import Op from '../../src/operations/ios/strings';
@@ -19,10 +18,6 @@ describe('op: ios.strings', () => {
 
     ctx = await loadContext(dir);
     ctx.args.quiet = true;
-  });
-
-  it('should register ios.strings', async () => {
-    expect(isOpRegistered('ios.strings')).toBe(true);
   });
 
   it('should set ios.strings', async () => {

@@ -1,5 +1,5 @@
 import { Context } from '../../ctx';
-import { IosCopyOperation, Operation } from '../../definitions';
+import { IosCopyOperation, Operation, OperationMeta } from '../../definitions';
 import { logger } from '../../util/log';
 
 export default async function execute(ctx: Context, op: Operation) {
@@ -16,3 +16,7 @@ export default async function execute(ctx: Context, op: Operation) {
 
   return [];
 }
+
+export const OPS: OperationMeta = [
+  'ios.copy'
+]

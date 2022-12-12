@@ -1,5 +1,5 @@
 import { Context } from '../../ctx';
-import { AndroidManifestOperation, Operation } from '../../definitions';
+import { AndroidManifestOperation, Operation, OperationMeta } from '../../definitions';
 
 export default async function execute(ctx: Context, op: Operation) {
   const manifestOp = op as AndroidManifestOperation;
@@ -22,3 +22,7 @@ export default async function execute(ctx: Context, op: Operation) {
     }
   }
 }
+
+export const OPS: OperationMeta = [
+  'android.manifest'
+]

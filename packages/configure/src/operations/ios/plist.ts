@@ -1,5 +1,5 @@
 import { Context } from '../../ctx';
-import { IosPlistOperationValue, Operation } from '../../definitions';
+import { IosPlistOperationValue, Operation, OperationMeta } from '../../definitions';
 import { logger } from '../../util/log';
 
 export default async function execute(ctx: Context, op: Operation) {
@@ -46,3 +46,7 @@ export default async function execute(ctx: Context, op: Operation) {
     }
   }
 }
+
+export const OPS: OperationMeta = [
+  'ios.plist'
+]
