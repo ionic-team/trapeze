@@ -47,7 +47,7 @@ describe('context and capacitor project loading', () => {
 
     expect(ctx.vars).toMatchObject({
       'THING': {
-        value: '0'
+        value: 0
       }
     });
   });
