@@ -3,7 +3,7 @@ import { join } from 'path';
 import { hideBin } from 'yargs/helpers';
 
 import { loadProject } from './project';
-import { MobileProject } from '@trapezedev/project';
+import { Logger, MobileProject } from '@trapezedev/project';
 import { log, warn } from './util/log';
 
 export interface Context {
@@ -109,10 +109,13 @@ export function initVarsFromEnv(ctx: Context, vars: Variables) {
     let existing = process.env[v];
     try {
       existing = existing && JSON.parse(existing!);
+      if (typeof existing !== 'undefined') {
+        Logger.v('env', 'loadEnvVars', `Loaded env var ${v} as JSON value`);
+      }
     } catch (e) {
-      warn(`Unable to parse environment variable ${v} as JSON, processing as string instead`);
+      Logger.v('env', 'loadEnvVars', `Loaded env var ${v} as string`);
     } finally {
-      if (existing) {
+      if (typeof existing !== 'undefined') {
         ctx.vars[v] = {
           value: existing,
         };
