@@ -18,6 +18,15 @@ export interface Context {
 
 export interface Variable {
   value: string;
+  defaultValue?: any;
+  type?: VariableType;
+}
+
+export const enum VariableType {
+  String = "string",
+  Number = "number",
+  Array = "array",
+  Object = "object"
 }
 
 export interface Variables {

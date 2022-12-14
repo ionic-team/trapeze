@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { Context, initVarsFromEnv, loadContext, Variables } from '../src/ctx';
+import { Context, initVarsFromEnv, loadContext, Variables, VariableType } from '../src/ctx';
 
 describe('context and capacitor project loading', () => {
   const OLD_ENV = process.env;
@@ -39,7 +39,8 @@ describe('context and capacitor project loading', () => {
     process.env.THING = '0';
     const vars: Variables = {
       'THING': {
-        value: '0'
+        value: '0',
+        type: VariableType.Number
       }
     }
 
@@ -47,7 +48,8 @@ describe('context and capacitor project loading', () => {
 
     expect(ctx.vars).toMatchObject({
       'THING': {
-        value: 0
+        value: 0,
+        type: VariableType.Number
       }
     });
   });

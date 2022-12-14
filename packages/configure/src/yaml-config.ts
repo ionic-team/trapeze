@@ -5,7 +5,7 @@ import { clone, each } from 'lodash';
 import { readFile } from '@ionic/utils-fs';
 
 import { logPrompt } from './util/cli';
-import { Context, str } from './ctx';
+import { Context, str, Variables } from './ctx';
 import c from './colors';
 import { initVarsFromEnv } from './ctx';
 import { warn } from './util/log';
@@ -26,7 +26,7 @@ export async function loadYamlConfig(
     process.exit(0);
   }
 
-  await initVarsFromEnv(ctx, parsed.vars);
+  await initVarsFromEnv(ctx, parsed.vars as Variables);
 
   await ensureVars(ctx, parsed);
 
