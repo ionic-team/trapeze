@@ -1,5 +1,23 @@
 # @trapezedev/configure
 
+## 6.0.12
+
+### Patch Changes
+
+- Added support for versionNameSuffix on Android, falsy check for env vars, dynamic op loading
+- Updated dependencies
+  - @trapezedev/project@6.0.12
+
+## 6.0.11
+
+### Patch Changes
+
+- Exit pre
+- 066810b: Pre-release for testing dynamic ops and env var loading changes
+- Updated dependencies
+- Updated dependencies [066810b]
+  - @trapezedev/project@6.0.11
+
 ## 6.0.11-next.0
 
 ### Patch Changes
