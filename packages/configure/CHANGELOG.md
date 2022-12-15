@@ -1,5 +1,13 @@
 # @trapezedev/configure
 
+## 6.0.11-next.0
+
+### Patch Changes
+
+- Pre-release for testing dynamic ops and env var loading changes
+- Updated dependencies
+  - @trapezedev/project@6.0.11-next.0
+
 ## 6.0.10
 
 ### Patch Changes
