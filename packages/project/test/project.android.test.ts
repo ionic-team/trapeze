@@ -43,6 +43,10 @@ describe('project - android', () => {
     expect(project.android?.getMainActivityFilename()).toBe('MainActivity.java');
   });
 
+  it('should get gradle plugin version', async () => {
+    expect(await project.android?.getGradlePluginVersion()).toBe('7.2.1');
+  });
+
   it('should get package name', async () => {
     expect(await project.android?.getPackageName()).toBe('io.ionic.starter');
   });

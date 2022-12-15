@@ -240,6 +240,19 @@ export class AndroidProject extends PlatformProject {
     return `${parts[parts.length - 1]}.java`;
   }
 
+  async getGradlePluginVersion() {
+    await this.buildGradle?.parse();
+
+    const found = this.buildGradle?.find({
+      buildscript: {
+        dependencies: {
+        }
+      }
+    });
+
+    return '';
+  }
+
   async getPackageName() {
     const namespace = await this.appBuildGradle?.getNamespace();
 
