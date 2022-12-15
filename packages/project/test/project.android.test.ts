@@ -43,10 +43,15 @@ describe('project - android', () => {
     expect(project.android?.getMainActivityFilename()).toBe('MainActivity.java');
   });
 
+  it('should get package name', async () => {
+    expect(await project.android?.getPackageName()).toBe('io.ionic.starter');
+  });
+
   it('should set package name', async () => {
     await project.android?.setPackageName('com.ionicframework.awesome');
-    expect(project.android?.getPackageName()).toBe('com.ionicframework.awesome');
+    expect(await project.android?.getPackageName()).toBe('com.ionicframework.awesome');
     expect(await project.android?.getAppBuildGradle()?.getApplicationId()).toBe('com.ionicframework.awesome');
+    expect(await project.android?.getAppBuildGradle()?.getNamespace()).toBe('com.ionicframework.awesome');
     const newSource = await readFile(join(project.config.android?.path!, 'app/src/main/java/com/ionicframework/awesome/MainActivity.java'), { encoding: 'utf-8' });
     expect(newSource.indexOf('package com.ionicframework.awesome;')).toBe(0);
     expect(!(await pathExists(join(project.config.android?.path!, 'app/src/main/java/io')))).toBe(true);
@@ -55,14 +60,14 @@ describe('project - android', () => {
   });
 
   it('should not error setting same package name', async () => {
-    const packageName = project.android?.getPackageName();
+    const packageName = await project.android?.getPackageName();
     await project.android?.setPackageName(packageName!);
-    expect(project.android?.getPackageName()).toBe(packageName);
+    expect(await project.android?.getPackageName()).toBe(packageName);
   });
 
   it('should set package name longer than current package', async () => {
     await project.android?.setPackageName('com.ionicframework.awesome.long');
-    expect(project.android?.getPackageName()).toBe('com.ionicframework.awesome.long');
+    expect(await project.android?.getPackageName()).toBe('com.ionicframework.awesome.long');
     expect(await project.android?.getAppBuildGradle()?.getApplicationId()).toBe('com.ionicframework.awesome.long');
     const newSource = await readFile(join(project.config.android?.path!, 'app/src/main/java/com/ionicframework/awesome/long/MainActivity.java'), { encoding: 'utf-8' });
     expect(newSource.indexOf('package com.ionicframework.awesome.long;')).toBe(0);
@@ -73,7 +78,7 @@ describe('project - android', () => {
 
   it('should set package name shorter than current package', async () => {
     await project.android?.setPackageName('com.super');
-    expect(project.android?.getPackageName()).toBe('com.super');
+    expect(await project.android?.getPackageName()).toBe('com.super');
     expect(await project.android?.getAppBuildGradle()?.getApplicationId()).toBe('com.super');
     const newSource = await readFile(join(project.config.android?.path!, 'app/src/main/java/com/super/MainActivity.java'), { encoding: 'utf-8' });
     expect(newSource.indexOf('package com.super;')).toBe(0);

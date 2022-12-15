@@ -240,7 +240,11 @@ export class AndroidProject extends PlatformProject {
     return `${parts[parts.length - 1]}.java`;
   }
 
-  getPackageName() {
+  async getPackageName() {
+    const namespace = await this.appBuildGradle?.getNamespace();
+
+    console.log('Found namespace', namespace);
+
     return this.manifest.getDocumentElement()?.getAttribute('package');
   }
 

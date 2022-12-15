@@ -642,6 +642,40 @@ export class GradleFile extends VFSStorable {
     return null;
   }
 
+  async getNamespace(): Promise<string | null> {
+    const source = await this.getGradleSource();
+
+    if (source) {
+      const namespace = source.match(/namespace\s+["']([^"']+)["']/);
+
+      if (!namespace) {
+        return null;
+      }
+
+      return namespace[1];
+    }
+    return null;
+  }
+
+  async setNamespace(namespace: string) {
+    const source = await this.getGradleSource();
+
+    if (source) {
+      Logger.v('gradle', 'setNamespace', `to ${namespace} in ${this.filename}`);
+
+      return this.replaceProperties({
+        android: {
+          defaultConfig: {
+            versionNameSuffix: {}
+          }
+        }
+      }, {
+        namespace: `"${namespace}"`
+      });
+    }
+  }
+
+
   /*
   Generate a fragment of Gradle/Groovy code given the inject object
 
