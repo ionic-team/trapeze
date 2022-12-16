@@ -246,11 +246,16 @@ export class AndroidProject extends PlatformProject {
     const found = this.buildGradle?.find({
       buildscript: {
         dependencies: {
+          classpath: {}
         }
       }
     });
 
-    return '';
+    const sources = (found ?? []).map(f => this.buildGradle?.getSource(f.node) ?? '');
+
+    const gradleLine = sources.find(s => s.indexOf('com.android.tools.build:gradle:'));
+
+    return gradleLine?.match(/:([\d.]+)/)?.[1] ?? null;
   }
 
   async getPackageName() {

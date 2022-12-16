@@ -44,7 +44,7 @@ describe('project - android', () => {
   });
 
   it('should get gradle plugin version', async () => {
-    expect(await project.android?.getGradlePluginVersion()).toBe('7.2.1');
+    expect(await project.android?.getGradlePluginVersion()).toBe('4.2.1');
   });
 
   it('should get package name', async () => {
