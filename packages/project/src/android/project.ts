@@ -20,6 +20,7 @@ import { PropertiesFile } from '../properties';
 import { PlatformProject } from '../platform-project';
 import { readSource } from '../read-src';
 import { Logger } from '../logger';
+import { compare } from '../util/gradle-versions';
 
 export class AndroidProject extends PlatformProject {
   private manifest: XmlFile;
@@ -261,7 +262,9 @@ export class AndroidProject extends PlatformProject {
   async getPackageName() {
     const namespace = await this.appBuildGradle?.getNamespace();
 
-    console.log('Found namespace', namespace);
+    if (namespace) {
+      return namespace;
+    }
 
     return this.manifest.getDocumentElement()?.getAttribute('package');
   }
