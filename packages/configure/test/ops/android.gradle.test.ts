@@ -18,7 +18,7 @@ const makeOp = (name: string, value: any): Operation => ({
   displayText: expect.anything(),
 });
 
-describe('op: android.gralde', () => {
+describe('op: android.gradle', () => {
   let dir: string;
   let ctx: Context;
 
@@ -55,6 +55,7 @@ describe('op: android.gralde', () => {
 apply plugin: 'com.android.application'
 
 android {
+    namespace "io.ionic.starter"
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
         applicationId "io.ionic.starter"

@@ -104,7 +104,7 @@ export class GradleFile extends VFSStorable {
    */
   // This is a beast, sorry. Hey, at least there's tests
   // In the future, this could be moved to the Java `gradle-parse` package provided in this monorepo
-  // along with modifying the AST to inject our script but this works fine forn ow
+  // along with modifying the AST to inject our script but this works fine for now
   private async replaceInGradleFile(
     toInject: any,
     targetNode: { node: GradleASTNode; depth: number },
@@ -441,6 +441,27 @@ export class GradleFile extends VFSStorable {
     }
   }
 
+  getSource(node: GradleASTNode) {
+    if (!this.parsed || !this.source) {
+      throw new Error('Call parse() first to load Gradle file');
+    }
+
+    const lines = this.source.split(/\r?\n/);
+
+    const sourceLines = lines.slice(node.source.line - 1, node.source.lastLine);
+
+    const firstLine = sourceLines[0].slice(Math.max(0, node.source.column - 1));
+    const lastLine = sourceLines[sourceLines.length - 1].slice(0, node.source.lastColumn);
+
+    if (sourceLines.length > 2) {
+      return [firstLine, ...sourceLines.slice(1, sourceLines.length - 1), lastLine].join('\n');
+    } else if (sourceLines.length == 2) {
+      return [firstLine, lastLine].join('\n');
+    } else {
+      return firstLine;
+    }
+  }
+
   private getDepth(pathObject: any) {
     let depth = 0;
     let n = pathObject;
@@ -641,6 +662,38 @@ export class GradleFile extends VFSStorable {
 
     return null;
   }
+
+  async getNamespace(): Promise<string | null> {
+    const source = await this.getGradleSource();
+
+    if (source) {
+      const namespace = source.match(/namespace\s+["']([^"']+)["']/);
+
+      if (!namespace) {
+        return null;
+      }
+
+      return namespace[1];
+    }
+    return null;
+  }
+
+  async setNamespace(namespace: string) {
+    const source = await this.getGradleSource();
+
+    if (source) {
+      Logger.v('gradle', 'setNamespace', `to ${namespace} in ${this.filename}`);
+
+      return this.replaceProperties({
+        android: {
+          namespace: {}
+        }
+      }, {
+        namespace: `"${namespace}"`
+      });
+    }
+  }
+
 
   /*
   Generate a fragment of Gradle/Groovy code given the inject object

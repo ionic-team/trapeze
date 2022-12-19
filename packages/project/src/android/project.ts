@@ -20,6 +20,7 @@ import { PropertiesFile } from '../properties';
 import { PlatformProject } from '../platform-project';
 import { readSource } from '../read-src';
 import { Logger } from '../logger';
+import { compare } from '../util/gradle-versions';
 
 export class AndroidProject extends PlatformProject {
   private manifest: XmlFile;
@@ -168,6 +169,7 @@ export class AndroidProject extends PlatformProject {
 
     this.manifest.getDocumentElement()?.setAttribute('package', packageName);
     await this.appBuildGradle?.setApplicationId(packageName);
+    await this.appBuildGradle?.setNamespace(packageName);
     Logger.v('android', 'setPackageName', `set manifest package attribute and applicationId to ${packageName}`);
     this.manifest.setAttrs('manifest/application/activity', {
       'android:name': `${packageName}.MainActivity`,
@@ -240,7 +242,31 @@ export class AndroidProject extends PlatformProject {
     return `${parts[parts.length - 1]}.java`;
   }
 
-  getPackageName() {
+  async getGradlePluginVersion() {
+    await this.buildGradle?.parse();
+
+    const found = this.buildGradle?.find({
+      buildscript: {
+        dependencies: {
+          classpath: {}
+        }
+      }
+    });
+
+    const sources = (found ?? []).map(f => this.buildGradle?.getSource(f.node) ?? '');
+
+    const gradleLine = sources.find(s => s.indexOf('com.android.tools.build:gradle:'));
+
+    return gradleLine?.match(/:([\d.]+)/)?.[1] ?? null;
+  }
+
+  async getPackageName() {
+    const namespace = await this.appBuildGradle?.getNamespace();
+
+    if (namespace) {
+      return namespace;
+    }
+
     return this.manifest.getDocumentElement()?.getAttribute('package');
   }
 

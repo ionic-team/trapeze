@@ -61,6 +61,45 @@ describe('project - android - gradle', () => {
     expect(nodes.length).not.toBe(0);
   });
 
+  it('Should get source code for found node', async () => {
+    const gradle = new GradleFile(
+      join(project.config.android!.path!, 'build.gradle'),
+      vfs,
+    );
+    await gradle.parse();
+
+    let nodes = gradle.find({
+      buildscript: {
+        dependencies: {
+          classpath: {}
+        },
+      },
+    });
+
+    let source = gradle.getSource(nodes[0].node);
+
+    expect(source).toBe("classpath 'com.android.tools.build:gradle:4.2.1'");
+
+    nodes = gradle.find({
+      buildscript: {
+        dependencies: {
+        },
+      },
+    });
+
+    source = gradle.getSource(nodes[0].node);
+
+    expect(source).toBe(`
+    dependencies {
+        classpath 'com.android.tools.build:gradle:4.2.1'
+        classpath 'com.google.gms:google-services:4.3.5'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+`.trim());
+  });
+
   it('Should find exact element in parsed Gradle', async () => {
     const gradle = new GradleFile(join(project.config.android!.path!, 'build.gradle'), vfs);
     await gradle.parse();
@@ -547,5 +586,20 @@ intunemam {
     androidxEspressoCoreVersion = '3.3.0'
     cordovaAndroidVersion = '7.0.0'
 }`);
+  });
+
+  it('Should get and set namespace', async () => {
+    const gradle = new GradleFile(
+      join(project.config.android!.path!, 'app', 'build.gradle'),
+      vfs,
+    );
+
+    let namespace = await gradle.getNamespace();
+    expect(namespace).toBe('io.ionic.starter');
+
+    await gradle.setNamespace('io.ionic.test');
+
+    namespace = await gradle.getNamespace();
+    expect(namespace).toBe('io.ionic.test');
   });
 });
