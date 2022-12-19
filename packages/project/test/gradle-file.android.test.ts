@@ -587,4 +587,19 @@ intunemam {
     cordovaAndroidVersion = '7.0.0'
 }`);
   });
+
+  it('Should get and set namespace', async () => {
+    const gradle = new GradleFile(
+      join(project.config.android!.path!, 'app', 'build.gradle'),
+      vfs,
+    );
+
+    let namespace = await gradle.getNamespace();
+    expect(namespace).toBe('io.ionic.starter');
+
+    await gradle.setNamespace('io.ionic.test');
+
+    namespace = await gradle.getNamespace();
+    expect(namespace).toBe('io.ionic.test');
+  });
 });

@@ -686,9 +686,7 @@ export class GradleFile extends VFSStorable {
 
       return this.replaceProperties({
         android: {
-          defaultConfig: {
-            versionNameSuffix: {}
-          }
+          namespace: {}
         }
       }, {
         namespace: `"${namespace}"`
