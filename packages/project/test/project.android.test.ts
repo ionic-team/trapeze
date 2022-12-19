@@ -235,6 +235,7 @@ describe('project - android', () => {
     expect(appBuildGradleSource!.getData()?.getDocument()).toBe(`apply plugin: 'com.android.application'
 
 android {
+    namespace "io.ionic.starter"
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
         applicationId "io.ionic.starter"

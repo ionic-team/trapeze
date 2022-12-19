@@ -169,6 +169,7 @@ export class AndroidProject extends PlatformProject {
 
     this.manifest.getDocumentElement()?.setAttribute('package', packageName);
     await this.appBuildGradle?.setApplicationId(packageName);
+    await this.appBuildGradle?.setNamespace(packageName);
     Logger.v('android', 'setPackageName', `set manifest package attribute and applicationId to ${packageName}`);
     this.manifest.setAttrs('manifest/application/activity', {
       'android:name': `${packageName}.MainActivity`,
