@@ -1,5 +1,16 @@
 # @trapezedev/configure
 
+## 7.0.0
+
+### Major Changes
+
+- Added support for android namespace
+
+### Patch Changes
+
+- Updated dependencies
+  - @trapezedev/project@7.0.0
+
 ## 6.0.12
 
 ### Patch Changes
