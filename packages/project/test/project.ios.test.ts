@@ -1,7 +1,7 @@
 import tempy from 'tempy';
 import { join } from 'path';
 import { copy, pathExists, readFile, rm } from '@ionic/utils-fs';
-import { MobileProject } from '../src';
+import { MobileProject, StringsFile, XCConfigFile, XmlFile } from '../src';
 import { MobileProjectConfig } from '../src/config';
 import { PlistFile } from '../src/plist';
 
@@ -381,6 +381,43 @@ describe('project - ios standard', () => {
     const destContents = await readFile(dest);
     expect(destContents.length).toBeGreaterThan(0);
   });
+
+  it('should add source files when committing', async () => {
+    const stringsFile = project.ios?.getProjectFile<StringsFile>(
+        "NewStrings.strings",
+        (filename: string) => new StringsFile(filename, project.vfs)
+      );
+    await stringsFile?.load();
+
+    const xcconfigFile = project.ios?.getProjectFile<XCConfigFile>(
+        "NewConfig.xcconfig",
+        (filename: string) => new XCConfigFile(filename, project.vfs)
+      );
+    await xcconfigFile?.load();
+
+    const plistFile = project.ios?.getProjectFile<PlistFile>(
+        "NewPlist.plist",
+        (filename: string) => new PlistFile(filename, project.vfs)
+      );
+    await plistFile?.load();
+
+    /*
+    const xmlFile = project.ios?.getProjectFile<XmlFile>(
+        "NewXml.xml",
+        (filename: string) => new XmlFile(filename, project.vfs)
+      );
+    await xmlFile?.load();
+    */
+
+    await project.commit();
+
+    const pbx = project.ios?.getPbxProject();
+    expect(!!pbx?.hasFile('NewStrings.strings')).toBe(true);
+    expect(!!pbx?.hasFile('NewConfig.xcconfig')).toBe(true);
+    expect(!!pbx?.hasFile('NewPlist.plist')).toBe(true);
+    // expect(!!pbx?.hasFile('NewXml.xml')).toBe(true);
+  });
+
 });
 
 describe('ios - no info plist case', () => {

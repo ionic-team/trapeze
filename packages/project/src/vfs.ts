@@ -1,4 +1,5 @@
 import * as Diff from 'diff';
+import { MobileProject } from './project';
 
 export interface VFSDiff {
   file?: VFSFile;
@@ -21,7 +22,7 @@ export class VFSRef<T extends VFSStorable> {
   constructor(
     private filename: string,
     private data: T | null,
-    private commitFn: (file: VFSFile) => Promise<void>,
+    private commitFn: (file: VFSFile, project: MobileProject) => Promise<void>,
     private diffFn?: (file: VFSFile) => Promise<VFSDiff>,
   ) {}
 
@@ -42,8 +43,8 @@ export class VFSRef<T extends VFSStorable> {
     this.modified = true;
   }
 
-  commit(): Promise<void> {
-    return this.commitFn(this);
+  commit(project: MobileProject): Promise<void> {
+    return this.commitFn(this, project);
   }
 
   async diff(): Promise<VFSDiff> {
@@ -70,7 +71,7 @@ export class VFS {
   open<T extends VFSStorable>(
     filename: string,
     data: T,
-    commitFn: (file: VFSFile) => Promise<void>,
+    commitFn: (file: VFSFile, project: MobileProject) => Promise<void>,
     diffFn?: (file: VFSFile) => Promise<VFSDiff>,
   ) {
     const ref = new VFSRef(filename, data, commitFn, diffFn);
@@ -93,8 +94,8 @@ export class VFS {
     }, {} as { [key: string]: VFSFile });
   }
 
-  async commitAll() {
-    await Promise.all(Object.values(this.openFiles).map(file => file.commit()));
+  async commitAll(project: MobileProject) {
+    await Promise.all(Object.values(this.openFiles).map(file => file.commit(project)));
   }
 
   async diffAll() {

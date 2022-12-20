@@ -518,6 +518,29 @@ export class IosProject extends PlatformProject {
     return copy(srcPath, destPath);
   }
 
+  /**
+   * Add a source file to the project. this attemps to add the file
+   * to the main "app" target, or adds it to the empty group (i.e. the root of
+   * the project tree) if the app target can't be found.
+   */
+  async addFile(path: string): Promise<void> {
+    const groups = this.pbxProject?.hash.project.objects['PBXGroup'] ?? [];
+    const emptyGroup = Object.entries(groups).find(([key, value]: [string, any]) => {
+      return value.isa === 'PBXGroup' && typeof value.name === 'undefined'
+    });
+
+    const appTarget = this.getAppTargetName();
+    const appGroup = Object.entries(groups).find(([key, value]: [string, any]) => {
+      return value.isa === 'PBXGroup' && (value.name === appTarget || value.path === appTarget);
+    });
+
+    if (appGroup) {
+      this.pbxProject?.addSourceFile(path, {}, appGroup?.[0]);
+    } else {
+      this.pbxProject?.addSourceFile(path, {}, emptyGroup?.[0]);
+    }
+  }
+
   private async assertEntitlementsFile(targetName: IosTargetName, buildName: IosBuildName | null) {
     let file = this.getEntitlementsFile(targetName, buildName ?? undefined);
 

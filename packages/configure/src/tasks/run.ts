@@ -87,7 +87,7 @@ async function checkModifiedFiles(ctx: Context) {
   Object.keys(files).map(k => {
     const file = files[k];
     log(c.log.WARN(c.strong(`updated`)), file.getFilename());
-    const diff = diffs.find(d => d.file === file);
+    const diff = diffs.find((d: any) => d.file === file);
     if (diff && ctx.args.diff) {
       printDiff(diff);
     }
@@ -110,12 +110,12 @@ async function checkModifiedFiles(ctx: Context) {
     );
 
     if (answers.apply) {
-      return ctx.project.vfs.commitAll();
+      return ctx.project.vfs.commitAll(ctx.project);
     } else {
       log('Not applying changes. Exiting');
     }
   } else if (!ctx.args.dryRun && ctx.args.y) {
     logger.info('-y provided, automatically applying configuration');
-    return ctx.project.vfs.commitAll();
+    return ctx.project.vfs.commitAll(ctx.project);
   }
 }
