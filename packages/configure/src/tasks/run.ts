@@ -110,7 +110,7 @@ async function checkModifiedFiles(ctx: Context) {
     );
 
     if (answers.apply) {
-      return ctx.project.vfs.commitAll();
+      return ctx.project.vfs.commitAll(ctx.project);
     } else {
       log('Not applying changes. Exiting');
     }

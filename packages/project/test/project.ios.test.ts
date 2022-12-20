@@ -1,7 +1,7 @@
 import tempy from 'tempy';
 import { join } from 'path';
 import { copy, pathExists, readFile, rm } from '@ionic/utils-fs';
-import { MobileProject } from '../src';
+import { MobileProject, StringsFile } from '../src';
 import { MobileProjectConfig } from '../src/config';
 import { PlistFile } from '../src/plist';
 
@@ -413,6 +413,22 @@ describe('ios - no info plist case', () => {
     const plistContents = await readFile(plistPath, { encoding: 'utf-8' });
     expect(plistContents.indexOf('NSFaceIDUsageDescription') >= 0);
   });
+
+  it('should add source files when committing', async () => {
+    const stringsFile = project.ios?.getProjectFile<StringsFile>(
+        "NewStrings.strings",
+        (filename: string) => new StringsFile(filename, project.vfs)
+      );
+      
+    await stringsFile?.load();
+
+    await project.commit();
+
+    const pbx = project.ios?.getPbxProject();
+    const appGroup = pbx?.pbxGroupByName('App');
+    expect(!!pbx?.hasFile('NewStrings.strings')).toBe(true);
+  });
+
 });
 
 describe('ios - empty template case', () => {

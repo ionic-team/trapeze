@@ -76,7 +76,7 @@ export class MobileProject {
   }
 
   commit(): Promise<void> {
-    return this.vfs.commitAll();
+    return this.vfs.commitAll(this);
   }
 
   async copyFile(src: string, dest: string): Promise<void> {

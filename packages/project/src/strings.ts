@@ -1,5 +1,7 @@
 import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
+import { relative } from 'path';
 import { Logger } from './logger';
+import { MobileProject } from './project';
 import { assertParentDirs } from './util/fs';
 import { generateStrings, parseStrings, StringsEntries } from './util/strings';
 import { VFS, VFSFile, VFSStorable } from './vfs';
@@ -90,10 +92,17 @@ export class StringsFile extends VFSStorable {
     return parseStrings(contents);
   }
 
-  private commitFn = async (file: VFSFile) => {
+  private commitFn = async (file: VFSFile, project: MobileProject) => {
     const f = file.getData() as StringsFile;
     const src = generateStrings(f.doc);
     await assertParentDirs(file.getFilename());
-    return writeFile(file.getFilename(), src);
+    const shouldAdd = !(await pathExists(this.path));
+    console.log('STRINGS COMMIT', shouldAdd);
+    await writeFile(file.getFilename(), src);
+    if (shouldAdd) {
+      const rel = relative(project.config.ios?.path ?? '', this.path);
+      console.log('Adding strings file', rel);
+      const newFile = project.ios?.addFile(rel);
+    }
   }
 }
