@@ -1,5 +1,6 @@
 import plist, { PlistObject, PlistValue } from "plist";
-import { readFile, writeFile } from '@ionic/utils-fs';
+import { relative } from 'path';
+import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
 import { mergeWith, union } from 'lodash';
 
 import { parsePlist } from "./util/plist";
@@ -23,25 +24,40 @@ export class PlistFile extends VFSStorable {
     this.doc = doc;
   }
 
+  async exists() {
+    return pathExists(this.path);
+  }
+
   async load() {
     if (this.vfs.isOpen(this.path)) {
       return;
     }
 
-    this.doc = await parsePlist(this.path);
+    if (await this.exists()) {
+      this.doc = await parsePlist(this.path);
+    } else {
+      this.doc = {};
+    }
+
     Logger.v('plist', 'read', `Loaded plist file at ${this.path}`, this.doc);
     this.vfs.open(this.path, this, this.plistCommitFn, this.plistDiffFn);
   }
 
-  private plistCommitFn = async (file: VFSFile) => {
+  private plistCommitFn = async (file: VFSFile, project: MobileProject) => {
     const data = file.getData() as PlistFile;
     const xml = plist.build(data.getDocument() ?? {}, {
       indent: '	', // Tab character
       offset: -1,
       newline: '\n'
     });
+    const shouldAdd = !(await pathExists(this.path));
     await assertParentDirs(file.getFilename());
-    return writeFile(file.getFilename(), xml);
+    await writeFile(file.getFilename(), xml);
+    // Add the file to the project
+    if (shouldAdd) {
+      const rel = relative(project.config.ios?.path ?? '', this.path);
+      project.ios?.addFile(rel);
+    }
   }
 
   plistDiffFn = async (file: VFSFile) => {

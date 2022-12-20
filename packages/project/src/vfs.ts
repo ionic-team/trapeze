@@ -95,7 +95,6 @@ export class VFS {
   }
 
   async commitAll(project: MobileProject) {
-    console.log('Comitting all', this.openFiles);
     await Promise.all(Object.values(this.openFiles).map(file => file.commit(project)));
   }
 

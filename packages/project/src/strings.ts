@@ -96,13 +96,14 @@ export class StringsFile extends VFSStorable {
     const f = file.getData() as StringsFile;
     const src = generateStrings(f.doc);
     await assertParentDirs(file.getFilename());
+
     const shouldAdd = !(await pathExists(this.path));
-    console.log('STRINGS COMMIT', shouldAdd);
     await writeFile(file.getFilename(), src);
+
+    // Add the file to the project
     if (shouldAdd) {
       const rel = relative(project.config.ios?.path ?? '', this.path);
-      console.log('Adding strings file', rel);
-      const newFile = project.ios?.addFile(rel);
+      project.ios?.addFile(rel);
     }
   }
 }

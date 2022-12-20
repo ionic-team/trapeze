@@ -1,5 +1,7 @@
 import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
+import { relative } from 'path';
 import { Logger } from './logger';
+import { MobileProject } from './project';
 import { assertParentDirs } from './util/fs';
 import { VFS, VFSFile, VFSStorable } from './vfs';
 
@@ -76,9 +78,15 @@ export class XCConfigFile extends VFSStorable {
     return contents;
   }
 
-  private commitFn = async (file: VFSFile) => {
+  private commitFn = async (file: VFSFile, project: MobileProject) => {
     const src = this.generate();
     await assertParentDirs(file.getFilename());
-    return writeFile(file.getFilename(), src);
+    const shouldAdd = !(await pathExists(this.path));
+    await writeFile(file.getFilename(), src);
+    // Add the file to the project
+    if (shouldAdd) {
+      const rel = relative(project.config.ios?.path ?? '', this.path);
+      project.ios?.addFile(rel);
+    }
   }
 }
