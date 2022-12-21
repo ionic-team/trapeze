@@ -1,5 +1,13 @@
 # @trapezedev/configure
 
+## 7.0.2
+
+### Patch Changes
+
+- Tweaked how files are added to xcode project
+- Updated dependencies
+  - @trapezedev/project@7.0.2
+
 ## 7.0.1
 
 ### Patch Changes

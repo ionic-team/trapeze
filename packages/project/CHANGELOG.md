@@ -1,5 +1,12 @@
 # @trapezedev/project
 
+## 7.0.2
+
+### Patch Changes
+
+- Tweaked how files are added to xcode project
+  - @trapezedev/gradle-parse@7.0.2
+
 ## 7.0.1
 
 ### Patch Changes
