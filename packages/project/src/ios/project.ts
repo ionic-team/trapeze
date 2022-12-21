@@ -1,5 +1,5 @@
 import plist from 'plist';
-import path, { join } from 'path';
+import path, { join, sep } from 'path';
 import fetch from 'cross-fetch';
 import { copy, pathExists, readdir, writeFile } from '@ionic/utils-fs';
 
@@ -86,7 +86,7 @@ export class IosProject extends PlatformProject {
   }
 
   async getPlistFile(path: string) {
-    return this.getProjectFile(path, (filename: string) => new PlistFile(filename, this.project.vfs));
+    return this.getProjectFile(path, (filename: string) => new PlistFile(filename, this.project.vfs, this.project));
   }
 
   getPbxProject() {
@@ -534,8 +534,9 @@ export class IosProject extends PlatformProject {
       return value.isa === 'PBXGroup' && (value.name === appTarget || value.path === appTarget);
     });
 
-    if (appGroup) {
-      this.pbxProject?.addSourceFile(path, {}, appGroup?.[0]);
+    const pathSplit = path.split(sep);
+    if (pathSplit[0] === appTarget && appGroup) {
+      this.pbxProject?.addSourceFile(pathSplit.slice(1).join(sep), {}, appGroup?.[0]);
     } else {
       this.pbxProject?.addSourceFile(path, {}, emptyGroup?.[0]);
     }
@@ -623,7 +624,7 @@ export class IosProject extends PlatformProject {
       return open.getData() as PlistFile;
     }
 
-    const plistFile = new PlistFile(filename, this.project.vfs);
+    const plistFile = new PlistFile(filename, this.project.vfs, this.project);
 
     await plistFile.load();
 
@@ -677,16 +678,5 @@ export class IosProject extends PlatformProject {
     if (this.pbxProject) {
       await writeFile(file.getFilename(), this.pbxProject.writeSync());
     }
-  }
-
-  private plistCommitFn = async (file: VFSFile) => {
-    const data = file.getData() as PlistFile;
-    const xml = plist.build(data.getDocument() ?? {}, {
-      indent: '	', // Tab character
-      offset: -1,
-      newline: '\n'
-    });
-    await assertParentDirs(file.getFilename());
-    return writeFile(file.getFilename(), xml);
   }
 }

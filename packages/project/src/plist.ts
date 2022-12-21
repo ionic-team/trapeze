@@ -12,7 +12,7 @@ import { assertParentDirs } from "./util/fs";
 export class PlistFile extends VFSStorable {
   doc: PlistObject | null = null;
 
-  constructor(private path: string, private vfs: VFS) {
+  constructor(private path: string, private vfs: VFS, private project?: MobileProject) {
     super();
   }
 
@@ -37,27 +37,27 @@ export class PlistFile extends VFSStorable {
       this.doc = await parsePlist(this.path);
     } else {
       this.doc = {};
+
+      // Add the file to the project
+      if (this.project) {
+        const rel = relative(this.project.config.ios?.path ?? '', this.path);
+        this.project.ios?.addFile(rel);
+      }
     }
 
     Logger.v('plist', 'read', `Loaded plist file at ${this.path}`, this.doc);
     this.vfs.open(this.path, this, this.plistCommitFn, this.plistDiffFn);
   }
 
-  private plistCommitFn = async (file: VFSFile, project: MobileProject) => {
+  private plistCommitFn = async (file: VFSFile) => {
     const data = file.getData() as PlistFile;
     const xml = plist.build(data.getDocument() ?? {}, {
       indent: '	', // Tab character
       offset: -1,
       newline: '\n'
     });
-    const shouldAdd = !(await pathExists(this.path));
     await assertParentDirs(file.getFilename());
-    await writeFile(file.getFilename(), xml);
-    // Add the file to the project
-    if (shouldAdd) {
-      const rel = relative(project.config.ios?.path ?? '', this.path);
-      project.ios?.addFile(rel);
-    }
+    return writeFile(file.getFilename(), xml);
   }
 
   plistDiffFn = async (file: VFSFile) => {
