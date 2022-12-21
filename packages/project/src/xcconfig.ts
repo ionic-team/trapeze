@@ -14,7 +14,7 @@ export class XCConfigFile extends VFSStorable {
   // by newlines or by the start of comments
   private keyValueRegex = /^\s*([^ \/]+)\s*=[^\S\r\n]*(([^\n;](?!\/\/))*)/gm;
 
-  constructor(public path: string, private vfs: VFS) {
+  constructor(public path: string, private vfs: VFS, private project?: MobileProject) {
     super();
   }
 
@@ -62,6 +62,11 @@ export class XCConfigFile extends VFSStorable {
 
     if (!await pathExists(this.path)) {
       this.doc = "";
+
+      if (this.project) {
+        const rel = relative(this.project.config.ios?.path ?? '', this.path);
+        this.project.ios?.addFile(rel);
+      }
     } else {
       this.doc = await this.parse(this.path);
     }
@@ -78,15 +83,9 @@ export class XCConfigFile extends VFSStorable {
     return contents;
   }
 
-  private commitFn = async (file: VFSFile, project: MobileProject) => {
+  private commitFn = async (file: VFSFile) => {
     const src = this.generate();
     await assertParentDirs(file.getFilename());
-    const shouldAdd = !(await pathExists(this.path));
-    await writeFile(file.getFilename(), src);
-    // Add the file to the project
-    if (shouldAdd) {
-      const rel = relative(project.config.ios?.path ?? '', this.path);
-      project.ios?.addFile(rel);
-    }
+    return writeFile(file.getFilename(), src);
   }
 }

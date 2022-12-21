@@ -384,23 +384,24 @@ describe('project - ios standard', () => {
 
   it('should add source files when committing', async () => {
     const stringsFile = project.ios?.getProjectFile<StringsFile>(
-        "NewStrings.strings",
-        (filename: string) => new StringsFile(filename, project.vfs)
+        "App/NewStrings.strings",
+        (filename: string) => new StringsFile(filename, project.vfs, project)
       );
     await stringsFile?.load();
 
     const xcconfigFile = project.ios?.getProjectFile<XCConfigFile>(
         "NewConfig.xcconfig",
-        (filename: string) => new XCConfigFile(filename, project.vfs)
+        (filename: string) => new XCConfigFile(filename, project.vfs, project)
       );
     await xcconfigFile?.load();
 
     const plistFile = project.ios?.getProjectFile<PlistFile>(
         "NewPlist.plist",
-        (filename: string) => new PlistFile(filename, project.vfs)
+        (filename: string) => new PlistFile(filename, project.vfs, project)
       );
     await plistFile?.load();
 
+    const pbx = project.ios?.getPbxProject();
     /*
     const xmlFile = project.ios?.getProjectFile<XmlFile>(
         "NewXml.xml",
@@ -408,13 +409,17 @@ describe('project - ios standard', () => {
       );
     await xmlFile?.load();
     */
-
     await project.commit();
 
-    const pbx = project.ios?.getPbxProject();
+
     expect(!!pbx?.hasFile('NewStrings.strings')).toBe(true);
     expect(!!pbx?.hasFile('NewConfig.xcconfig')).toBe(true);
     expect(!!pbx?.hasFile('NewPlist.plist')).toBe(true);
+
+    const pbxOnDisk = await readFile(join(dir, 'ios/App/App.xcodeproj/project.pbxproj'), { encoding: 'utf-8' });
+
+    // console.log(pbx?.writeSync());
+    expect(pbxOnDisk.indexOf('NewStrings.strings')).toBeGreaterThanOrEqual(0);
     // expect(!!pbx?.hasFile('NewXml.xml')).toBe(true);
   });
 

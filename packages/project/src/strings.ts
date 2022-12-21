@@ -11,7 +11,7 @@ import { VFS, VFSFile, VFSStorable } from './vfs';
  */
 export class StringsFile extends VFSStorable {
   private doc: StringsEntries = [];
-  constructor(public path: string, private vfs: VFS) {
+  constructor(public path: string, private vfs: VFS, private project?: MobileProject) {
     super();
   }
 
@@ -76,6 +76,11 @@ export class StringsFile extends VFSStorable {
 
     if (!await pathExists(this.path)) {
       this.doc = [];
+      // Add the file to the iOS project
+      if (this.project) {
+        const rel = relative(this.project.config.ios?.path ?? '', this.path);
+        this.project?.ios?.addFile(rel);
+      }
     } else {
       this.doc = await this.parse(this.path);
     }
@@ -92,18 +97,10 @@ export class StringsFile extends VFSStorable {
     return parseStrings(contents);
   }
 
-  private commitFn = async (file: VFSFile, project: MobileProject) => {
+  private commitFn = async (file: VFSFile) => {
     const f = file.getData() as StringsFile;
     const src = generateStrings(f.doc);
     await assertParentDirs(file.getFilename());
-
-    const shouldAdd = !(await pathExists(this.path));
-    await writeFile(file.getFilename(), src);
-
-    // Add the file to the project
-    if (shouldAdd) {
-      const rel = relative(project.config.ios?.path ?? '', this.path);
-      project.ios?.addFile(rel);
-    }
+    return writeFile(file.getFilename(), src);
   }
 }

@@ -18,7 +18,7 @@ export default async function execute(ctx: Context, op: Operation) {
 
     stringsFile = ctx.project.ios?.getProjectFile<StringsFile>(
       filename!,
-      (filename: string) => new StringsFile(filename, ctx.project.vfs)
+      (filename: string) => new StringsFile(filename, ctx.project.vfs, ctx.project)
     );
 
     if (!stringsFile) {

@@ -22,7 +22,7 @@ export class VFSRef<T extends VFSStorable> {
   constructor(
     private filename: string,
     private data: T | null,
-    private commitFn: (file: VFSFile, project: MobileProject) => Promise<void>,
+    private commitFn: (file: VFSFile) => Promise<void>,
     private diffFn?: (file: VFSFile) => Promise<VFSDiff>,
   ) {}
 
@@ -43,8 +43,8 @@ export class VFSRef<T extends VFSStorable> {
     this.modified = true;
   }
 
-  commit(project: MobileProject): Promise<void> {
-    return this.commitFn(this, project);
+  commit(): Promise<void> {
+    return this.commitFn(this);
   }
 
   async diff(): Promise<VFSDiff> {
@@ -71,7 +71,7 @@ export class VFS {
   open<T extends VFSStorable>(
     filename: string,
     data: T,
-    commitFn: (file: VFSFile, project: MobileProject) => Promise<void>,
+    commitFn: (file: VFSFile) => Promise<void>,
     diffFn?: (file: VFSFile) => Promise<VFSDiff>,
   ) {
     const ref = new VFSRef(filename, data, commitFn, diffFn);
@@ -95,7 +95,7 @@ export class VFS {
   }
 
   async commitAll(project: MobileProject) {
-    await Promise.all(Object.values(this.openFiles).map(file => file.commit(project)));
+    await Promise.all(Object.values(this.openFiles).map(file => file.commit()));
   }
 
   async diffAll() {
@@ -120,4 +120,5 @@ export class VFS {
   close(ref: VFSFile) {
     delete this.openFiles[ref.getFilename()];
   }
+  
 }

@@ -16,7 +16,7 @@ export default async function execute(ctx: Context, op: Operation) {
 
     file = ctx.project.ios?.getProjectFile<XCConfigFile>(
       filename!,
-      (filename: string) => new XCConfigFile(filename, ctx.project.vfs)
+      (filename: string) => new XCConfigFile(filename, ctx.project.vfs, ctx.project)
     );
 
     if (!file) {
