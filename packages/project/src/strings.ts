@@ -79,7 +79,6 @@ export class StringsFile extends VFSStorable {
       // Add the file to the iOS project
       if (this.project) {
         const rel = relative(this.project.config.ios?.path ?? '', this.path);
-        console.log('Adding relative file', rel);
         this.project?.ios?.addFile(rel);
       }
     } else {
