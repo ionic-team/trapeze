@@ -3,7 +3,7 @@ import { relative } from 'path';
 import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
 import { mergeWith, union } from 'lodash';
 
-import { parsePlist } from "./util/plist";
+import { parsePlist, parsePlistString } from "./util/plist";
 import { VFS, VFSRef, VFSFile, VFSStorable } from "./vfs";
 import { MobileProject } from "./project";
 import { Logger } from "./logger";
@@ -77,6 +77,12 @@ export class PlistFile extends VFSStorable {
       old,
       new: xml
     }
+  }
+
+  async setFromXml(xml: string) {
+    const parsed = parsePlistString(xml);
+
+    this.doc = parsed;
   }
 
   async set(properties: any): Promise<void> {
