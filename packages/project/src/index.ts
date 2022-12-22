@@ -10,3 +10,4 @@ export * from './properties';
 export * from './strings';
 export * from './xcconfig';
 export * from './vfs';
+export * from './util/plist';

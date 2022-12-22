@@ -137,7 +137,9 @@ platforms:
 
 ### `plist`
 
-Updates values in the `INFOPLIST_FILE` for the given target and build. Currently only supports updating this file but support for other plist files is [coming](https://github.com/ionic-team/capacitor-configure/issues/52).
+Updates values in the `INFOPLIST_FILE` for the given target and build, or updates the given plist `file`. Set `replace` to `true` to overwrite the entire target object (if `false`, the values will be merged):
+
+Additionally, raw plist XML can be supplied using `xml` (which can be supplied directly or through an env var). When using this option along with `file`, the entire plist file is overwritten with the given source. When not using `file` the values are merged into the `INFOPLIST_FILE`.
 
 ```yaml
 platforms:
@@ -145,6 +147,11 @@ platforms:
     targets:
       App:
         plist:
+          - replace: true
+            file: GoogleService-Info.plist
+            entries:
+              - Key: Value
+
           - replace: true
             entries:
               - UISupportedInterfaceOrientations:
@@ -155,6 +162,9 @@ platforms:
               - CFBundleURLTypes:
                   - CFBundleURLSchemes:
                       - AdditionalBundleURLScheme
+          
+          - file: GoogleService-Info.plist
+            xml: $GOOGLE_SERVICE_PLIST_RAW
 ```
 
 ### `entitlements`

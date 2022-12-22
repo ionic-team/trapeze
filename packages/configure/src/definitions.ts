@@ -124,7 +124,8 @@ export type IosPlistOperationValue = {
   replace?: boolean;
   iosTarget?: string;
   iosBuild?: string;
-  entries: any[];
+  xml?: string;
+  entries?: any[];
 };
 
 export interface IosStringsOperation {

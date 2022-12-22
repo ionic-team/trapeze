@@ -96,4 +96,40 @@ describe('op: ios.plist', () => {
       }
     });
   });
+
+  it('should support raw xml for ios.plist', async () => {
+    const op: IosPlistOperation = {
+      value: [
+        {
+          file: 'plist-file.plist',
+          replace: true,
+          xml: `
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>NSFoo</key>
+  <dict>
+    <key>Bar</key>
+    <true/>
+  </dict>
+</dict>
+</plist>
+          `
+        },
+      ],
+    };
+
+    await Op(ctx, op as Operation);
+
+    const file = ctx.project.vfs.get<PlistFile>(
+      join(ctx.project.config.ios?.path ?? '', 'plist-file.plist'),
+    );
+
+    expect(file?.getData()?.getDocument()).toEqual({
+      "NSFoo": {
+        "Bar": true
+      }
+    });
+  });
 });
