@@ -38,12 +38,20 @@ describe('context and capacitor project loading', () => {
 
     process.env.THING = '0';
     process.env.THING2 = '0';
+    process.env.THING3 = '[1, 2, 3, 4]';
+    process.env.THING4 = '{ "foo": "bar" }';
     const vars: Variables = {
       'THING': {
         type: VariableType.Number
       },
       'THING2': {
         type: VariableType.String
+      },
+      'THING3': {
+        type: VariableType.Array
+      },
+      'THING4': {
+        type: VariableType.Object
       }
     }
 
@@ -55,6 +63,12 @@ describe('context and capacitor project loading', () => {
       },
       'THING2': {
         value: '0',
+      },
+      'THING3': {
+        value: [1, 2, 3, 4]
+      },
+      'THING4': {
+        value: { "foo": "bar" }
       }
     });
   });
