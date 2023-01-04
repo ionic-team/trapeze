@@ -37,10 +37,13 @@ describe('context and capacitor project loading', () => {
     ctx = await loadContext(dir, 'android', 'ios/App');
 
     process.env.THING = '0';
+    process.env.THING2 = '0';
     const vars: Variables = {
       'THING': {
-        value: '0',
         type: VariableType.Number
+      },
+      'THING2': {
+        type: VariableType.String
       }
     }
 
@@ -49,7 +52,9 @@ describe('context and capacitor project loading', () => {
     expect(ctx.vars).toMatchObject({
       'THING': {
         value: 0,
-        type: VariableType.Number
+      },
+      'THING2': {
+        value: '0',
       }
     });
   });
