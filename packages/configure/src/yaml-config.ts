@@ -5,7 +5,7 @@ import { clone, each } from 'lodash';
 import { readFile } from '@ionic/utils-fs';
 
 import { logPrompt } from './util/cli';
-import { Context, str } from './ctx';
+import { Context, str, Variables } from './ctx';
 import c from './colors';
 import { initVarsFromEnv } from './ctx';
 import { warn } from './util/log';
@@ -26,7 +26,7 @@ export async function loadYamlConfig(
     process.exit(0);
   }
 
-  await initVarsFromEnv(ctx, parsed.vars);
+  await initVarsFromEnv(ctx, parsed.vars as Variables);
 
   await ensureVars(ctx, parsed);
 
@@ -41,7 +41,7 @@ async function ensureVars(ctx: Context, yaml: YamlFile) {
   for (const v in vars) {
     const vk = vars[v] || {};
 
-    if (!vk || (!ctx.vars[v] && !vk.default)) {
+    if (!vk || (typeof ctx.vars[v] === 'undefined' && typeof vk.default === 'undefined')) {
       const answers = await logPrompt(
         `Required variable: ${c.strong(v)}\n` +
           (vk.description

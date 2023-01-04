@@ -17,7 +17,16 @@ export interface Context {
 }
 
 export interface Variable {
-  value: string;
+  value?: string;
+  defaultValue?: any;
+  type?: VariableType;
+}
+
+export const enum VariableType {
+  String = "string",
+  Number = "number",
+  Array = "array",
+  Object = "object"
 }
 
 export interface Variables {
@@ -107,7 +116,17 @@ export function initVarsFromEnv(ctx: Context, vars: Variables) {
 
   for (const v in vars) {
     let existing = process.env[v];
+
+    const entry = vars[v];
+
     try {
+      if (entry.type && typeof existing !== 'undefined') {
+        ctx.vars[v] = {
+          value: getVariableFromType(entry, existing)
+        };
+        continue;
+      }
+
       existing = existing && JSON.parse(existing!);
       if (typeof existing !== 'undefined') {
         Logger.v('env', 'loadEnvVars', `Loaded env var ${v} as JSON value`);
@@ -115,11 +134,23 @@ export function initVarsFromEnv(ctx: Context, vars: Variables) {
     } catch (e) {
       Logger.v('env', 'loadEnvVars', `Loaded env var ${v} as string`);
     } finally {
-      if (typeof existing !== 'undefined') {
+      if (typeof ctx.vars[v] === 'undefined' && typeof existing !== 'undefined') {
         ctx.vars[v] = {
           value: existing,
         };
       }
     }
+  }
+}
+
+function getVariableFromType(entry: Variable, existing: any) {
+  switch (entry.type) {
+    case VariableType.Array:
+    case VariableType.Object:
+      return JSON.parse(existing);
+    case VariableType.String:
+      return existing;
+    case VariableType.Number:
+      return parseInt(existing, 10);
   }
 }

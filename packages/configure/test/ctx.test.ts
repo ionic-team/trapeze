@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { Context, initVarsFromEnv, loadContext, Variables } from '../src/ctx';
+import { Context, initVarsFromEnv, loadContext, Variables, VariableType } from '../src/ctx';
 
 describe('context and capacitor project loading', () => {
   const OLD_ENV = process.env;
@@ -37,9 +37,21 @@ describe('context and capacitor project loading', () => {
     ctx = await loadContext(dir, 'android', 'ios/App');
 
     process.env.THING = '0';
+    process.env.THING2 = '0';
+    process.env.THING3 = '[1, 2, 3, 4]';
+    process.env.THING4 = '{ "foo": "bar" }';
     const vars: Variables = {
       'THING': {
-        value: '0'
+        type: VariableType.Number
+      },
+      'THING2': {
+        type: VariableType.String
+      },
+      'THING3': {
+        type: VariableType.Array
+      },
+      'THING4': {
+        type: VariableType.Object
       }
     }
 
@@ -47,7 +59,16 @@ describe('context and capacitor project loading', () => {
 
     expect(ctx.vars).toMatchObject({
       'THING': {
-        value: 0
+        value: 0,
+      },
+      'THING2': {
+        value: '0',
+      },
+      'THING3': {
+        value: [1, 2, 3, 4]
+      },
+      'THING4': {
+        value: { "foo": "bar" }
       }
     });
   });
