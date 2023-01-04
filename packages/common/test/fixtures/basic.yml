@@ -1,4 +1,7 @@
 vars:
+  NUMBER:
+    type: number
+    default: 0
   BUNDLE_ID:
     default: io.ionic.fixtureTest
   PACKAGE_NAME:

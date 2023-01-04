@@ -41,7 +41,7 @@ async function ensureVars(ctx: Context, yaml: YamlFile) {
   for (const v in vars) {
     const vk = vars[v] || {};
 
-    if (!vk || (!ctx.vars[v] && !vk.default)) {
+    if (!vk || (typeof ctx.vars[v] === 'undefined' && typeof vk.default === 'undefined')) {
       const answers = await logPrompt(
         `Required variable: ${c.strong(v)}\n` +
           (vk.description
