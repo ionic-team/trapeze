@@ -86,6 +86,18 @@ platforms:
           - keychain-access-groups: $KEYCHAIN_GROUPS
 ```
 
+### Variable types
+
+Since environment variables are always strings, values that are meant to be numbers can be incorrectly processed. To specify the exact type a variable must have, use the `type` field when defining variables:
+
+```yaml
+vars:
+    NUMBER_VALUE:
+      type: number
+```
+
+The supported types are `string`, `number`, `array`, and `object`. `string` values will be consumed as-is, `number` values will be passed through `parseInt(v, 10)`, and both `array` and `object` will be passed through `JSON.parse(v)`.
+
 ## Next steps
 
 Follow the [Android](./android), [iOS](./ios), and [Project-level](./project) guides to see the full set of operations available for each platform.
