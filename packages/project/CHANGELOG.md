@@ -1,5 +1,12 @@
 # @trapezedev/project
 
+## 7.0.3
+
+### Patch Changes
+
+- Added support for typed variables
+  - @trapezedev/gradle-parse@7.0.3
+
 ## 7.0.2
 
 ### Patch Changes
