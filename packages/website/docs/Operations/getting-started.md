@@ -88,6 +88,8 @@ platforms:
 
 ### Variable types
 
+*since: 7.0.3*
+
 Since environment variables are always strings, values that are meant to be numbers can be incorrectly processed. To specify the exact type a variable must have, use the `type` field when defining variables:
 
 ```yaml
