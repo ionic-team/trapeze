@@ -98,7 +98,9 @@ vars:
       type: number
 ```
 
-The supported types are `string`, `number`, `array`, and `object`. `string` values will be consumed as-is, `number` values will be passed through `parseInt(v, 10)`, and both `array` and `object` will be passed through `JSON.parse(v)`.
+The supported types are `string`, `number`, `array`, and `object`.
+
+`string` values will be consumed as-is, `number` values will be passed through `parseInt(v, 10)`, and both `array` and `object` will be passed through `JSON.parse(v)`.
 
 ## Next steps
 
