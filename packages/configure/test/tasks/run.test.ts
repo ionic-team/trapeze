@@ -17,6 +17,10 @@ describe('task: run', () => {
     await loadYamlConfig(ctx, join(dir, 'basic.yml'));
 
     expect(ctx.vars).toMatchObject({
+      NUMBER: {
+        default: 0,
+        value: 0
+      },
       BUNDLE_ID: {
         default: 'io.ionic.fixtureTest',
         value: 'io.ionic.fixtureTest',
