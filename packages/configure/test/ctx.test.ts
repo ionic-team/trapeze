@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { Context, initVarsFromEnv, loadContext, Variables, VariableType } from '../src/ctx';
+import { Context, initVarsFromEnv, loadContext, str, Variables, VariableType } from '../src/ctx';
 
 describe('context and capacitor project loading', () => {
   const OLD_ENV = process.env;
@@ -71,5 +71,30 @@ describe('context and capacitor project loading', () => {
         value: { "foo": "bar" }
       }
     });
+  });
+
+  it('shouldn\'t expand certain variable types', async () => {
+    const dir = '../common/test/fixtures/ios-and-android';
+    ctx = await loadContext(dir, 'android', 'ios/App');
+
+    // Set the value of THING in the env, and register it as a variable
+    process.env.THING = 'foo';
+    const vars: Variables = {
+      'THING': {
+        type: VariableType.String,
+      },
+    }
+
+    initVarsFromEnv(ctx, vars);
+
+    // Make sure that only certain forms of the use of the variable are expanded
+    const s = str(ctx, '$THING');
+    expect(s).toBe('foo');
+
+    const s2 = str(ctx, '$(THING)');
+    expect(s2).toBe('$(THING)');
+
+    const s3 = str(ctx, '${THING}');
+    expect(s3).toBe('${THING}');
   });
 });
