@@ -1,5 +1,12 @@
 # @trapezedev/project
 
+## 7.0.4
+
+### Patch Changes
+
+- Tweaked variable substitution
+  - @trapezedev/gradle-parse@7.0.4
+
 ## 7.0.3
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @trapezedev/configure
 
+## 7.0.4
+
+### Patch Changes
+
+- Tweaked variable substitution
+- Updated dependencies
+  - @trapezedev/project@7.0.4
+
 ## 7.0.3
 
 ### Patch Changes
