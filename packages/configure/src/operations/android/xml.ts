@@ -30,7 +30,7 @@ export default async function execute(ctx: Context, op: Operation) {
     }
 
     if (entry.attrs) {
-      await xmlFile.setAttrs(entry.target, entry.merge);
+      await xmlFile.setAttrs(entry.target, entry.attrs);
     } else if (entry.inject) {
       await xmlFile.injectFragment(entry.target, entry.inject);
     } else if (entry.merge) {

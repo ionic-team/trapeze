@@ -20,6 +20,34 @@ describe('op: android.xml', () => {
     ctx.args.quiet = true;
   });
 
+  it('should update attributes', async () => {
+    const op: AndroidXmlOperation = makeOp('android', 'xml', [
+      {
+        file: 'app/src/main/res/values/strings.xml',
+        target: '/resources',
+        attrs: [
+          'test:test'
+        ]
+      },
+    ]);
+
+    await Op(ctx, op as Operation);
+
+    await ctx.project.commit();
+
+    const file = await readFile(join(dir, 'android/app/src/main/res/values/strings.xml'), { encoding: 'utf-8' });
+    //console.log(file);
+    expect(file.trim()).toBe(`
+<?xml version='1.0' encoding='utf-8' ?>
+<resources test="test">
+    <string name="app_name">capacitor-configure-test</string>
+    <string name="title_activity_main">capacitor-configure-test</string>
+    <string name="package_name">io.ionic.starter</string>
+    <string name="custom_url_scheme">io.ionic.starter</string>
+</resources>
+    `.trim());
+  });
+
   it('should delete attributes', async () => {
     const op: AndroidXmlOperation = makeOp('android', 'xml', [
       {
@@ -185,8 +213,6 @@ describe('op: android.xml', () => {
     ]);
 
     await Op(ctx, op as Operation);
-
-    let data = ctx.project.android?.getResourceXmlFile('values/strings.xml');
 
     await ctx.project.commit();
 
