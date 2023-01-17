@@ -1,5 +1,12 @@
 # @trapezedev/project
 
+## 7.0.5
+
+### Patch Changes
+
+- Fixed XML attribute setting
+  - @trapezedev/gradle-parse@7.0.5
+
 ## 7.0.4
 
 ### Patch Changes

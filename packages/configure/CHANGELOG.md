@@ -1,5 +1,13 @@
 # @trapezedev/configure
 
+## 7.0.5
+
+### Patch Changes
+
+- Fixed XML attribute setting
+- Updated dependencies
+  - @trapezedev/project@7.0.5
+
 ## 7.0.4
 
 ### Patch Changes
