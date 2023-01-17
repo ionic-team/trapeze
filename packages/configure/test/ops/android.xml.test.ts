@@ -25,9 +25,9 @@ describe('op: android.xml', () => {
       {
         file: 'app/src/main/res/values/strings.xml',
         target: '/resources',
-        attrs: [
-          'test:test'
-        ]
+        attrs: {
+          'test': 'test'
+        }
       },
     ]);
 
