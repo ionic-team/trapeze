@@ -29,6 +29,14 @@ export class MobileProject {
     this.vfs = new VFS();
     this.config.projectRoot = projectRoot;
 
+    if (typeof config.enableAndroid === 'undefined') {
+      config.enableAndroid = true;
+    }
+
+    if (typeof config.enableIos === 'undefined') {
+      config.enableIos = true;
+    }
+
     if (this.config.ios) {
       this.config.ios.path = join(this.projectRoot, this.config.ios.path ?? '');
     }

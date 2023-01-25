@@ -10,8 +10,10 @@ import org.json.*;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * A utility for building a limited AST of a given Gradle/Groovy file. This AST
@@ -26,8 +28,7 @@ import java.nio.file.Path;
 public class Parse {
   public static void main(String[] args) {
     try {
-      Path f = Path.of(args[0]);
-      String source = Files.readString(f);
+      String source = readFile(args[0]);
 
       AstBuilder b = new AstBuilder();
       List<ASTNode> nodes = b.buildFromString(CompilePhase.CONVERSION, true, source);
@@ -40,6 +41,11 @@ public class Parse {
       ex.printStackTrace();
       System.exit(1);
     }
+  }
+
+  private static String readFile(String path) throws IOException {
+    byte[] encoded = Files.readAllBytes(Paths.get(path));
+    return new String(encoded, StandardCharsets.UTF_8);
   }
 }
 

@@ -416,7 +416,9 @@ allprojects {
   });
 
   it('Should update complex gradle types', async () => {
+    console.log('Got android', project.android);
     const gradle = await project.android?.getGradleFile('variables.gradle');
+    console.log('Got gradle', gradle);
     await gradle?.parse();
 
     let nodes = gradle?.find({
