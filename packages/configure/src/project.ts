@@ -1,24 +1,30 @@
 import { join } from 'path';
 import { MobileProject, MobileProjectConfig } from '@trapezedev/project';
-import { Context } from './ctx';
+import { Args, Context } from './ctx';
 import { pathExists } from '@ionic/utils-fs';
 import { error } from './util/log';
 
 export async function loadProject(
+  args: Args,
   projectRootPath?: string,
   androidProject?: string,
   iosProject?: string
 ): Promise<MobileProject> {
 
-  if (androidProject && !(await pathExists(join(projectRootPath ?? '', androidProject)))) {
+  const enableIos = (args.ios && args.android) || !args.android;
+  const enableAndroid = (args.android && args.ios) || !args.ios;
+
+  if (enableAndroid && androidProject && !(await pathExists(join(projectRootPath ?? '', androidProject)))) {
     throw new Error(`Unable to find Android project at ${join(projectRootPath ?? '', androidProject)}`);
   }
 
-  if (iosProject && !(await pathExists(join(projectRootPath ?? '', iosProject)))) {
+  if (enableIos && iosProject && !(await pathExists(join(projectRootPath ?? '', iosProject)))) {
     throw new Error(`Unable to find iOS project at ${join(projectRootPath ?? '', iosProject)}`);
   }
 
   const config = (await loadConfig(projectRootPath, androidProject, iosProject)) as MobileProjectConfig;
+  config.enableAndroid = enableAndroid;
+  config.enableIos = enableIos;
   const project = new MobileProject(projectRootPath ?? '', config);
 
   try {

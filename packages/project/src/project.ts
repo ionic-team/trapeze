@@ -60,19 +60,22 @@ export class MobileProject {
 
   async load(): Promise<void> {
     if (
+      this.config?.enableAndroid &&
       this.config?.android?.path &&
       (await pathExists(this.config.android?.path))
     ) {
       this.android = new AndroidProject(this);
+      await this.android?.load();
     }
-    if (this.config?.ios?.path && (await pathExists(this.config.ios?.path))) {
+    if (
+      this.config?.enableIos &&
+      this.config?.ios?.path &&
+      (await pathExists(this.config.ios?.path))) {
       this.ios = new IosProject(this);
+      await this.ios?.load();
     }
 
     this.framework = await this.detectFramework();
-
-    await this.ios?.load();
-    await this.android?.load();
   }
 
   commit(): Promise<void> {

@@ -6,11 +6,16 @@ import { loadProject } from './project';
 import { Logger, MobileProject } from '@trapezedev/project';
 import { log, warn } from './util/log';
 
+export interface Args {
+  ios?: boolean;
+  android?: boolean;
+  [key:string]: any;
+}
 export interface Context {
   project: MobileProject;
   // Path the to the root of the capacitor project, if needed
   projectRootPath?: string;
-  args: any;
+  args: Args;
   vars: Variables;
   nodePackageRoot: string;
   rootDir: string;
@@ -38,12 +43,12 @@ export async function loadContext(projectRootPath?: string, androidProject?: str
 
   const args = yargs(hideBin(process.argv));
 
-  const argv = args.argv;
+  const argv = args.argv as Args;
 
   let project: MobileProject;
 
   try {
-    project = await loadProject(
+    project = await loadProject(argv,
       projectRootPath ?? (argv.projectRoot as string | undefined),
       androidProject ?? argv.androidProject as string | undefined,
       iosProject ?? argv.iosProject as string | undefined

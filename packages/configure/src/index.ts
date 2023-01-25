@@ -28,6 +28,8 @@ export function runProgram(ctx: Context) {
     .option('--verbose', 'Verbose output')
     .option('--android-project', 'Path to the root of the Android project (default: \'android\')')
     .option('--ios-project', 'Path to the root of the iOS project (default: \'ios/App\')')
+    .option('--ios', 'Explicitly run iOS operations. This is exclusive, meaning other platforms not specified won\'t run when this flag is used')
+    .option('--android', 'Explicitly run Android operations. This is exclusive, meaning other platforms not specified won\'t run when this flag is used')
     .action(
       wrapAction(async (configFile: string, args = {}) => {
         setArguments(ctx, args);

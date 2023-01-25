@@ -5,5 +5,7 @@ export interface MobileProjectConfig {
   }
   android?: {
     path: string;
-  }
+  },
+  enableAndroid?: boolean;
+  enableIos?: boolean;
 }
