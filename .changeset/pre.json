@@ -1,0 +1,13 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "@trapezedev/configure": "7.0.5",
+    "@trapezedev/gradle-parse": "7.0.5",
+    "@trapezedev/project": "7.0.5",
+    "configure-website": "0.0.0"
+  },
+  "changesets": [
+    "blue-peas-explode"
+  ]
+}

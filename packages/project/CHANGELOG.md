@@ -1,5 +1,12 @@
 # @trapezedev/project
 
+## 7.0.6-next.0
+
+### Patch Changes
+
+- Add support for --ios and --android flags to specify platform operations
+  - @trapezedev/gradle-parse@7.0.6-next.0
+
 ## 7.0.5
 
 ### Patch Changes

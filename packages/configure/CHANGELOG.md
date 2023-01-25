@@ -1,5 +1,13 @@
 # @trapezedev/configure
 
+## 7.0.6-next.0
+
+### Patch Changes
+
+- Add support for --ios and --android flags to specify platform operations
+- Updated dependencies
+  - @trapezedev/project@7.0.6-next.0
+
 ## 7.0.5
 
 ### Patch Changes
