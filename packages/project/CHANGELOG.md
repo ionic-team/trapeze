@@ -1,5 +1,17 @@
 # @trapezedev/project
 
+## 7.0.6
+
+### Patch Changes
+
+- 7f9e319: Target older JDK for gradle parser"
+- de2dafd: Add support for --ios and --android flags to specify platform operations
+- Improved version code handling
+- Updated dependencies [f4dbda6]
+- Updated dependencies [7f9e319]
+- Updated dependencies
+  - @trapezedev/gradle-parse@7.0.6
+
 ## 7.0.6-next.1
 
 ### Patch Changes
