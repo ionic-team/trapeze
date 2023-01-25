@@ -196,6 +196,12 @@ export class IosProject extends PlatformProject {
    * If the `targetName` is null the main app target is used. If the `buildName` is null the value is set for both builds (Debug/Release);
    */
   async setBuild(targetName: IosTargetName | null, buildName: IosBuildName | null, buildNumber: number | null) {
+    if ((buildNumber as any) === '') {
+      // This shouldn't happen but can
+      buildNumber = 1;
+      this.pbxProject?.updateBuildProperty('CURRENT_PROJECT_VERSION', 1, buildName, targetName);
+    }
+
     this.pbxProject?.updateBuildProperty('CURRENT_PROJECT_VERSION', buildNumber ?? 1, buildName, targetName);
 
     this.log(`setBuild`, targetName, buildName, `to ${buildNumber ?? 1}`);

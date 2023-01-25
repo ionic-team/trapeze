@@ -25,5 +25,9 @@ export function pbxSerializeString(value: string) {
 
 // Remove any quotes at the beginning and end of the string value
 export function pbxReadString(value: string) {
-  return value?.replace(/(^")+|("$)+/g, '');
+  if (typeof value === 'string') {
+    return value?.replace(/(^")+|("$)+/g, '');
+  } else {
+    return value;
+  }
 }

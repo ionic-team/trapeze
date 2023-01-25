@@ -271,7 +271,11 @@ export class AndroidProject extends PlatformProject {
   }
 
   setVersionCode(versionCode: number) {
-    return this.appBuildGradle?.setVersionCode(versionCode);
+    if ((versionCode as any) === '') {
+      versionCode = 1;
+    }
+
+    return this.appBuildGradle?.setVersionCode(typeof versionCode === 'number' ? versionCode : 1);
   }
 
   async getVersionCode(): Promise<number | null> {
