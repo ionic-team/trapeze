@@ -8,6 +8,8 @@
     "configure-website": "0.0.0"
   },
   "changesets": [
+    "afraid-badgers-return",
+    "beige-flies-turn",
     "blue-peas-explode"
   ]
 }

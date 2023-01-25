@@ -1,5 +1,14 @@
 # @trapezedev/project
 
+## 7.0.6-next.1
+
+### Patch Changes
+
+- Target older JDK for gradle parser"
+- Updated dependencies [f4dbda6]
+- Updated dependencies
+  - @trapezedev/gradle-parse@7.0.6-next.1
+
 ## 7.0.6-next.0
 
 ### Patch Changes

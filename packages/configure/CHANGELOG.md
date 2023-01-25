@@ -1,5 +1,13 @@
 # @trapezedev/configure
 
+## 7.0.6-next.1
+
+### Patch Changes
+
+- Target older JDK for gradle parser"
+- Updated dependencies
+  - @trapezedev/project@7.0.6-next.1
+
 ## 7.0.6-next.0
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @capacitor/gradle-parse
 
+## 7.0.6-next.1
+
+### Patch Changes
+
+- f4dbda6: Set javac --release
+- Target older JDK for gradle parser"
+
 ## 7.0.6-next.0
 
 ## 7.0.5
