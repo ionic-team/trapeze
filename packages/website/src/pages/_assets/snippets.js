@@ -68,7 +68,7 @@ platforms:
     },
     {
       code: `"scripts": {
-  "appflow:build": "npx trapeze run appflow.yml -y && npm run build"
+  "appflow:build": "npx trapeze run appflow.yml -y --$FASTLANE_PLATFORM_NAME && npm run build"
 },`,
       language: 'json',
     },
