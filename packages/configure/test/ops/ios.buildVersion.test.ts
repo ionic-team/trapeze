@@ -32,4 +32,12 @@ describe('op: ios.buildVersion', () => {
 
     expect(ctx.project.ios?.getBuildProperty(null, null, 'CURRENT_PROJECT_VERSION')).toBe(1);
   });
+
+  it('shouldn\'t update buildNumber', async () => {
+    const op: IosCopyOperation = makeOp('ios', 'buildNumber', 1337);
+
+    await Op(ctx, op as Operation);
+
+    expect(ctx.project.ios?.getBuildProperty(null, null, 'CURRENT_PROJECT_VERSION')).toBe(1337);
+  });
 });

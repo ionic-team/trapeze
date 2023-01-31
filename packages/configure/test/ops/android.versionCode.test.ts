@@ -26,4 +26,10 @@ describe('op: android.versionCode', () => {
     expect(await ctx.project.android?.getVersionCode()).toBe(1);
   });
 
+  it('should update versionCode', async () => {
+    const op: Operation = makeOp('android', 'versionCode', 1337);
+    await Op(ctx, op as Operation);
+    expect(await ctx.project.android?.getVersionCode()).toBe(1337);
+  });
+
 });
