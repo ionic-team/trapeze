@@ -1,5 +1,7 @@
 # @capacitor/gradle-parse
 
+## 7.0.7
+
 ## 7.0.6
 
 ### Patch Changes

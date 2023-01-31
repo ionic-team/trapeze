@@ -1,5 +1,12 @@
 # @trapezedev/project
 
+## 7.0.7
+
+### Patch Changes
+
+- Fixed error setting versionCode and buildNumber when values are strings
+  - @trapezedev/gradle-parse@7.0.7
+
 ## 7.0.6
 
 ### Patch Changes
