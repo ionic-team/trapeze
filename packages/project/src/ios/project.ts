@@ -200,6 +200,8 @@ export class IosProject extends PlatformProject {
       // This shouldn't happen but can
       buildNumber = 1;
       this.pbxProject?.updateBuildProperty('CURRENT_PROJECT_VERSION', 1, buildName, targetName);
+    } else if (typeof buildNumber === 'string') {
+      buildNumber = parseInt(buildNumber, 10);
     }
 
     this.pbxProject?.updateBuildProperty('CURRENT_PROJECT_VERSION', buildNumber ?? 1, buildName, targetName);
