@@ -68,7 +68,7 @@ platforms:
     },
     {
       code: `"scripts": {
-  "appflow:build": "npx trapeze run appflow.yml -y && npm run build"
+        "appflow:build": "if [ \"$CI_PLATFORM\" != \"web\" ]; then npx trapeze run ci.yaml -y --$CI_PLATFORM; fi && npm run build",
 },`,
       language: 'json',
     },

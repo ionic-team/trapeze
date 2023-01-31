@@ -12,7 +12,7 @@ To use it in this environment, run the configuration tool in the desired step of
 
 If your CI/CD service provides an environment variable that automatically increments ([Appflow](https://useappflow.com/) does), then updating the build number for your app is straightforward.
 
-```yaml title="ci.yaml"
+```yaml title="ci.yml"
 vars:
   CI_BUILD_NUMBER:
     default: 1
@@ -28,6 +28,6 @@ Then call this script as part of your `build` step. For example, here's how it w
 
 ```
   "scripts": {
-    "appflow:build": "npx trapeze run ci.yml -y && npm run build"
+    "appflow:build": "if [ \"$CI_PLATFORM\" != \"web\" ]; then npx trapeze run ci.yaml -y --$CI_PLATFORM; fi && npm run build",
   },
 ```
