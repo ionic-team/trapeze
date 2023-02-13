@@ -1,5 +1,12 @@
 # @trapezedev/project
 
+## 7.0.8
+
+### Patch Changes
+
+- Fixed iOS build number issue
+  - @trapezedev/gradle-parse@7.0.8
+
 ## 7.0.7
 
 ### Patch Changes

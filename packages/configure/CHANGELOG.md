@@ -1,5 +1,13 @@
 # @trapezedev/configure
 
+## 7.0.8
+
+### Patch Changes
+
+- Fixed iOS build number issue
+- Updated dependencies
+  - @trapezedev/project@7.0.8
+
 ## 7.0.7
 
 ### Patch Changes
