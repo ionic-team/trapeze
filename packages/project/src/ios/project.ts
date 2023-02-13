@@ -195,13 +195,16 @@ export class IosProject extends PlatformProject {
    * Set the build number (aka the `CURRENT_PROJECT_VERSION`) for the given target and build.
    * If the `targetName` is null the main app target is used. If the `buildName` is null the value is set for both builds (Debug/Release);
    */
-  async setBuild(targetName: IosTargetName | null, buildName: IosBuildName | null, buildNumber: number | null) {
+  async setBuild(targetName: IosTargetName | null, buildName: IosBuildName | null, buildNumber: number | string | null) {
     if ((buildNumber as any) === '') {
       // This shouldn't happen but can
       buildNumber = 1;
       this.pbxProject?.updateBuildProperty('CURRENT_PROJECT_VERSION', 1, buildName, targetName);
     } else if (typeof buildNumber === 'string') {
-      buildNumber = parseInt(buildNumber, 10);
+      // Don't parse version strings
+      if (buildNumber.indexOf('.') < 0) {
+        buildNumber = parseInt(buildNumber, 10);
+      }
     }
 
     this.pbxProject?.updateBuildProperty('CURRENT_PROJECT_VERSION', buildNumber ?? 1, buildName, targetName);
@@ -254,8 +257,15 @@ export class IosProject extends PlatformProject {
     const num = await this.getBuild(targetName ?? null, buildName);
 
     if (!isNaN(num)) {
-      // If the value is a number, increment it
-      return this.setBuild(targetName ?? null, buildName ?? null, num + 1);
+      if (typeof num === 'number') {
+        // If the value is a number, increment it
+        return this.setBuild(targetName ?? null, buildName ?? null, num + 1);
+      } else if (typeof num === 'string') {
+        if (num.indexOf('.') < 0) {
+          // If the value is a string and doesn't contain a period, increment it
+          return this.setBuild(targetName ?? null, buildName ?? null, parseInt(num, 10) + 1);
+        }
+      }
     } else {
       // Otherwise, we need to check if there's a build property set for CURRENT_PROJECT_VERSION and create it if not
       let currentProjectVersion = this.pbxProject?.getBuildProperty('CURRENT_PROJECT_VERSION', buildName ? buildName : undefined/* must use undefined if null */, targetName);

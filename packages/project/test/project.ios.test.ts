@@ -111,6 +111,22 @@ describe('project - ios standard', () => {
     expect(updated?.getDocument()?.['CFBundleVersion']).toBe('$(CURRENT_PROJECT_VERSION)');
   });
 
+  it('should set string build numbers', async () => {
+    await project.ios?.setBuild('App', 'Debug', '1.2.3');
+    expect(await project.ios?.getBuild('App', 'Debug')).toBe('1.2.3');
+  });
+
+  it('should increment build number', async () => {
+    await project.ios?.setBuild('App', 'Debug', 42);
+    expect(await project.ios?.getBuild('App', 'Debug')).toBe(42);
+    await project.ios?.incrementBuild('App', 'Debug');
+    expect(await project.ios?.getBuild('App', 'Debug')).toBe(43);
+    await project.ios?.setBuild('App', 'Debug', '1.2.3');
+    expect(await project.ios?.getBuild('App', 'Debug')).toBe('1.2.3');
+    await project.ios?.incrementBuild('App', 'Debug');
+    expect(await project.ios?.getBuild('App', 'Debug')).toBe('1.2.3');
+  });
+
   it('should set project version', async () => {
     await project.ios?.setVersion('App', 'Debug', '1.4.5');
     expect(project.ios?.getVersion('App', 'Debug')).toBe('1.4.5');
