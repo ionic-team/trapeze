@@ -57,7 +57,7 @@ export function addSPMPackageToProject(
       },
     );
 
-    const libComment = lib + ' in Frameworks';
+    const libComment = `${lib} in Frameworks`;
 
     const { uuid: spmBuildFileUuid } = helper.addOrUpdateEntry(
       'PBXBuildFile',
