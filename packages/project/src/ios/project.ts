@@ -5,13 +5,14 @@ import { copy, pathExists, readdir, writeFile } from '@ionic/utils-fs';
 
 import { parsePbxProject, pbxReadString, pbxSerializeString } from "../util/pbx";
 import { MobileProject } from "../project";
-import { IosPbxProject, IosEntitlements, IosFramework, IosBuildName, IosTarget, IosTargetName, IosTargetBuildConfiguration, IosFrameworkOpts } from '../definitions';
+import { IosPbxProject, IosEntitlements, IosFramework, IosBuildName, IosTarget, IosTargetName, IosTargetBuildConfiguration, IosFrameworkOpts, IosSPMPackageDefinition } from '../definitions';
 import { VFSRef, VFSFile } from '../vfs';
 import { XmlFile } from '../xml';
 import { PlistFile } from '../plist';
 import { PlatformProject } from '../platform-project';
 import { Logger } from '../logger';
 import { assertParentDirs } from '../util/fs';
+import { addSPMPackageToProject } from './spm';
 
 const defaultEntitlementsPlist = `
 <?xml version="1.0" encoding="UTF-8"?>
@@ -360,6 +361,18 @@ export class IosProject extends PlatformProject {
       return [];
     }
     return this.pbxProject?.pbxFrameworksBuildPhaseObj(target.id)?.files?.map((f: any) => f.comment.split(' ')[0]);
+  }
+
+  /**
+   * Add a SPM framework for the given target.
+   * If the `targetName` is null the main app target is used.
+   */
+  addSPMPackage(targetName: IosTargetName | null, packageDef: IosSPMPackageDefinition, opts: IosFrameworkOpts = {}) {
+    targetName = this.assertTargetName(targetName || null);
+    const target = this.getTarget(targetName);
+    if (this.pbxProject) {
+      addSPMPackageToProject(this.pbxProject, target!.id, packageDef);
+    }
   }
 
   /**

@@ -7,6 +7,8 @@ export interface IosPbxProject {
   [key: string]: any;
 }
 
+export type IosPbxArrayValue = { value: string; comment: string };
+
 export interface IosEntitlements {
   [key: string]: any;
 }
@@ -47,6 +49,13 @@ export type IosBuildName = 'Debug' | 'Release' | string;
 
 export type IosTargetName = string;
 export type IosProjectName = string;
+
+export interface IosSPMPackageDefinition {
+  name: string;
+  libs: string[];
+  repositoryURL: string;
+  version: string;
+}
 
 /**
  * Android definitions

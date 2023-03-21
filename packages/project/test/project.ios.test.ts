@@ -163,6 +163,20 @@ describe('project - ios standard', () => {
     expect(fwks.every(f => (frameworks?.indexOf(f) ?? -1) >= 0)).toBe(true);
   });
 
+  it.only('should add spm packages', async () => {
+    const fwks = [{
+      name: 'swift-numerics',
+      libs: ['Numerics'],
+      repositoryURL: "https://github.com/apple/swift-numerics.git",
+      version: '1.0.0'
+    }];
+    fwks.forEach(f => project.ios?.addSPMPackage('App', f));
+    const frameworks = project.ios?.getFrameworks('App');
+    expect(fwks.every(f => {
+      return f.libs.every(l => (frameworks?.indexOf(l) ?? -1) >= 0)
+    })).toBe(true);
+  });
+
   it('should add frameworks to non-app targets', async () => {
     const fwks = ['WebKit.framework', 'QuartzCore.framework'];
     fwks.forEach(f => project.ios?.addFramework('My App Clip', f));
