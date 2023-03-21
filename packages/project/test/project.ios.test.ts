@@ -246,6 +246,35 @@ describe('project - ios standard', () => {
     expect(sections.XCSwiftPackageProductDependency).toBeDefined();
   });
 
+  it('should add spm packages only once', async () => {
+    const pbx = project.ios?.getPbxProject();
+    const sections = pbx!.hash.project.objects;
+
+    // Make sure there are no SPM packages to start
+    expect(sections.XCRemoteSwiftPackageReference).not.toBeDefined();
+    expect(sections.XCSwiftPackageProductDependency).not.toBeDefined();
+
+    const pkgs = [
+      {
+        name: 'swift-numerics',
+        libs: ['Numerics'],
+        repositoryURL: 'https://github.com/apple/swift-numerics.git',
+        version: '1.0.0',
+      },
+    ];
+    pkgs.forEach(p => project.ios?.addSPMPackage('App', p));
+
+    expect(Object.values(sections.XCRemoteSwiftPackageReference).length).toBe(2);
+    expect(Object.values(sections.XCSwiftPackageProductDependency).length).toBe(2);
+
+    // add the same package again
+    pkgs.forEach(p => project.ios?.addSPMPackage('App', p));
+
+    // ensure that the package isn't added again
+    expect(Object.values(sections.XCRemoteSwiftPackageReference).length).toBe(2);
+    expect(Object.values(sections.XCSwiftPackageProductDependency).length).toBe(2);
+  });
+
   it('should add frameworks to non-app targets', async () => {
     const fwks = ['WebKit.framework', 'QuartzCore.framework'];
     fwks.forEach(f => project.ios?.addFramework('My App Clip', f));
