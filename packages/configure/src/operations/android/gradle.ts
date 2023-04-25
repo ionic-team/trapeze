@@ -4,9 +4,13 @@ import { logger } from "../../util/log";
 
 export default async function execute(ctx: Context, op: Operation) {
   const entries = (op as AndroidGradleOperation).value;
-
+  const gradleFiles = new Map()
   for (let entry of entries) {
-    const gradleFile = await ctx.project.android?.getGradleFile(entry.file);
+    if(!gradleFiles.has(entry.file)) {
+      const file = await ctx.project.android?.getGradleFile(entry.file);
+      gradleFiles.set(entry.file, file)
+    }
+    const gradleFile = gradleFiles.get(entry.file)
     if (!gradleFile) {
       logger.warn(`Skipping ${op.id} - can't locate Gradle file ${entry.file}`);
       continue;
