@@ -1,5 +1,12 @@
 # @trapezedev/project
 
+## 7.0.9
+
+### Patch Changes
+
+- Fixed package name detection and updated types
+  - @trapezedev/gradle-parse@7.0.9
+
 ## 7.0.8
 
 ### Patch Changes
