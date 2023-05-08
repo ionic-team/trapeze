@@ -149,9 +149,15 @@ export class AndroidProject extends PlatformProject {
    */
   async setPackageName(packageName: string) {
     const sourceDir = join(this.getAppRoot()!, 'src', 'main', 'java');
-    const oldPackageName = await this.manifest
+    let oldPackageName = await this.manifest
       .getDocumentElement()
       ?.getAttribute('package');
+
+    
+    if (!oldPackageName) {
+      oldPackageName = await this.appBuildGradle?.getApplicationId();
+    }
+    
     const oldPackageParts = oldPackageName?.split('.') ?? [];
 
     Logger.v('android', 'setPackageName', 'setting Android package name to', packageName, 'from', oldPackageName);
@@ -240,6 +246,14 @@ export class AndroidProject extends PlatformProject {
       return '';
     }
     return `${parts[parts.length - 1]}.java`;
+  }
+
+  async getMainActivityPath() {
+    const packageName = await this.appBuildGradle?.getApplicationId();
+    const activityName = this.getMainActivityFilename();
+    const packageParts = packageName?.split('.') ?? [];
+
+    return join('app', 'src', 'main', 'java', ...packageParts, activityName);
   }
 
   async getGradlePluginVersion() {

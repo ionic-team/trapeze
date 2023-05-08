@@ -351,3 +351,50 @@ try {
     expect(destContents.length).toBeGreaterThan(0);
   });
 });
+
+describe('project - android - capacitor v5', () => {
+  let config: MobileProjectConfig;
+  let project: MobileProject;
+  let dir: string;
+  beforeEach(async () => {
+    dir = tempy.directory();
+    await copy('../common/test/fixtures/cap-v5', dir);
+
+    config = {
+      ios: {
+        path: 'ios/App'
+      },
+      android: {
+        path: 'android'
+      }
+    }
+
+    project = new MobileProject(dir, config);
+    await project.load();
+  });
+
+  afterEach(async () => {
+    await rm(dir, { force: true, recursive: true });
+  });
+
+  it('should detect new android activity location', async () => {
+    const filename = await project.android?.getMainActivityPath();
+    expect(filename).toBe(join('app', 'src', 'main', 'java', 'io', 'ionic', 'starter', 'MainActivity.java'));
+  });
+
+  it('should get package name', async () => {
+    expect(await project.android?.getPackageName()).toBe('io.ionic.starter');
+  });
+
+  it('should set package name', async () => {
+    await project.android?.setPackageName('com.ionicframework.awesome');
+    expect(await project.android?.getPackageName()).toBe('com.ionicframework.awesome');
+    expect(await project.android?.getAppBuildGradle()?.getApplicationId()).toBe('com.ionicframework.awesome');
+    expect(await project.android?.getAppBuildGradle()?.getNamespace()).toBe('com.ionicframework.awesome');
+    const newSource = await readFile(join(project.config.android?.path!, 'app/src/main/java/com/ionicframework/awesome/MainActivity.java'), { encoding: 'utf-8' });
+    expect(newSource.indexOf('package com.ionicframework.awesome;')).toBe(0);
+    expect(!(await pathExists(join(project.config.android?.path!, 'app/src/main/java/io')))).toBe(true);
+    const activity = project.android?.getAndroidManifest().find('manifest/application/activity');
+    expect(activity?.[0].getAttribute('android:name')).toBe('com.ionicframework.awesome.MainActivity');
+  });
+});
