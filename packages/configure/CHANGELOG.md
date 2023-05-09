@@ -1,5 +1,13 @@
 # @trapezedev/configure
 
+## 7.0.10-next.0
+
+### Patch Changes
+
+- Working on fixing android package renaming
+- Updated dependencies
+  - @trapezedev/project@7.0.10-next.0
+
 ## 7.0.9
 
 ### Patch Changes

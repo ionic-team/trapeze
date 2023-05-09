@@ -1,5 +1,12 @@
 # @trapezedev/project
 
+## 7.0.10-next.0
+
+### Patch Changes
+
+- Working on fixing android package renaming
+  - @trapezedev/gradle-parse@7.0.10-next.0
+
 ## 7.0.9
 
 ### Patch Changes

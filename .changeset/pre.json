@@ -1,0 +1,13 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "@trapezedev/configure": "7.0.9",
+    "@trapezedev/gradle-parse": "7.0.9",
+    "@trapezedev/project": "7.0.9",
+    "configure-website": "0.0.1"
+  },
+  "changesets": [
+    "wild-lions-wink"
+  ]
+}
