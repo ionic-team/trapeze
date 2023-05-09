@@ -149,13 +149,15 @@ export class AndroidProject extends PlatformProject {
    */
   async setPackageName(packageName: string) {
     const sourceDir = join(this.getAppRoot()!, 'src', 'main', 'java');
+    let hadPackageAttr = false;
     let oldPackageName = await this.manifest
       .getDocumentElement()
       ?.getAttribute('package');
-
     
     if (!oldPackageName) {
       oldPackageName = await this.appBuildGradle?.getApplicationId();
+    } else {
+      hadPackageAttr = true;
     }
     
     const oldPackageParts = oldPackageName?.split('.') ?? [];
@@ -173,12 +175,17 @@ export class AndroidProject extends PlatformProject {
       );
     }
 
-    this.manifest.getDocumentElement()?.setAttribute('package', packageName);
+    let activityName = '.MainActivity';
+    if (hadPackageAttr) {
+      this.manifest.getDocumentElement()?.setAttribute('package', packageName);
+      activityName = `${packageName}.MainActivity`;
+    }
+
     await this.appBuildGradle?.setApplicationId(packageName);
     await this.appBuildGradle?.setNamespace(packageName);
     Logger.v('android', 'setPackageName', `set manifest package attribute and applicationId to ${packageName}`);
     this.manifest.setAttrs('manifest/application/activity', {
-      'android:name': `${packageName}.MainActivity`,
+      'android:name': activityName
     });
     Logger.v('android', 'setPackageName', `set <activity android:name="${packageName}.MainActivity"`);
 

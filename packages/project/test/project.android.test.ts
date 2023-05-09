@@ -395,6 +395,6 @@ describe('project - android - capacitor v5', () => {
     expect(newSource.indexOf('package com.ionicframework.awesome;')).toBe(0);
     expect(!(await pathExists(join(project.config.android?.path!, 'app/src/main/java/io')))).toBe(true);
     const activity = project.android?.getAndroidManifest().find('manifest/application/activity');
-    expect(activity?.[0].getAttribute('android:name')).toBe('com.ionicframework.awesome.MainActivity');
+    expect(activity?.[0].getAttribute('android:name')).toBe('.MainActivity');
   });
 });
