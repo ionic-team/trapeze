@@ -1,5 +1,7 @@
 # @capacitor/gradle-parse
 
+## 7.0.10
+
 ## 7.0.10-next.0
 
 ## 7.0.9
