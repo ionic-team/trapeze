@@ -371,7 +371,7 @@ export class IosProject extends PlatformProject {
     targetName = this.assertTargetName(targetName || null);
     const target = this.getTarget(targetName);
     if (this.pbxProject) {
-      addSPMPackageToProject(this.pbxProject, target!.id, packageDef);
+      addSPMPackageToProject(this.pbxProject, target!.id, packageDef, this.project.projectRoot);
     }
   }
 

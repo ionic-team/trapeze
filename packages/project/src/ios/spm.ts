@@ -3,11 +3,13 @@ import {
   IosPbxProject,
   IosSPMPackageDefinition,
 } from '../definitions';
+import path from 'path';
 
 export function addSPMPackageToProject(
   project: IosPbxProject,
   targetId: string,
   pkg: IosSPMPackageDefinition,
+  projectRoot: string,
 ) {
   const helper = new SPMHelper(project);
   const target = project.pbxNativeTargetSection()[targetId];
@@ -23,21 +25,39 @@ export function addSPMPackageToProject(
     'files'
   ] ??= []);
 
-  const packageReferenceComment = `XCRemoteSwiftPackageReference "${pkg.name}"`;
+  let packageReferenceComment: string;
+  let packageReferenceSection: string;
+  let packageReferenceSectionContent: Record<string, any>;
+
+  if ('path' in pkg) {
+    // local package
+    const relativePath = path.relative(projectRoot, path.resolve(projectRoot, pkg.path));
+    packageReferenceComment = `XCLocalSwiftPackageReference "${relativePath}"`;
+    packageReferenceSection = 'XCLocalSwiftPackageReference';
+    packageReferenceSectionContent = {
+      isa: packageReferenceSection,
+      relativePath: JSON.stringify(relativePath),
+    };
+  } else {
+    // remote package
+    packageReferenceComment = `XCRemoteSwiftPackageReference "${pkg.name}"`;
+    packageReferenceSection = 'XCRemoteSwiftPackageReference';
+    packageReferenceSectionContent = {
+      isa: packageReferenceSection,
+      repositoryURL: JSON.stringify(pkg.repositoryURL),
+      requirement: {
+        // todo: support different ranges?
+        kind: 'upToNextMajorVersion',
+        minimumVersion: pkg.version,
+      },
+    };
+  }
 
   const { uuid: spmPackageReferenceUUID, comment: spmPackageReferenceComment } =
     helper.addOrUpdateEntry(
-      'XCRemoteSwiftPackageReference',
+      packageReferenceSection,
       packageReferenceComment,
-      {
-        isa: 'XCRemoteSwiftPackageReference',
-        repositoryURL: JSON.stringify(pkg.repositoryURL),
-        requirement: {
-          // todo: support different ranges?
-          kind: 'upToNextMajorVersion',
-          minimumVersion: pkg.version,
-        },
-      },
+      packageReferenceSectionContent,
     );
 
   helper.addOrUpdateArrayEntry(packageReferences, spmPackageReferenceUUID, {

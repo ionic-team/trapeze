@@ -50,12 +50,20 @@ export type IosBuildName = 'Debug' | 'Release' | string;
 export type IosTargetName = string;
 export type IosProjectName = string;
 
-export interface IosSPMPackageDefinition {
+export interface IosRemoteSPMPackageDefinition {
   name: string;
   libs: string[];
   repositoryURL: string;
   version: string;
 }
+
+export interface IosLocalSPMPackageDefinition {
+  name: string;
+  libs: string[];
+  path: string;
+}
+
+export type IosSPMPackageDefinition = IosRemoteSPMPackageDefinition | IosLocalSPMPackageDefinition;
 
 /**
  * Android definitions
