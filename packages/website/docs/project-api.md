@@ -164,7 +164,7 @@ await project.ios?.addSPMPackage(targetName, {
 // local SPM packages
 await project.ios?.addSPMPackage(targetName, {
   name: 'local-swift-numerics',
-  libs: ['LocalNumerics'],
+  libs: ['ComplexModule', 'RealModule'],
   path: '../path/to/local-swift-numerics',
 })
 ```
