@@ -1,4 +1,4 @@
-import { AndroidGradleInjectType } from '@trapezedev/project';
+import { AndroidGradleInjectType, IosSPMPackageDefinition } from '@trapezedev/project';
 
 export type OperationMeta = string[];
 export interface Operation {
@@ -143,4 +143,8 @@ export interface IosXCConfigOperation {
 export type IosXCConfigOperationValue = {
   file?: string;
   set?: any;
+}
+
+export interface IosSpmPackagesOperation {
+  value: IosSPMPackageDefinition[];
 }
