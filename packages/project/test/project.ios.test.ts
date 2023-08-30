@@ -1,7 +1,7 @@
 import tempy from 'tempy';
 import { join } from 'path';
 import { copy, pathExists, readFile, rm } from '@ionic/utils-fs';
-import { MobileProject, StringsFile, XCConfigFile, XmlFile } from '../src';
+import { IosPbxArrayValue, MobileProject, StringsFile, XCConfigFile, XmlFile } from '../src';
 import { MobileProjectConfig } from '../src/config';
 import { PlistFile } from '../src/plist';
 
@@ -161,6 +161,228 @@ describe('project - ios standard', () => {
     fwks.forEach(f => project.ios?.addFramework('App', f));
     const frameworks = project.ios?.getFrameworks('App');
     expect(fwks.every(f => (frameworks?.indexOf(f) ?? -1) >= 0)).toBe(true);
+  });
+
+  it('should add remote spm packages', async () => {
+    const pbx = project.ios?.getPbxProject();
+    const sections = pbx!.hash.project.objects;
+    // Make sure there are no SPM packages to start
+    expect(sections.XCRemoteSwiftPackageReference).not.toBeDefined();
+    expect(sections.XCSwiftPackageProductDependency).not.toBeDefined();
+
+    const pkgs = [
+      {
+        name: 'swift-numerics',
+        libs: ['RealModule', 'ComplexModule'],
+        repositoryURL: 'https://github.com/apple/swift-numerics.git',
+        version: '1.0.0',
+      },
+    ];
+    pkgs.forEach(p => project.ios?.addSPMPackage('App', p));
+
+    // ensure the frameworks are added
+    const frameworks = project.ios?.getFrameworks('App');
+    expect(
+      pkgs.every(p => {
+        return p.libs.every(l => (frameworks?.indexOf(l) ?? -1) >= 0);
+      }),
+    ).toBe(true);
+
+    expect(
+      pkgs.every(p => {
+        return Object.values(sections.XCRemoteSwiftPackageReference)
+          .filter(s => typeof s !== 'string')
+          .some((v: any) => v.repositoryURL.indexOf(p.repositoryURL) >= 0);
+      }),
+    ).toBe(true);
+
+    expect(
+      pkgs.every(p => {
+        return p.libs.every(l => {
+          return Object.values(sections.XCSwiftPackageProductDependency)
+            .filter(s => typeof s !== 'string')
+            .some((v: any) => v.productName.indexOf(l) >= 0);
+        });
+      }),
+    ).toBe(true);
+
+    // ensure that the package is added to the project's packageReferences
+    expect(
+      pkgs.every(p => {
+        return pbx!
+          .getFirstProject()
+          .firstProject.packageReferences.some(
+            (v: IosPbxArrayValue) => v.comment.indexOf(p.name) >= 0,
+          );
+      }),
+    ).toBe(true);
+
+    // ensure that the package is added to the correct target's packageProductDependencies
+    const targetId = project.ios?.getTarget('App')?.id;
+    const targetSection = pbx!.pbxNativeTargetSection()[targetId!];
+    expect(
+      pkgs.every(p => {
+        return p.libs.every(l => {
+          return targetSection.packageProductDependencies.some(
+            (v: IosPbxArrayValue) => v.comment.indexOf(l) >= 0,
+          );
+        });
+      }),
+    ).toBe(true);
+
+    // ensure that the package is added to the BuildFiles
+    expect(
+      pkgs.every(p => {
+        return p.libs.every(l => {
+          return Object.values(sections.PBXBuildFile)
+            .filter(s => typeof s === 'string')
+            .some((v: any) => v.indexOf(l) >= 0);
+        });
+      }),
+    ).toBe(true);
+
+    // Make sure the SPM packages were added
+    expect(sections.XCRemoteSwiftPackageReference).toBeDefined();
+    expect(sections.XCSwiftPackageProductDependency).toBeDefined();
+  });
+
+  it('should add remote spm packages only once', async () => {
+    const pbx = project.ios?.getPbxProject();
+    const sections = pbx!.hash.project.objects;
+
+    // Make sure there are no SPM packages to start
+    expect(sections.XCRemoteSwiftPackageReference).not.toBeDefined();
+    expect(sections.XCSwiftPackageProductDependency).not.toBeDefined();
+
+    const pkgs = [
+      {
+        name: 'swift-numerics',
+        libs: ['Numerics'],
+        repositoryURL: 'https://github.com/apple/swift-numerics.git',
+        version: '1.0.0',
+      },
+    ];
+    pkgs.forEach(p => project.ios?.addSPMPackage('App', p));
+
+    expect(Object.values(sections.XCRemoteSwiftPackageReference).length).toBe(2);
+    expect(Object.values(sections.XCSwiftPackageProductDependency).length).toBe(2);
+
+    // add the same package again
+    pkgs.forEach(p => project.ios?.addSPMPackage('App', p));
+
+    // ensure that the package isn't added again
+    expect(Object.values(sections.XCRemoteSwiftPackageReference).length).toBe(2);
+    expect(Object.values(sections.XCSwiftPackageProductDependency).length).toBe(2);
+  });
+
+  it('should add local spm packages', async () => {
+    const pbx = project.ios?.getPbxProject();
+    const sections = pbx!.hash.project.objects;
+    // Make sure there are no SPM packages to start
+    expect(sections.XCLocalSwiftPackageReference).not.toBeDefined();
+    expect(sections.XCSwiftPackageProductDependency).not.toBeDefined();
+
+    const pkgs = [
+      {
+        name: 'local-swift-numerics',
+        libs: ['LocalRealModule', 'LocalComplexModule'],
+        path: 'path/to/package',
+      },
+    ];
+    pkgs.forEach(p => project.ios?.addSPMPackage('App', p));
+
+    // ensure the frameworks are added
+    const frameworks = project.ios?.getFrameworks('App');
+    expect(
+      pkgs.every(p => {
+        return p.libs.every(l => (frameworks?.indexOf(l) ?? -1) >= 0);
+      }),
+    ).toBe(true);
+
+    expect(
+      pkgs.every(p => {
+        return Object.values(sections.XCLocalSwiftPackageReference)
+          .filter(s => typeof s !== 'string')
+          .some((v: any) => v.relativePath.indexOf(p.path) >= 0);
+      }),
+    ).toBe(true);
+
+    expect(
+      pkgs.every(p => {
+        return p.libs.every(l => {
+          return Object.values(sections.XCSwiftPackageProductDependency)
+            .filter(s => typeof s !== 'string')
+            .some((v: any) => v.productName.indexOf(l) >= 0);
+        });
+      }),
+    ).toBe(true);
+
+    // ensure that the package is added to the project's packageReferences
+    expect(
+      pkgs.every(p => {
+        return pbx!
+          .getFirstProject()
+          .firstProject.packageReferences.some(
+            (v: IosPbxArrayValue) => v.comment.indexOf(p.path) >= 0,
+          );
+      }),
+    ).toBe(true);
+
+    // ensure that the package is added to the correct target's packageProductDependencies
+    const targetId = project.ios?.getTarget('App')?.id;
+    const targetSection = pbx!.pbxNativeTargetSection()[targetId!];
+    expect(
+      pkgs.every(p => {
+        return p.libs.every(l => {
+          return targetSection.packageProductDependencies.some(
+            (v: IosPbxArrayValue) => v.comment.indexOf(l) >= 0,
+          );
+        });
+      }),
+    ).toBe(true);
+
+    // ensure that the package is added to the BuildFiles
+    expect(
+      pkgs.every(p => {
+        return p.libs.every(l => {
+          return Object.values(sections.PBXBuildFile)
+            .filter(s => typeof s === 'string')
+            .some((v: any) => v.indexOf(l) >= 0);
+        });
+      }),
+    ).toBe(true);
+
+    // Make sure the SPM packages were added
+    expect(sections.XCLocalSwiftPackageReference).toBeDefined();
+    expect(sections.XCSwiftPackageProductDependency).toBeDefined();
+  });
+
+  it('should add local spm packages only once', async () => {
+    const pbx = project.ios?.getPbxProject();
+    const sections = pbx!.hash.project.objects;
+
+    // Make sure there are no SPM packages to start
+    expect(sections.XCLocalSwiftPackageReference).not.toBeDefined();
+    expect(sections.XCSwiftPackageProductDependency).not.toBeDefined();
+
+    const pkgs = [
+      {
+        name: 'local-swift-numerics',
+        libs: ['Numerics'],
+        path: 'path/to/package'
+      },
+    ];
+    pkgs.forEach(p => project.ios?.addSPMPackage('App', p));
+
+    expect(Object.values(sections.XCLocalSwiftPackageReference).length).toBe(2);
+    expect(Object.values(sections.XCSwiftPackageProductDependency).length).toBe(2);
+
+    // add the same package again
+    pkgs.forEach(p => project.ios?.addSPMPackage('App', p));
+
+    // ensure that the package isn't added again
+    expect(Object.values(sections.XCLocalSwiftPackageReference).length).toBe(2);
+    expect(Object.values(sections.XCSwiftPackageProductDependency).length).toBe(2);
   });
 
   it('should add frameworks to non-app targets', async () => {

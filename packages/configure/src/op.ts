@@ -213,6 +213,8 @@ function createOpDisplayText(op: Partial<Operation>) {
       return (Array.isArray(op.value) ? op.value : op.value.entries).map((v: any) => Object.keys(v)).join(', ');
     case 'ios.frameworks':
       return op.value.join(', ');
+    case 'ios.spmPackages':
+      return op.value.map((v: any) => `${v.name} (${v.libs.join(', ')})`).join(', ');
     case 'ios.plist':
       return `${op.value.entries.length} modifications`;
     case 'ios.xml':
