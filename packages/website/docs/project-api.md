@@ -50,7 +50,7 @@ To get a preview of changes that will be committed, the `VFS` object can be acce
 
 ```typescript
 const changedFiles = project.vfs.all();
-changedFiles.forEach((f) => {
+Object.values(changedFiles).forEach((f) => {
   console.log(f.getFilename(), f.getData());
 });
 ```
