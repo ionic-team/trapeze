@@ -18,9 +18,7 @@
     "test": "turbo run test",
     "shipit": "npm run build-jar -w packages/gradle-parse && npm run build -- --force && npm run test && npx changeset publish && git push --tags"
   },
-  "volta": {
-    "node": "16.18.1",
-    "npm": "9.1.2"
-  },
-  "packageManager": "npm@9.1.l"
+  "dependencies": {
+    "@types/sharp": "^0.31.1"
+  }
 }

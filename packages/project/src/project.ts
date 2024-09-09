@@ -15,6 +15,7 @@ import { NativeIosFramework } from './frameworks/native-ios';
 import { NativeAndroidFramework } from './frameworks/native-android';
 import { NativeScriptFramework } from './frameworks/nativescript';
 import { Logger } from './logger';
+import { Assets } from './assets/asset-types'
 
 export class MobileProject {
   public framework: Framework | null = null;
@@ -22,9 +23,13 @@ export class MobileProject {
   public android: AndroidProject | null = null;
   vfs: VFS;
 
+  assets: Assets | null = null;
+  directory: string | null = null;
+  assetDir: string | null = null;
+
   constructor(
     public projectRoot: string,
-    public config: MobileProjectConfig = {}
+    public config: MobileProjectConfig = {},
   ) {
     this.vfs = new VFS();
     this.config.projectRoot = projectRoot;
@@ -35,16 +40,6 @@ export class MobileProject {
 
     if (typeof config.enableIos === 'undefined') {
       config.enableIos = true;
-    }
-
-    if (this.config.ios) {
-      this.config.ios.path = join(this.projectRoot, this.config.ios.path ?? '');
-    }
-    if (this.config.android) {
-      this.config.android.path = join(
-        this.projectRoot,
-        this.config.android.path ?? '',
-      );
     }
   }
 
@@ -78,7 +73,8 @@ export class MobileProject {
     if (
       this.config?.enableIos &&
       this.config?.ios?.path &&
-      (await pathExists(this.config.ios?.path))) {
+      (await pathExists(this.config.ios?.path))
+    ) {
       this.ios = new IosProject(this);
       await this.ios?.load();
     }
