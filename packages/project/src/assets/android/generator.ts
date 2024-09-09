@@ -15,7 +15,7 @@ import { AssetKind, Platform } from '../asset-types';
 import type { InputAsset } from '../input-asset';
 import { OutputAsset } from '../output-asset';
 import type { MobileProject } from '../../project';
-//import { warn } from '../../util/log';
+import { Logger } from '../../logger';
 
 import * as AndroidAssetTemplates from './assets';
 
@@ -184,7 +184,7 @@ export class AndroidAssetGenerator extends AssetGenerator {
     }
 
     if (targetWidth > splash.width || targetWidth > splash.height) {
-      warn(`Logo dimensions exceed dimensions of splash ${splash.width}x${splash.height}, using default logo size`);
+      Logger.warn(`Logo dimensions exceed dimensions of splash ${splash.width}x${splash.height}, using default logo size`);
       targetWidth = Math.floor((splash.width ?? 0) * 0.2);
     }
 
@@ -330,7 +330,7 @@ export class AndroidAssetGenerator extends AssetGenerator {
     const pipe = asset.pipeline();
 
     if (!pipe) {
-      throw new BadPipelineError('Sharp instance not created');
+      throw new Error('Sharp instance not created');
     }
 
     return Promise.all(
@@ -402,7 +402,7 @@ export class AndroidAssetGenerator extends AssetGenerator {
     const pipe = asset.pipeline();
 
     if (!pipe) {
-      throw new BadPipelineError('Sharp instance not created');
+      throw new Error('Sharp instance not created');
     }
 
     return Promise.all(
@@ -478,7 +478,7 @@ export class AndroidAssetGenerator extends AssetGenerator {
     const pipe = asset.pipeline();
 
     if (!pipe) {
-      throw new BadPipelineError('Sharp instance not created');
+      throw new Error('Sharp instance not created');
     }
 
     const splashes = (

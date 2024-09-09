@@ -99,4 +99,20 @@ export class MobileProject {
     const srcPath = join(this.projectRoot, src);
     return copy(srcPath, destPath);
   }
+
+  async androidExists(): Promise<boolean> {
+    return this.config.android?.path !== undefined && (await pathExists(this.config.android?.path));
+  }
+
+  async iosExists(): Promise<boolean> {
+    return this.config.ios?.path !== undefined && (await pathExists(this.config.ios?.path));
+  }
+
+  async assetDirExists(): Promise<boolean> {
+    if (this.assetDir !== null) {
+      return pathExists(this.assetDir);
+    } else {
+      return false
+    }
+  }
 }
