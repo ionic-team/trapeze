@@ -45,9 +45,6 @@ export class AndroidAssetGenerator extends AssetGenerator {
         return this.generateAdaptiveIconForeground(asset, project);
       case AssetKind.IconBackground:
         return this.generateAdaptiveIconBackground(asset, project);
-      case AssetKind.Splash:
-      case AssetKind.SplashDark:
-        return this.generateSplashes(asset, project);
     }
 
     return [];
@@ -74,39 +71,7 @@ export class AndroidAssetGenerator extends AssetGenerator {
       // Generate legacy icons
       const generatedLegacyIcons = await this.generateLegacyIcon(asset, project);
       generated.push(...generatedLegacyIcons);
-
-      const splashes = Object.values(AndroidAssetTemplates).filter((a) => a.kind === AssetKind.Splash);
-
-      const generatedSplashes = await Promise.all(
-        splashes.map(async (splash) => {
-          return this._generateSplashesFromLogo(
-            project,
-            asset,
-            splash,
-            pipe,
-            this.options.splashBackgroundColor ?? '#ffffff',
-          );
-        }),
-      );
-
-      generated.push(...generatedSplashes);
     }
-
-    // Generate dark splashes
-    const darkSplashes = Object.values(AndroidAssetTemplates).filter((a) => a.kind === AssetKind.SplashDark);
-    const generatedSplashes = await Promise.all(
-      darkSplashes.map(async (splash) => {
-        return this._generateSplashesFromLogo(
-          project,
-          asset,
-          splash,
-          pipe,
-          this.options.splashBackgroundColorDark ?? '#111111',
-        );
-      }),
-    );
-
-    generated.push(...generatedSplashes);
 
     return [...generated];
   }
@@ -472,53 +437,6 @@ export class AndroidAssetGenerator extends AssetGenerator {
     });
 
     await project.commit();
-  }
-
-  private async generateSplashes(asset: InputAsset, project: MobileProject): Promise<OutputAsset[]> {
-    const pipe = asset.pipeline();
-
-    if (!pipe) {
-      throw new Error('Sharp instance not created');
-    }
-
-    const splashes = (
-      asset.kind === AssetKind.Splash
-        ? Object.values(AndroidAssetTemplates).filter((a) => a.kind === AssetKind.Splash)
-        : Object.values(AndroidAssetTemplates).filter((a) => a.kind === AssetKind.SplashDark)
-    ) as AndroidOutputAssetTemplateSplash[];
-
-    const resPath = this.getResPath(project);
-
-    const collected = await Promise.all(
-      splashes.map(async (splash) => {
-        const [dest, outputInfo] = await this.generateSplash(project, asset, splash, pipe);
-
-        const relPath = relative(resPath, dest);
-        return new OutputAsset(splash, asset, project, { [relPath]: dest }, { [relPath]: outputInfo });
-      }),
-    );
-
-    return collected;
-  }
-
-  private async generateSplash(
-    project: MobileProject,
-    asset: InputAsset,
-    template: AndroidOutputAssetTemplateSplash,
-    pipe: Sharp,
-  ): Promise<[string, OutputInfo]> {
-    const drawableDir = template.density ? `drawable-${template.density}` : 'drawable';
-
-    const resPath = this.getResPath(project);
-    const parentDir = join(resPath, drawableDir);
-    if (!(await pathExists(parentDir))) {
-      await mkdirp(parentDir);
-    }
-    const dest = join(resPath, drawableDir, 'splash.png');
-
-    const outputInfo = await pipe.resize(template.width, template.height).png().toFile(dest);
-
-    return [dest, outputInfo];
   }
 
   private getResPath(project: MobileProject): string {

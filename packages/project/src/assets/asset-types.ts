@@ -33,17 +33,13 @@ export const enum AssetKind {
   Icon = 'icon',
   IconForeground = 'icon-foreground',
   IconBackground = 'icon-background',
-  NotificationIcon = 'notification-icon',
-  Splash = 'splash',
-  SplashDark = 'splash-dark',
+  NotificationIcon = 'notification-icon'
 }
 
 export const enum Platform {
   Any = 'any',
   Ios = 'ios',
-  Android = 'android',
-  Pwa = 'pwa',
-  // Windows = 'windows'
+  Android = 'android'
 }
 
 export const enum Format {
