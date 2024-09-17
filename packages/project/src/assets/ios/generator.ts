@@ -31,6 +31,7 @@ export class IosAssetGenerator extends AssetGenerator {
 
   async generate(asset: InputAsset, project: MobileProject): Promise<OutputAsset[]> {
     const iosDir = project.config.ios?.path;
+    await asset.load()
 
     if (!iosDir) {
       throw new Error('No ios project found');

@@ -8,8 +8,7 @@ import type { AssetGeneratorOptions } from '../asset-generator';
 import { AssetGenerator } from '../asset-generator';
 import type {
   AndroidOutputAssetTemplate,
-  AndroidOutputAssetTemplateAdaptiveIcon,
-  AndroidOutputAssetTemplateSplash,
+  AndroidOutputAssetTemplateAdaptiveIcon
 } from '../asset-types';
 import { AssetKind, Platform } from '../asset-types';
 import type { InputAsset } from '../input-asset';
@@ -26,6 +25,7 @@ export class AndroidAssetGenerator extends AssetGenerator {
 
   async generate(asset: InputAsset, project: MobileProject): Promise<OutputAsset[]> {
     const androidDir = project.config.android?.path;
+    await asset.load()
 
     if (!androidDir) {
       throw new Error("No android project found")
