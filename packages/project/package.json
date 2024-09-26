@@ -33,7 +33,6 @@
     "kleur": "^4.1.5",
     "lodash": "^4.17.21",
     "mergexml": "^1.2.3",
-    "npm-watch": "^0.9.0",
     "plist": "^3.0.4",
     "prettier": "^2.7.1",
     "prompts": "^2.4.2",
