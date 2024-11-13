@@ -1,6 +1,6 @@
 {
   "name": "@trapezedev/project",
-  "version": "7.0.10",
+  "version": "7.1.0",
   "description": "Trapeze mobile configuration API for managing projects through code",
   "author": "Ionic Team <hi@ionic.io> (https://ionicframework.com) ",
   "license": "SEE LICENSE",

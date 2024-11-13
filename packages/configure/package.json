@@ -1,6 +1,6 @@
 {
   "name": "@trapezedev/configure",
-  "version": "7.0.10",
+  "version": "7.1.0",
   "description": "Trapeze configuration tool for automatically configuring projects",
   "author": "Ionic Team <hi@ionic.io> (https://ionicframework.com) ",
   "license": "SEE LICENSE",
