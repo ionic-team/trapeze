@@ -1,6 +1,6 @@
 import { readFile } from '@ionic/utils-fs';
 
-import fetch from 'cross-fetch';
+import fetch from 'node-fetch';
 
 // Supporting reading files from either a path or URL
 export async function readSource(pathOrUrl: string) {

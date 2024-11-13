@@ -1,5 +1,5 @@
 import { join } from 'path';
-import fetch from 'cross-fetch';
+import fetch from 'node-fetch';
 import {
   pathExists,
   move,
@@ -130,7 +130,7 @@ export class AndroidProject extends PlatformProject {
 
         const attr = label.replace('@string/', '');
 
-        // TODO: use the value specified in the @strings attribute 
+        // TODO: use the value specified in the @strings attribute
         Logger.v('android', 'setAppName', `Updated values/strings.xml <string name="${attr}"> to <string name="${attr}">${appName}</string>`);
         stringsFile.replaceFragment(`resources/string[@name="${attr}"]`, `<string name="${attr}">${appName}</string>`);
       }
@@ -153,13 +153,13 @@ export class AndroidProject extends PlatformProject {
     let oldPackageName = await this.manifest
       .getDocumentElement()
       ?.getAttribute('package');
-    
+
     if (!oldPackageName) {
       oldPackageName = await this.appBuildGradle?.getApplicationId();
     } else {
       hadPackageAttr = true;
     }
-    
+
     const oldPackageParts = oldPackageName?.split('.') ?? [];
 
     Logger.v('android', 'setPackageName', 'setting Android package name to', packageName, 'from', oldPackageName);

@@ -1,6 +1,6 @@
 import plist from 'plist';
 import path, { join, sep } from 'path';
-import fetch from 'cross-fetch';
+import fetch from 'node-fetch';
 import { copy, pathExists, readdir, writeFile } from '@ionic/utils-fs';
 
 import { parsePbxProject, pbxReadString, pbxSerializeString } from "../util/pbx";
@@ -498,7 +498,7 @@ export class IosProject extends PlatformProject {
   /**
    * Update the Info plist for the given target and build. The entries will be merged
    * into the existing plist file.
-   * 
+   *
    * Pass null as the `targetName` to use the main app target
    */
   async updateInfoPlist(targetName: IosTargetName | null, buildName: IosBuildName | null, entries: any, mergeMode?: {
