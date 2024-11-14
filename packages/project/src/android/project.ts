@@ -1,5 +1,4 @@
 import { join } from 'path';
-import fetch from 'node-fetch';
 import {
   pathExists,
   move,

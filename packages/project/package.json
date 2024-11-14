@@ -24,7 +24,6 @@
     "@trapezedev/gradle-parse": "dev",
     "@xmldom/xmldom": "^0.7.5",
     "conventional-changelog": "^3.1.4",
-    "node-fetch": "^3.3.2",
     "cross-spawn": "^7.0.3",
     "diff": "^5.1.0",
     "env-paths": "^3.0.0",

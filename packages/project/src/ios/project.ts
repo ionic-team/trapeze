@@ -1,6 +1,5 @@
 import plist from 'plist';
 import path, { join, sep } from 'path';
-import fetch from 'node-fetch';
 import { copy, pathExists, readdir, writeFile } from '@ionic/utils-fs';
 
 import { parsePbxProject, pbxReadString, pbxSerializeString } from "../util/pbx";
