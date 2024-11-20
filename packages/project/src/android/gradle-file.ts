@@ -252,7 +252,7 @@ export class GradleFile extends VFSStorable {
           java,
           [
             '-cp',
-            'lib/groovy-3.0.9.jar;lib/json-20210307.jar;capacitor-gradle-parse.jar;.',
+            'lib/groovy-3.0.9.jar;lib/json-20230227.jar;capacitor-gradle-parse.jar;.',
             'com.capacitorjs.gradle.Parse',
             this.tempFile,
           ],
