@@ -4,6 +4,87 @@ import {
   IosSPMPackageDefinition,
 } from '../definitions';
 import path from 'path';
+import * as semver from 'semver';
+
+// requirement = {
+//   kind = versionRange;
+//   maximumVersion = 2.0.0;
+//   minimumVersion = 1.0.0;
+// };
+// requirement = {
+//   kind = exactVersion;
+//   version = 1.0.0;
+// };
+// requirement = {
+//   kind = upToNextMinorVersion;
+//   minimumVersion = 1.0.0;
+// };
+// requirement = {
+//   kind = upToNextMajorVersion;
+//   minimumVersion = 1.0.0;
+// };
+// requirement = {
+//   branch = asd;
+//   kind = branch;
+// };
+// requirement = {
+//   kind = revision;
+//   revision = 5f03bfdc8cb6300ef8355695a3d27d11ba19f6a3;
+// };
+
+export function classifyVersion(version: string) {
+  if (version.startsWith('#')) {
+    return {
+      kind: 'revision',
+      revision: version.replace('#', ''),
+    };
+  }
+
+  if (semver.valid(version)) {
+    return {
+      kind: 'exactVersion',
+      version,
+    };
+  }
+
+  const range = semver.validRange(version);
+  if (range) {
+    const minimumVersion = semver.minVersion(range)?.version;
+    if (version.startsWith('^')) {
+      return {
+        kind: 'upToNextMajorVersion',
+        minimumVersion,
+      };
+    } else if (version.startsWith('~')) {
+      return {
+        kind: 'upToNextMinorVersion',
+        minimumVersion,
+      };
+    } else {
+      const maximumVersion = semver.coerce(
+        version.replace(minimumVersion ?? '', ''),
+      )?.version;
+
+      if (maximumVersion && maximumVersion !== minimumVersion) {
+        return {
+          kind: 'versionRange',
+          minimumVersion,
+          maximumVersion,
+        };
+      }
+
+      return {
+        kind: 'upToNextMajorVersion',
+        minimumVersion,
+      };
+    }
+  }
+
+  return {
+    kind: 'branch',
+    branch: version,
+  };
+}
 
 export function addSPMPackageToProject(
   project: IosPbxProject,
@@ -31,7 +112,10 @@ export function addSPMPackageToProject(
 
   if ('path' in pkg) {
     // local package
-    const relativePath = path.relative(projectRoot, path.resolve(projectRoot, pkg.path));
+    const relativePath = path.relative(
+      projectRoot,
+      path.resolve(projectRoot, pkg.path),
+    );
     packageReferenceComment = `XCLocalSwiftPackageReference "${relativePath}"`;
     packageReferenceSection = 'XCLocalSwiftPackageReference';
     packageReferenceSectionContent = {
@@ -45,11 +129,7 @@ export function addSPMPackageToProject(
     packageReferenceSectionContent = {
       isa: packageReferenceSection,
       repositoryURL: JSON.stringify(pkg.repositoryURL),
-      requirement: {
-        // todo: support different ranges?
-        kind: 'upToNextMajorVersion',
-        minimumVersion: pkg.version,
-      },
+      requirement: classifyVersion(pkg.version),
     };
   }
 
