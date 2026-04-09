@@ -15,6 +15,7 @@
   ],
   "scripts": {
     "build": "turbo run build",
+    "changeset": "changeset",
     "test": "turbo run test",
     "shipit": "npm run build-jar -w packages/gradle-parse && npm run build -- --force && npm run test && npx changeset publish && git push --tags"
   }
