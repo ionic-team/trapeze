@@ -6,16 +6,16 @@ import xmldom, { XMLSerializer } from '@xmldom/xmldom';
 import prettier from 'prettier/standalone';
 import prettierXml from '@prettier/plugin-xml';
 
-export async function parseXml(filename: string) {
+export async function parseXml(filename: string): Promise<Document> {
   let contents = await readFile(filename, { encoding: 'utf-8' });
   if (!contents) {
     contents = '<?xml version="1.0" encoding="utf-8" ?>\n<root />';
   }
-  return new xmldom.DOMParser().parseFromString(contents);
+  return new xmldom.DOMParser().parseFromString(contents, 'text/xml') as unknown as Document;
 }
 
-export function parseXmlString(contents: string) {
-  return new xmldom.DOMParser().parseFromString(contents);
+export function parseXmlString(contents: string): Document {
+  return new xmldom.DOMParser().parseFromString(contents, 'text/xml') as unknown as Document;
 }
 
 export function serializeXml(doc: any) {
