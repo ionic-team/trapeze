@@ -45,11 +45,11 @@
   --docsearch-text-color: var(--c-carbon-30);
   --docsearch-searchbox-background: #fff;
   --docsearch-searchbox-focus-background: #fff;
-  --docsearch-searchbox-shadow: 0px 0px 0px 1px var(--c-indigo-30);
-  --docsearch-key-gradient: #fff;
-  --docsearch-key-shadow: 0px 0px 0px 1px var(--c-indigo-30);
+  --docsearch-subtle-color: var(--c-indigo-30);
+  --docsearch-search-button-background: #fff;
+  --docsearch-key-background: #fff;
 
-  [class*='searchBox_'] {
+  [class*='navbarSearchContainer'] {
     --ifm-navbar-item-padding-vertical: 0;
 
     flex-basis: 14rem;
@@ -59,15 +59,14 @@
     font-size: inherit;
     font-weight: 400;
 
-    box-shadow: var(--docsearch-searchbox-shadow);
-
+    box-sizing: border-box;
     width: 100%;
 
     border-radius: 8px;
 
     &:hover,
     &:focus {
-      --docsearch-searchbox-shadow: 0px 0px 0px 1px var(--c-indigo-50);
+      --docsearch-subtle-color: var(--c-indigo-50);
     }
 
     &-Container {
