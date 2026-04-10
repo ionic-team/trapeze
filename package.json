@@ -2,7 +2,7 @@
   "name": "root",
   "private": false,
   "overrides": {
-    "webpackbar": "^7.0.0"
+    "webpackbar": "7.0.0"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.4.4",
