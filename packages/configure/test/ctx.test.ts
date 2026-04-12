@@ -5,7 +5,7 @@ describe('context and capacitor project loading', () => {
   const OLD_ENV = process.env;
 
   beforeEach(() => {
-    jest.resetModules() // Most important - it clears the cache
+    vi.resetModules() // Most important - it clears the cache
     process.env = { ...OLD_ENV }; // Make a copy
   });
 

@@ -1,4 +1,4 @@
-import { formatXml, parseXml, parseXmlString, serializeXml, writeXml } from './util/xml';
+import { formatXml, parseXml, parseXmlFragment, parseXmlString, serializeXml, writeXml } from './util/xml';
 import xpath, { XPathSelect } from 'xpath';
 import { xml2js, js2xml } from 'xml-js';
 import { VFS, VFSFile, VFSStorable } from './vfs';
@@ -54,6 +54,19 @@ export class XmlFile extends VFSStorable {
     return this.doc?.documentElement;
   }
 
+  private getNamespaceAttrs(): string {
+    const rootNode = this.getDocumentElement();
+    if (!rootNode) return '';
+    const attrs: string[] = [];
+    for (const attr in rootNode.attributes) {
+      const attribute = rootNode.attributes[attr];
+      if (attribute.name?.startsWith('xmlns')) {
+        attrs.push(`${attribute.name}="${attribute.value}"`);
+      }
+    }
+    return attrs.join(' ');
+  }
+
   find(target: string): Element[] | null {
     if (!this.doc) {
       return null;
@@ -99,13 +112,12 @@ export class XmlFile extends VFSStorable {
     }
 
     const nodes = this.select?.(target, this.doc) as Element[];
-    const parsed = parseXmlString(fragment);
-    const docNodes = parsed.childNodes ?? [];
+    const docNodes = Array.from(parseXmlFragment(fragment, this.getNamespaceAttrs()));
 
     Logger.v('xml', 'injectFragment', `at ${target}`);
 
     nodes.forEach(n =>
-      Array.prototype.forEach.call(docNodes, d => n.appendChild(d)),
+      docNodes.forEach(d => n.appendChild(d)),
     );
 
     this.vfs.set(this.path, this);

@@ -392,7 +392,7 @@ describe('project - ios standard', () => {
   });
 
   it('should copy URL', async () => {
-    await project.ios?.copyFile('https://via.placeholder.com/150C', 'placeholder.png');
+    await project.ios?.copyFile('https://picsum.photos/150', 'placeholder.png');
     const dest = join(dir, 'ios/App', 'placeholder.png');
     const destContents = await readFile(dest);
     expect(destContents.length).toBeGreaterThan(0);
