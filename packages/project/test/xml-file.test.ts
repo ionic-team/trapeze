@@ -31,7 +31,7 @@ describe('xml file', () => {
     file.deleteNodes('//string');
     const doc = file.getDocumentElement();
 
-    const serialized = serializeXml(doc).replaceAll(/\s+/g, '');
+    const serialized = serializeXml(doc).replace(/\s+/g, '');
     expect(serialized).toBe(`
 <resources></resources>
     `.trim());

@@ -16,7 +16,7 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "target": "es2019",
-    "types": ["node", "jest", "lodash", "prompts"]
+    "types": ["node", "lodash", "prompts"]
   },
   "files": ["src/index.ts"],
   "include": ["src/**/*.ts"]

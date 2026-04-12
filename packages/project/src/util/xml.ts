@@ -18,6 +18,18 @@ export function parseXmlString(contents: string): Document {
   return new xmldom.DOMParser().parseFromString(contents, 'text/xml') as unknown as Document;
 }
 
+/**
+ * Parses an XML fragment that may contain multiple root elements
+ * by wrapping it in a temporary root element.
+ * Accepts optional namespace attributes to support prefixed elements.
+ */
+export function parseXmlFragment(contents: string, namespaceAttrs?: string): NodeList {
+  const nsAttrs = namespaceAttrs ? ` ${namespaceAttrs}` : '';
+  const wrapped = `<__fragment__${nsAttrs}>${contents}</__fragment__>`;
+  const doc = new xmldom.DOMParser().parseFromString(wrapped, 'text/xml') as unknown as Document;
+  return doc.documentElement.childNodes;
+}
+
 export function serializeXml(doc: any) {
   return new XMLSerializer().serializeToString(doc);
 }
