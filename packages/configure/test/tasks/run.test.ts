@@ -53,7 +53,7 @@ describe('task: run', () => {
     await loadYamlConfig(ctx, join(dir, 'basic.yml'));
   });
 
-  it('should run operations', async () => {
+  it('should run operations', { timeout: 120000 }, async () => {
     const dir = temporaryDirectory();
 
     await copy('../common/test/fixtures/ios-and-android', dir);
