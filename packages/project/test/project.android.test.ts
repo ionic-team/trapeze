@@ -319,7 +319,7 @@ try {
   });
 
   it('should copy resources file from url', async () => {
-    await project.android?.copyToResources('drawable', 'icon.png', 'https://via.placeholder.com/150C');
+    await project.android?.copyToResources('drawable', 'icon.png', 'https://picsum.photos/150');
     const destContents = await project.android?.getResource('drawable', 'icon.png', null) as Buffer;
 
     expect(destContents.length).toBeGreaterThan(0);
@@ -345,7 +345,7 @@ try {
   });
 
   it('should copy URL', async () => {
-    await project.android?.copyFile('https://via.placeholder.com/150C', 'placeholder.png');
+    await project.android?.copyFile('https://picsum.photos/150', 'placeholder.png');
     const dest = join(dir, 'android', 'placeholder.png');
     const destContents = await readFile(dest);
     expect(destContents.length).toBeGreaterThan(0);
