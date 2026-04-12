@@ -15,7 +15,8 @@
     "noImplicitAny": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "target": "es2019"
+    "target": "es2019",
+    "types": ["node", "jest", "cross-spawn", "diff", "fs-extra", "ini", "lodash", "plist"]
   },
   "files": ["src/index.ts"],
   "include": ["/src/**/*.ts", "**/src/**/*.ts", "/src/**/*.d.ts"]
