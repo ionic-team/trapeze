@@ -148,6 +148,27 @@ project.ios?.addFramework(targetName, 'Custom.framework', {
 project.ios?.getFrameworks(targetName);
 ```
 
+#### SPM Packages
+
+SPM (Swift Package Manager) packages can be added
+
+```typescript
+// remote SPM packages
+await project.ios?.addSPMPackage(targetName, {
+  name: 'swift-numerics',
+  libs: ['Numerics'],
+  repositoryURL: 'https://github.com/apple/swift-numerics.git',
+  version: '1.0.0'
+})
+
+// local SPM packages
+await project.ios?.addSPMPackage(targetName, {
+  name: 'local-swift-numerics',
+  libs: ['ComplexModule', 'RealModule'],
+  path: '../path/to/local-swift-numerics',
+})
+```
+
 #### Entitlements
 
 Entitlements can be managed:

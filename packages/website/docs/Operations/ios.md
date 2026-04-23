@@ -289,3 +289,25 @@ platforms:
             set:
               "PRODUCT_NAME": "$(NAME)"
 ```
+
+### `spmPackages`
+
+<!-- TODO: update this according to when this is released. -->
+*Since: 7.1.0*
+
+Add iOS SPM (Swift Package Manager) dependencies to a project.
+
+```yaml
+platforms:
+  ios:
+    targets:
+      App:
+        spmPackages:
+          - name: "swift-numerics"
+            libs: [ "Numerics" ]
+            repositoryURL: "https://github.com/apple/swift-numerics.git"
+            version: "1.0.0"
+          - name: "local-swift-numerics"
+            libs: [ "ComplexModule", "RealModule" ]
+            path: "../path/to/local-swift-numerics"
+```
