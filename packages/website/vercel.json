@@ -2,6 +2,8 @@
   "cleanUrls": true,
   "redirects": [
     { "source": "/docs/configuration-tool", "destination": "/docs/operations/getting-started" },
-    { "source": "/docs/examples", "destination": "/docs/resources" }
+    { "source": "/docs/examples", "destination": "/docs/resources" },
+    { "source": "/docs/Frameworks/:path*", "destination": "/docs/frameworks/:path*" },
+    { "source": "/docs/Operations/:path*", "destination": "/docs/operations/:path*" }
   ]
 }

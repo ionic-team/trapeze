@@ -3,7 +3,7 @@
 import { dirname } from 'path';
 import { readFile, writeFile } from '@ionic/utils-fs';
 import xmldom, { XMLSerializer } from '@xmldom/xmldom';
-import prettier from 'prettier/standalone';
+import prettier from 'prettier';
 import prettierXml from '@prettier/plugin-xml';
 
 export async function parseXml(filename: string): Promise<Document> {
