@@ -12,8 +12,7 @@ import { PlatformProject } from '../platform-project';
 import { Logger } from '../logger';
 import { assertParentDirs } from '../util/fs';
 
-const defaultEntitlementsPlist = `
-<?xml version="1.0" encoding="UTF-8"?>
+const defaultEntitlementsPlist = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
@@ -21,8 +20,7 @@ const defaultEntitlementsPlist = `
 </plist>
 `;
 
-const defaultInfoPlist = `
-<?xml version="1.0" encoding="UTF-8"?>
+const defaultInfoPlist = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>

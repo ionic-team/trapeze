@@ -34,8 +34,7 @@ describe('xml file', () => {
     });
   });
   it('Should set from plist xml string #105', async () => {
-    file.setFromXml(`
-<?xml version="1.0" encoding="UTF-8"?>
+    file.setFromXml(`<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
