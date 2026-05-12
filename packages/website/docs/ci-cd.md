@@ -31,3 +31,12 @@ Then call this script as part of your `build` step. For example, here's how it w
     "appflow:build": "if [ \"$CI_PLATFORM\" != \"web\" ]; then npx trapeze run ci.yaml -y --$CI_PLATFORM; fi && npm run build",
   },
 ```
+
+And here's how it works in Capawesome:
+
+```
+  "scripts": {
+    "capawesome:build": "if [ \"$CI_PLATFORM\" != \"web\" ]; then npx trapeze run ci.yaml -y --$CI_PLATFORM; fi && npm run build",
+  },
+```
+
