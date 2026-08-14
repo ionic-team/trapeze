@@ -1,14 +1,14 @@
 {
   "name": "root",
   "private": false,
+  "packageManager": "npm@11.13.0",
   "overrides": {
-    "webpackbar": "7.0.0",
     "@xmldom/xmldom": "^0.9.9"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.4.4",
     "@changesets/cli": "^2.20.0",
-    "turbo": "^1.13.4"
+    "turbo": "^2.10.9"
   },
   "workspaces": [
     "packages/configure",
