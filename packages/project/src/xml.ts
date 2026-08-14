@@ -2,7 +2,7 @@ import { formatXml, parseXml, parseXmlFragment, parseXmlString, serializeXml, wr
 import xpath, { XPathSelect } from 'xpath';
 import { xml2js, js2xml } from 'xml-js';
 import { VFS, VFSFile, VFSStorable } from './vfs';
-import { readFile } from 'fs-extra';
+import { readFile } from 'fs/promises';
 import { Logger } from './logger';
 import { assertParentDirs } from './util/fs';
 
