@@ -1,5 +1,14 @@
 # @trapezedev/configure
 
+## 7.1.5
+
+### Patch Changes
+
+- 16d578a: chore(deps): npm audit fix and remove unused `replace` dependency
+- Updated dependencies [29c2d59]
+- Updated dependencies [16d578a]
+  - @trapezedev/project@7.1.5
+
 ## 7.0.10
 
 ### Patch Changes

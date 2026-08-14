@@ -1,5 +1,13 @@
 # @trapezedev/project
 
+## 7.1.5
+
+### Patch Changes
+
+- 29c2d59: chore(deps): npm audit fix
+- 16d578a: chore(deps): npm audit fix and remove unused `replace` dependency
+  - @trapezedev/gradle-parse@7.1.5
+
 ## 7.0.10
 
 ### Patch Changes
