@@ -26,27 +26,27 @@ jobs:
         id: release-please
         uses: googleapis/release-please-action@v4
       - uses: actions/checkout@v4
-        if: ${{ steps.release-please.outputs.releases_created }}
+        if: ${{ steps.release-please.outputs.releases_created == 'true' }}
       - uses: actions/setup-node@v4
-        if: ${{ steps.release-please.outputs.releases_created }}
+        if: ${{ steps.release-please.outputs.releases_created == 'true' }}
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Update npm for OIDC trusted publishing
-        if: ${{ steps.release-please.outputs.releases_created }}
+        if: ${{ steps.release-please.outputs.releases_created == 'true' }}
         run: npm install -g npm@latest
-      - if: ${{ steps.release-please.outputs.releases_created }}
+      - if: ${{ steps.release-please.outputs.releases_created == 'true' }}
         run: npm ci
-      - if: ${{ steps.release-please.outputs.releases_created }}
+      - if: ${{ steps.release-please.outputs.releases_created == 'true' }}
         run: npm run build
-      - if: ${{ steps.release-please.outputs.releases_created }}
+      - if: ${{ steps.release-please.outputs.releases_created == 'true' }}
         run: npm test
       # Published in dependency order: gradle-parse <- project <- configure
       - name: Publish @trapezedev/gradle-parse
-        if: ${{ steps.release-please.outputs['packages/gradle-parse--release_created'] }}
+        if: ${{ steps.release-please.outputs['packages/gradle-parse--release_created'] == 'true' }}
         run: npm publish -w packages/gradle-parse
       - name: Publish @trapezedev/project
-        if: ${{ steps.release-please.outputs['packages/project--release_created'] }}
+        if: ${{ steps.release-please.outputs['packages/project--release_created'] == 'true' }}
         run: npm publish -w packages/project
       - name: Publish @trapezedev/configure
-        if: ${{ steps.release-please.outputs['packages/configure--release_created'] }}
+        if: ${{ steps.release-please.outputs['packages/configure--release_created'] == 'true' }}
         run: npm publish -w packages/configure
