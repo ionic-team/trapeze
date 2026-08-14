@@ -7,8 +7,14 @@
   "separate-pull-requests": false,
   "plugins": ["node-workspace"],
   "packages": {
-    "packages/gradle-parse": {},
-    "packages/project": {},
-    "packages/configure": {}
+    "packages/gradle-parse": {
+      "component": "@trapezedev/gradle-parse"
+    },
+    "packages/project": {
+      "component": "@trapezedev/project"
+    },
+    "packages/configure": {
+      "component": "@trapezedev/configure"
+    }
   }
 }
