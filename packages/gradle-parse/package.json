@@ -13,5 +13,13 @@
     "build": "",
     "build-jar": "bash build.sh"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ionic-team/trapeze.git",
+    "directory": "packages/gradle-parse"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "gitHead": "3b4f9f02d6a74247a5606fe1c0688c9a1ec3fd4b"
 }
