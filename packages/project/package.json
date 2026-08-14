@@ -43,7 +43,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ionic-team/capacitor-configure.git"
+    "url": "git+https://github.com/ionic-team/trapeze.git",
+    "directory": "packages/project"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "devDependencies": {
     "@types/cross-spawn": "^6.0.2",

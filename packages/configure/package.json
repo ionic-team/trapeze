@@ -46,7 +46,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ionic-team/capacitor-configure.git"
+    "url": "git+https://github.com/ionic-team/trapeze.git",
+    "directory": "packages/configure"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "devDependencies": {
     "rimraf": "^6.0.1",

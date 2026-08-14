@@ -1,0 +1,5 @@
+{
+  "packages/gradle-parse": "7.1.5",
+  "packages/project": "7.1.5",
+  "packages/configure": "7.1.5"
+}
