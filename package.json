@@ -3,7 +3,6 @@
   "private": false,
   "packageManager": "npm@11.13.0",
   "overrides": {
-    "webpackbar": "7.0.0",
     "@xmldom/xmldom": "^0.9.9"
   },
   "devDependencies": {
