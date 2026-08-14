@@ -24,7 +24,6 @@
     "@ionic-internal/docusaurus-plugin-tag-manager": "^2.0.0",
     "@ionic/prettier-config": "^2.0.0",
     "@mdx-js/react": "^3.0.0",
-    "@svgr/webpack": "^5.5.0",
     "clsx": "^1.1.1",
     "docusaurus-plugin-sass": "^0.2.6",
     "modern-normalize": "^1.1.0",
