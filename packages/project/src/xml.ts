@@ -1,5 +1,5 @@
 import { formatXml, parseXml, parseXmlFragment, parseXmlString, serializeXml, writeXml } from './util/xml';
-import xpath, { XPathSelect } from 'xpath';
+import xpath from 'xpath';
 import { xml2js, js2xml } from 'xml-js';
 import { VFS, VFSFile, VFSStorable } from './vfs';
 import { readFile } from 'fs/promises';
@@ -9,7 +9,7 @@ import { assertParentDirs } from './util/fs';
 export class XmlFile extends VFSStorable {
   private doc: Document | null = null;
 
-  private select: XPathSelect = xpath.select;
+  private namespaces: { [ns: string]: string } = {};
 
   constructor(private path: string, private vfs: VFS) {
     super();
@@ -46,7 +46,7 @@ export class XmlFile extends VFSStorable {
         }
       }
       Logger.v('xml', 'load', `Found root namespaces in XML file:`, Object.values(namespaces).join(' '));
-      this.select = xpath.useNamespaces(namespaces);
+      this.namespaces = namespaces;
     }
   }
 
@@ -67,12 +67,39 @@ export class XmlFile extends VFSStorable {
     return attrs.join(' ');
   }
 
+  /**
+   * Selects the nodes matching an XPath node-set expression.
+   *
+   * `allowAnyNamespaceForNoPrefix` lets an unprefixed name test match elements in any
+   * namespace, not just the document's default one. That is more permissive than plain
+   * XPath 1.0, but acceptable here: prefixed name tests still resolve through the
+   * namespaces collected from the root element, and without it an unprefixed target
+   * matches nothing at all in a document that declares a default namespace.
+   */
+  private select(expression: string, doc: Document): Node[] {
+    return (xpath as any).parse(expression).select({
+      node: doc,
+      namespaces: this.namespaces,
+      allowAnyNamespaceForNoPrefix: true,
+    });
+  }
+
+  private selectTargetNodes(target: string, doc: Document): Element[] {
+    const nodes = this.select(target, doc) as Element[];
+
+    if (!nodes.length) {
+      Logger.warn(`No nodes in ${this.path} match the target '${target}'`);
+    }
+
+    return nodes;
+  }
+
   find(target: string): Element[] | null {
     if (!this.doc) {
       return null;
     }
 
-    return this.select?.(target, this.doc) as Element[];
+    return this.select(target, this.doc) as Element[];
   }
 
   deleteNodes(target: string) {
@@ -82,7 +109,7 @@ export class XmlFile extends VFSStorable {
 
     Logger.v('xml', 'deleteNodes', `at ${target}`);
 
-    const nodes = this.select?.(target, this.doc) as Element[];
+    const nodes = this.selectTargetNodes(target, this.doc);
     nodes.forEach(n => n.parentNode?.removeChild(n));
 
     this.vfs.set(this.path, this);
@@ -93,7 +120,7 @@ export class XmlFile extends VFSStorable {
       return;
     }
 
-    const nodes = this.select?.(target, this.doc) as Element[];
+    const nodes = this.selectTargetNodes(target, this.doc);
     nodes.forEach(n => attributes.forEach(a => n.removeAttribute(a)));
 
     Logger.v('xml', 'deleteAttributes', `at ${target}`);
@@ -111,7 +138,7 @@ export class XmlFile extends VFSStorable {
       return;
     }
 
-    const nodes = this.select?.(target, this.doc) as Element[];
+    const nodes = this.selectTargetNodes(target, this.doc);
     const docNodes = Array.from(parseXmlFragment(fragment, this.getNamespaceAttrs()));
 
     Logger.v('xml', 'injectFragment', `at ${target}`);
@@ -132,7 +159,7 @@ export class XmlFile extends VFSStorable {
     }
 
     // Get the target element
-    const node = this.select?.(target, this.doc) as Element[];
+    const node = this.selectTargetNodes(target, this.doc);
 
     Logger.v('xml', 'mergeFragment', `at ${target}`);
 
@@ -208,7 +235,7 @@ export class XmlFile extends VFSStorable {
       return;
     }
 
-    const nodes = this.select?.(target, this.doc) as Element[];
+    const nodes = this.selectTargetNodes(target, this.doc);
     const parsed = parseXmlString(fragment);
 
     nodes.forEach(n => {
@@ -238,7 +265,7 @@ export class XmlFile extends VFSStorable {
 
     Logger.v('xml', 'setAttrs', `at ${this.path} - ${target}`);
 
-    const nodes = this.select?.(target, this.doc) ?? [];
+    const nodes = this.selectTargetNodes(target, this.doc);
     nodes.forEach((n: any) => {
       Object.keys(attrs).forEach(attr => {
         n.setAttribute(attr, attrs[attr]);
