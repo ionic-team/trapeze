@@ -132,8 +132,7 @@ describe('op: android.xml', () => {
             android:name="io.ionic.starter.MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBarLaunch"
-            android:launchMode="singleTask"
-        />
+            android:launchMode="singleTask" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
