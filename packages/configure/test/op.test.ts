@@ -49,16 +49,57 @@ describe('operation processing', () => {
     });
   });
 
+  describe('Display text', () => {
+    it('should count every plist entry, not the list of entry groups', async () => {
+      const processed = processOperations({
+        platforms: {
+          ios: {
+            targets: {
+              App: {
+                plist: [
+                  { replace: true, entries: [{ UIRequiresFullScreen: true }] },
+                  { entries: [{ NSFaceIDUsageDescription: 'Log in' }] },
+                ],
+              },
+            },
+          },
+        },
+      });
+
+      expect(processed[0].displayText).toBe('2 modifications');
+    });
+
+    it('should count the plist entries of the legacy object form', async () => {
+      const processed = processOperations({
+        platforms: {
+          ios: {
+            targets: {
+              App: {
+                plist: { entries: [{ UIRequiresFullScreen: true }] },
+              },
+            },
+          },
+        },
+      });
+
+      expect(processed[0].displayText).toBe('1 modification');
+    });
+  });
+
   describe('Project', () => {
     it('should process project operations', async () => {
-      const makeOp = (name: string, value: any): Operation => ({
+      const makeOp = (
+        name: string,
+        value: any,
+        displayText: any = expect.anything(),
+      ): Operation => ({
         id: `project.${name}`,
         platform: 'project',
         name,
         value,
         iosTarget: null,
         iosBuild: null,
-        displayText: expect.anything(),
+        displayText,
       });
       const parsed = await loadYamlConfig(
         ctx,
@@ -72,7 +113,7 @@ describe('operation processing', () => {
           file: 'project-xml-strings.xml',
           target: 'resources/string[@name="app_name"]',
           replace: '<string name="app_name">Awesome App</string>\n'
-        }]),
+        }], '1 modification'),
         makeOp('json', [{
           file: 'project-json.json',
           set: {
@@ -80,21 +121,25 @@ describe('operation processing', () => {
               project_id: 'asdf'
             }
           }
-        }])
+        }], '1 modification')
       ] as Operation[]);
     });
   });
 
   describe('Android', () => {
     it('should process android operations', async () => {
-      const makeOp = (name: string, value: any): Operation => ({
+      const makeOp = (
+        name: string,
+        value: any,
+        displayText: any = expect.anything(),
+      ): Operation => ({
         id: `android.${name}`,
         platform: 'android',
         name,
         value,
         iosTarget: null,
         iosBuild: null,
-        displayText: expect.anything(),
+        displayText,
       });
       const parsed = await loadYamlConfig(
         ctx,
@@ -104,8 +149,12 @@ describe('operation processing', () => {
       const processed = processOperations(parsed);
 
       expect(processed).toMatchObject([
-        makeOp('packageName', 'com.ionicframework.awesomePackage'),
-        makeOp('versionName', '1.2.3'),
+        makeOp(
+          'packageName',
+          'com.ionicframework.awesomePackage',
+          'com.ionicframework.awesomePackage',
+        ),
+        makeOp('versionName', '1.2.3', '1.2.3'),
         makeOp('incrementVersionCode', true),
       ] as Operation[]);
     });
@@ -113,14 +162,18 @@ describe('operation processing', () => {
 
   describe('iOS', () => {
     it('should process ios operations with targets and build', async () => {
-      const makeOp = (name: string, value: any): Operation => ({
+      const makeOp = (
+        name: string,
+        value: any,
+        displayText: any = expect.anything(),
+      ): Operation => ({
         id: `ios.${name}`,
         platform: 'ios',
         name,
         iosTarget: 'App',
         iosBuild: 'Debug',
         value,
-        displayText: expect.anything(),
+        displayText,
       });
       const parsed = await loadYamlConfig(
         ctx,
@@ -130,11 +183,11 @@ describe('operation processing', () => {
       const processed = processOperations(parsed);
 
       expect(processed).toMatchObject([
-        makeOp('bundleId', 'com.ionicframework.testBundle'),
+        makeOp('bundleId', 'com.ionicframework.testBundle', 'com.ionicframework.testBundle'),
         makeOp('version', 16.4),
         makeOp('incrementBuild', true),
-        makeOp('productName', 'Awesome App'),
-        makeOp('displayName', 'My Awesome App'),
+        makeOp('productName', 'Awesome App', 'Awesome App'),
+        makeOp('displayName', 'My Awesome App', 'My Awesome App'),
       ] as Operation[]);
     });
 
