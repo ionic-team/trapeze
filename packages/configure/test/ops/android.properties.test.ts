@@ -1,9 +1,10 @@
 import { copy, readFile } from '@ionic/utils-fs';
 import { join } from 'path';
 import { temporaryDirectory } from 'tempy';
+import { PropertiesFile } from '@trapezedev/project';
 
 import { Context, loadContext } from '../../src/ctx';
-import { AndroidJsonOperation, AndroidPropertiesOperation, Operation } from '../../src/definitions';
+import { AndroidPropertiesOperation, Operation } from '../../src/definitions';
 import Op from '../../src/operations/android/properties';
 
 describe('op: android.properties', () => {
@@ -33,12 +34,38 @@ describe('op: android.properties', () => {
 
     await Op(ctx, op as Operation);
 
-    const file = ctx.project.vfs.get(join(dir, 'android/gradle.properties'));
-    expect(file?.getData()).toMatchObject({
+    const file = ctx.project.vfs.get<PropertiesFile>(join(dir, 'android/gradle.properties'));
+    expect(file?.getData()?.getProperties()).toMatchObject({
       'android.enableJetifier': true,
       'android.useAndroidX': true,
       'org.gradle.jvmargs': 'test'
     });
+  });
+
+  it('should apply several entries for the same file', async () => {
+    const op: AndroidPropertiesOperation = {
+      value: [
+        {
+          file: 'gradle.properties',
+          entries: {
+            keyOne: 'valueOne',
+          },
+        },
+        {
+          file: 'gradle.properties',
+          entries: {
+            keyTwo: 'valueTwo',
+          },
+        },
+      ],
+    };
+
+    await Op(ctx, op as Operation);
+    await ctx.project.commit();
+
+    const contents = await readFile(join(dir, 'android/gradle.properties'), { encoding: 'utf-8' });
+    expect(contents).toContain('keyOne=valueOne');
+    expect(contents).toContain('keyTwo=valueTwo');
   });
 
   it('should write properties to disk on commit', async () => {

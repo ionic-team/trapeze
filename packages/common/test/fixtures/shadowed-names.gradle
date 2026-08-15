@@ -1,0 +1,11 @@
+def dependencies = ['a', 'b']
+
+buildscript {
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.1.0'
+    }
+}
+
+dependencies {
+    implementation 'x:y:1.0'
+}

@@ -1,4 +1,5 @@
 import * as Diff from 'diff';
+import { Logger } from './logger';
 import { MobileProject } from './project';
 
 export interface VFSDiff {
@@ -110,11 +111,15 @@ export class VFS {
 
   async diffAll() {
     const diffs = await Promise.all(
-      this.modifiedFiles().map(file => {
-        if (file.diff) {
-          return file.diff();
+      this.modifiedFiles().map(async file => {
+        // A diff is only a preview, so a file that can't be diffed is reported and
+        // skipped rather than aborting the run before anything is committed
+        try {
+          return await file.diff();
+        } catch (e) {
+          Logger.warn(`Unable to diff ${file.getFilename()}: ${(e as Error).message}`);
+          return null;
         }
-        return null;
       })
     );
     return diffs.filter(d => !!d && !!d!.new).map(diff => ({

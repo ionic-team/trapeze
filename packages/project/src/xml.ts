@@ -2,9 +2,8 @@ import { formatXml, parseXml, parseXmlFragment, parseXmlString, serializeXml, wr
 import xpath from 'xpath';
 import { xml2js, js2xml } from 'xml-js';
 import { VFS, VFSFile, VFSStorable } from './vfs';
-import { readFile } from 'fs/promises';
 import { Logger } from './logger';
-import { assertParentDirs } from './util/fs';
+import { assertParentDirs, readFileOrEmpty } from './util/fs';
 
 export class XmlFile extends VFSStorable {
   private doc: Document | null = null;
@@ -287,14 +286,10 @@ export class XmlFile extends VFSStorable {
 
   private xmlDiffFn = async (file: VFSFile) => {
     const data = file.getData() as XmlFile;
-    const xmlString = await formatXml(data.doc);
-    const currentString = await readFile(file.getFilename(), {
-      encoding: 'utf-8',
-    });
 
     return {
-      old: currentString,
-      new: xmlString,
+      old: await readFileOrEmpty(file.getFilename()),
+      new: await formatXml(data.doc),
     };
   };
 }

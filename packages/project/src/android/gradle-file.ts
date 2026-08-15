@@ -1,7 +1,7 @@
 import { dirname, join } from 'path';
 import { mkdtempSync } from 'fs';
 import os from 'os';
-import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
+import { pathExists, readFile, remove, writeFile } from '@ionic/utils-fs';
 import { spawnCommand } from '../util/subprocess';
 import { indent } from '../util/text';
 import { VFS, VFSFile, VFSStorable, VFSDiff } from '../vfs';
@@ -26,7 +26,6 @@ export interface GradleASTNode {
 export class GradleFile extends VFSStorable {
   private source: string | null = null;
   private parsed: GradleAST | null = null;
-  private tempFile: string | null = null;
 
   constructor(public filename: string, private vfs: VFS) {
     super();
@@ -229,14 +228,7 @@ export class GradleFile extends VFSStorable {
       throw new Error('Call parse() first to load Gradle file');
     }
 
-    const found = this.find(pathObject, exact);
-    if (!found.length) {
-      throw new Error('Unable to find method in Gradle file to inject');
-    }
-
-    const target = found[0];
-
-    return this.insertIntoGradleFile(toInject, target, type);
+    return this.insertIntoGradleFile(toInject, this.findInsertTarget(pathObject, exact), type);
   }
 
   /**
@@ -251,14 +243,27 @@ export class GradleFile extends VFSStorable {
       throw new Error('Call parse() first to load Gradle file');
     }
 
+    return this.insertIntoGradleFile(
+      toInject,
+      this.findInsertTarget(pathObject, exact),
+      AndroidGradleInjectType.Infer,
+    );
+  }
+
+  /**
+   * Statements are injected into the body of the target node, so prefer a method block
+   * over an assignment that happens to share its name (`def dependencies = [...]` next
+   * to a `dependencies { }` block).
+   */
+  private findInsertTarget(pathObject: any, exact: boolean) {
     const found = this.find(pathObject, exact);
-    if (!found.length) {
+    const target = found.find(f => f.node.type === 'method') ?? found[0];
+
+    if (!target) {
       throw new Error('Unable to find method in Gradle file to inject');
     }
 
-    const target = found[0];
-
-    return this.insertIntoGradleFile(toInject, target, AndroidGradleInjectType.Infer);
+    return target;
   }
 
   /**
@@ -275,23 +280,21 @@ export class GradleFile extends VFSStorable {
       throw new Error(`Unable to locate file at ${this.filename}`);
     }
 
-    const vfsRef = this.vfs.get<GradleFile>(this.filename);
+    // The parser reads from a temp file rather than the file on disk so it operates on
+    // the current, possibly modified, source and we can handle multiple modifications
+    // to the same file in sequence
+    const tempDir = mkdtempSync(join(os.tmpdir(), 'trapeze-'));
+    const tempFile = join(tempDir, 'temp.gradle');
+    await writeFile(tempFile, await this.getGradleSource());
 
-    // We keep a temp file updated with the latest source so the parser can operate
-    // on the current state of the file so we can handle multiple modifications to it
-    // in sequence
-    if (!this.tempFile) {
-      // If the temp file doesn't exist yet, create it and write the current file source to it
-      const gradleContents = await this.getGradleSource();
-      this.tempFile = join(mkdtempSync(join(os.tmpdir(), 'trapeze-')), 'temp.gradle');
-      await writeFile(this.tempFile, gradleContents);
-    } else if (vfsRef) {
-      // Otherwise if it already exists then write the current vfs data to it
-      if (vfsRef?.getData()?.getDocument()) {
-        await writeFile(this.tempFile, vfsRef?.getData()?.getDocument());
-      }
+    try {
+      return await this.runParser(tempFile);
+    } finally {
+      await remove(tempDir);
     }
+  }
 
+  private async runParser(tempFile: string): Promise<GradleAST> {
     const parserRoot = this.getGradleParserPath();
     const java = await this.getJava();
 
@@ -312,7 +315,7 @@ export class GradleFile extends VFSStorable {
             '-cp',
             'lib/groovy-3.0.9.jar;lib/json-20260814.jar;capacitor-gradle-parse.jar;.',
             'com.capacitorjs.gradle.Parse',
-            this.tempFile,
+            tempFile,
           ],
           {
             cwd: parserRoot,
@@ -326,7 +329,7 @@ export class GradleFile extends VFSStorable {
             '-cp',
             'lib/*:capacitor-gradle-parse.jar:.',
             'com.capacitorjs.gradle.Parse',
-            this.tempFile,
+            tempFile,
           ],
           {
             cwd: parserRoot,
@@ -474,9 +477,13 @@ export class GradleFile extends VFSStorable {
     }
 
     for (const c of (node.children ?? [])) {
+      // Descend into a copy of the cursor so siblings that share the target name are
+      // each matched against the full remaining path
+      let childPathNode = pathNode;
+
       if (this.isTargetNode(c) && c.name === targetKey) {
-        pathNode = pathNode[targetKey];
-        if (!pathNode || Object.keys(pathNode).length == 0) {
+        childPathNode = pathNode[targetKey];
+        if (!childPathNode || Object.keys(childPathNode).length == 0) {
           // We've run out of path nodes to match
           if (!exact) {
             found.push({ node: c, depth });
@@ -490,7 +497,7 @@ export class GradleFile extends VFSStorable {
       this._find(
         pathObject,
         c,
-        pathNode,
+        childPathNode,
         exact,
         newPathToNode,
         found,

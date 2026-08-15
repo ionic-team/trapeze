@@ -1,10 +1,22 @@
-import { mkdirp } from '@ionic/utils-fs';
+import { mkdirp, readFile } from '@ionic/utils-fs';
 import { readdir } from 'fs/promises';
 import { dirname, join } from 'path';
 
 export async function assertParentDirs(path: string) {
   const dirs = dirname(path);
   await mkdirp(dirs);
+}
+
+/**
+ * Read a file, treating a file that doesn't exist yet as empty. Diffing a file an
+ * operation is about to create has no previous contents to compare against.
+ */
+export async function readFileOrEmpty(path: string): Promise<string> {
+  try {
+    return await readFile(path, { encoding: 'utf-8' });
+  } catch (e) {
+    return '';
+  }
 }
 
 /**
