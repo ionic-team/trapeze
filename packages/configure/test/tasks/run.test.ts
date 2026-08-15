@@ -425,6 +425,8 @@ describe('task: run', () => {
     const ctx = await loadContext(dir);
     ctx.args.y = true;
     ctx.args.quiet = true;
+    // An earlier test leaves --no-commit on process.argv; this test needs the commit
+    ctx.args.commit = true;
 
     await runCommand(ctx, join(dir, 'project.basic.yml'));
 
