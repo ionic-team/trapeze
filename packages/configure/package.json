@@ -27,7 +27,6 @@
     "@ionic/utils-terminal": "^2.3.1",
     "@prettier/plugin-xml": "^1.1.0",
     "@trapezedev/project": "^7.1.6",
-    "@types/fs-extra": "^9.0.13",
     "@types/lodash": "^4.14.175",
     "@types/plist": "^3.0.2",
     "@types/prompts": "^2.0.14",
