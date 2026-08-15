@@ -551,7 +551,7 @@ export class IosProject extends PlatformProject {
   }
 
   /**
-   * Add a file to the project. this attemps to add the file
+   * Add a file to the project. This attempts to add the file
    * to the main "app" target, or adds it to the empty group (i.e. the root of
    * the project tree) if the app target can't be found.
    */

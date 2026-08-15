@@ -290,7 +290,11 @@ export class GradleFile extends VFSStorable {
     try {
       return await this.runParser(tempFile);
     } finally {
-      await remove(tempDir);
+      try {
+        await remove(tempDir);
+      } catch (e) {
+        Logger.v('gradle', 'parse', `unable to remove temp dir ${tempDir}: ${(e as Error).message}`);
+      }
     }
   }
 

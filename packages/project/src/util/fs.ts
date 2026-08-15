@@ -15,7 +15,10 @@ export async function readFileOrEmpty(path: string): Promise<string> {
   try {
     return await readFile(path, { encoding: 'utf-8' });
   } catch (e) {
-    return '';
+    if ((e as NodeJS.ErrnoException).code === 'ENOENT') {
+      return '';
+    }
+    throw e;
   }
 }
 
