@@ -16,6 +16,9 @@
   },
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
+  "engines": {
+    "node": ">=14"
+  },
   "dependencies": {
     "@ionic/utils-fs": "^3.1.5",
     "@ionic/utils-subprocess": "^2.1.8",
