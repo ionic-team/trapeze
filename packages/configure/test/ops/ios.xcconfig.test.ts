@@ -8,7 +8,7 @@ import Op from '../../src/operations/ios/xcconfig';
 
 import { useFixture } from '../utils';
 
-describe('op: ios.strings', () => {
+describe('op: ios.xcconfig', () => {
   let dir: string;
   let ctx: Context;
 
