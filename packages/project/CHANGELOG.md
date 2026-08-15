@@ -1,5 +1,20 @@
 # @trapezedev/project
 
+## [7.1.8](https://github.com/ionic-team/trapeze/compare/@trapezedev/project@7.1.7...@trapezedev/project@7.1.8) (2026-08-15)
+
+
+### Bug Fixes
+
+* **deps:** update vendored org.json jar to 20260814 ([1f426db](https://github.com/ionic-team/trapeze/commit/1f426dbdd3a247caae778d347abd0ec67e8f1e7a))
+* **project:** write serialized data to properties files ([#212](https://github.com/ionic-team/trapeze/issues/212)) ([710324f](https://github.com/ionic-team/trapeze/commit/710324f6bd779835213c1dde4704089d546e7bd7)), closes [#198](https://github.com/ionic-team/trapeze/issues/198)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapezedev/gradle-parse bumped from 7.1.7 to 7.1.8
+
 ## [7.1.7](https://github.com/ionic-team/trapeze/compare/@trapezedev/project@7.1.6...@trapezedev/project@7.1.7) (2026-08-15)
 
 
