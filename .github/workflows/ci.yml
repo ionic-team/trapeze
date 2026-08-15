@@ -9,6 +9,8 @@ on:
 
 env:
   NODE_VERSION: 20
+  JAVA_VERSION: 17
+  JAVA_DISTRIBUTION: temurin
 
 jobs:
   build:
@@ -21,9 +23,67 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+      - name: Set up Java ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
       - name: Install dependencies
         run: npm ci
       - name: Build
         run: npm run build
+      - name: Type-check sources and tests
+        run: npm run typecheck
       - name: Run tests
         run: npm test
+
+  # The Gradle parser is the only platform-dependent part of the codebase: it
+  # builds a Java classpath by hand and takes a separate branch on Windows.
+  gradle:
+    name: Gradle parser (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Set up Java ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
+      - name: Install dependencies
+        run: npm ci
+      - name: Run Gradle parser tests
+        run: npx vitest run test/gradle-file.android.test.ts
+        working-directory: packages/project
+
+  # The unit suites run against `src`, so nothing else checks that the published
+  # tarballs are complete and that the CLI works when installed.
+  smoke:
+    name: Packed artifact smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Set up Java ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
+      - name: Install dependencies
+        run: npm ci
+      - name: Build published packages
+        run: npm run build -- --filter='@trapezedev/*'
+      - name: Pack, install and run the CLI
+        run: node scripts/smoke.mjs

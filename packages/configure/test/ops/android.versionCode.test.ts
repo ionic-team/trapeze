@@ -1,20 +1,16 @@
-import { copy } from '@ionic/utils-fs';
 import { join } from 'path';
-import { temporaryDirectory } from 'tempy';
 
 import { Context, loadContext } from '../../src/ctx';
 import { Operation } from '../../src/definitions';
 import Op from '../../src/operations/android/version';
-import { makeOp } from '../utils';
+import { makeOp, useFixture } from '../utils';
 
 describe('op: android.versionCode', () => {
   let dir: string;
   let ctx: Context;
 
   beforeEach(async () => {
-    dir = temporaryDirectory();
-
-    await copy('../common/test/fixtures/ios-and-android', dir);
+    dir = await useFixture('ios-and-android');
 
     ctx = await loadContext(dir);
     ctx.args.quiet = true;

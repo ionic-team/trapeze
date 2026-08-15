@@ -17,6 +17,7 @@ npm workspaces + Turborepo. Workspaces: `packages/{configure,gradle-parse,projec
 ```bash
 npm run build                      # turbo build, respects package dep order
 npm test                           # turbo test (builds deps first)
+npm run typecheck                  # tsc --noEmit over src + test (tests are not type-checked by the build)
 
 npm run build -w packages/project  # build a single package (tsc)
 npm test -w packages/configure     # test a single package (vitest)
@@ -36,8 +37,7 @@ Other:
 ```bash
 npm run build-jar -w packages/gradle-parse   # only when the Java source changes; needs a JDK
 npm start -w packages/website                # docs site (Docusaurus) at packages/website/docs
-npm run changeset                            # required for any user-facing change to a published package
-npm run shipit                               # build jar + build + test + changeset publish + push tags
+node scripts/smoke.mjs                       # pack the published packages, install the tarballs, run the CLI
 ```
 
 Gradle operations shell out to `java` at runtime (`JAVA_HOME` or `java` on PATH). Tests touching Gradle fail without it.
@@ -74,8 +74,12 @@ Pipeline: `bin/trapeze` → `src/index.ts` (commander, defines `run [configFile]
 
 ### Tests
 
-vitest with `globals: true` — `describe`/`it`/`expect` are ambient, don't import them. The standard pattern copies a fixture from `packages/common/test/fixtures/` into a fresh `tempy` directory in `beforeEach`, runs against it, and removes it in `afterEach`. Add new fixtures under `packages/common/test/fixtures/`.
+vitest with `globals: true` — `describe`/`it`/`expect` are ambient, don't import them. A test that mutates a project copies a fixture into a temp directory with `useFixture('<name>')` from each package's `test/utils.ts`, which also deletes the directory when the test finishes. Add new fixtures under `packages/common/test/fixtures/`.
+
+`test/setup.ts` restores `process.argv` and `process.env` after every test, and `clearMocks`/`restoreMocks` are on, so mocks and spies don't need to be reset by hand.
 
 ## Releases
 
-Changesets, with `@trapezedev/configure`, `@trapezedev/project` and `@trapezedev/gradle-parse` in a **fixed** version group (they always bump together). Add a changeset for any change to a published package.
+release-please (`release-please-config.json`, `.github/workflows/release.yml`), driven by [conventional commits](https://www.conventionalcommits.org/) — the squash-merge title of a PR is what ends up in the changelog, so it must be a conventional commit. `@trapezedev/configure`, `@trapezedev/project` and `@trapezedev/gradle-parse` are a **linked** version group (they always bump together); the private `packages/website` is not published.
+
+release-please keeps a release PR up to date with the version bumps and changelogs; merging it tags the release and publishes all three packages to npm. There is nothing to add by hand — no changeset files.

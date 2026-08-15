@@ -1,4 +1,5 @@
-import { rm, writeFile } from '@ionic/utils-fs';
+import { writeFile } from '@ionic/utils-fs';
+import { rm } from 'fs/promises';
 import { join } from 'path';
 import { temporaryDirectory } from 'tempy';
 
@@ -20,7 +21,7 @@ async function loadProject(projectRoot: string) {
 }
 
 describe('frameworks: detection', () => {
-  const fixtures: [string, typeof Framework][] = [
+  const fixtures: [string, abstract new (...args: any[]) => Framework][] = [
     ['frameworks/flutter_configure_test', FlutterFramework],
     ['frameworks/ReactNativeProject', ReactNativeFramework],
     ['frameworks/ReactNativeExpo', ReactNativeFramework],

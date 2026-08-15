@@ -12,6 +12,7 @@
     "clean": "rimraf ./dist",
     "build": "npm run clean && tsc",
     "watch": "tsc -w",
+    "typecheck": "tsc -p tsconfig.test.json",
     "test": "vitest run"
   },
   "main": "dist/index.js",

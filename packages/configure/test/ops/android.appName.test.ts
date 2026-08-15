@@ -1,29 +1,22 @@
-import { copy, readFile, rm } from '@ionic/utils-fs';
+import { readFile } from '@ionic/utils-fs';
 import { XmlFile } from '@trapezedev/project';
 import { join } from 'path';
-import { temporaryDirectory } from 'tempy';
 
 import { Context, loadContext } from '../../src/ctx';
 import { AndroidAppNameOperation, Operation } from '../../src/definitions';
 import Op from '../../src/operations/android/appName';
 
-import { makeOp } from '../utils';
+import { makeOp, useFixture } from '../utils';
 
 describe('op: android.appName', () => {
   let dir: string;
   let ctx: Context;
 
   beforeEach(async () => {
-    dir = temporaryDirectory();
-
-    await copy('../common/test/fixtures/ios-and-android', dir);
+    dir = await useFixture('ios-and-android');
 
     ctx = await loadContext(dir);
     ctx.args.quiet = true;
-  });
-
-  afterEach(async () => {
-    await rm(dir, { force: true, recursive: true });
   });
 
   it('should update appName', async () => {

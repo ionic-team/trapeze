@@ -5,5 +5,8 @@ export default defineConfig({
     globals: true,
     testTimeout: 30000,
     include: ['test/**/*.test.{ts,tsx,js,mjs}'],
+    setupFiles: ['./test/setup.ts'],
+    clearMocks: true,
+    restoreMocks: true,
   },
 });

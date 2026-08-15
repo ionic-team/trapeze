@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "allowUnusedLabels": false,
+    "skipLibCheck": true,
+    "types": ["node", "lodash", "prompts", "vitest/globals"]
+  },
+  "files": [],
+  "include": ["src/**/*.ts", "test/**/*.ts"]
+}

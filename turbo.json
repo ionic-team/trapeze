@@ -1,9 +1,14 @@
 {
   "$schema": "https://turborepo.org/schema.json",
+  "globalDependencies": ["packages/common/test/fixtures/**"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", "build/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "outputs": []
     },
     "test": {
       "dependsOn": ["^build"],

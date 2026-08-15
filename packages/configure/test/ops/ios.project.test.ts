@@ -1,4 +1,5 @@
-import { copy, rm } from '@ionic/utils-fs';
+import { copy } from '@ionic/utils-fs';
+import { rm } from 'fs/promises';
 import { temporaryDirectory } from 'tempy';
 
 import { Context, loadContext } from '../../src/ctx';
