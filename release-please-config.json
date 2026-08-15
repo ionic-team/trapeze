@@ -5,7 +5,17 @@
   "include-v-in-tag": false,
   "tag-separator": "@",
   "separate-pull-requests": false,
-  "plugins": ["node-workspace"],
+  "plugins": [
+    {
+      "type": "node-workspace",
+      "merge": false
+    },
+    {
+      "type": "linked-versions",
+      "groupName": "trapeze",
+      "components": ["@trapezedev/gradle-parse", "@trapezedev/project", "@trapezedev/configure"]
+    }
+  ],
   "packages": {
     "packages/gradle-parse": {
       "component": "@trapezedev/gradle-parse"
