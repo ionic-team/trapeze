@@ -1,0 +1,13 @@
+android {
+    productFlavors {
+        prod {
+            dimension "environment"
+            manifestPlaceholders = [displayName:"My App"]
+            applicationIdSuffix ".prod"
+        }
+    }
+}
+
+buildscript {
+    ext.kotlin_version = '1.8.20'
+}

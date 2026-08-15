@@ -247,6 +247,87 @@ allprojects {
     );
   });
 
+  it('Should replace assignments with a non-constant value without duplicating them', async () => {
+    const gradle = new GradleFile(
+      join('../common/test/fixtures/assignments.gradle'),
+      vfs,
+    );
+
+    const target = {
+      android: {
+        productFlavors: {
+          prod: {
+            manifestPlaceholders: {},
+          },
+        },
+      },
+    };
+    const replace = { manifestPlaceholders: '[displayName:"Renamed App"]' };
+
+    await gradle.replaceProperties(target, replace);
+    await gradle.replaceProperties(target, replace);
+
+    const source = vfs
+      .get<GradleFile>(gradle.filename)
+      ?.getData()
+      ?.getDocument();
+    expect(source?.trim()).toBe(
+      `
+android {
+    productFlavors {
+        prod {
+            dimension "environment"
+            manifestPlaceholders = [displayName:"Renamed App"]
+            applicationIdSuffix ".prod"
+        }
+    }
+}
+
+buildscript {
+    ext.kotlin_version = '1.8.20'
+}
+`.trim(),
+    );
+  });
+
+  it('Should replace property assignments', async () => {
+    const gradle = new GradleFile(
+      join('../common/test/fixtures/assignments.gradle'),
+      vfs,
+    );
+
+    await gradle.replaceProperties(
+      {
+        buildscript: {
+          'ext.kotlin_version': {},
+        },
+      },
+      { 'ext.kotlin_version': "'1.9.0'" },
+    );
+
+    const source = vfs
+      .get<GradleFile>(gradle.filename)
+      ?.getData()
+      ?.getDocument();
+    expect(source?.trim()).toBe(
+      `
+android {
+    productFlavors {
+        prod {
+            dimension "environment"
+            manifestPlaceholders = [displayName:"My App"]
+            applicationIdSuffix ".prod"
+        }
+    }
+}
+
+buildscript {
+    ext.kotlin_version = '1.9.0'
+}
+`.trim(),
+    );
+  });
+
   it('Should inject at spot', async () => {
     const gradle = new GradleFile(
       join(project.config.android!.path!, 'app', 'build.gradle'),
@@ -462,6 +543,102 @@ allprojects {
     androidxJunitVersion = '1.1.2'
     androidxEspressoCoreVersion = '3.3.0'
     cordovaAndroidVersion = '7.0.0'
+}`);
+  });
+
+  it('Should replace multiple properties targeting their block', async () => {
+    const gradle = await project.android?.getGradleFile('variables.gradle');
+
+    await gradle?.replaceProperties(
+      {
+        ext: {},
+      },
+      { compileSdkVersion: 34, targetSdkVersion: 34 },
+    );
+
+    const source = project.vfs
+      .get<GradleFile>(gradle!.filename)
+      ?.getData()
+      ?.getDocument();
+    expect(source?.trim()).toBe(`ext {
+    minSdkVersion = 21
+    compileSdkVersion = 34
+    targetSdkVersion = 34
+    androidxActivityVersion = '1.2.0'
+    androidxAppCompatVersion = '1.2.0'
+    androidxCoordinatorLayoutVersion = '1.1.0'
+    androidxCoreVersion = '1.3.2'
+    androidxFragmentVersion = '1.3.0'
+    junitVersion = '4.13.1'
+    androidxJunitVersion = '1.1.2'
+    androidxEspressoCoreVersion = '3.3.0'
+    cordovaAndroidVersion = '7.0.0'
+}`);
+  });
+
+  it('Should replace multiple properties targeting each of them', async () => {
+    const gradle = await project.android?.getGradleFile('variables.gradle');
+
+    await gradle?.replaceProperties(
+      {
+        ext: {
+          compileSdkVersion: {},
+          targetSdkVersion: {},
+        },
+      },
+      { compileSdkVersion: 34, targetSdkVersion: 34 },
+    );
+
+    const source = project.vfs
+      .get<GradleFile>(gradle!.filename)
+      ?.getData()
+      ?.getDocument();
+    expect(source?.trim()).toBe(`ext {
+    minSdkVersion = 21
+    compileSdkVersion = 34
+    targetSdkVersion = 34
+    androidxActivityVersion = '1.2.0'
+    androidxAppCompatVersion = '1.2.0'
+    androidxCoordinatorLayoutVersion = '1.1.0'
+    androidxCoreVersion = '1.3.2'
+    androidxFragmentVersion = '1.3.0'
+    junitVersion = '4.13.1'
+    androidxJunitVersion = '1.1.2'
+    androidxEspressoCoreVersion = '3.3.0'
+    cordovaAndroidVersion = '7.0.0'
+}`);
+  });
+
+  it('Should insert a variable when replacing a missing property', async () => {
+    const gradle = await project.android?.getGradleFile('variables.gradle');
+
+    await gradle?.replaceProperties(
+      {
+        ext: {},
+      },
+      { firebaseMessagingVersion: "'20.0.6'" },
+      false,
+      AndroidGradleInjectType.Variable,
+    );
+
+    const source = project.vfs
+      .get<GradleFile>(gradle!.filename)
+      ?.getData()
+      ?.getDocument();
+    expect(source?.trim()).toBe(`ext {
+    minSdkVersion = 21
+    compileSdkVersion = 30
+    targetSdkVersion = 30
+    androidxActivityVersion = '1.2.0'
+    androidxAppCompatVersion = '1.2.0'
+    androidxCoordinatorLayoutVersion = '1.1.0'
+    androidxCoreVersion = '1.3.2'
+    androidxFragmentVersion = '1.3.0'
+    junitVersion = '4.13.1'
+    androidxJunitVersion = '1.1.2'
+    androidxEspressoCoreVersion = '3.3.0'
+    cordovaAndroidVersion = '7.0.0'
+    firebaseMessagingVersion = '20.0.6'
 }`);
   });
 

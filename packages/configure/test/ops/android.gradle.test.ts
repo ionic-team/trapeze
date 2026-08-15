@@ -108,6 +108,40 @@ try {
     );
   });
 
+  it('Should replace properties given as a list', async () => {
+    const op: AndroidGradleOperation = makeOp('gradle', [
+      {
+        file: 'variables.gradle',
+        target: {
+          ext: {}
+        },
+        replace: [{
+          cordovaAndroidVersion: "'8.0.0'"
+        }]
+      },
+    ]);
+
+    await Op(ctx, op as Operation);
+
+    const file = ctx.project.vfs.get<GradleFile>(join(dir, 'android/variables.gradle'));
+    expect(file?.getData()?.getDocument()?.trim()).toEqual(`
+ext {
+    minSdkVersion = 21
+    compileSdkVersion = 30
+    targetSdkVersion = 30
+    androidxActivityVersion = '1.2.0'
+    androidxAppCompatVersion = '1.2.0'
+    androidxCoordinatorLayoutVersion = '1.1.0'
+    androidxCoreVersion = '1.3.2'
+    androidxFragmentVersion = '1.3.0'
+    junitVersion = '4.13.1'
+    androidxJunitVersion = '1.1.2'
+    androidxEspressoCoreVersion = '3.3.0'
+    cordovaAndroidVersion = '8.0.0'
+}
+    `.trim());
+  });
+
   it('Should insert with different types', async () => {
     const op: AndroidGradleOperation = makeOp('gradle', [
       {

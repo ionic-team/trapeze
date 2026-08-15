@@ -177,8 +177,12 @@ The Gradle commands supports two modes: `insert` or `replace`:
   - When using an object to insert, this operation takes an `insertType` of either `'method'` (default) or `'variable'` which will create either a method call (`methodName methodArg`) or an assignment (`variable = value`).
   - See the examples below for more clarity on how to structure the insert operation
 - `replace` replaces existing entries in the Gradle file at the desired location
+  - This operation takes an object of properties to replace. Each property is resolved on its own, so the `target` can point either at a single property or at the block containing them.
+  - Properties that don't exist yet are inserted into the target block. Set `insertType` to `'variable'` to insert an assignment (`variable = value`) into blocks like `ext { }`.
 
 Currently, the tool supports updating primitive types (numbers, strings, booleans), and arrays of primitives. Strings need additional quoting if necessary, in order to support non-quoted variable strings. See the example below for string quoting examples.
+
+`$VAR` references are interpolated with the matching [variable](./getting-started#variables-and-environment-variables) everywhere in the configuration, and a reference without a matching variable is replaced with an empty string (and logs a warning). To keep a `$` reference for Gradle itself, write it as `${VAR}`: that form is passed through untouched and is valid Groovy string interpolation.
 
 ```yaml
 platforms:
@@ -190,6 +194,7 @@ platforms:
         insert:
           - classpath: "'org.javassist:javassist:3.27.0-GA'"
           - classpath: files("../node_modules/@ionic-enterprise/intune/android/ms-intune-app-sdk-android/GradlePlugin/com.microsoft.intune.mam.build.jar")
+          - classpath: '"org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}"'
 
       - file: build.gradle
         target:
