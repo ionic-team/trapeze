@@ -83,16 +83,17 @@ describe('op: android.res', () => {
   it('should not add a resource file on a dry run', async () => {
     ctx.args.dryRun = true;
 
+    // dry_run_config.json must not exist in the fixture, or this assertion is vacuous
     const op = makeOp('android', 'res', [
       {
         path: 'raw',
-        file: 'auth_config.json',
+        file: 'dry_run_config.json',
         text: '{ "client_id": "abc123" }',
       },
     ]);
 
     await Op(ctx, op as Operation);
 
-    expect(await pathExists(join(dir, 'android/app/src/main/res/raw/auth_config.json'))).toBe(false);
+    expect(await pathExists(join(dir, 'android/app/src/main/res/raw/dry_run_config.json'))).toBe(false);
   });
 });
