@@ -53,6 +53,8 @@ export class XCConfigFile extends VFSStorable {
     for (const key of newKeys) {
       this.doc += `\n${key} = ${values[key]}`;
     }
+
+    this.vfs.markModified(this.path);
   }
 
   async load() {

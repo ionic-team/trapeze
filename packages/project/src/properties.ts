@@ -50,6 +50,7 @@ export class PropertiesFile extends VFSStorable {
       }
     });
     Object.assign(this.doc, merged);
+    this.vfs.markModified(this.path);
   }
 
   async load() {

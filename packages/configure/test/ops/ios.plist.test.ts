@@ -1,4 +1,4 @@
-import { copy } from '@ionic/utils-fs';
+import { copy, readFile } from '@ionic/utils-fs';
 import { PlistFile } from '@trapezedev/project';
 import { join } from 'path';
 import { temporaryDirectory } from 'tempy';
@@ -130,5 +130,28 @@ describe('op: ios.plist', () => {
         "Bar": true
       }
     });
+  });
+
+  it('should write plist to disk on commit', async () => {
+    const op: IosPlistOperation = {
+      value: [
+        {
+          file: 'plist-file.plist',
+          replace: false,
+          entries: [{
+            TestKey: 'test-value'
+          }],
+        },
+      ],
+    };
+
+    await Op(ctx, op as Operation);
+    await ctx.project.commit();
+
+    const contents = await readFile(
+      join(ctx.project.config.ios?.path ?? '', 'plist-file.plist'),
+      { encoding: 'utf-8' },
+    );
+    expect(contents).toContain('<string>test-value</string>');
   });
 });

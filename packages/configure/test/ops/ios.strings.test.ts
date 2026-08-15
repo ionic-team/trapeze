@@ -1,4 +1,4 @@
-import { copy } from '@ionic/utils-fs';
+import { copy, readFile } from '@ionic/utils-fs';
 import { StringsFile } from '@trapezedev/project';
 import { join } from 'path';
 import { temporaryDirectory } from 'tempy';
@@ -95,5 +95,27 @@ describe('op: ios.strings', () => {
 
 "ErrorString_1" = "New4";
 `.trim());
+  });
+
+  it('should write strings to disk on commit', async () => {
+    const op: IosStringsOperation = {
+      value: [
+        {
+          file: 'App/Localizable.strings',
+          set: {
+            'Insert Element': 'Insert Element 2'
+          },
+        },
+      ],
+    };
+
+    await Op(ctx, op as Operation);
+    await ctx.project.commit();
+
+    const contents = await readFile(
+      join(ctx.project.config.ios?.path ?? '', 'App', 'Localizable.strings'),
+      { encoding: 'utf-8' },
+    );
+    expect(contents).toContain('"Insert Element" = "Insert Element 2";');
   });
 });

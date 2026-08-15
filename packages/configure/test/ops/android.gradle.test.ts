@@ -1,4 +1,4 @@
-import { copy } from '@ionic/utils-fs';
+import { copy, readFile } from '@ionic/utils-fs';
 import { AndroidGradleInjectType } from '@trapezedev/project';
 import { GradleFile } from '@trapezedev/project/dist/android/gradle-file';
 import { join } from 'path';
@@ -282,5 +282,26 @@ task clean(type: Delete) {
 }
 `.trim()
     );
+  });
+
+  it('should write gradle to disk on commit', async () => {
+    const op: AndroidGradleOperation = makeOp('gradle', [
+      {
+        file: 'build.gradle',
+        target: {
+          dependencies: {}
+        },
+        insert: [{
+          implementation: "'test-implementation'"
+        }],
+        exact: true
+      },
+    ]);
+
+    await Op(ctx, op as Operation);
+    await ctx.project.commit();
+
+    const contents = await readFile(join(dir, 'android/build.gradle'), { encoding: 'utf-8' });
+    expect(contents).toContain("implementation 'test-implementation'");
   });
 });

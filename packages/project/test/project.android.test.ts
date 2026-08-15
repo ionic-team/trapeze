@@ -307,6 +307,22 @@ try {
     expect(appName![0].textContent).toBe('Test Label');
   });
 
+  it('should set android app label on the manifest when there is no android:label', async () => {
+    const manifestPath = join(dir, 'android/app/src/main/AndroidManifest.xml');
+    const manifest = await readFile(manifestPath, { encoding: 'utf-8' });
+    await writeFile(manifestPath, manifest.replace('android:label="@string/app_name"', ''));
+
+    // The constructor resolves the platform paths in place, so a reload needs its own config
+    const projectWithoutLabel = new MobileProject(dir, { android: { path: 'android' } });
+    await projectWithoutLabel.load();
+
+    await projectWithoutLabel.android?.setAppName('Test Label');
+    await projectWithoutLabel.commit();
+
+    const written = await readFile(manifestPath, { encoding: 'utf-8' });
+    expect(written).toContain('android:label="Test Label"');
+  });
+
   it('should add resources file', async () => {
     await project.android?.addResource('raw', 'test.json', `{
       "thing": "cool"

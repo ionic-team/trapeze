@@ -69,6 +69,7 @@ export class JsonFile extends VFSStorable {
     });
 
     Object.assign(this.json, merged);
+    this.vfs.markModified(this.path);
   }
 
   async merge(properties: any): Promise<void> {
@@ -83,6 +84,7 @@ export class JsonFile extends VFSStorable {
     });
 
     Object.assign(this.json, merged);
+    this.vfs.markModified(this.path);
   }
 
   private commitFn = async (file: VFSFile) => {

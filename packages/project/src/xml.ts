@@ -184,6 +184,8 @@ export class XmlFile extends VFSStorable {
     for (const n of Array.prototype.slice.call(newTreeElement.documentElement.childNodes)) {
       node[0].appendChild(n);
     }
+
+    this.vfs.set(this.path, this);
   }
 
   mergeJsonTree(target: any, fragment: any) {

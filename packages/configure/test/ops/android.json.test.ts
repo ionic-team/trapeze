@@ -1,4 +1,4 @@
-import { copy } from '@ionic/utils-fs';
+import { copy, readFile } from '@ionic/utils-fs';
 import { JsonFile } from '@trapezedev/project';
 import { join } from 'path';
 import { temporaryDirectory } from 'tempy';
@@ -71,5 +71,26 @@ describe('op: android.json', () => {
         project_number: '1234',
       },
     });
+  });
+
+  it('should write json to disk on commit', async () => {
+    const op: AndroidJsonOperation = {
+      value: [
+        {
+          file: 'google-services.json',
+          set: {
+            project_info: {
+              project_id: 'my-id',
+            },
+          },
+        },
+      ],
+    };
+
+    await Op(ctx, op as Operation);
+    await ctx.project.commit();
+
+    const contents = await readFile(join(dir, 'android/google-services.json'), { encoding: 'utf-8' });
+    expect(contents).toContain('"project_id": "my-id"');
   });
 });

@@ -1,4 +1,5 @@
 import { copy, readFile, rm, writeFile } from '@ionic/utils-fs';
+import { stat } from 'fs/promises';
 import { temporaryDirectory } from 'tempy';
 import { join } from 'path';
 import plist from 'plist';
@@ -6,7 +7,13 @@ import plist from 'plist';
 import { loadContext } from '../../src/ctx';
 import { runCommand } from '../../src/tasks/run';
 import { logger } from '../../src/util/log';
+import { logPrompt } from '../../src/util/cli';
 import { loadYamlConfig } from '../../src/yaml-config';
+
+vi.mock('../../src/util/cli', async importOriginal => ({
+  ...(await importOriginal<typeof import('../../src/util/cli')>()),
+  logPrompt: vi.fn(),
+}));
 
 async function captureLoggedLines(run: () => Promise<void>): Promise<string[]> {
   const lines: string[] = [];
@@ -404,4 +411,68 @@ describe('task: run', () => {
 
     await rm(dir, { force: true, recursive: true });
   });
+
+  it('should leave files alone that no operation modified', { timeout: 120000 }, async () => {
+    const dir = temporaryDirectory();
+
+    await copy('../common/test/fixtures/ios-and-android', dir);
+    await copy('../common/test/fixtures/project.basic.yml', join(dir, 'project.basic.yml'));
+
+    const manifest = join(dir, 'android/app/src/main/AndroidManifest.xml');
+    const pbxProj = join(dir, 'ios/App/App.xcodeproj/project.pbxproj');
+    const before = await readUntouched([manifest, pbxProj]);
+
+    const ctx = await loadContext(dir);
+    ctx.args.y = true;
+    ctx.args.quiet = true;
+    // An earlier test leaves --no-commit on process.argv; this test needs the commit
+    ctx.args.commit = true;
+
+    await runCommand(ctx, join(dir, 'project.basic.yml'));
+
+    // The platform files are opened on load but no operation touched them, so
+    // they must be neither rewritten nor re-touched
+    expect(await readUntouched([manifest, pbxProj])).toEqual(before);
+
+    expect(ctx.project.vfs.modifiedFiles().map(f => f.getFilename()).sort()).toEqual([
+      join(dir, 'project-json.json'),
+      join(dir, 'project-xml-strings.xml'),
+    ]);
+
+    const json = await readFile(join(dir, 'project-json.json'), { encoding: 'utf-8' });
+    expect(json).toContain('asdf');
+
+    await rm(dir, { force: true, recursive: true });
+  });
+
+  it('should not ask to apply changes when nothing was modified', async () => {
+    const dir = temporaryDirectory();
+
+    await copy('../common/test/fixtures/android-only', dir);
+    await copy('../common/test/fixtures/ios.notargets.nobuilds.yml', join(dir, 'ios.yml'));
+
+    const ctx = await loadContext(dir);
+    ctx.args.y = false;
+    ctx.args.quiet = true;
+    ctx.args.noCommit = false;
+
+    vi.mocked(logPrompt).mockClear();
+
+    // Every operation targets iOS, which this project does not have
+    await runCommand(ctx, join(dir, 'ios.yml'));
+
+    expect(ctx.project.vfs.modifiedFiles()).toEqual([]);
+    expect(logPrompt).not.toHaveBeenCalled();
+
+    await rm(dir, { force: true, recursive: true });
+  });
 });
+
+async function readUntouched(files: string[]) {
+  return Promise.all(
+    files.map(async file => ({
+      contents: await readFile(file, { encoding: 'utf-8' }),
+      modifiedAt: (await stat(file)).mtimeMs,
+    })),
+  );
+}

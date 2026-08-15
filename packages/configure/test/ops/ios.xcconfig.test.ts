@@ -1,4 +1,4 @@
-import { copy } from '@ionic/utils-fs';
+import { copy, readFile } from '@ionic/utils-fs';
 import { XCConfigFile } from '@trapezedev/project/src';
 import { join } from 'path';
 import { temporaryDirectory } from 'tempy';
@@ -42,5 +42,27 @@ describe('op: ios.strings', () => {
 PRODUCT_NAME = prod
 FOO[sdk=macosx*][arch=i386] = bar
 `.trim());
+  });
+
+  it('should write xcconfig to disk on commit', async () => {
+    const op: IosXCConfigOperation = {
+      value: [
+        {
+          file: 'App/Config.xcconfig',
+          set: {
+            'PRODUCT_NAME': 'prod',
+          },
+        },
+      ],
+    };
+
+    await Op(ctx, op as Operation);
+    await ctx.project.commit();
+
+    const contents = await readFile(
+      join(ctx.project.config.ios?.path ?? '', 'App', 'Config.xcconfig'),
+      { encoding: 'utf-8' },
+    );
+    expect(contents).toContain('PRODUCT_NAME = prod');
   });
 });

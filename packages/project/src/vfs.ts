@@ -38,9 +38,15 @@ export class VFSRef<T extends VFSStorable> {
     return this.modified;
   }
 
+  // File wrappers that mutate their document in place must call this so the
+  // file is included when committing and diffing
+  markModified() {
+    this.modified = true;
+  }
+
   setData(data: T) {
     this.data = data;
-    this.modified = true;
+    this.markModified();
   }
 
   commit(): Promise<void> {
@@ -94,13 +100,17 @@ export class VFS {
     }, {} as { [key: string]: VFSFile });
   }
 
+  modifiedFiles(): VFSFile[] {
+    return Object.values(this.openFiles).filter(file => file.isModified());
+  }
+
   async commitAll(project: MobileProject) {
-    await Promise.all(Object.values(this.openFiles).map(file => file.commit()));
+    await Promise.all(this.modifiedFiles().map(file => file.commit()));
   }
 
   async diffAll() {
     const diffs = await Promise.all(
-      Object.values(this.openFiles).map(file => {
+      this.modifiedFiles().map(file => {
         if (file.diff) {
           return file.diff();
         }
@@ -115,6 +125,10 @@ export class VFS {
 
   set(filename: string, data: string | VFSStorable) {
     this.get(filename)?.setData(data);
+  }
+
+  markModified(filename: string) {
+    this.get(filename)?.markModified();
   }
 
   close(ref: VFSFile) {
