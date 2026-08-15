@@ -31,8 +31,8 @@ export function runProgram(ctx: Context) {
     .option('--diff', 'Show a diff of each file')
     .option('--verbose', 'Verbose output')
     .option('--quiet', 'Only print warnings and errors')
-    .option('--android-project', 'Path to the root of the Android project (default: \'android\')')
-    .option('--ios-project', 'Path to the root of the iOS project (default: \'ios/App\')')
+    .option('--android-project <path>', 'Path to the root of the Android project (default: \'android\')')
+    .option('--ios-project <path>', 'Path to the root of the iOS project (default: \'ios/App\')')
     .option('--ios', 'Explicitly run iOS operations. This is exclusive, meaning other platforms not specified won\'t run when this flag is used')
     .option('--android', 'Explicitly run Android operations. This is exclusive, meaning other platforms not specified won\'t run when this flag is used')
     .action(
