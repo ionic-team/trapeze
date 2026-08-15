@@ -1,4 +1,4 @@
-import { Context } from '../../ctx';
+import { Context, isDryRun } from '../../ctx';
 import { Operation, OperationMeta } from '../../definitions';
 import { logger } from '../../util/log';
 
@@ -6,6 +6,11 @@ export default async function execute(ctx: Context, op: Operation) {
   const resOps = op.value;
 
   for (let resOp of resOps) {
+    if (isDryRun(ctx)) {
+      logger.info(`Would write resource ${resOp.file} to ${resOp.path}`);
+      continue;
+    }
+
     try {
       if (resOp.text) {
         const { path, file, text } = resOp;
