@@ -1,12 +1,11 @@
-import { copy, pathExists, readFile, rm } from '@ionic/utils-fs';
+import { pathExists, readFile } from '@ionic/utils-fs';
 import { join } from 'path';
-import { temporaryDirectory } from 'tempy';
 
 import { Context, loadContext } from '../../src/ctx';
 import { Operation } from '../../src/definitions';
 import Op from '../../src/operations/android/packageName';
 
-import { makeOp } from '../utils';
+import { makeOp, useFixture } from '../utils';
 
 describe('op: android.packageName', () => {
   let dir: string;
@@ -14,18 +13,12 @@ describe('op: android.packageName', () => {
   let op: Operation;
 
   beforeEach(async () => {
-    dir = temporaryDirectory();
-
-    await copy('../common/test/fixtures/ios-and-android', dir);
+    dir = await useFixture('ios-and-android');
 
     ctx = await loadContext(dir);
     ctx.args.quiet = true;
 
     op = makeOp('android', 'packageName', 'io.ionic.renamed');
-  });
-
-  afterEach(async () => {
-    await rm(dir, { force: true, recursive: true });
   });
 
   it('should set the package name', async () => {

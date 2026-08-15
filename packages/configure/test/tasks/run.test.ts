@@ -1,5 +1,5 @@
-import { copy, pathExists, readFile, rm, writeFile } from '@ionic/utils-fs';
-import { stat } from 'fs/promises';
+import { copy, pathExists, readFile, writeFile } from '@ionic/utils-fs';
+import { rm, stat } from 'fs/promises';
 import { inspect } from 'util';
 import { temporaryDirectory } from 'tempy';
 import { join } from 'path';
