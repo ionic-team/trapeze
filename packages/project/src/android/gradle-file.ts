@@ -583,10 +583,17 @@ export class GradleFile extends VFSStorable {
     const source = await this.getGradleSource();
 
     if (source) {
-      this.source = source.replace(
-        /(applicationId\s+)["'][^"']+["']/,
-        `$1"${applicationId}"`,
-      );
+      Logger.v('gradle', 'setApplicationId', `to ${applicationId} in ${this.filename}`);
+
+      return this.replaceProperties({
+        android: {
+          defaultConfig: {
+            applicationId: {}
+          }
+        }
+      }, {
+        applicationId: `"${applicationId}"`
+      });
     }
   }
 
@@ -594,7 +601,7 @@ export class GradleFile extends VFSStorable {
     const source = await this.getGradleSource();
 
     if (source) {
-      const applicationId = source.match(/applicationId\s+["']([^"']+)["']/);
+      const applicationId = source.match(/applicationId\s*=?\s*["']([^"']+)["']/);
 
       if (!applicationId) {
         return null;
@@ -720,7 +727,7 @@ export class GradleFile extends VFSStorable {
     const source = await this.getGradleSource();
 
     if (source) {
-      const namespace = source.match(/namespace\s+["']([^"']+)["']/);
+      const namespace = source.match(/namespace\s*=?\s*["']([^"']+)["']/);
 
       if (!namespace) {
         return null;

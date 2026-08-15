@@ -73,7 +73,7 @@ platforms:
 
 ### `packageName`
 
-Set the project package name. This operation will also rename the actual java package and folder structure to match. Currently, these modifications happen without confirmation when the tool is run. See [this discussion](https://github.com/ionic-team/capacitor-configure/issues/28) for more info.
+Set the project package name. This operation will also rename the actual Java/Kotlin package and folder structure to match, and update the `package_name` and `custom_url_scheme` string resources when they still hold the old package name. Currently, these modifications happen without confirmation when the tool is run. See [this discussion](https://github.com/ionic-team/capacitor-configure/issues/28) for more info.
 
 ```yaml
 platforms:
