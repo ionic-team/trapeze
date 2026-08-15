@@ -1,5 +1,19 @@
 # @trapezedev/configure
 
+## [7.1.7](https://github.com/ionic-team/trapeze/compare/@trapezedev/configure@7.1.6...@trapezedev/configure@7.1.7) (2026-08-15)
+
+
+### Bug Fixes
+
+* **deps:** remove unused `@types/fs-extra` ([#242](https://github.com/ionic-team/trapeze/issues/242)) ([022e061](https://github.com/ionic-team/trapeze/commit/022e061cb786692706ee224f65eed4f711567a08))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapezedev/project bumped from ^7.1.6 to ^7.1.7
+
 ## [7.1.6](https://github.com/ionic-team/trapeze/compare/@trapezedev/configure@7.1.5...@trapezedev/configure@7.1.6) (2026-08-14)
 
 
