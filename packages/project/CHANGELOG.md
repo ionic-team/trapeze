@@ -1,5 +1,27 @@
 # @trapezedev/project
 
+## [7.1.9](https://github.com/ionic-team/trapeze/compare/@trapezedev/project@7.1.8...@trapezedev/project@7.1.9) (2026-08-15)
+
+
+### Bug Fixes
+
+* **android:** make gradle replace handle non-constant values and multi-key targets ([#247](https://github.com/ionic-team/trapeze/issues/247)) ([7aecfd1](https://github.com/ionic-team/trapeze/commit/7aecfd16ec76caa9f0e8f9250e275dffb61e65b7))
+* **android:** make setPackageName work on modern Android projects ([#249](https://github.com/ionic-team/trapeze/issues/249)) ([9016d23](https://github.com/ionic-team/trapeze/commit/9016d2308459eb38f31dc11801d40ff767a96995))
+* **ci:** typecheck tests, harden CI, add tarball smoke test, fix test hygiene ([#257](https://github.com/ionic-team/trapeze/issues/257)) ([13b4d7d](https://github.com/ionic-team/trapeze/commit/13b4d7d28a2d971fadac708e5d0733a552bee8cb))
+* **configure:** working --help/--quiet, correct op labels, and surfaced pbxproj errors ([#250](https://github.com/ionic-team/trapeze/issues/250)) ([57cbbca](https://github.com/ionic-team/trapeze/commit/57cbbcad9fa03007e6505b27cf2ecebd9333b630))
+* **deps:** remove unused runtime dependencies and upgrade to prettier 3 ([#246](https://github.com/ionic-team/trapeze/issues/246)) ([677aedf](https://github.com/ionic-team/trapeze/commit/677aedf51d1949194f573c310950b1add9dec7ce))
+* **project:** match unprefixed XPath targets in documents with a default namespace ([#248](https://github.com/ionic-team/trapeze/issues/248)) ([bd11d7a](https://github.com/ionic-team/trapeze/commit/bd11d7a923f4ee98aa86769d35878b59177c119d))
+* **project:** only commit files that were actually modified ([#251](https://github.com/ionic-team/trapeze/issues/251)) ([2d091d4](https://github.com/ionic-team/trapeze/commit/2d091d4088187bdaad781634b5c3b2eea734d9d8))
+* **project:** repair diff pipeline, properties double-load, addFile build phase, and gradle find crash ([#256](https://github.com/ionic-team/trapeze/issues/256)) ([1d73fd2](https://github.com/ionic-team/trapeze/commit/1d73fd235811e9c348163bc687971d66e3b40afa))
+* **project:** revert prettier 3 upgrade to prevent XML entity corruption ([#253](https://github.com/ionic-team/trapeze/issues/253)) ([ecd49ee](https://github.com/ionic-team/trapeze/commit/ecd49eee8ea0b0e23b7b33e88aab43a46e69edd0))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapezedev/gradle-parse bumped from 7.1.8 to 7.1.9
+
 ## [7.1.8](https://github.com/ionic-team/trapeze/compare/@trapezedev/project@7.1.7...@trapezedev/project@7.1.8) (2026-08-15)
 
 

@@ -1,5 +1,12 @@
 # @capacitor/gradle-parse
 
+## [7.1.9](https://github.com/ionic-team/trapeze/compare/@trapezedev/gradle-parse@7.1.8...@trapezedev/gradle-parse@7.1.9) (2026-08-15)
+
+
+### Bug Fixes
+
+* **android:** make gradle replace handle non-constant values and multi-key targets ([#247](https://github.com/ionic-team/trapeze/issues/247)) ([7aecfd1](https://github.com/ionic-team/trapeze/commit/7aecfd16ec76caa9f0e8f9250e275dffb61e65b7))
+
 ## [7.1.8](https://github.com/ionic-team/trapeze/compare/@trapezedev/gradle-parse@7.1.7...@trapezedev/gradle-parse@7.1.8) (2026-08-15)
 
 
