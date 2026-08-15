@@ -1,3 +1,7 @@
+import { join } from 'path';
+import { copy, readFile, rm } from '@ionic/utils-fs';
+import { temporaryDirectory } from 'tempy';
+
 import { Logger, XmlFile } from '../src';
 import { formatXml, serializeXml } from '../src/util/xml';
 import { VFS } from '../src/vfs';
@@ -196,6 +200,40 @@ describe('xml file', () => {
     <string name="package_name">io.ionic.starter</string>
     <string name="custom_url_scheme">io.ionic.starter</string>
 </resources>`.trim());
+  });
+
+  // The XML formatter must never re-space text nodes: doing so silently rewrites values
+  // such as URLs with query parameters in every XML file Trapeze commits
+  describe('Entities in element text', () => {
+    let dir: string;
+    let path: string;
+
+    beforeEach(async () => {
+      dir = temporaryDirectory();
+      path = join(dir, 'strings.xml');
+      await copy('../common/test/fixtures/xml-entities.xml', path);
+
+      vfs = new VFS();
+      file = new XmlFile(path, vfs);
+      await file.load();
+    });
+
+    afterEach(async () => {
+      await rm(dir, { force: true, recursive: true });
+    });
+
+    it('Should survive an unrelated change and a commit unmodified', async () => {
+      file.setAttrs('/resources', { 'xmlns:tools': 'http://schemas.android.com/tools' });
+
+      const ref = vfs.get(path);
+      expect(ref).toBeDefined();
+      await ref!.commit();
+
+      const committed = await readFile(path, { encoding: 'utf-8' });
+      expect(committed).toContain(`<string name="deep_link">https://example.com/?a=1&amp;b=2</string>`);
+      expect(committed).toContain(`<string name="company">Smith &amp; Sons</string>`);
+      expect(committed).toContain(`<string name="comparison">a &lt; b &gt; c</string>`);
+    });
   });
 
   describe('GitHub Issue Tests', () => {
