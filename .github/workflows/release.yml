@@ -49,20 +49,15 @@ jobs:
       # OIDC trusted publishing needs npm >= 11.5.1; pinned to the packageManager
       # version instead of npm@latest, whose Node requirement moves independently
       - name: Update npm for OIDC trusted publishing
+        if: ${{ steps.release-please.outputs.releases_created == 'true' }}
         run: npm install -g npm@11.13.0
-      # Publishes whatever version is in the tree but missing from npm, in dependency
-      # order (gradle-parse <- project <- configure). On a regular push every version
-      # is already published and this is a no-op; after a release merge it publishes
-      # the new version; and a manual workflow_dispatch rescues a tagged release whose
-      # publish failed, which release-please alone cannot re-trigger.
-      - name: Publish packages missing from npm
-        run: |
-          for workspace in packages/gradle-parse packages/project packages/configure; do
-            name=$(node -p "require('./$workspace/package.json').name")
-            version=$(node -p "require('./$workspace/package.json').version")
-            if [ "$(npm view "$name@$version" version 2>/dev/null)" = "$version" ]; then
-              echo "$name@$version is already on npm"
-            else
-              npm publish -w "$workspace"
-            fi
-          done
+      # Published in dependency order: gradle-parse <- project <- configure
+      - name: Publish @trapezedev/gradle-parse
+        if: ${{ steps.release-please.outputs['packages/gradle-parse--release_created'] == 'true' }}
+        run: npm publish -w packages/gradle-parse
+      - name: Publish @trapezedev/project
+        if: ${{ steps.release-please.outputs['packages/project--release_created'] == 'true' }}
+        run: npm publish -w packages/project
+      - name: Publish @trapezedev/configure
+        if: ${{ steps.release-please.outputs['packages/configure--release_created'] == 'true' }}
+        run: npm publish -w packages/configure
