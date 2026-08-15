@@ -225,7 +225,9 @@ describe('xml file', () => {
     it('Should survive an unrelated change and a commit unmodified', async () => {
       file.setAttrs('/resources', { 'xmlns:tools': 'http://schemas.android.com/tools' });
 
-      await vfs.get(path)?.commit();
+      const ref = vfs.get(path);
+      expect(ref).toBeDefined();
+      await ref!.commit();
 
       const committed = await readFile(path, { encoding: 'utf-8' });
       expect(committed).toContain(`<string name="deep_link">https://example.com/?a=1&amp;b=2</string>`);
