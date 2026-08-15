@@ -18,19 +18,27 @@ const PBX_UNQUOTED_VALUE = /^[A-Za-z0-9_$./]+$/;
  * PBX files are esoteric. Quote every value that Xcode itself would quote,
  * otherwise the pbxproj we write can no longer be parsed (a `,` terminates a
  * value, and non-ASCII characters are not valid in an unquoted value).
+ * Inside a quoted value, a backslash and a double quote have to be escaped.
  */
 export function pbxSerializeString(value: string) {
   if (!PBX_UNQUOTED_VALUE.test(value)) {
-    return `"${value}"`;
+    return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
   }
   return value;
 }
 
-// Remove any quotes at the beginning and end of the string value
+/**
+ * The pbx parser hands quoted values back verbatim, quotes and escapes
+ * included, so undo what `pbxSerializeString` wrote.
+ */
 export function pbxReadString(value: string) {
-  if (typeof value === 'string') {
-    return value?.replace(/(^")+|("$)+/g, '');
-  } else {
+  if (typeof value !== 'string') {
     return value;
   }
+
+  if (value.length >= 2 && value.startsWith('"') && value.endsWith('"')) {
+    return value.slice(1, -1).replace(/\\([\\"])/g, '$1');
+  }
+
+  return value;
 }

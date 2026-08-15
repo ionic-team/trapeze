@@ -167,6 +167,19 @@ describe('project - ios standard', () => {
     expect(reloaded.ios?.getBuildProperty('App', null, 'PRODUCT_NAME')).toBe('Acme,Inc');
   });
 
+  it('should write build settings containing quotes and backslashes that can be parsed again', async () => {
+    const productName = 'My "App" \\ Test';
+
+    project.ios?.setProductName('App', productName);
+    await project.commit();
+
+    const reloaded = new MobileProject(dir, { ios: { path: 'ios/App' } });
+    await reloaded.load();
+
+    expect(reloaded.ios?.getError()).toBe(null);
+    expect(reloaded.ios?.getBuildProperty('App', null, 'PRODUCT_NAME')).toBe(productName);
+  });
+
   it('should add frameworks', async () => {
     const fwks = ['ImageIO.framework', 'AudioToolbox.framework'];
     fwks.forEach(f => project.ios?.addFramework('App', f));
