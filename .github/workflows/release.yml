@@ -22,25 +22,22 @@ jobs:
     if: github.repository == 'ionic-team/trapeze'
     runs-on: ubuntu-latest
     steps:
+      # Verified before release-please cuts any tag, so a broken commit fails here
+      # instead of leaving a tagged release that never reaches npm
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - run: npm ci
+      # Scoped to the published packages; the private website is covered by CI
+      - run: npm run build -- --filter='@trapezedev/*'
+      - run: npm test -- --filter='@trapezedev/*'
       - name: Create release pull request or GitHub release
         id: release-please
         uses: googleapis/release-please-action@v4
-      - uses: actions/checkout@v4
-        if: ${{ steps.release-please.outputs.releases_created == 'true' }}
-      - uses: actions/setup-node@v4
-        if: ${{ steps.release-please.outputs.releases_created == 'true' }}
-        with:
-          node-version: ${{ env.NODE_VERSION }}
       - name: Update npm for OIDC trusted publishing
         if: ${{ steps.release-please.outputs.releases_created == 'true' }}
         run: npm install -g npm@latest
-      - if: ${{ steps.release-please.outputs.releases_created == 'true' }}
-        run: npm ci
-      # Scoped to the published packages; the private website is covered by CI
-      - if: ${{ steps.release-please.outputs.releases_created == 'true' }}
-        run: npm run build -- --filter='@trapezedev/*'
-      - if: ${{ steps.release-please.outputs.releases_created == 'true' }}
-        run: npm test -- --filter='@trapezedev/*'
       # Published in dependency order: gradle-parse <- project <- configure
       - name: Publish @trapezedev/gradle-parse
         if: ${{ steps.release-please.outputs['packages/gradle-parse--release_created'] == 'true' }}

@@ -110,7 +110,8 @@ describe('op: android.manifest', () => {
             android:name="androidx.core.content.FileProvider"
             android:authorities="\${applicationId}.fileprovider"
             android:exported="false"
-            android:grantUriPermissions="true" />
+            android:grantUriPermissions="true"
+        />
     </application>
 </manifest>
     `.trim());
