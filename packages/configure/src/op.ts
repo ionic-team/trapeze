@@ -198,8 +198,12 @@ function createOpDisplayText(op: Partial<Operation>) {
       return (Array.isArray(op.value) ? op.value : op.value.entries).map((v: any) => Object.keys(v)).join(', ');
     case 'ios.frameworks':
       return op.value.join(', ');
-    case 'ios.plist':
-      return `${op.value.entries.length} modifications`;
+    case 'ios.plist': {
+      // The documented form is a list of entry groups, the legacy form a single one
+      const groups = Array.isArray(op.value) ? op.value : [op.value];
+      const entries = groups.flatMap((group: any) => group.entries ?? []);
+      return `${entries.length} ${pluralize(entries.length, 'modification')}`;
+    }
     case 'ios.xml':
       return `${op.value.length} ${pluralize(op.value.length, 'modification')}`;
     case 'ios.json':

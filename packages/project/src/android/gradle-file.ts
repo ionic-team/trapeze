@@ -10,6 +10,11 @@ import { AndroidGradleInjectType } from '../definitions';
 import { Logger } from '../logger';
 import { assertParentDirs } from '../util/fs';
 
+// Windows does not expand the lib/* wildcard the POSIX classpath uses, so every jar
+// vendored by @trapezedev/gradle-parse has to be listed here explicitly
+export const WINDOWS_GRADLE_PARSE_CLASSPATH =
+  'lib/groovy-3.0.9.jar;lib/json-20260814.jar;capacitor-gradle-parse.jar;.';
+
 export type GradleAST = any;
 export interface GradleASTNode {
   type: string;
@@ -317,7 +322,7 @@ export class GradleFile extends VFSStorable {
           java,
           [
             '-cp',
-            'lib/groovy-3.0.9.jar;lib/json-20260814.jar;capacitor-gradle-parse.jar;.',
+            WINDOWS_GRADLE_PARSE_CLASSPATH,
             'com.capacitorjs.gradle.Parse',
             tempFile,
           ],

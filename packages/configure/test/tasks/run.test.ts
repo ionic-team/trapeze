@@ -486,7 +486,7 @@ describe('task: run', () => {
     const ctx = await loadContext(dir);
     ctx.args.y = false;
     ctx.args.quiet = true;
-    ctx.args.noCommit = false;
+    ctx.args.commit = true;
 
     vi.mocked(logPrompt).mockClear();
 
@@ -495,6 +495,59 @@ describe('task: run', () => {
 
     expect(ctx.project.vfs.modifiedFiles()).toEqual([]);
     expect(logPrompt).not.toHaveBeenCalled();
+
+    await rm(dir, { force: true, recursive: true });
+  });
+
+  it('should apply the changes when the user confirms', async () => {
+    const dir = temporaryDirectory();
+
+    await copy('../common/test/fixtures/project-only', dir);
+
+    const ctx = await loadContext(dir);
+    ctx.args.y = false;
+    ctx.args.quiet = true;
+    ctx.args.commit = true;
+    ctx.args.dryRun = false;
+
+    vi.mocked(logPrompt).mockReset();
+    vi.mocked(logPrompt).mockResolvedValue({ apply: true });
+
+    await runCommand(ctx, '../common/test/fixtures/project.basic.yml');
+
+    expect(logPrompt).toHaveBeenCalledOnce();
+
+    const json = await readFile(join(dir, 'project-json.json'), { encoding: 'utf-8' });
+    expect(json).toContain('"project_id": "asdf"');
+
+    await rm(dir, { force: true, recursive: true });
+  });
+
+  it('should not write anything when the user declines', async () => {
+    const dir = temporaryDirectory();
+
+    await copy('../common/test/fixtures/project-only', dir);
+
+    const json = join(dir, 'project-json.json');
+    const xml = join(dir, 'project-xml-strings.xml');
+    const before = await readUntouched([json, xml]);
+
+    const ctx = await loadContext(dir);
+    ctx.args.y = false;
+    ctx.args.quiet = true;
+    ctx.args.commit = true;
+    ctx.args.dryRun = false;
+
+    vi.mocked(logPrompt).mockReset();
+    vi.mocked(logPrompt).mockResolvedValue({ apply: false });
+
+    const lines = await captureLoggedLines(() =>
+      runCommand(ctx, '../common/test/fixtures/project.basic.yml'),
+    );
+
+    expect(logPrompt).toHaveBeenCalledOnce();
+    expect(lines).toContainEqual(expect.stringContaining('Not applying changes'));
+    expect(await readUntouched([json, xml])).toEqual(before);
 
     await rm(dir, { force: true, recursive: true });
   });

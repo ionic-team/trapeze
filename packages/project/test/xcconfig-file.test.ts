@@ -1,7 +1,12 @@
+import { copy, readFile, rm } from '@ionic/utils-fs';
+import { join } from 'path';
+import { temporaryDirectory } from 'tempy';
+
 import { XCConfigFile } from '../src';
+import { MobileProject } from '../src/project';
 import { VFS } from '../src/vfs';
 
-describe('strings file', () => {
+describe('xcconfig file', () => {
   let vfs: VFS;
   let file: XCConfigFile;
 
@@ -99,5 +104,35 @@ TARGETED_DEVICE_FAMILY = 4;
 KEY_ONLY = VALUE_ONLY
 FOO[sdk=<sdk>][arch=<arch>] = new
     `.trim());
+  });
+
+  it('Should write the document on commit', async () => {
+    const dir = temporaryDirectory();
+    const path = join(dir, 'Config.xcconfig');
+    await copy('../common/test/fixtures/test.xcconfig', path);
+
+    file = new XCConfigFile(path, vfs);
+    await file.load();
+    await file.set({ KEY: 'value', NEW_KEY: 'new value' });
+
+    await vfs.commitAll({} as MobileProject);
+
+    const contents = await readFile(path, { encoding: 'utf-8' });
+    expect(contents).toContain('KEY = value');
+    expect(contents).toContain('NEW_KEY = new value');
+
+    await rm(dir, { force: true, recursive: true });
+  });
+
+  it('Should not reload a file that is already open', async () => {
+    const path = '../common/test/fixtures/test.xcconfig';
+    file = new XCConfigFile(path, vfs);
+    await file.load();
+
+    await file.set({ KEY: 'value' });
+    await file.load();
+
+    expect(file.getPairs()).toMatchObject({ KEY: 'value' });
+    expect(Object.keys(vfs.all())).toEqual([path]);
   });
 });
