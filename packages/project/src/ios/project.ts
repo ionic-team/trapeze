@@ -1,5 +1,5 @@
 import plist from 'plist';
-import path, { extname, join, sep } from 'path';
+import path, { basename, extname, join, sep } from 'path';
 import { copy, pathExists, readdir, writeFile } from '@ionic/utils-fs';
 
 import { parsePbxProject, pbxReadString, pbxSerializeString } from "../util/pbx";
@@ -143,10 +143,10 @@ export class IosProject extends PlatformProject {
     targetName = this.assertTargetName(targetName);
 
     if (buildName) {
-      return this.getTarget(targetName)?.buildConfigurations.find(c => c.name === buildName)?.buildSettings?.['PRODUCT_BUNDLE_IDENTIFIER'];
+      return pbxReadString(this.getTarget(targetName)?.buildConfigurations.find(c => c.name === buildName)?.buildSettings?.['PRODUCT_BUNDLE_IDENTIFIER']);
     }
 
-    return this.getTarget(targetName)?.buildConfigurations[0]?.buildSettings?.['PRODUCT_BUNDLE_IDENTIFIER'];
+    return pbxReadString(this.getTarget(targetName)?.buildConfigurations[0]?.buildSettings?.['PRODUCT_BUNDLE_IDENTIFIER']);
   }
 
   /**
@@ -321,7 +321,7 @@ export class IosProject extends PlatformProject {
   getVersion(targetName: IosTargetName | null, buildName: IosBuildName | null) {
     targetName = this.assertTargetName(targetName || null);
 
-    return this.pbxProject?.getBuildProperty('MARKETING_VERSION', buildName ? buildName : undefined /* must use undefined if null */, targetName);
+    return pbxReadString(this.pbxProject?.getBuildProperty('MARKETING_VERSION', buildName ? buildName : undefined /* must use undefined if null */, targetName));
   }
 
   /**
@@ -585,7 +585,11 @@ export class IosProject extends PlatformProject {
   private addFileToBuildPhase(filePath: string, group: string | undefined) {
     const extension = extname(filePath);
 
-    if (extension === '.xcconfig') {
+    // Xcode copies a target's Info.plist into the bundle by itself, so copying it from the
+    // resources phase too fails the build with "Multiple commands produce Info.plist"
+    const belongsToNoBuildPhase = extension === '.xcconfig' || basename(filePath) === 'Info.plist';
+
+    if (belongsToNoBuildPhase) {
       this.pbxProject?.addFile(filePath, group);
     } else if (RESOURCE_FILE_EXTENSIONS.includes(extension)) {
       this.addResourceFile(filePath, group);
@@ -605,13 +609,18 @@ export class IosProject extends PlatformProject {
 
     const file = pbxProject.addFile(filePath, group);
 
+    // Without a target the pbx lib resolves whichever resources build phase comes first
+    // in the objects hash, which in a multi-target project can belong to an app extension
+    const appTargetId = this.getAppTarget()?.id;
+
     // A project without a resources build phase has nowhere to copy the file from, but
     // the file reference added above is still worth keeping
-    if (!file || !pbxProject.pbxResourcesBuildPhaseObj(undefined)) {
+    if (!file || !pbxProject.pbxResourcesBuildPhaseObj(appTargetId)) {
       return;
     }
 
     file.uuid = pbxProject.generateUuid();
+    file.target = appTargetId;
     pbxProject.addToPbxBuildFileSection(file);
     pbxProject.addToPbxResourcesBuildPhase(file);
   }

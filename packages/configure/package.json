@@ -22,7 +22,7 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "engines": {
-    "node": ">=14"
+    "node": ">=18"
   },
   "dependencies": {
     "@ionic/cli-framework-output": "^2.2.2",
@@ -46,7 +46,9 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.175",
+    "@types/plist": "^3.0.2",
     "@types/prompts": "^2.0.14",
+    "plist": "^3.0.4",
     "rimraf": "^6.0.1",
     "tempy": "^3.1.0",
     "typescript": "^5.9.3",

@@ -15,6 +15,12 @@ import { assertParentDirs } from '../util/fs';
 export const WINDOWS_GRADLE_PARSE_CLASSPATH =
   'lib/groovy-3.0.9.jar;lib/json-20260814.jar;capacitor-gradle-parse.jar;.';
 
+/**
+ * Thrown when neither the property to replace nor the block to insert it into exists,
+ * so callers can tell a missing target apart from a failed modification.
+ */
+export class GradleTargetNotFound extends Error {}
+
 export type GradleAST = any;
 export interface GradleASTNode {
   type: string;
@@ -96,10 +102,9 @@ export class GradleFile extends VFSStorable {
       const foundParent = this.find(parent, exact);
 
       if (foundParent.length) {
-        this.insertIntoGradleFile([toReplace], foundParent[0], type);
-        return;
+        return this.insertIntoGradleFile([toReplace], foundParent[0], type);
       } else {
-        throw new Error(
+        throw new GradleTargetNotFound(
           'Unable to find target in Gradle file to replace or insert',
         );
       }
@@ -606,15 +611,25 @@ export class GradleFile extends VFSStorable {
     if (source) {
       Logger.v('gradle', 'setApplicationId', `to ${applicationId} in ${this.filename}`);
 
-      return this.replaceProperties({
-        android: {
-          defaultConfig: {
-            applicationId: {}
+      try {
+        await this.replaceProperties({
+          android: {
+            defaultConfig: {
+              applicationId: {}
+            }
           }
+        }, {
+          applicationId: `"${applicationId}"`
+        });
+      } catch (e) {
+        // An app build.gradle without an android.defaultConfig block is valid, the
+        // applicationId then defaults to the namespace and there is nothing to set
+        if (!(e instanceof GradleTargetNotFound)) {
+          throw e;
         }
-      }, {
-        applicationId: `"${applicationId}"`
-      });
+
+        Logger.warn(`Unable to set the applicationId in ${this.filename}: no android.defaultConfig block found`);
+      }
     }
   }
 
@@ -654,7 +669,9 @@ export class GradleFile extends VFSStorable {
     const source = await this.getGradleSource();
 
     if (source) {
-      const versionCode = source.match(/versionCode\s+(\w+)/);
+      // The word boundary keeps properties that start with versionCode, such as the
+      // versionCodeOverride of an APK split, from being read as the version code
+      const versionCode = source.match(/versionCode\b\s*=?\s*(\w+)/);
       if (!versionCode) {
         return null;
       }
@@ -664,19 +681,15 @@ export class GradleFile extends VFSStorable {
   }
 
   async incrementVersionCode() {
-    const source = await this.getGradleSource();
+    const versionCode = await this.getVersionCode();
 
-    if (source) {
-      const versionCode = source.match(/versionCode\s+(\w+)/);
-      if (!versionCode) {
-        return;
-      }
-      const num = parseInt(versionCode[1]);
-      if (!isNaN(num)) {
-        Logger.v('gradle', 'incrementVersionCode', `to ${num} in ${this.filename}`);
-        return this.setVersionCode(num + 1);
-      }
+    if (versionCode === null || isNaN(versionCode)) {
+      return;
     }
+
+    Logger.v('gradle', 'incrementVersionCode', `to ${versionCode + 1} in ${this.filename}`);
+
+    return this.setVersionCode(versionCode + 1);
   }
 
   async setVersionName(versionName: string) {
@@ -701,7 +714,7 @@ export class GradleFile extends VFSStorable {
 
     if (source) {
       const versionName =
-        source.match(/versionName\s+["']([^"']+)["']/) || null;
+        source.match(/versionName\s*=?\s*["']([^"']+)["']/) || null;
       if (!versionName) {
         return null;
       }
@@ -734,7 +747,7 @@ export class GradleFile extends VFSStorable {
 
     if (source) {
       const versionName =
-        source.match(/versionNameSuffix\s+["']([^"']+)["']/) || null;
+        source.match(/versionNameSuffix\s*=?\s*["']([^"']+)["']/) || null;
       if (!versionName) {
         return null;
       }

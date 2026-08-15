@@ -1,0 +1,11 @@
+apply plugin: 'com.android.application'
+
+android {
+    namespace = "io.ionic.starter"
+    defaultConfig {
+        applicationId = "io.ionic.starter"
+        versionCode = 4
+        versionName = "1.0"
+        versionNameSuffix = "beta"
+    }
+}

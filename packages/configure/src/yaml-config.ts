@@ -120,12 +120,16 @@ function interpolateVarsInValue(ctx: Context, val: any) {
   return val;
 }
 
+// The same reference syntax `str` interpolates, so keys and values agree on what
+// counts as a variable
+const VARIABLE_REFERENCE = /\$[^\(\{\[][\w]+/g;
+
 // Array indices are passed through, and a key resolving to a JSON-valued
 // variable is coerced back to a string since it has to stay usable as a key.
 // Objects and arrays are serialized the same way `str` serializes them when
 // they are embedded in a string
 function interpolateKey(ctx: Context, key: string | number) {
-  if (typeof key !== 'string') {
+  if (typeof key !== 'string' || !isInterpolatable(ctx, key)) {
     return key;
   }
 
@@ -138,4 +142,13 @@ function interpolateKey(ctx: Context, key: string | number) {
   return typeof interped === 'object'
     ? JSON.stringify(interped)
     : String(interped);
+}
+
+// `str` drops references it cannot resolve, which would turn a literal key like
+// `$schema` into an empty one, so a key is only interpolated when every reference
+// in it is a declared variable
+function isInterpolatable(ctx: Context, key: string) {
+  const references = key.match(VARIABLE_REFERENCE);
+
+  return !!references && references.every(ref => !!ctx.vars[ref.slice(1)]);
 }

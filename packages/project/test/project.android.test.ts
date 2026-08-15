@@ -1,7 +1,7 @@
 import { MobileProject, XmlFile } from '../src';
 
 import { join } from 'path';
-import { pathExists, readFile, stat, writeFile } from '@ionic/utils-fs';
+import { mkdirp, pathExists, readFile, stat, writeFile } from '@ionic/utils-fs';
 import { formatXml, serializeXml } from "../src/util/xml";
 import { MobileProjectConfig } from '../src/config';
 import { GradleFile } from '../src/android/gradle-file';
@@ -34,7 +34,7 @@ describe('project - android', () => {
   });
 
   it('should get main activity filename', async () => {
-    expect(await project.android?.getMainActivityFilename()).toBe('MainActivity.java');
+    expect(project.android?.getMainActivityFilename()).toBe('MainActivity.java');
   });
 
   it('should get gradle plugin version', async () => {
@@ -438,7 +438,7 @@ describe('project - android - capacitor v8', () => {
   });
 
   it('should get main activity filename of the launcher activity', async () => {
-    expect(await project.android?.getMainActivityFilename()).toBe('MainActivity.java');
+    expect(project.android?.getMainActivityFilename()).toBe('MainActivity.java');
   });
 
   it('should set package name', async () => {
@@ -464,6 +464,38 @@ describe('project - android - capacitor v8', () => {
 
     const helperSource = await readFile(join(newPackageDir, 'sub/Helper.java'), { encoding: 'utf-8' });
     expect(helperSource).toContain('package com.ionicframework.awesome.sub;');
+  });
+
+  it('should rename the package declaration of a source that mentions a package in its header comment', async () => {
+    const sourceDir = join(androidDir, 'app/src/main/java');
+    await writeFile(join(sourceDir, 'io/ionic/starter/Documented.java'), `/*
+ * This package is part of the sample app.
+ */
+package io.ionic.starter;
+
+public class Documented {}
+`);
+
+    await project.android?.setPackageName('com.ionicframework.awesome');
+
+    const moved = await readFile(join(sourceDir, 'com/ionicframework/awesome/Documented.java'), { encoding: 'utf-8' });
+    expect(moved).toContain('package com.ionicframework.awesome;');
+    expect(moved).toContain('This package is part of the sample app.');
+  });
+
+  it('should not move any source when a file is in the way', async () => {
+    const sourceDir = join(androidDir, 'app/src/main/java');
+    const oldPackageDir = join(sourceDir, 'io/ionic/starter');
+    await mkdirp(join(sourceDir, 'com/ionicframework/awesome/sub'));
+    await writeFile(join(sourceDir, 'com/ionicframework/awesome/sub/Helper.java'), 'package com.ionicframework.awesome.sub;\n');
+
+    await expect(project.android?.setPackageName('com.ionicframework.awesome')).rejects.toThrow(
+      /a file already exists at/
+    );
+
+    expect(await pathExists(join(oldPackageDir, 'MainActivity.java'))).toBe(true);
+    expect(await pathExists(join(oldPackageDir, 'MyPlugin.java'))).toBe(true);
+    expect(await pathExists(join(oldPackageDir, 'sub/Helper.java'))).toBe(true);
   });
 
   it('should set a package name nested in the old package', async () => {
@@ -543,8 +575,9 @@ describe('project - android - kotlin', () => {
     androidDir = project.config.android?.path!;
   });
 
+  // The file name of the activity comes from the manifest, which has no extension in it
   it('should get main activity filename', async () => {
-    expect(await project.android?.getMainActivityFilename()).toBe('MainActivity.kt');
+    expect(project.android?.getMainActivityFilename()).toBe('MainActivity.java');
   });
 
   it('should get main activity path', async () => {
