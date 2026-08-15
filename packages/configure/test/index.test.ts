@@ -10,7 +10,7 @@ describe('cli: run', () => {
 
     // loadContext() reads these from the command line before commander parses it,
     // so they have to be declared here too or commander rejects them
-    expect(help).toContain('--projectRoot <path>');
+    expect(help).toContain('--project-root <path>');
     expect(help).toContain('--android-project <path>');
     expect(help).toContain('--ios-project <path>');
   });

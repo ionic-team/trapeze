@@ -116,7 +116,7 @@ describe('task: run', () => {
 
     await copy('../common/test/fixtures/custom-platform-directories', dir);
 
-    process.argv.push('--projectRoot');
+    process.argv.push('--project-root');
     process.argv.push(dir);
     process.argv.push('-y');
     process.argv.push('--quiet');
