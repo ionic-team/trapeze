@@ -1,5 +1,12 @@
 # @trapezedev/project
 
+## [7.1.6](https://github.com/ionic-team/trapeze/compare/@trapezedev/project@7.1.5...@trapezedev/project@7.1.6) (2026-08-14)
+
+
+### Bug Fixes
+
+* **project:** replace `fs-extra` with built-in `fs/promises` ([3b1bdb5](https://github.com/ionic-team/trapeze/commit/3b1bdb5dc6c638b50a32c8c14c2b74cb9eb7409e))
+
 ## 7.1.5
 
 ### Patch Changes

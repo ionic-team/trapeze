@@ -1,5 +1,14 @@
 # @trapezedev/configure
 
+## [7.1.6](https://github.com/ionic-team/trapeze/compare/@trapezedev/configure@7.1.5...@trapezedev/configure@7.1.6) (2026-08-14)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapezedev/project bumped from ^7.1.5 to ^7.1.6
+
 ## 7.1.5
 
 ### Patch Changes
