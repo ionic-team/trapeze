@@ -10,14 +10,17 @@ export async function parsePbxProject(filename: string): Promise<any> {
   return proj.parseSync();
 }
 
+// Xcode leaves a value unquoted only when it consists solely of these characters,
+// see http://danwright.info/blog/2010/10/xcode-pbxproject-files/
+const PBX_UNQUOTED_VALUE = /^[A-Za-z0-9_$./]+$/;
+
 /**
- * PBX files are esoteric. Based on http://danwright.info/blog/2010/10/xcode-pbxproject-files/
- * we try to quote strings that need to be quoted. Right now
- * that test is just for a few characters but there may be
- * more that we need here
+ * PBX files are esoteric. Quote every value that Xcode itself would quote,
+ * otherwise the pbxproj we write can no longer be parsed (a `,` terminates a
+ * value, and non-ASCII characters are not valid in an unquoted value).
  */
 export function pbxSerializeString(value: string) {
-  if (/[\s;]/.test(value)) {
+  if (!PBX_UNQUOTED_VALUE.test(value)) {
     return `"${value}"`;
   }
   return value;

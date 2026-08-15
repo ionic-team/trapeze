@@ -156,6 +156,17 @@ describe('project - ios standard', () => {
     expect(actualValue).toBe('\"This Is A Long String\"');
   });
 
+  it('should write build settings that can be parsed again', async () => {
+    project.ios?.setProductName('App', 'Acme,Inc');
+    await project.commit();
+
+    const reloaded = new MobileProject(dir, { ios: { path: 'ios/App' } });
+    await reloaded.load();
+
+    expect(reloaded.ios?.getError()).toBe(null);
+    expect(reloaded.ios?.getBuildProperty('App', null, 'PRODUCT_NAME')).toBe('Acme,Inc');
+  });
+
   it('should add frameworks', async () => {
     const fwks = ['ImageIO.framework', 'AudioToolbox.framework'];
     fwks.forEach(f => project.ios?.addFramework('App', f));
