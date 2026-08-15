@@ -1,4 +1,4 @@
-import { join } from 'path';
+import { dirname, join, relative } from 'path';
 import {
   pathExists,
   move,
@@ -10,6 +10,7 @@ import {
   writeFile,
   copy,
 } from '@ionic/utils-fs';
+import { readdir } from 'fs/promises';
 
 import { MobileProject } from '../project';
 import { AndroidResDir } from '../definitions';
@@ -19,7 +20,13 @@ import { PropertiesFile } from '../properties';
 import { PlatformProject } from '../platform-project';
 import { readSource } from '../read-src';
 import { Logger } from '../logger';
+import { listFilesRecursive } from '../util/fs';
 import { compare } from '../util/gradle-versions';
+
+const LAUNCHER_ACTIVITY = 'manifest/application/activity[intent-filter/action/@android:name="android.intent.action.MAIN"]';
+
+// The Capacitor string resources that hold a copy of the package name
+const PACKAGE_NAME_STRINGS = ['package_name', 'custom_url_scheme'];
 
 export class AndroidProject extends PlatformProject {
   private manifest: XmlFile;
@@ -141,25 +148,20 @@ export class AndroidProject extends PlatformProject {
 
   /**
    * Update the Android package name. This renames the package in `AndroidManifest.xml`,
-   * the `applicationId` in `app/build.gradle`, and renames the java
-   * package for the `MainActivity.java` file.
+   * the `applicationId` and `namespace` in `app/build.gradle`, and moves the sources of
+   * the old package to the new one.
    *
    * This action will mutate the project on disk!
    */
   async setPackageName(packageName: string) {
-    const sourceDir = join(this.getAppRoot()!, 'src', 'main', 'java');
-    let hadPackageAttr = false;
-    let oldPackageName = await this.manifest
-      .getDocumentElement()
-      ?.getAttribute('package');
+    const manifestPackage = this.manifest.getDocumentElement()?.getAttribute('package');
+    const oldPackageName = manifestPackage || (await this.getPackageName());
 
     if (!oldPackageName) {
-      oldPackageName = await this.appBuildGradle?.getApplicationId();
-    } else {
-      hadPackageAttr = true;
+      throw new Error(
+        'Unable to detect the current package name. Set the package attribute in AndroidManifest.xml or the namespace or applicationId in app/build.gradle before modifying the project package name',
+      );
     }
-
-    const oldPackageParts = oldPackageName?.split('.') ?? [];
 
     Logger.v('android', 'setPackageName', 'setting Android package name to', packageName, 'from', oldPackageName);
 
@@ -167,99 +169,209 @@ export class AndroidProject extends PlatformProject {
       return;
     }
 
-    const existingPackage = join(sourceDir, ...oldPackageParts);
-    if (!(await pathExists(existingPackage))) {
+    const sourceDir = join(this.getAppRoot()!, 'src', 'main', 'java');
+    const oldPackageParts = oldPackageName.split('.');
+    const oldPackageDir = join(sourceDir, ...oldPackageParts);
+
+    if (!(await pathExists(oldPackageDir))) {
       throw new Error(
         'Current Java package name and directory structure do not match the <manifest> package attribute. Ensure these match before modifying the project package name',
       );
     }
 
-    let activityName = '.MainActivity';
-    if (hadPackageAttr) {
-      this.manifest.getDocumentElement()?.setAttribute('package', packageName);
-      activityName = `${packageName}.MainActivity`;
+    if (manifestPackage) {
+      this.manifest.setAttrs('manifest', { package: packageName });
     }
+
+    this.setLauncherActivityPackage(packageName);
 
     await this.appBuildGradle?.setApplicationId(packageName);
     await this.appBuildGradle?.setNamespace(packageName);
-    Logger.v('android', 'setPackageName', `set manifest package attribute and applicationId to ${packageName}`);
-    this.manifest.setAttrs('manifest/application/activity', {
-      'android:name': activityName
-    });
-    Logger.v('android', 'setPackageName', `set <activity android:name="${packageName}.MainActivity"`);
+    Logger.v('android', 'setPackageName', `set applicationId and namespace to ${packageName}`);
 
-    if (!this.getAppRoot()) {
+    const movedFiles = await this.movePackageSources(oldPackageDir, join(sourceDir, ...packageName.split('.')));
+    await this.renamePackageInSources(movedFiles, oldPackageName, packageName);
+    await this.removeOldPackageDirs(sourceDir, oldPackageParts);
+    await this.renamePackageInStrings(oldPackageName, packageName);
+  }
+
+  /**
+   * Point the launcher activity at the new package. Activities of other packages, and
+   * activity names that are relative to the package (`.MainActivity`), are left alone.
+   */
+  private setLauncherActivityPackage(packageName: string) {
+    const activityName = this.manifest.find(LAUNCHER_ACTIVITY)?.[0]?.getAttribute('android:name');
+
+    if (!activityName || activityName.startsWith('.')) {
       return;
     }
 
-    const newPackageParts = packageName.split('.');
+    const newActivityName = `${packageName}.${activityName.split('.').pop()}`;
 
-    const destDir = join(sourceDir, ...newPackageParts);
+    Logger.v('android', 'setPackageName', `set launcher <activity android:name="${newActivityName}">`);
 
-    const mainActivityName = this.getMainActivityFilename();
+    this.manifest.setAttrs(LAUNCHER_ACTIVITY, {
+      'android:name': newActivityName
+    });
+  }
 
-    Logger.v('android', 'setPackageName', `Got main activity name ${mainActivityName}`);
+  /**
+   * Move every file of the old package, sub packages included, to the new package
+   * directory and return the new file paths.
+   */
+  private async movePackageSources(oldPackageDir: string, newPackageDir: string) {
+    const movedFiles: string[] = [];
 
-    let activityFile = join(sourceDir, ...oldPackageParts, mainActivityName);
+    for (const file of await listFilesRecursive(oldPackageDir)) {
+      const dest = join(newPackageDir, relative(oldPackageDir, file));
 
-    Logger.v('android', 'setPackageName', `Looking for old activity file at ${activityFile}`);
+      Logger.v('android', 'setPackageName', `moving ${file} to ${dest}`);
 
-    // Make the new directory tree and any missing parents
-    await mkdirp(destDir);
-    // Move the old activity file over
-    await move(activityFile, join(destDir, 'MainActivity.java'));
-
-    // Try to delete the empty directories we left behind, starting
-    // from the deepest
-    let sourceDirLeaf = join(sourceDir, ...oldPackageParts);
-
-    Logger.v('android', 'setPackageName', `removing old source dirs for old package (${sourceDirLeaf})`);
-
-    for (const _ of oldPackageParts) {
-      try {
-        await rmdir(sourceDirLeaf);
-      } catch (ex) {
-        // This will fail if directory is not empty, that's fine, we won't delete those
-      }
-      sourceDirLeaf = join(sourceDirLeaf, '..');
+      await mkdirp(dirname(dest));
+      await move(file, dest);
+      movedFiles.push(dest);
     }
 
-    // Rename the package in the main source file
-    activityFile = join(sourceDir, ...newPackageParts, this.getMainActivityFilename());
-    if (await pathExists(activityFile)) {
-      Logger.v('android', 'setPackageName', `renaming package in source for activity file ${activityFile}`);
-      const activitySource = await readFile(activityFile, {
-        encoding: 'utf-8',
-      });
-      const newActivitySource = activitySource?.replace(
-        /(package\s+)[^;]+/,
-        `$1${packageName}`,
-      );
-      await writeFile(activityFile, newActivitySource);
+    return movedFiles;
+  }
+
+  /**
+   * Rename the package declaration and the imports of the old package in the given
+   * source files. Sources that declare a package outside of the old one are left alone.
+   */
+  private async renamePackageInSources(files: string[], oldPackageName: string, packageName: string) {
+    const packageDeclaration = /(package\s+)([^\s;]+)/;
+    const oldPackageImport = new RegExp(`(import\\s+(static\\s+)?)${oldPackageName.replace(/\./g, '\\.')}\\.`, 'g');
+
+    for (const file of files.filter(f => /\.(java|kt)$/.test(f))) {
+      const source = await readFile(file, { encoding: 'utf-8' });
+      const declaredPackage = source.match(packageDeclaration)?.[2];
+
+      if (!declaredPackage) {
+        continue;
+      }
+
+      if (declaredPackage !== oldPackageName && !declaredPackage.startsWith(`${oldPackageName}.`)) {
+        continue;
+      }
+
+      Logger.v('android', 'setPackageName', `renaming package in source file ${file}`);
+
+      const subPackage = declaredPackage.slice(oldPackageName.length);
+      const newSource = source
+        .replace(packageDeclaration, (_, keyword) => `${keyword}${packageName}${subPackage}`)
+        .replace(oldPackageImport, (_, keyword) => `${keyword}${packageName}.`);
+
+      await writeFile(file, newSource);
     }
   }
 
-  getMainActivityFilename() {
-    const activity = this.manifest.find('manifest/application/activity');
+  /**
+   * Remove the directories the old package left behind, deepest first. Directories that
+   * still have contents are kept.
+   */
+  private async removeOldPackageDirs(sourceDir: string, oldPackageParts: string[]) {
+    Logger.v('android', 'setPackageName', `removing old source dirs for old package (${oldPackageParts.join('.')})`);
 
-    if (!activity) {
-      return 'MainActivity.java';
+    await this.removeDirTreeIfEmpty(join(sourceDir, ...oldPackageParts));
+
+    for (let depth = oldPackageParts.length - 1; depth > 0; depth--) {
+      await this.removeDirIfEmpty(join(sourceDir, ...oldPackageParts.slice(0, depth)));
+    }
+  }
+
+  private async removeDirTreeIfEmpty(dir: string) {
+    for (const entry of await readdir(dir, { withFileTypes: true })) {
+      if (entry.isDirectory()) {
+        await this.removeDirTreeIfEmpty(join(dir, entry.name));
+      }
     }
 
-    const activityName = activity[0].getAttribute('android:name');
-    const parts = activityName?.split('.');
-    if (!parts) {
+    await this.removeDirIfEmpty(dir);
+  }
+
+  private async removeDirIfEmpty(dir: string) {
+    try {
+      await rmdir(dir);
+    } catch (e) {
+      // rmdir only fails when the directory still has contents, which is when we want to keep it
+    }
+  }
+
+  /**
+   * Keep the Capacitor string resources that mirror the package name in sync. Values that
+   * hold something else, because the project isn't a Capacitor one or they were edited by
+   * hand, are left alone.
+   */
+  private async renamePackageInStrings(oldPackageName: string, packageName: string) {
+    const stringsPath = join(this.getResourcesRoot() ?? '', 'values', 'strings.xml');
+
+    if (!(await pathExists(stringsPath))) {
+      return;
+    }
+
+    // Opening a file adds it to the files to commit, so keep it closed when it doesn't
+    // mention the old package name at all
+    if (!(await readFile(stringsPath, { encoding: 'utf-8' })).includes(oldPackageName)) {
+      return;
+    }
+
+    const stringsFile = this.getResourceXmlFile('values/strings.xml');
+
+    if (!stringsFile) {
+      return;
+    }
+
+    await stringsFile.load();
+
+    for (const name of PACKAGE_NAME_STRINGS) {
+      const target = `resources/string[@name="${name}"]`;
+
+      if (stringsFile.find(target)?.[0]?.textContent !== oldPackageName) {
+        continue;
+      }
+
+      Logger.v('android', 'setPackageName', `set <string name="${name}"> to ${packageName}`);
+
+      stringsFile.replaceFragment(target, `<string name="${name}">${packageName}</string>`);
+    }
+  }
+
+  /**
+   * Get the file name of the main activity, with the source file extension the
+   * project actually uses.
+   */
+  async getMainActivityFilename(): Promise<string> {
+    const activityName = this.getMainActivityName();
+
+    if (!activityName) {
       return '';
     }
-    return `${parts[parts.length - 1]}.java`;
+
+    const packageParts = (await this.getPackageName())?.split('.') ?? [];
+    const kotlinActivity = `${activityName}.kt`;
+
+    if (await pathExists(join(this.getAppRoot() ?? '', 'src', 'main', 'java', ...packageParts, kotlinActivity))) {
+      return kotlinActivity;
+    }
+
+    return `${activityName}.java`;
   }
 
   async getMainActivityPath() {
-    const packageName = await this.appBuildGradle?.getApplicationId();
-    const activityName = this.getMainActivityFilename();
-    const packageParts = packageName?.split('.') ?? [];
+    const packageParts = (await this.getPackageName())?.split('.') ?? [];
+    const activityName = await this.getMainActivityFilename();
 
     return join('app', 'src', 'main', 'java', ...packageParts, activityName);
+  }
+
+  private getMainActivityName() {
+    const activity =
+      this.manifest.find(LAUNCHER_ACTIVITY)?.[0] ?? this.manifest.find('manifest/application/activity')?.[0];
+
+    const activityName = activity?.getAttribute('android:name');
+
+    return activityName?.split('.').pop() ?? null;
   }
 
   async getGradlePluginVersion() {

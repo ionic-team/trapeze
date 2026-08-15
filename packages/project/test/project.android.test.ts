@@ -3,7 +3,7 @@ import { temporaryDirectory } from 'tempy';
 import { MobileProject, XmlFile } from '../src';
 
 import { join } from 'path';
-import { copy, pathExists, readFile, rm, stat } from '@ionic/utils-fs';
+import { copy, pathExists, readFile, rm, stat, writeFile } from '@ionic/utils-fs';
 import { formatXml, serializeXml } from "../src/util/xml";
 import { MobileProjectConfig } from '../src/config';
 import { GradleFile } from '../src/android/gradle-file';
@@ -40,7 +40,7 @@ describe('project - android', () => {
   });
 
   it('should get main activity filename', async () => {
-    expect(project.android?.getMainActivityFilename()).toBe('MainActivity.java');
+    expect(await project.android?.getMainActivityFilename()).toBe('MainActivity.java');
   });
 
   it('should get gradle plugin version', async () => {
@@ -61,6 +61,15 @@ describe('project - android', () => {
     expect(!(await pathExists(join(project.config.android?.path!, 'app/src/main/java/io')))).toBe(true);
     const activity = project.android?.getAndroidManifest().find('manifest/application/activity');
     expect(activity?.[0].getAttribute('android:name')).toBe('com.ionicframework.awesome.MainActivity');
+  });
+
+  it('should commit the package name to the manifest', async () => {
+    await project.android?.setPackageName('com.ionicframework.awesome');
+    await project.commit();
+
+    const manifest = await readFile(join(project.config.android?.path!, 'app/src/main/AndroidManifest.xml'), { encoding: 'utf-8' });
+    expect(manifest).toContain('package="com.ionicframework.awesome"');
+    expect(manifest).toContain('android:name="com.ionicframework.awesome.MainActivity"');
   });
 
   it('should not error setting same package name', async () => {
@@ -396,5 +405,163 @@ describe('project - android - capacitor v5', () => {
     expect(!(await pathExists(join(project.config.android?.path!, 'app/src/main/java/io')))).toBe(true);
     const activity = project.android?.getAndroidManifest().find('manifest/application/activity');
     expect(activity?.[0].getAttribute('android:name')).toBe('.MainActivity');
+  });
+});
+
+describe('project - android - capacitor v8', () => {
+  let config: MobileProjectConfig;
+  let project: MobileProject;
+  let dir: string;
+  let androidDir: string;
+  beforeEach(async () => {
+    dir = temporaryDirectory();
+    await copy('../common/test/fixtures/cap-v8', dir);
+
+    config = {
+      android: {
+        path: 'android'
+      }
+    }
+
+    project = new MobileProject(dir, config);
+    await project.load();
+    androidDir = project.config.android?.path!;
+  });
+
+  afterEach(async () => {
+    await rm(dir, { force: true, recursive: true });
+  });
+
+  it('should get package name from a namespace assignment', async () => {
+    expect(await project.android?.getPackageName()).toBe('io.ionic.starter');
+    expect(await project.android?.getAppBuildGradle()?.getApplicationId()).toBe('io.ionic.starter');
+  });
+
+  it('should get main activity filename of the launcher activity', async () => {
+    expect(await project.android?.getMainActivityFilename()).toBe('MainActivity.java');
+  });
+
+  it('should set package name', async () => {
+    await project.android?.setPackageName('com.ionicframework.awesome');
+
+    expect(await project.android?.getPackageName()).toBe('com.ionicframework.awesome');
+    expect(await project.android?.getAppBuildGradle()?.getApplicationId()).toBe('com.ionicframework.awesome');
+    expect(await project.android?.getAppBuildGradle()?.getNamespace()).toBe('com.ionicframework.awesome');
+    expect(await pathExists(join(androidDir, 'app/src/main/java/io'))).toBe(false);
+  });
+
+  it('should move every source of the old package', async () => {
+    await project.android?.setPackageName('com.ionicframework.awesome');
+
+    const newPackageDir = join(androidDir, 'app/src/main/java/com/ionicframework/awesome');
+    const activitySource = await readFile(join(newPackageDir, 'MainActivity.java'), { encoding: 'utf-8' });
+    expect(activitySource).toContain('package com.ionicframework.awesome;');
+    expect(activitySource).toContain('import com.ionicframework.awesome.sub.Helper;');
+
+    const pluginSource = await readFile(join(newPackageDir, 'MyPlugin.java'), { encoding: 'utf-8' });
+    expect(pluginSource).toContain('package com.ionicframework.awesome;');
+    expect(pluginSource).toContain('import com.getcapacitor.Plugin;');
+
+    const helperSource = await readFile(join(newPackageDir, 'sub/Helper.java'), { encoding: 'utf-8' });
+    expect(helperSource).toContain('package com.ionicframework.awesome.sub;');
+  });
+
+  it('should set a package name nested in the old package', async () => {
+    await project.android?.setPackageName('io.ionic.starter.app');
+
+    const activitySource = await readFile(join(androidDir, 'app/src/main/java/io/ionic/starter/app/MainActivity.java'), { encoding: 'utf-8' });
+    expect(activitySource).toContain('package io.ionic.starter.app;');
+  });
+
+  it('should only rename the launcher activity', async () => {
+    await project.android?.setPackageName('com.ionicframework.awesome');
+    await project.commit();
+
+    const manifest = await readFile(join(androidDir, 'app/src/main/AndroidManifest.xml'), { encoding: 'utf-8' });
+    expect(manifest).toContain('android:name=".MainActivity"');
+    expect(manifest).toContain('android:name="com.facebook.FacebookActivity"');
+    expect(manifest).toContain('android:name="com.facebook.CustomTabActivity"');
+    expect(manifest).not.toContain('package=');
+  });
+
+  it('should update the package name string resources', async () => {
+    await project.android?.setPackageName('com.ionicframework.awesome');
+    await project.commit();
+
+    const strings = await readFile(join(androidDir, 'app/src/main/res/values/strings.xml'), { encoding: 'utf-8' });
+    expect(strings).toContain('<string name="package_name">com.ionicframework.awesome</string>');
+    expect(strings).toContain('<string name="custom_url_scheme">com.ionicframework.awesome</string>');
+    expect(strings).toContain('<string name="app_name">cap-v8-test</string>');
+  });
+
+  it('should error when the current package name cannot be detected', async () => {
+    const appBuildGradle = join(androidDir, 'app/build.gradle');
+    const source = await readFile(appBuildGradle, { encoding: 'utf-8' });
+    await writeFile(appBuildGradle, source.replace(/^.*(namespace|applicationId).*$/gm, ''));
+
+    const projectWithoutPackage = new MobileProject(dir, { android: { path: 'android' } });
+    await projectWithoutPackage.load();
+
+    await expect(projectWithoutPackage.android?.setPackageName('com.ionicframework.awesome')).rejects.toThrow(
+      /Unable to detect the current package name/
+    );
+  });
+});
+
+describe('project - android - kotlin', () => {
+  let config: MobileProjectConfig;
+  let project: MobileProject;
+  let dir: string;
+  let androidDir: string;
+  beforeEach(async () => {
+    dir = temporaryDirectory();
+    await copy('../common/test/fixtures/android-kotlin', dir);
+
+    config = {
+      android: {
+        path: 'android'
+      }
+    }
+
+    project = new MobileProject(dir, config);
+    await project.load();
+    androidDir = project.config.android?.path!;
+  });
+
+  afterEach(async () => {
+    await rm(dir, { force: true, recursive: true });
+  });
+
+  it('should get main activity filename', async () => {
+    expect(await project.android?.getMainActivityFilename()).toBe('MainActivity.kt');
+  });
+
+  it('should get main activity path', async () => {
+    expect(await project.android?.getMainActivityPath()).toBe(join('app', 'src', 'main', 'java', 'io', 'ionic', 'starter', 'MainActivity.kt'));
+  });
+
+  it('should set package name', async () => {
+    await project.android?.setPackageName('com.ionicframework.awesome');
+
+    expect(await project.android?.getPackageName()).toBe('com.ionicframework.awesome');
+
+    const newPackageDir = join(androidDir, 'app/src/main/java/com/ionicframework/awesome');
+    const activitySource = await readFile(join(newPackageDir, 'MainActivity.kt'), { encoding: 'utf-8' });
+    expect(activitySource).toContain('package com.ionicframework.awesome\n');
+    expect(activitySource).toContain('import com.ionicframework.awesome.sub.Helper');
+    expect(activitySource).toContain('class MainActivity : AppCompatActivity()');
+
+    const helperSource = await readFile(join(newPackageDir, 'sub/Helper.kt'), { encoding: 'utf-8' });
+    expect(helperSource).toContain('package com.ionicframework.awesome.sub\n');
+    expect(await pathExists(join(androidDir, 'app/src/main/java/io'))).toBe(false);
+  });
+
+  it('should only update string resources that hold the old package name', async () => {
+    await project.android?.setPackageName('com.ionicframework.awesome');
+    await project.commit();
+
+    const strings = await readFile(join(androidDir, 'app/src/main/res/values/strings.xml'), { encoding: 'utf-8' });
+    expect(strings).toContain('<string name="custom_url_scheme">com.ionicframework.awesome</string>');
+    expect(strings).toContain('<string name="package_name">io.custom.scheme</string>');
   });
 });
