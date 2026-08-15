@@ -1,0 +1,14 @@
+vars:
+  BUNDLE_ID:
+    default: com.ionicframework.testBundle
+  PROFILE:
+    default: My iOS Profile
+platforms:
+  ios:
+    targets:
+      App:
+        plist:
+          - file: exportOptions.plist
+            entries:
+              - provisioningProfiles:
+                  $BUNDLE_ID: $PROFILE

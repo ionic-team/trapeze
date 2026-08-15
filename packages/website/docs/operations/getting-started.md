@@ -45,6 +45,8 @@ Configuration files are written in YAML. New to YAML? Read [Learn YAML in five m
 
 See an [Example Yaml Configuration](https://github.com/ionic-team/capacitor-configure/blob/main/examples/basic.yml) for a real-world example using many of the supported features.
 
+YAML anchors and merge keys (`<<`) are supported and can be used to share configuration between sections.
+
 ## Variables and Environment Variables
 
 Variables defined in the yaml `vars` section can be automatically supplied through environment variables of the same name, or interactively input by the user if not found in the environment and lacking a default value.
@@ -84,6 +86,22 @@ platforms:
       App:
         entitlements:
           - keychain-access-groups: $KEYCHAIN_GROUPS
+```
+
+### Variables as keys
+
+Variables can also be used as map keys, which is useful for configuration that is keyed by a value such as the bundle id:
+
+```yaml
+platforms:
+  ios:
+    targets:
+      App:
+        plist:
+          - file: exportOptions.plist
+            entries:
+              - provisioningProfiles:
+                  $BUNDLE_ID: $PROVISIONING_PROFILE
 ```
 
 ### Variable types

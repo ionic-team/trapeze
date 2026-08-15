@@ -1,6 +1,6 @@
 import yaml from 'yaml';
 
-import { clone, each } from 'lodash';
+import { clone, each, omit } from 'lodash';
 
 import { readFile } from '@ionic/utils-fs';
 
@@ -19,6 +19,7 @@ export async function loadYamlConfig(
   const contents = await readFile(filename, { encoding: 'utf-8' });
   const parsed = yaml.parse(contents, {
     prettyErrors: true,
+    merge: true,
   });
 
   if (!parsed) {
@@ -80,25 +81,53 @@ function interpolateVars(ctx: Context, yaml: YamlFile) {
     ...ctx.vars,
   };
 
-  return interpolateVarsInTree(ctx, yaml);
+  const config = interpolateVarsInTree(ctx, omit(yaml, 'vars'));
+
+  // Variable declarations are left alone so their names aren't interpolated
+  return vars ? { ...config, vars } : config;
 }
 
 function interpolateVarsInTree(ctx: Context, yaml: YamlFile) {
   const newObject = clone(yaml);
 
   each(yaml, (val, key) => {
-    if (typeof val === 'string') {
-      const interped = str(ctx, val);
-      if (typeof interped === 'object') {
-        // Recur into the new object value to interp any sub-fields
-        newObject[key] = interpolateVarsInTree(ctx, interped);
-      } else {
-        newObject[key] = interped;
-      }
-    } else if (typeof val === 'object' || Array.isArray(val)) {
-      newObject[key] = interpolateVarsInTree(ctx, val);
+    const newKey = interpolateKey(ctx, key);
+
+    if (newKey !== key) {
+      delete newObject[key];
     }
+
+    newObject[newKey] = interpolateVarsInValue(ctx, val);
   });
 
   return newObject;
+}
+
+function interpolateVarsInValue(ctx: Context, val: any) {
+  if (typeof val === 'string') {
+    const interped = str(ctx, val);
+
+    // Recur into the new object value to interp any sub-fields
+    return typeof interped === 'object'
+      ? interpolateVarsInTree(ctx, interped)
+      : interped;
+  }
+
+  if (typeof val === 'object') {
+    return interpolateVarsInTree(ctx, val);
+  }
+
+  return val;
+}
+
+// Array indices are passed through, and a key resolving to a JSON-valued
+// variable is coerced back to a string since it has to stay usable as a key
+function interpolateKey(ctx: Context, key: string | number) {
+  if (typeof key !== 'string') {
+    return key;
+  }
+
+  const interped = str(ctx, key);
+
+  return typeof interped === 'string' ? interped : String(interped);
 }

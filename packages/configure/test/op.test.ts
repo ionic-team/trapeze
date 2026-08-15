@@ -164,6 +164,63 @@ describe('operation processing', () => {
       ] as Operation[]);
     });
 
+    it('should process ios operations defined next to targets and builds', async () => {
+      const makeOp = (
+        name: string,
+        value: any,
+        iosTarget: string | null,
+        iosBuild: string | null,
+      ): Operation => ({
+        id: `ios.${name}`,
+        platform: 'ios',
+        name,
+        iosTarget,
+        iosBuild,
+        value,
+        displayText: expect.anything(),
+      });
+      const parsed = await loadYamlConfig(
+        ctx,
+        '../common/test/fixtures/ios.shared.targets.builds.yml',
+      );
+
+      const processed = processOperations(parsed);
+
+      expect(processed).toMatchObject([
+        makeOp('bundleId', 'com.ionicframework.testBundle', null, null),
+        makeOp('version', 16.4, 'App', null),
+        makeOp('displayName', 'My Awesome App', 'App', 'Debug'),
+      ] as Operation[]);
+    });
+
+    it('should process ios operations shared through yaml merge keys', async () => {
+      const makeOp = (
+        name: string,
+        value: any,
+        iosBuild: string,
+      ): Operation => ({
+        id: `ios.${name}`,
+        platform: 'ios',
+        name,
+        iosTarget: 'App',
+        iosBuild,
+        value,
+        displayText: expect.anything(),
+      });
+      const parsed = await loadYamlConfig(
+        ctx,
+        '../common/test/fixtures/ios.merge.keys.yml',
+      );
+
+      const processed = processOperations(parsed);
+
+      expect(processed).toMatchObject([
+        makeOp('bundleId', 'com.ionicframework.testBundle', 'Debug'),
+        makeOp('bundleId', 'com.ionicframework.testBundle', 'Release'),
+        makeOp('displayName', 'My Awesome App', 'Release'),
+      ] as Operation[]);
+    });
+
     it('should process ios operations with no targets and no builds', async () => {
       const makeOp = (name: string, value: any): Operation => ({
         id: `ios.${name}`,
