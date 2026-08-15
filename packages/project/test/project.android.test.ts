@@ -494,6 +494,22 @@ describe('project - android - capacitor v8', () => {
     expect(strings).toContain('<string name="app_name">cap-v8-test</string>');
   });
 
+  it('should set package name from the applicationId when there is no namespace', async () => {
+    const appBuildGradle = join(androidDir, 'app/build.gradle');
+    const source = await readFile(appBuildGradle, { encoding: 'utf-8' });
+    await writeFile(appBuildGradle, source.replace(/^.*namespace.*$/gm, ''));
+
+    const projectWithoutNamespace = new MobileProject(dir, { android: { path: 'android' } });
+    await projectWithoutNamespace.load();
+
+    await projectWithoutNamespace.android?.setPackageName('com.ionicframework.awesome');
+
+    expect(await projectWithoutNamespace.android?.getAppBuildGradle()?.getApplicationId()).toBe('com.ionicframework.awesome');
+    const activitySource = await readFile(join(androidDir, 'app/src/main/java/com/ionicframework/awesome/MainActivity.java'), { encoding: 'utf-8' });
+    expect(activitySource).toContain('package com.ionicframework.awesome;');
+    expect(await pathExists(join(androidDir, 'app/src/main/java/io'))).toBe(false);
+  });
+
   it('should error when the current package name cannot be detected', async () => {
     const appBuildGradle = join(androidDir, 'app/build.gradle');
     const source = await readFile(appBuildGradle, { encoding: 'utf-8' });

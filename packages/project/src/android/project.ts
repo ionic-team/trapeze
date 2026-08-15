@@ -155,7 +155,8 @@ export class AndroidProject extends PlatformProject {
    */
   async setPackageName(packageName: string) {
     const manifestPackage = this.manifest.getDocumentElement()?.getAttribute('package');
-    const oldPackageName = manifestPackage || (await this.getPackageName());
+    const oldPackageName =
+      manifestPackage || (await this.getPackageName()) || (await this.appBuildGradle?.getApplicationId());
 
     if (!oldPackageName) {
       throw new Error(
