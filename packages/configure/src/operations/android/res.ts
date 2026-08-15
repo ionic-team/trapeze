@@ -6,12 +6,12 @@ export default async function execute(ctx: Context, op: Operation) {
   const resOps = op.value;
 
   for (let resOp of resOps) {
-    if (isDryRun(ctx)) {
-      logger.info(`Would write resource ${resOp.file} to ${resOp.path}`);
-      continue;
-    }
-
     try {
+      if (isDryRun(ctx)) {
+        logger.info(`Would write resource ${resOp.file} to ${resOp.path}`);
+        continue;
+      }
+
       if (resOp.text) {
         const { path, file, text } = resOp;
         await ctx.project.android?.addResource(path, file, text);
