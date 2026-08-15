@@ -5,6 +5,7 @@ import org.codehaus.groovy.ast.builder.AstBuilder;
 import org.codehaus.groovy.ast.expr.*;
 import org.codehaus.groovy.ast.stmt.*;
 import org.codehaus.groovy.control.CompilePhase;
+import org.codehaus.groovy.syntax.Types;
 
 import org.json.*;
 import java.lang.reflect.Method;
@@ -108,26 +109,48 @@ class Visitor {
     return null;
   }
 
+  /**
+   * Record every assignment, whatever its right-hand side is. Only the source location of the
+   * assignment is needed to modify it, so map literals, lists, GStrings and method calls are
+   * tracked just like constants. "value" is only set when the right-hand side is a constant.
+   */
   private JSONObject visitBinaryExpression(ExpressionStatement exprStatement, BinaryExpression binExpr) {
-    Expression leftExpr = binExpr.getLeftExpression();
+    if (binExpr.getOperation().getType() != Types.ASSIGN) {
+      return null;
+    }
+
+    String varName = assignmentTargetName(binExpr.getLeftExpression());
+
+    if (varName == null) {
+      return null;
+    }
+
+    JSONObject jsonNode = new JSONObject();
+    jsonNode.put("type", "variable");
+    jsonNode.put("name", varName);
+
     Expression rightExpr = binExpr.getRightExpression();
+    if (rightExpr instanceof ConstantExpression) {
+      jsonNode.put("value", ((ConstantExpression) rightExpr).getValue());
+    }
 
-    if (leftExpr instanceof VariableExpression && rightExpr instanceof ConstantExpression) {
-      VariableExpression varExpr = (VariableExpression) leftExpr;
-      ConstantExpression constExpr = (ConstantExpression) rightExpr;
+    jsonNode.put("children", new JSONArray());
+    addSourceInfo(binExpr, jsonNode);
 
-      String varName = varExpr.getName();
+    return jsonNode;
+  }
 
-      String constValue = constExpr.getText();
+  /**
+   * The name an assignment can be targeted by: "foo" for `foo = ...` and the full property
+   * path for `ext.foo = ...`, so the property prefix survives a replacement.
+   */
+  private String assignmentTargetName(Expression leftExpr) {
+    if (leftExpr instanceof VariableExpression) {
+      return ((VariableExpression) leftExpr).getName();
+    }
 
-      JSONObject jsonNode = new JSONObject();
-      jsonNode.put("type", "variable");
-      jsonNode.put("name", varName);
-      jsonNode.put("value", constExpr.getValue());
-      jsonNode.put("children", new JSONArray());
-      addSourceInfo(binExpr, jsonNode);
-
-      return jsonNode;
+    if (leftExpr instanceof PropertyExpression) {
+      return leftExpr.getText();
     }
 
     return null;

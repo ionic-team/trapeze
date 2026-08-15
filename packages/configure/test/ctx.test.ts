@@ -97,4 +97,22 @@ describe('context and capacitor project loading', () => {
     const s3 = str(ctx, '${THING}');
     expect(s3).toBe('${THING}');
   });
+
+  it('should warn about variables without a value', async () => {
+    const dir = '../common/test/fixtures/ios-and-android';
+    ctx = await loadContext(dir, 'android', 'ios/App');
+
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    expect(str(ctx, 'kotlin-gradle-plugin:$kotlin_version')).toBe('kotlin-gradle-plugin:');
+    expect(warn).toHaveBeenCalledTimes(1);
+
+    warn.mockClear();
+
+    // References meant for the native tooling are passed through untouched
+    expect(str(ctx, 'kotlin-gradle-plugin:${kotlin_version}')).toBe('kotlin-gradle-plugin:${kotlin_version}');
+    expect(warn).not.toHaveBeenCalled();
+
+    warn.mockRestore();
+  });
 });

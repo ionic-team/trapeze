@@ -100,13 +100,20 @@ export function str(ctx: Context, s: string): string | any {
   s = s.replace(/\$[^\(\{\[][\w]+/g, (m: string) => {
     const foundVar = ctx.vars[m.slice(1)];
 
-    if (foundVar && typeof foundVar.value === 'string') {
-      return foundVar.value || '';
-    } else {
-      // We're in a string so the only thing to do at this point is
-      // serialize any JSON values
-      return foundVar ? JSON.stringify(foundVar.value) : '';
+    if (!foundVar) {
+      Logger.warn(
+        `No variable found for ${m}, replacing it with an empty string. Use \${${m.slice(1)}} to keep the reference for the native tooling.`,
+      );
+      return '';
     }
+
+    if (typeof foundVar.value === 'string') {
+      return foundVar.value;
+    }
+
+    // We're in a string so the only thing to do at this point is
+    // serialize any JSON values
+    return JSON.stringify(foundVar.value);
   });
 
   return s;

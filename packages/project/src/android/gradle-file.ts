@@ -39,11 +39,37 @@ export class GradleFile extends VFSStorable {
   /**
    * Replace the given properties at the specified point in the Gradle file or insert
    * if the replacement doesn't exist
-   * 
+   *
+   * Every property of toReplace is resolved and replaced on its own, so the target can
+   * point either at a single property or at the block containing the properties
+   *
    * exact specifies whether the pathObject should be exact from the root of the document or
    * if it can match on a sub-object
    **/
-  async replaceProperties(pathObject: any, toReplace: any, exact = false): Promise<void> {
+  async replaceProperties(
+    pathObject: any,
+    toReplace: any,
+    exact = false,
+    type: AndroidGradleInjectType = AndroidGradleInjectType.Infer,
+  ): Promise<void> {
+    const keys = Object.keys(toReplace);
+
+    for (const key of keys) {
+      await this.replaceProperty(
+        this._makePropertyPathObject(pathObject, key, keys),
+        { [key]: toReplace[key] },
+        exact,
+        type,
+      );
+    }
+  }
+
+  private async replaceProperty(
+    pathObject: any,
+    toReplace: any,
+    exact: boolean,
+    type: AndroidGradleInjectType,
+  ): Promise<void> {
     await this.parse();
 
     if (!this.parsed) {
@@ -61,7 +87,7 @@ export class GradleFile extends VFSStorable {
       const foundParent = this.find(parent, exact);
 
       if (foundParent.length) {
-        this.insertIntoGradleFile([toReplace], foundParent[0], AndroidGradleInjectType.Infer);
+        this.insertIntoGradleFile([toReplace], foundParent[0], type);
         return;
       } else {
         throw new Error(
@@ -72,7 +98,33 @@ export class GradleFile extends VFSStorable {
 
     const target = found[0];
 
-    return this.replaceInGradleFile(toReplace, target);
+    return this.replaceInGradleFile(toReplace, target, type);
+  }
+
+  // Build the path to a single property of the replacement object: the given path either
+  // already ends at one of the replaced property names, which is then swapped for propertyKey,
+  // or at the block holding the properties, where propertyKey is appended
+  private _makePropertyPathObject(
+    pathObject: any,
+    propertyKey: string,
+    replaceKeys: string[],
+  ) {
+    const path: string[] = [];
+
+    let node = pathObject;
+    while (node && Object.keys(node).length) {
+      const key = Object.keys(node)[0];
+      path.push(key);
+      node = node[key];
+    }
+
+    const leaf = path.pop();
+    if (typeof leaf !== 'undefined' && !replaceKeys.includes(leaf)) {
+      path.push(leaf);
+    }
+    path.push(propertyKey);
+
+    return path.reverse().reduce((child: any, key) => ({ [key]: child }), {});
   }
 
   // Build a new pathObject that is the path to the parent rather than
@@ -108,6 +160,7 @@ export class GradleFile extends VFSStorable {
   private async replaceInGradleFile(
     toInject: any,
     targetNode: { node: GradleASTNode; depth: number },
+    type: AndroidGradleInjectType,
   ) {
     // These values are 1-indexed not 0-indexed
     //let { line, column, lastLine, lastColumn } = targetNode.node.source;
@@ -135,7 +188,7 @@ export class GradleFile extends VFSStorable {
       detectedIndent.indent,
       undefined,
       targetNode.node,
-      AndroidGradleInjectType.Infer
+      type
     );
 
     const resolvedLastLine = lastLine < 0 ? sourceLines.length : lastLine;
@@ -736,9 +789,7 @@ export class GradleFile extends VFSStorable {
             );
             lines.push('}');
           } else {
-            // Create a variable entry if the target node type is a variable or 
-            // the provided type is a variable
-            if (targetNode.type === 'variable' || type === AndroidGradleInjectType.Variable) {
+            if (this.isVariableEntry(targetNode, type)) {
               lines.push(`${key} = ${JSON.stringify(editEntry)}`);
             } else {
               lines.push(`${key} ${editEntry}`);
@@ -749,7 +800,7 @@ export class GradleFile extends VFSStorable {
           typeof editEntry === 'number' ||
           typeof editEntry === 'boolean'
         ) {
-          if (targetNode.type === 'variable' || type === AndroidGradleInjectType.Variable) {
+          if (this.isVariableEntry(targetNode, type)) {
             lines.push(indent(`${key} = ${editEntry}`, indentation, depth));
           } else {
             lines.push(indent(`${key} ${editEntry}`, indentation, depth));
@@ -761,9 +812,15 @@ export class GradleFile extends VFSStorable {
             const fieldEntry = editEntry[fieldKey];
 
             if (typeof fieldEntry === 'string') {
-              lines.push(
-                indent(`${fieldKey} ${fieldEntry}`, indentation, depth),
-              );
+              if (this.isVariableEntry(targetNode, type)) {
+                lines.push(
+                  indent(`${fieldKey} = ${fieldEntry}`, indentation, depth),
+                );
+              } else {
+                lines.push(
+                  indent(`${fieldKey} ${fieldEntry}`, indentation, depth),
+                );
+              }
             } else if (Array.isArray(fieldEntry)) {
               lines.push('{');
               this.createGradleSource(
@@ -780,6 +837,12 @@ export class GradleFile extends VFSStorable {
         }
       }
     }
+  }
+
+  // Generate a variable assignment (`key = value`) instead of a method call (`key value`)
+  // if the target node is a variable or the provided type is a variable
+  private isVariableEntry(targetNode: GradleASTNode, type: AndroidGradleInjectType) {
+    return targetNode.type === 'variable' || type === AndroidGradleInjectType.Variable;
   }
 
   private async getGradleSource(): Promise<string | null> {
