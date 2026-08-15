@@ -463,6 +463,29 @@ describe('project - ios standard', () => {
     // expect(!!pbx?.hasFile('NewXml.xml')).toBe(true);
   });
 
+  it('should add new files to the build phase their type belongs in', async () => {
+    await project.ios?.addFile('App/Brand.plist');
+    await project.ios?.addFile('App/New.strings');
+    await project.ios?.addFile('App/Build.xcconfig');
+
+    await project.commit();
+
+    const pbxOnDisk = await readFile(join(dir, 'ios/App/App.xcodeproj/project.pbxproj'), { encoding: 'utf-8' });
+    const resources = pbxSection(pbxOnDisk, 'PBXResourcesBuildPhase');
+    const sources = pbxSection(pbxOnDisk, 'PBXSourcesBuildPhase');
+
+    // Resources have to be copied into the app bundle to exist at runtime
+    expect(resources).toContain('Brand.plist in Resources');
+    expect(resources).toContain('New.strings in Resources');
+    expect(sources).not.toContain('Brand.plist');
+    expect(sources).not.toContain('New.strings');
+
+    // An xcconfig is read by the build settings, it belongs to no build phase
+    expect(pbxOnDisk).toContain('Build.xcconfig');
+    expect(resources).not.toContain('Build.xcconfig');
+    expect(sources).not.toContain('Build.xcconfig');
+  });
+
 });
 
 describe('ios - no info plist case', () => {
@@ -553,3 +576,7 @@ describe('ios - issue #83', () => {
     expect(await project.ios?.getBuild(null)).toBe(2);
   });
 });
+
+function pbxSection(pbxproj: string, section: string) {
+  return pbxproj.split(`/* Begin ${section} section */`)[1]?.split(`/* End ${section} section */`)[0] ?? '';
+}

@@ -37,4 +37,21 @@ describe('project - base', () => {
     const destContents = await readFile(dest);
     expect(srcContents).toEqual(destContents);
   });
+
+  it('Should not modify the config it was given', async () => {
+    const reusedConfig: MobileProjectConfig = {
+      ios: { path: 'ios/App' },
+      android: { path: 'android' },
+    };
+
+    const first = new MobileProject(dir, reusedConfig);
+    const second = new MobileProject(dir, reusedConfig);
+    await Promise.all([first.load(), second.load()]);
+
+    expect(reusedConfig.ios?.path).toBe('ios/App');
+    expect(reusedConfig.android?.path).toBe('android');
+    expect(second.config.ios?.path).toBe(first.config.ios?.path);
+    expect(second.ios).not.toBeNull();
+    expect(second.android).not.toBeNull();
+  });
 });

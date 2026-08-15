@@ -2,7 +2,7 @@ import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
 import { relative } from 'path';
 import { Logger } from './logger';
 import { MobileProject } from './project';
-import { assertParentDirs } from './util/fs';
+import { assertParentDirs, readFileOrEmpty } from './util/fs';
 import { generateStrings, parseStrings, StringsEntries } from './util/strings';
 import { VFS, VFSFile, VFSStorable } from './vfs';
 
@@ -87,7 +87,7 @@ export class StringsFile extends VFSStorable {
       this.doc = await this.parse(this.path);
     }
     Logger.v('strings', 'load', `at ${this.path}`);
-    this.vfs.open(this.path, this, this.commitFn);
+    this.vfs.open(this.path, this, this.commitFn, this.diffFn);
   }
 
   generate() {
@@ -100,9 +100,15 @@ export class StringsFile extends VFSStorable {
   }
 
   private commitFn = async (file: VFSFile) => {
-    const f = file.getData() as StringsFile;
-    const src = generateStrings(f.doc);
+    const src = (file.getData() as StringsFile).generate();
     await assertParentDirs(file.getFilename());
     return writeFile(file.getFilename(), src);
+  }
+
+  private diffFn = async (file: VFSFile) => {
+    return {
+      old: await readFileOrEmpty(file.getFilename()),
+      new: (file.getData() as StringsFile).generate(),
+    };
   }
 }

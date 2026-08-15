@@ -1,0 +1,12 @@
+platforms:
+  ios:
+    bundleId: io.ionic.diffTest
+  android:
+    properties:
+      - file: gradle.properties
+        entries:
+          org.gradle.jvmargs: -Xmx4096m
+    json:
+      - file: app/diff-new-file.json
+        set:
+          hello: world

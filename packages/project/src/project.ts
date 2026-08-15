@@ -20,32 +20,28 @@ export class MobileProject {
   public framework: Framework | null = null;
   public ios: IosProject | null = null;
   public android: AndroidProject | null = null;
+  public config: MobileProjectConfig;
   vfs: VFS;
 
   constructor(
     public projectRoot: string,
-    public config: MobileProjectConfig = {}
+    config: MobileProjectConfig = {}
   ) {
     this.vfs = new VFS();
-    this.config.projectRoot = projectRoot;
-
-    if (typeof config.enableAndroid === 'undefined') {
-      config.enableAndroid = true;
-    }
-
-    if (typeof config.enableIos === 'undefined') {
-      config.enableIos = true;
-    }
-
-    if (this.config.ios) {
-      this.config.ios.path = join(this.projectRoot, this.config.ios.path ?? '');
-    }
-    if (this.config.android) {
-      this.config.android.path = join(
-        this.projectRoot,
-        this.config.android.path ?? '',
-      );
-    }
+    // Resolve the platform paths into a copy: mutating the caller's config would make
+    // the paths grow another projectRoot every time the config is reused
+    this.config = {
+      ...config,
+      projectRoot,
+      enableAndroid: config.enableAndroid ?? true,
+      enableIos: config.enableIos ?? true,
+      ...(config.ios && {
+        ios: { ...config.ios, path: join(projectRoot, config.ios.path ?? '') },
+      }),
+      ...(config.android && {
+        android: { ...config.android, path: join(projectRoot, config.android.path ?? '') },
+      }),
+    };
   }
 
   async detectFramework(): Promise<Framework | null> {

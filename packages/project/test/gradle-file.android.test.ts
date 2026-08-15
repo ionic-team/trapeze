@@ -781,4 +781,46 @@ intunemam {
     namespace = await gradle.getNamespace();
     expect(namespace).toBe('io.ionic.test');
   });
+
+  it('Should inject into a block shadowed by an assignment of the same name', async () => {
+    const gradle = new GradleFile(
+      join('../common/test/fixtures/shadowed-names.gradle'),
+      vfs,
+    );
+
+    await gradle.parse();
+
+    // Every sibling named `dependencies` is matched on its own, the assignment no
+    // longer swallows the cursor for the blocks that follow it
+    expect(gradle.find({ dependencies: {} }).map(f => f.node.type)).toEqual([
+      'variable',
+      'method',
+      'method',
+    ]);
+
+    await gradle.insertProperties({ dependencies: {} }, [
+      { implementation: "'inserted:dep:1.0'" },
+    ]);
+
+    const source = vfs
+      .get<GradleFile>(gradle.filename)
+      ?.getData()
+      ?.getDocument();
+    expect(source?.trim()).toBe(
+      `
+def dependencies = ['a', 'b']
+
+buildscript {
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.1.0'
+        implementation 'inserted:dep:1.0'
+    }
+}
+
+dependencies {
+    implementation 'x:y:1.0'
+}
+`.trim(),
+    );
+  });
 });

@@ -2,7 +2,7 @@ import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
 import { relative } from 'path';
 import { Logger } from './logger';
 import { MobileProject } from './project';
-import { assertParentDirs } from './util/fs';
+import { assertParentDirs, readFileOrEmpty } from './util/fs';
 import { VFS, VFSFile, VFSStorable } from './vfs';
 
 /**
@@ -73,7 +73,7 @@ export class XCConfigFile extends VFSStorable {
       this.doc = await this.parse(this.path);
     }
     Logger.v('xcconfig', 'load', `at ${this.path}`);
-    this.vfs.open(this.path, this, this.commitFn);
+    this.vfs.open(this.path, this, this.commitFn, this.diffFn);
   }
 
   generate() {
@@ -86,8 +86,15 @@ export class XCConfigFile extends VFSStorable {
   }
 
   private commitFn = async (file: VFSFile) => {
-    const src = this.generate();
+    const src = (file.getData() as XCConfigFile).generate();
     await assertParentDirs(file.getFilename());
     return writeFile(file.getFilename(), src);
+  }
+
+  private diffFn = async (file: VFSFile) => {
+    return {
+      old: await readFileOrEmpty(file.getFilename()),
+      new: (file.getData() as XCConfigFile).generate(),
+    };
   }
 }

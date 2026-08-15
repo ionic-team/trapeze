@@ -1,9 +1,9 @@
-import { pathExists, readFile, readJson, writeFile, writeJson } from '@ionic/utils-fs';
+import { pathExists, readJson, writeJson } from '@ionic/utils-fs';
 import { mergeWith, union } from 'lodash';
 import { Logger } from './logger';
-import { assertParentDirs } from './util/fs';
+import { assertParentDirs, readFileOrEmpty } from './util/fs';
 
-import { VFS, VFSRef, VFSFile, VFSStorable } from './vfs';
+import { VFS, VFSFile, VFSStorable } from './vfs';
 
 export class JsonFile extends VFSStorable {
   private json: Record<string, any> | null = null;
@@ -95,7 +95,7 @@ export class JsonFile extends VFSStorable {
   };
 
   private diffFn = async (file: VFSFile) => {
-    const oldJson = await readFile(file.getFilename(), { encoding: 'utf-8' });
+    const oldJson = await readFileOrEmpty(file.getFilename());
     const newJson = JSON.stringify((file.getData() as JsonFile | null)?.getDocument(), null, 2);
 
     return {

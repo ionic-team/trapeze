@@ -1,5 +1,6 @@
-import { copy, readFile, rm, writeFile } from '@ionic/utils-fs';
+import { copy, pathExists, readFile, rm, writeFile } from '@ionic/utils-fs';
 import { stat } from 'fs/promises';
+import { inspect } from 'util';
 import { temporaryDirectory } from 'tempy';
 import { join } from 'path';
 import plist from 'plist';
@@ -18,7 +19,10 @@ vi.mock('../../src/util/cli', async importOriginal => ({
 async function captureLoggedLines(run: () => Promise<void>): Promise<string[]> {
   const lines: string[] = [];
   const spy = vi.spyOn(console, 'log').mockImplementation((...args: any[]) => {
-    lines.push(args.join(' ').replace(/\x1b\[[0-9;]*m/g, ''));
+    const formatted = args
+      .map(arg => (typeof arg === 'string' ? arg : inspect(arg)))
+      .join(' ');
+    lines.push(formatted.replace(/\x1b\[[0-9;]*m/g, ''));
   });
 
   try {
@@ -441,6 +445,34 @@ describe('task: run', () => {
 
     const json = await readFile(join(dir, 'project-json.json'), { encoding: 'utf-8' });
     expect(json).toContain('asdf');
+
+    await rm(dir, { force: true, recursive: true });
+  });
+
+  it('should print a diff for every kind of modified file', async () => {
+    const dir = temporaryDirectory();
+
+    await copy('../common/test/fixtures/ios-and-android', dir);
+    await copy('../common/test/fixtures/diff.yml', join(dir, 'diff.yml'));
+
+    const ctx = await loadContext(dir);
+    ctx.args.diff = true;
+    ctx.args.dryRun = true;
+    ctx.args.quiet = false;
+
+    const lines = await captureLoggedLines(() => runCommand(ctx, join(dir, 'diff.yml')));
+    const output = lines.join('\n');
+
+    // gradle.properties and the pbxproj had no diff function at all, so --diff listed
+    // them as updated and then printed nothing for them
+    expect(output).toContain('org.gradle.jvmargs=-Xmx4096m');
+    expect(output).toContain('PRODUCT_BUNDLE_IDENTIFIER = io.ionic.diffTest');
+
+    // Diffing a file the run is about to create used to throw ENOENT and abort the run
+    expect(output).toContain('"hello": "world"');
+
+    // --dry-run writes nothing
+    expect(await pathExists(join(dir, 'android/app/diff-new-file.json'))).toBe(false);
 
     await rm(dir, { force: true, recursive: true });
   });

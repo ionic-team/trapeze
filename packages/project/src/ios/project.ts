@@ -1,5 +1,5 @@
 import plist from 'plist';
-import path, { join, sep } from 'path';
+import path, { extname, join, sep } from 'path';
 import { copy, pathExists, readdir, writeFile } from '@ionic/utils-fs';
 
 import { parsePbxProject, pbxReadString, pbxSerializeString } from "../util/pbx";
@@ -10,7 +10,7 @@ import { XmlFile } from '../xml';
 import { PlistFile } from '../plist';
 import { PlatformProject } from '../platform-project';
 import { Logger } from '../logger';
-import { assertParentDirs } from '../util/fs';
+import { assertParentDirs, readFileOrEmpty } from '../util/fs';
 
 const defaultEntitlementsPlist = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -27,6 +27,9 @@ const defaultInfoPlist = `<?xml version="1.0" encoding="UTF-8"?>
 </dict>
 </plist>
 `;
+
+// File types trapeze creates that Xcode has to copy into the app bundle
+const RESOURCE_FILE_EXTENSIONS = ['.plist', '.strings'];
 
 /* Some of the types are unwieldy in this file but the
   pbxProject methods are sensitive to null vs undefined
@@ -548,11 +551,11 @@ export class IosProject extends PlatformProject {
   }
 
   /**
-   * Add a source file to the project. this attemps to add the file
+   * Add a file to the project. This attempts to add the file
    * to the main "app" target, or adds it to the empty group (i.e. the root of
    * the project tree) if the app target can't be found.
    */
-  async addFile(path: string): Promise<void> {
+  async addFile(filePath: string): Promise<void> {
     const groups = this.pbxProject?.hash.project.objects['PBXGroup'] ?? [];
     const emptyGroup = Object.entries(groups).find(([key, value]: [string, any]) => {
       return value.isa === 'PBXGroup' && typeof value.name === 'undefined'
@@ -563,14 +566,54 @@ export class IosProject extends PlatformProject {
       return value.isa === 'PBXGroup' && (value.name === appTarget || value.path === appTarget);
     });
 
-    const pathSplit = path.split(sep);
-    if (pathSplit[0] === appTarget && appGroup) {
-      this.pbxProject?.addSourceFile(pathSplit.slice(1).join(sep), {}, appGroup?.[0]);
-    } else {
-      this.pbxProject?.addSourceFile(path, {}, emptyGroup?.[0]);
-    }
+    const pathSplit = filePath.split(sep);
+    const inAppGroup = pathSplit[0] === appTarget && !!appGroup;
+
+    this.addFileToBuildPhase(
+      inAppGroup ? pathSplit.slice(1).join(sep) : filePath,
+      inAppGroup ? appGroup?.[0] : emptyGroup?.[0],
+    );
 
     this.markPbxModified();
+  }
+
+  /**
+   * Register the file in the build phase Xcode expects for its type: resources are copied
+   * into the app bundle, xcconfig files are read by the build settings and belong to no
+   * build phase at all, and everything else is compiled.
+   */
+  private addFileToBuildPhase(filePath: string, group: string | undefined) {
+    const extension = extname(filePath);
+
+    if (extension === '.xcconfig') {
+      this.pbxProject?.addFile(filePath, group);
+    } else if (RESOURCE_FILE_EXTENSIONS.includes(extension)) {
+      this.addResourceFile(filePath, group);
+    } else {
+      this.pbxProject?.addSourceFile(filePath, {}, group);
+    }
+  }
+
+  // xcode's own addResourceFile() resolves the group by name and throws on the many
+  // projects that have no `Resources` group, so add the file to the resolved group here
+  private addResourceFile(filePath: string, group: string | undefined) {
+    const pbxProject = this.pbxProject;
+
+    if (!pbxProject) {
+      return;
+    }
+
+    const file = pbxProject.addFile(filePath, group);
+
+    // A project without a resources build phase has nowhere to copy the file from, but
+    // the file reference added above is still worth keeping
+    if (!file || !pbxProject.pbxResourcesBuildPhaseObj(undefined)) {
+      return;
+    }
+
+    file.uuid = pbxProject.generateUuid();
+    pbxProject.addToPbxBuildFileSection(file);
+    pbxProject.addToPbxResourcesBuildPhase(file);
   }
 
   private async assertEntitlementsFile(targetName: IosTargetName, buildName: IosBuildName | null) {
@@ -701,7 +744,7 @@ export class IosProject extends PlatformProject {
       throw new Error('Unable to load pbxproj');
     }
     const pbxParsed = await parsePbxProject(filename);
-    this.pbxFile = this.project.vfs.open(filename, pbxParsed, this.pbxCommitFn);
+    this.pbxFile = this.project.vfs.open(filename, pbxParsed, this.pbxCommitFn, this.pbxDiffFn);
     return pbxParsed;
   }
 
@@ -709,5 +752,12 @@ export class IosProject extends PlatformProject {
     if (this.pbxProject) {
       await writeFile(file.getFilename(), this.pbxProject.writeSync());
     }
+  }
+
+  private pbxDiffFn = async (file: VFSFile) => {
+    return {
+      old: await readFileOrEmpty(file.getFilename()),
+      new: this.pbxProject?.writeSync() ?? '',
+    };
   }
 }

@@ -6,7 +6,10 @@ export async function parseProperties(filename: string) {
   return ini.parse(data);
 }
 
+export function serializeProperties(data: any) {
+  return ini.stringify(data);
+}
+
 export async function writeProperties(filename: string, data: any) {
-  const serialized = ini.stringify(data);
-  return writeFile(filename, serialized);
+  return writeFile(filename, serializeProperties(data));
 }

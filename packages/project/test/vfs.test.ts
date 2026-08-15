@@ -55,4 +55,33 @@ describe('vfs', () => {
 
     expect(committed).toEqual(['f2', 'f3']);
   });
+
+  it('should only diff modified files', async () => {
+    const diffFn = async () => ({ old: 'a', new: 'b' });
+
+    vfs.open('f1', { thing: 'f1' }, async () => {}, diffFn);
+    vfs.open('f2', { thing: 'f2' }, async () => {}, diffFn);
+
+    vfs.markModified('f2');
+
+    const diffs = await vfs.diffAll();
+
+    expect(diffs.map(d => d.file?.getFilename())).toEqual(['f2']);
+    expect(diffs[0].patch).toContain('-a');
+    expect(diffs[0].patch).toContain('+b');
+  });
+
+  it('should skip files that cannot be diffed', async () => {
+    vfs.open('f1', { thing: 'f1' }, async () => {}, async () => {
+      throw new Error('cannot diff this');
+    });
+    vfs.open('f2', { thing: 'f2' }, async () => {}, async () => ({ old: 'a', new: 'b' }));
+
+    vfs.markModified('f1');
+    vfs.markModified('f2');
+
+    const diffs = await vfs.diffAll();
+
+    expect(diffs.map(d => d.file?.getFilename())).toEqual(['f2']);
+  });
 });
