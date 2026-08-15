@@ -7,7 +7,13 @@ import plist from 'plist';
 import { loadContext } from '../../src/ctx';
 import { runCommand } from '../../src/tasks/run';
 import { logger } from '../../src/util/log';
+import { logPrompt } from '../../src/util/cli';
 import { loadYamlConfig } from '../../src/yaml-config';
+
+vi.mock('../../src/util/cli', async importOriginal => ({
+  ...(await importOriginal<typeof import('../../src/util/cli')>()),
+  logPrompt: vi.fn(),
+}));
 
 async function captureLoggedLines(run: () => Promise<void>): Promise<string[]> {
   const lines: string[] = [];
@@ -433,6 +439,28 @@ describe('task: run', () => {
 
     const json = await readFile(join(dir, 'project-json.json'), { encoding: 'utf-8' });
     expect(json).toContain('asdf');
+
+    await rm(dir, { force: true, recursive: true });
+  });
+
+  it('should not ask to apply changes when nothing was modified', async () => {
+    const dir = temporaryDirectory();
+
+    await copy('../common/test/fixtures/android-only', dir);
+    await copy('../common/test/fixtures/ios.notargets.nobuilds.yml', join(dir, 'ios.yml'));
+
+    const ctx = await loadContext(dir);
+    ctx.args.y = false;
+    ctx.args.quiet = true;
+    ctx.args.noCommit = false;
+
+    vi.mocked(logPrompt).mockClear();
+
+    // Every operation targets iOS, which this project does not have
+    await runCommand(ctx, join(dir, 'ios.yml'));
+
+    expect(ctx.project.vfs.modifiedFiles()).toEqual([]);
+    expect(logPrompt).not.toHaveBeenCalled();
 
     await rm(dir, { force: true, recursive: true });
   });
