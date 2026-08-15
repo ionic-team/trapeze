@@ -49,18 +49,18 @@ platforms:
             # Operations for the App target and Release build
 ```
 
-Operations can be defined next to `targets` and `builds` to share them. Operations next to `targets` apply to every target, operations next to `builds` apply to every build of that target. They run before the more specific ones, so a target or build can override a shared value:
+Operations can be defined next to `targets` and `builds` to share them. Operations next to `targets` apply to the inferred app target and all of its build types, operations next to `builds` apply to all build types of that target. They run before the more specific ones, so a target or build can override a shared value:
 
 ```yaml
 platforms:
   ios:
-    bundleId: io.ionic.myApp # Every target
+    bundleId: io.ionic.myApp # App target, all build types
     targets:
       App:
-        version: 1.0.0 # Every build of the App target
+        version: 1.0.0 # App target, all build types
         builds:
           Debug:
-            bundleId: io.ionic.myApp.debug # Overrides the shared bundleId
+            bundleId: io.ionic.myApp.debug # Overrides the shared bundleId for Debug
 ```
 
 ### `version`

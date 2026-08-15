@@ -121,7 +121,9 @@ function interpolateVarsInValue(ctx: Context, val: any) {
 }
 
 // Array indices are passed through, and a key resolving to a JSON-valued
-// variable is coerced back to a string since it has to stay usable as a key
+// variable is coerced back to a string since it has to stay usable as a key.
+// Objects and arrays are serialized the same way `str` serializes them when
+// they are embedded in a string
 function interpolateKey(ctx: Context, key: string | number) {
   if (typeof key !== 'string') {
     return key;
@@ -129,5 +131,11 @@ function interpolateKey(ctx: Context, key: string | number) {
 
   const interped = str(ctx, key);
 
-  return typeof interped === 'string' ? interped : String(interped);
+  if (typeof interped === 'string') {
+    return interped;
+  }
+
+  return typeof interped === 'object'
+    ? JSON.stringify(interped)
+    : String(interped);
 }
