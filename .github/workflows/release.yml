@@ -16,7 +16,7 @@ permissions:
 
 # Same toolchain as ci.yml, so the published artifacts are built on a version CI covers
 env:
-  NODE_VERSION: 20
+  NODE_VERSION: 24
   JAVA_VERSION: 17
   JAVA_DISTRIBUTION: temurin
 
@@ -46,9 +46,11 @@ jobs:
       - name: Create release pull request or GitHub release
         id: release-please
         uses: googleapis/release-please-action@v4
+      # OIDC trusted publishing needs npm >= 11.5.1; pinned to the packageManager
+      # version instead of npm@latest, whose Node requirement moves independently
       - name: Update npm for OIDC trusted publishing
         if: ${{ steps.release-please.outputs.releases_created == 'true' }}
-        run: npm install -g npm@latest
+        run: npm install -g npm@11.13.0
       # Published in dependency order: gradle-parse <- project <- configure
       - name: Publish @trapezedev/gradle-parse
         if: ${{ steps.release-please.outputs['packages/gradle-parse--release_created'] == 'true' }}
