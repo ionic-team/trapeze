@@ -1,11 +1,27 @@
-import { copy, readFile, rm } from '@ionic/utils-fs';
+import { copy, readFile, rm, writeFile } from '@ionic/utils-fs';
 import { temporaryDirectory } from 'tempy';
 import { join } from 'path';
 import plist from 'plist';
 
 import { loadContext } from '../../src/ctx';
 import { runCommand } from '../../src/tasks/run';
+import { logger } from '../../src/util/log';
 import { loadYamlConfig } from '../../src/yaml-config';
+
+async function captureLoggedLines(run: () => Promise<void>): Promise<string[]> {
+  const lines: string[] = [];
+  const spy = vi.spyOn(console, 'log').mockImplementation((...args: any[]) => {
+    lines.push(args.join(' ').replace(/\x1b\[[0-9;]*m/g, ''));
+  });
+
+  try {
+    await run();
+  } finally {
+    spy.mockRestore();
+  }
+
+  return lines;
+}
 
 describe('task: run', () => {
   it('should process variables operations', async () => {
@@ -63,7 +79,7 @@ describe('task: run', () => {
 
     ctx.args.y = true;
     ctx.args.quiet = true;
-    ctx.args.noCommit = true;
+    ctx.args.commit = false;
 
     await runCommand(ctx, '../common/test/fixtures/basic.yml');
 
@@ -97,7 +113,7 @@ describe('task: run', () => {
     process.argv.push(dir);
     process.argv.push('-y');
     process.argv.push('--quiet');
-    process.argv.push('--noCommit');
+    process.argv.push('--no-commit');
     const ctx = await loadContext(undefined, 'my-android-app', 'my-ios-app/App');
     ctx.args.quiet = true;
 
@@ -136,7 +152,7 @@ describe('task: run', () => {
     const ctx = await loadContext(dir);
     ctx.args.y = true;
     ctx.args.quiet = true;
-    ctx.args.noCommit = true;
+    ctx.args.commit = false;
 
     await runCommand(ctx, join(dir, 'basic.yml'));
 
@@ -220,7 +236,7 @@ describe('task: run', () => {
     const ctx = await loadContext(dir);
     ctx.args.y = true;
     ctx.args.quiet = true;
-    ctx.args.noCommit = false;
+    ctx.args.commit = true;
 
     await runCommand(ctx, join(dir, 'basic.yml'));
 
@@ -315,6 +331,77 @@ describe('task: run', () => {
     expect(plistContents).toContain('msauth.com.microsoft.intunemam');
 
     // Cleanup temp dir
+    await rm(dir, { force: true, recursive: true });
+  });
+
+  it('should report project operations as run and not as skipped', async () => {
+    const dir = temporaryDirectory();
+
+    await copy('../common/test/fixtures/project-only', dir);
+
+    const ctx = await loadContext(dir);
+    ctx.args.commit = false;
+    ctx.args.quiet = false;
+
+    const lines = await captureLoggedLines(() =>
+      runCommand(ctx, '../common/test/fixtures/project.basic.yml'),
+    );
+
+    expect(lines).toContainEqual(expect.stringMatching(/^run project json/));
+    expect(lines).toContainEqual(expect.stringMatching(/^run project xml/));
+    expect(lines.some(line => line.startsWith('skip'))).toBe(false);
+    expect(lines.some(line => line.startsWith('updated'))).toBe(true);
+
+    await rm(dir, { force: true, recursive: true });
+  });
+
+  it('should not report operations or updated files when quiet', async () => {
+    const dir = temporaryDirectory();
+
+    await copy('../common/test/fixtures/project-only', dir);
+
+    const ctx = await loadContext(dir);
+    ctx.args.commit = false;
+    ctx.args.quiet = true;
+
+    const lines = await captureLoggedLines(() =>
+      runCommand(ctx, '../common/test/fixtures/project.basic.yml'),
+    );
+
+    expect(lines.some(line => line.startsWith('run'))).toBe(false);
+    expect(lines.some(line => line.startsWith('updated'))).toBe(false);
+
+    await rm(dir, { force: true, recursive: true });
+  });
+
+  it('should report why a native project failed to load', async () => {
+    const dir = temporaryDirectory();
+
+    await copy('../common/test/fixtures/ios-and-android', dir);
+    await writeFile(
+      join(dir, 'ios/App/App.xcodeproj/project.pbxproj'),
+      '// !$*UTF8*$!\n{ this is not a pbxproj }\n',
+    );
+
+    const ctx = await loadContext(dir);
+    ctx.args.commit = false;
+    ctx.args.quiet = true;
+
+    const errors: string[] = [];
+    const spy = vi
+      .spyOn(logger, 'error')
+      .mockImplementation((msg: any) => errors.push(String(msg)));
+
+    try {
+      await runCommand(ctx, '../common/test/fixtures/project.basic.yml');
+    } finally {
+      spy.mockRestore();
+    }
+
+    expect(errors).toContainEqual(
+      expect.stringContaining('Unable to load the iOS project'),
+    );
+
     await rm(dir, { force: true, recursive: true });
   });
 });

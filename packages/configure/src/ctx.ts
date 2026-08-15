@@ -41,7 +41,9 @@ export interface Variables {
 export async function loadContext(projectRootPath?: string, androidProject?: string, iosProject?: string): Promise<Context> {
   const rootDir = process.cwd();
 
-  const args = yargs(hideBin(process.argv));
+  // yargs only pre-parses the arguments needed to load the project. Its built-in
+  // --help/--version would print and exit before commander ever sees them.
+  const args = yargs(hideBin(process.argv)).help(false).version(false);
 
   const argv = args.argv as Args;
 
