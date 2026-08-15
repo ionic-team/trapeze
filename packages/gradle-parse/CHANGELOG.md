@@ -1,5 +1,12 @@
 # @capacitor/gradle-parse
 
+## [7.1.8](https://github.com/ionic-team/trapeze/compare/@trapezedev/gradle-parse@7.1.7...@trapezedev/gradle-parse@7.1.8) (2026-08-15)
+
+
+### Bug Fixes
+
+* **deps:** update vendored org.json jar to 20260814 ([1f426db](https://github.com/ionic-team/trapeze/commit/1f426dbdd3a247caae778d347abd0ec67e8f1e7a))
+
 ## [7.1.7](https://github.com/ionic-team/trapeze/compare/@trapezedev/gradle-parse@7.1.5...@trapezedev/gradle-parse@7.1.7) (2026-08-15)
 
 
