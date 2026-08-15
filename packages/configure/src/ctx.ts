@@ -1,5 +1,4 @@
 import yargs from 'yargs';
-import { join } from 'path';
 import { hideBin } from 'yargs/helpers';
 
 import { loadProject } from './project';
@@ -17,7 +16,6 @@ export interface Context {
   projectRootPath?: string;
   args: Args;
   vars: Variables;
-  nodePackageRoot: string;
   rootDir: string;
 }
 
@@ -66,8 +64,6 @@ export async function loadContext(projectRootPath?: string, androidProject?: str
     args: argv,
     vars: {},
     projectRootPath,
-    // Important for resolving custom prettier plugin
-    nodePackageRoot: join(__dirname, '../../'),
     rootDir,
   };
 }

@@ -20,26 +20,18 @@
   },
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
+  "engines": {
+    "node": ">=14"
+  },
   "dependencies": {
     "@ionic/cli-framework-output": "^2.2.2",
     "@ionic/utils-fs": "^3.1.5",
-    "@ionic/utils-subprocess": "^2.1.8",
     "@ionic/utils-terminal": "^2.3.1",
-    "@prettier/plugin-xml": "^1.1.0",
     "@trapezedev/project": "^7.1.8",
-    "@types/lodash": "^4.14.175",
-    "@types/plist": "^3.0.2",
-    "@types/prompts": "^2.0.14",
-    "@types/slice-ansi": "^5.0.0",
     "commander": "^8.2.0",
-    "conventional-changelog": "^3.1.4",
-    "env-paths": "^3.0.0",
     "kleur": "^4.1.4",
     "lodash": "^4.17.21",
-    "plist": "^3.0.4",
     "prompts": "^2.4.2",
-    "tmp": "^0.2.1",
-    "ts-node": "^10.2.1",
     "yaml": "^1.10.2",
     "yargs": "^17.2.1"
   },
@@ -52,6 +44,8 @@
     "access": "public"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.175",
+    "@types/prompts": "^2.0.14",
     "rimraf": "^6.0.1",
     "tempy": "^3.1.0",
     "typescript": "^5.9.3",
