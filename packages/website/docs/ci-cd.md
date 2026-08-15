@@ -40,3 +40,5 @@ And here's how it works in Capawesome:
   },
 ```
 
+`-y` applies the changes without asking for confirmation, which is required on a build machine where nobody can answer the prompt. See [CLI options](./operations/getting-started#cli-options) for the full list of flags.
+

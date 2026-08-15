@@ -38,6 +38,24 @@ platforms:
 
 Changes can be previewed using the `--diff` flag to see a unified diff of the changes to each file.
 
+## CLI options
+
+By default `run` lists the changed files and then asks for confirmation before writing them. The following options are available:
+
+| Option | Description |
+| --- | --- |
+| `-y` | Apply the changes without asking for confirmation. Use this in CI, where nobody can answer the prompt. |
+| `--dry-run` | Report the changes without writing them to disk. |
+| `--no-commit` | Report the changes without writing them to disk, same as `--dry-run`. |
+| `--diff` | Print a unified diff of the changes to each file. |
+| `--verbose` | Print debug output for every file that is read and modified. |
+| `--quiet` | Do not print the operations and the changed files. |
+| `--ios` | Only run iOS operations. Project-level operations still run. |
+| `--android` | Only run Android operations. Project-level operations still run. |
+| `--ios-project <path>` | Path to the root of the iOS Xcode project (default: `ios/App`). |
+| `--android-project <path>` | Path to the root of the Android project (default: `android`). |
+
+`npx trapeze --version` prints the installed version, and `npx trapeze run --help` prints this list for the version you have installed.
 
 ## Writing Configuration Files
 

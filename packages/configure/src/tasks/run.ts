@@ -13,6 +13,8 @@ export async function runCommand(ctx: Context, configFile: YamlFile) {
   let processed: Operation[];
   let handlers: OperationHandlers = await loadHandlers();
 
+  printPlatformLoadErrors(ctx);
+
   try {
     const config = await loadYamlConfig(ctx, configFile);
 
@@ -34,13 +36,28 @@ export async function runCommand(ctx: Context, configFile: YamlFile) {
   }
 }
 
+// A platform project that fails to load stores the error instead of throwing, and every
+// operation on it then fails with a misleading message, so report the real cause up front.
+function printPlatformLoadErrors(ctx: Context) {
+  const iosError = ctx.project.ios?.getError();
+  if (iosError) {
+    logger.error(`Unable to load the iOS project: ${iosError.message}`);
+  }
+
+  const androidError = ctx.project.android?.getError();
+  if (androidError) {
+    logger.error(`Unable to load the Android project: ${androidError.message}`);
+  }
+}
+
 async function executeOperations(ctx: Context, handlers: OperationHandlers, operations: Operation[]) {
   for (const op of operations) {
+    const skipped = isOperationSkipped(ctx, op);
+
     if (!ctx.args.quiet) {
-      printOp(ctx, op);
+      printOp(op, skipped);
     }
 
-    const skipped = op.platform !== 'project' && (op.platform === 'ios' ? !ctx.project.ios : !ctx.project.android);
     if (skipped) {
       Logger.debug(`Skipping ${op.id} because ${op.platform} project does not exist`);
       continue;
@@ -58,8 +75,16 @@ async function executeOperations(ctx: Context, handlers: OperationHandlers, oper
   await checkModifiedFiles(ctx);
 }
 
-function printOp(ctx: Context, op: Operation) {
-  const skipped = op.platform === 'ios' ? !ctx.project.ios : !ctx.project.android;
+// Operations on the `project` platform always run, they don't target a native project
+function isOperationSkipped(ctx: Context, op: Operation) {
+  if (op.platform === 'project') {
+    return false;
+  }
+
+  return op.platform === 'ios' ? !ctx.project.ios : !ctx.project.android;
+}
+
+function printOp(op: Operation, skipped: boolean) {
   // const env = c.weak(`[${op.env}]`);
   const tag = skipped ? c.weak(c.strong(`skip`)) : kleur.bold().magenta(`run`);
   const platform = c.success(c.strong(`${op.platform}`));
@@ -86,14 +111,17 @@ async function checkModifiedFiles(ctx: Context) {
 
   Object.keys(files).map(k => {
     const file = files[k];
-    log(c.log.WARN(c.strong(`updated`)), file.getFilename());
+    if (!ctx.args.quiet) {
+      log(c.log.WARN(c.strong(`updated`)), file.getFilename());
+    }
     const diff = diffs.find((d: any) => d.file === file);
     if (diff && ctx.args.diff) {
       printDiff(diff);
     }
   });
 
-  if (ctx.args.noCommit) {
+  // commander sets `commit` to false when --no-commit is passed
+  if (ctx.args.commit === false) {
     return;
   }
 
@@ -115,7 +143,9 @@ async function checkModifiedFiles(ctx: Context) {
       log('Not applying changes. Exiting');
     }
   } else if (!ctx.args.dryRun && ctx.args.y) {
-    logger.info('-y provided, automatically applying configuration');
+    if (!ctx.args.quiet) {
+      logger.info('-y provided, automatically applying configuration');
+    }
     return ctx.project.vfs.commitAll(ctx.project);
   }
 }
