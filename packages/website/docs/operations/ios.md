@@ -246,6 +246,21 @@ platforms:
               </field>
 ```
 
+### `frameworks`
+
+Adds frameworks and libraries to the Frameworks build phase of the target. Each entry is the name of a system framework (`.framework`) or library (`.tbd`):
+
+```yaml
+platforms:
+  ios:
+    targets:
+      App:
+        frameworks:
+          - LocalAuthentication.framework
+          - WebKit.framework
+          - libc++.tbd
+```
+
 ### `copy`
 
 Copies files, directories, or URLs relative to the root of the iOS project (`./ios/App` by default).

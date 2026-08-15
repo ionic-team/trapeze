@@ -1,20 +1,17 @@
-import { copy, readFile } from '@ionic/utils-fs';
+import { readFile } from '@ionic/utils-fs';
 import { join } from 'path';
-import { temporaryDirectory } from 'tempy';
 
 import { Context, loadContext } from '../../src/ctx';
 import { AndroidXmlOperation, Operation } from '../../src/definitions';
 import Op from '../../src/operations/android/manifest';
-import { makeOp } from '../utils';
+import { makeOp, useFixture } from '../utils';
 
 describe('op: android.manifest', () => {
   let dir: string;
   let ctx: Context;
 
   beforeEach(async () => {
-    dir = temporaryDirectory();
-
-    await copy('../common/test/fixtures/ios-and-android', dir);
+    dir = await useFixture('ios-and-android');
 
     ctx = await loadContext(dir);
     ctx.args.quiet = true;

@@ -1,21 +1,18 @@
-import { copy, readFile } from '@ionic/utils-fs';
+import { readFile } from '@ionic/utils-fs';
 import { XmlFile } from '@trapezedev/project';
 import { join } from 'path';
-import { temporaryDirectory } from 'tempy';
 
 import { Context, loadContext } from '../../src/ctx';
 import { XmlOperation, Operation } from '../../src/definitions';
 import Op from '../../src/operations/project/xml';
-import { makeOp } from '../utils';
+import { makeOp, useFixture } from '../utils';
 
 describe('op: project.xml', () => {
   let dir: string;
   let ctx: Context;
 
   beforeEach(async () => {
-    dir = temporaryDirectory();
-
-    await copy('../common/test/fixtures/ios-and-android', dir);
+    dir = await useFixture('ios-and-android');
 
     ctx = await loadContext(dir);
     ctx.args.quiet = true;

@@ -1,9 +1,9 @@
-import { temporaryDirectory } from 'tempy';
 import { join } from 'path';
-import { copy, pathExists, readFile, rm } from '@ionic/utils-fs';
+import { pathExists, readFile } from '@ionic/utils-fs';
 import { MobileProject, StringsFile, XCConfigFile, XmlFile } from '../src';
 import { MobileProjectConfig } from '../src/config';
 import { PlistFile } from '../src/plist';
+import { useFixture } from './utils';
 
 describe('project - ios standard', () => {
   let config: MobileProjectConfig;
@@ -11,8 +11,7 @@ describe('project - ios standard', () => {
 
   let dir: string;
   beforeEach(async () => {
-    dir = temporaryDirectory();
-    await copy('../common/test/fixtures/ios-and-android', dir);
+    dir = await useFixture('ios-and-android');
 
     config = {
       ios: {
@@ -25,10 +24,6 @@ describe('project - ios standard', () => {
 
     project = new MobileProject(dir, config);
     await project.load();
-  });
-
-  afterEach(async () => {
-    await rm(dir, { force: true, recursive: true });
   });
 
   it('should load pbx project', async () => {
@@ -493,8 +488,7 @@ describe('ios - no info plist case', () => {
   let project: MobileProject;
   let dir: string;
   beforeEach(async () => {
-    dir = temporaryDirectory();
-    await copy('../common/test/fixtures/ios-no-info-plist', dir);
+    dir = await useFixture('ios-no-info-plist');
 
     config = {
       ios: {
@@ -525,8 +519,7 @@ describe('ios - empty template case', () => {
   let project: MobileProject;
   let dir: string;
   beforeEach(async () => {
-    dir = temporaryDirectory();
-    await copy('../common/test/fixtures/ios-no-current-project-version', dir);
+    dir = await useFixture('ios-no-current-project-version');
 
     config = {
       ios: {
@@ -546,14 +539,13 @@ describe('ios - empty template case', () => {
   });
 });
 
-https://github.com/ionic-team/trapeze/pull/83
+// https://github.com/ionic-team/trapeze/pull/83
 describe('ios - issue #83', () => {
   let config: MobileProjectConfig;
   let project: MobileProject;
   let dir: string;
   beforeEach(async () => {
-    dir = temporaryDirectory();
-    await copy('../common/test/fixtures/ios-cfbundleversion-pbx-83', dir);
+    dir = await useFixture('ios-cfbundleversion-pbx-83');
 
     config = {
       ios: {

@@ -1,28 +1,21 @@
-import { copy, readFile, rm } from '@ionic/utils-fs';
+import { readFile } from '@ionic/utils-fs';
 import { join } from 'path';
-import { temporaryDirectory } from 'tempy';
 
 import { Context, loadContext } from '../../src/ctx';
 import { IosCopyOperation, Operation } from '../../src/definitions';
 import Op from '../../src/operations/ios/buildVersion';
 
-import { makeOp } from '../utils';
+import { makeOp, useFixture } from '../utils';
 
 describe('op: ios.buildVersion', () => {
   let dir: string;
   let ctx: Context;
 
   beforeEach(async () => {
-    dir = temporaryDirectory();
-
-    await copy('../common/test/fixtures/ios-and-android', dir);
+    dir = await useFixture('ios-and-android');
 
     ctx = await loadContext(dir);
     ctx.args.quiet = true;
-  });
-
-  afterEach(async () => {
-    await rm(dir, { force: true, recursive: true });
   });
 
   it('shouldn\'t break build when updating empty buildNumber', async () => {

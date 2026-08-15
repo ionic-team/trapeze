@@ -323,6 +323,20 @@ platforms:
           <string name="app_name">Awesome App</string>
 ```
 
+### `properties`
+
+Modifies Java `.properties` files relative to the root of the Android project. Every key in `entries` is created or updated, and keys that are not listed are left alone:
+
+```yaml
+platforms:
+  android:
+    properties:
+      - file: gradle.properties
+        entries:
+          org.gradle.jvmargs: -Xmx4096m
+          android.useAndroidX: true
+```
+
 ### `copy`
 
 Copies files, directories, or URLs relative to the root of the android project (`./android` by default).

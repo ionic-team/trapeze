@@ -1,19 +1,17 @@
-import { copy } from '@ionic/utils-fs';
 import { join } from 'path';
-import { temporaryDirectory } from 'tempy';
 
 import { Context, loadContext } from '../../src/ctx';
 import { IosEntitlementsOperation, Operation } from '../../src/definitions';
 import Op from '../../src/operations/ios/entitlements';
+
+import { useFixture } from '../utils';
 
 describe('op: ios.entitlements', () => {
   let dir: string;
   let ctx: Context;
 
   beforeEach(async () => {
-    dir = temporaryDirectory();
-
-    await copy('../common/test/fixtures/ios-and-android', dir);
+    dir = await useFixture('ios-and-android');
 
     ctx = await loadContext(dir);
     ctx.args.quiet = true;

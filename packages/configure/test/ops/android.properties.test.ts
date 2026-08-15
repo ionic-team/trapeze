@@ -1,20 +1,19 @@
-import { copy, readFile } from '@ionic/utils-fs';
+import { readFile } from '@ionic/utils-fs';
 import { join } from 'path';
-import { temporaryDirectory } from 'tempy';
 import { PropertiesFile } from '@trapezedev/project';
 
 import { Context, loadContext } from '../../src/ctx';
 import { AndroidPropertiesOperation, Operation } from '../../src/definitions';
 import Op from '../../src/operations/android/properties';
 
+import { useFixture } from '../utils';
+
 describe('op: android.properties', () => {
   let dir: string;
   let ctx: Context;
 
   beforeEach(async () => {
-    dir = temporaryDirectory();
-
-    await copy('../common/test/fixtures/ios-and-android', dir);
+    dir = await useFixture('ios-and-android');
 
     ctx = await loadContext(dir);
     ctx.args.quiet = true;

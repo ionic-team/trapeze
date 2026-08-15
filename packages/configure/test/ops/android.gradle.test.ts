@@ -1,12 +1,13 @@
-import { copy, readFile } from '@ionic/utils-fs';
+import { readFile } from '@ionic/utils-fs';
 import { AndroidGradleInjectType } from '@trapezedev/project';
 import { GradleFile } from '@trapezedev/project/dist/android/gradle-file';
 import { join } from 'path';
-import { temporaryDirectory } from 'tempy';
 
 import { Context, loadContext } from '../../src/ctx';
 import { AndroidGradleOperation, Operation } from '../../src/definitions';
 import Op from '../../src/operations/android/gradle';
+
+import { useFixture } from '../utils';
 
 const makeOp = (name: string, value: any): Operation => ({
   id: `android.${name}`,
@@ -23,9 +24,7 @@ describe('op: android.gradle', () => {
   let ctx: Context;
 
   beforeEach(async () => {
-    dir = temporaryDirectory();
-
-    await copy('../common/test/fixtures/ios-and-android', dir);
+    dir = await useFixture('ios-and-android');
 
     ctx = await loadContext(dir);
     ctx.args.quiet = true;

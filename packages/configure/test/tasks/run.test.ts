@@ -10,6 +10,7 @@ import { runCommand } from '../../src/tasks/run';
 import { logger } from '../../src/util/log';
 import { logPrompt } from '../../src/util/cli';
 import { loadYamlConfig } from '../../src/yaml-config';
+import { fixturePath, useFixture, useTempDir } from '../utils';
 
 vi.mock('../../src/util/cli', async importOriginal => ({
   ...(await importOriginal<typeof import('../../src/util/cli')>()),
@@ -36,8 +37,8 @@ async function captureLoggedLines(run: () => Promise<void>): Promise<string[]> {
 
 describe('task: run', () => {
   it('should process variables operations', async () => {
-    const dir = temporaryDirectory();
-    await copy('../common/test/fixtures/basic.yml', join(dir, 'basic.yml'));
+    const dir = useTempDir();
+    await copy(fixturePath('basic.yml'), join(dir, 'basic.yml'));
 
     const ctx = await loadContext(dir);
 
@@ -72,8 +73,8 @@ describe('task: run', () => {
   });
 
   it('should handle JSON-values in variables', async () => {
-    const dir = temporaryDirectory();
-    await copy('../common/test/fixtures/basic.yml', join(dir, 'basic.yml'));
+    const dir = useTempDir();
+    await copy(fixturePath('basic.yml'), join(dir, 'basic.yml'));
 
     const ctx = await loadContext(dir);
 
@@ -81,10 +82,8 @@ describe('task: run', () => {
   });
 
   it('should run operations', { timeout: 120000 }, async () => {
-    const dir = temporaryDirectory();
-
-    await copy('../common/test/fixtures/ios-and-android', dir);
-    await copy('../common/test/fixtures/basic.yml', join(dir, 'basic.yml'));
+    const dir = await useFixture('ios-and-android');
+    await copy(fixturePath('basic.yml'), join(dir, 'basic.yml'));
 
     const ctx = await loadContext(dir);
 
@@ -111,14 +110,10 @@ describe('task: run', () => {
         'ios/App/My App Clip/My_App_Clip.entitlements',
       )]: expect.anything(),
     });
-
-    await rm(dir, { force: true, recursive: true });
   });
 
   it('Should support providing the project root as an arg', async () => {
-    const dir = temporaryDirectory();
-
-    await copy('../common/test/fixtures/custom-platform-directories', dir);
+    const dir = await useFixture('custom-platform-directories');
 
     process.argv.push('--project-root');
     process.argv.push(dir);
@@ -155,10 +150,8 @@ describe('task: run', () => {
   });
 
   it('should commit operations to filesystem', async () => {
-    const dir = temporaryDirectory();
-
-    await copy('../common/test/fixtures/ios-and-android', dir);
-    await copy('../common/test/fixtures/basic.yml', join(dir, 'basic.yml'));
+    const dir = await useFixture('ios-and-android');
+    await copy(fixturePath('basic.yml'), join(dir, 'basic.yml'));
 
     const ctx = await loadContext(dir);
     ctx.args.y = true;
@@ -232,17 +225,12 @@ describe('task: run', () => {
       encoding: 'utf-8',
     });
     expect(plist).toContain('msauth.com.microsoft.intunemam');
-
-    // Cleanup temp dir
-    await rm(dir, { force: true, recursive: true });
   });
 
   // TODO: Separate this out into multiple sub-tests
   it('should commit operations to filesystem directly with y', async () => {
-    const dir = temporaryDirectory();
-
-    await copy('../common/test/fixtures/ios-and-android', dir);
-    await copy('../common/test/fixtures/basic.yml', join(dir, 'basic.yml'));
+    const dir = await useFixture('ios-and-android');
+    await copy(fixturePath('basic.yml'), join(dir, 'basic.yml'));
 
     const ctx = await loadContext(dir);
     ctx.args.y = true;
@@ -340,15 +328,10 @@ describe('task: run', () => {
       'Use Face ID to authenticate yourself and login',
     );
     expect(plistContents).toContain('msauth.com.microsoft.intunemam');
-
-    // Cleanup temp dir
-    await rm(dir, { force: true, recursive: true });
   });
 
   it('should report project operations as run and not as skipped', async () => {
-    const dir = temporaryDirectory();
-
-    await copy('../common/test/fixtures/project-only', dir);
+    const dir = await useFixture('project-only');
 
     const ctx = await loadContext(dir);
     ctx.args.commit = false;
@@ -362,14 +345,10 @@ describe('task: run', () => {
     expect(lines).toContainEqual(expect.stringMatching(/^run project xml/));
     expect(lines.some(line => line.startsWith('skip'))).toBe(false);
     expect(lines.some(line => line.startsWith('updated'))).toBe(true);
-
-    await rm(dir, { force: true, recursive: true });
   });
 
   it('should not report operations or updated files when quiet', async () => {
-    const dir = temporaryDirectory();
-
-    await copy('../common/test/fixtures/project-only', dir);
+    const dir = await useFixture('project-only');
 
     const ctx = await loadContext(dir);
     ctx.args.commit = false;
@@ -381,14 +360,10 @@ describe('task: run', () => {
 
     expect(lines.some(line => line.startsWith('run'))).toBe(false);
     expect(lines.some(line => line.startsWith('updated'))).toBe(false);
-
-    await rm(dir, { force: true, recursive: true });
   });
 
   it('should report why a native project failed to load', async () => {
-    const dir = temporaryDirectory();
-
-    await copy('../common/test/fixtures/ios-and-android', dir);
+    const dir = await useFixture('ios-and-android');
     await writeFile(
       join(dir, 'ios/App/App.xcodeproj/project.pbxproj'),
       '// !$*UTF8*$!\n{ this is not a pbxproj }\n',
@@ -412,15 +387,11 @@ describe('task: run', () => {
     expect(errors).toContainEqual(
       expect.stringContaining('Unable to load the iOS project'),
     );
-
-    await rm(dir, { force: true, recursive: true });
   });
 
   it('should leave files alone that no operation modified', { timeout: 120000 }, async () => {
-    const dir = temporaryDirectory();
-
-    await copy('../common/test/fixtures/ios-and-android', dir);
-    await copy('../common/test/fixtures/project.basic.yml', join(dir, 'project.basic.yml'));
+    const dir = await useFixture('ios-and-android');
+    await copy(fixturePath('project.basic.yml'), join(dir, 'project.basic.yml'));
 
     const manifest = join(dir, 'android/app/src/main/AndroidManifest.xml');
     const pbxProj = join(dir, 'ios/App/App.xcodeproj/project.pbxproj');
@@ -429,7 +400,6 @@ describe('task: run', () => {
     const ctx = await loadContext(dir);
     ctx.args.y = true;
     ctx.args.quiet = true;
-    // An earlier test leaves --no-commit on process.argv; this test needs the commit
     ctx.args.commit = true;
 
     await runCommand(ctx, join(dir, 'project.basic.yml'));
@@ -445,8 +415,6 @@ describe('task: run', () => {
 
     const json = await readFile(join(dir, 'project-json.json'), { encoding: 'utf-8' });
     expect(json).toContain('asdf');
-
-    await rm(dir, { force: true, recursive: true });
   });
 
   it('should print a diff for every kind of modified file', async () => {
@@ -478,25 +446,21 @@ describe('task: run', () => {
   });
 
   it('should not ask to apply changes when nothing was modified', async () => {
-    const dir = temporaryDirectory();
-
-    await copy('../common/test/fixtures/android-only', dir);
-    await copy('../common/test/fixtures/ios.notargets.nobuilds.yml', join(dir, 'ios.yml'));
+    const dir = await useFixture('android-only');
+    await copy(fixturePath('ios.notargets.nobuilds.yml'), join(dir, 'ios.yml'));
 
     const ctx = await loadContext(dir);
+    // Committing is enabled and -y is not passed, so the only thing that can keep
+    // the "Apply changes?" prompt away is there being no modified file
     ctx.args.y = false;
     ctx.args.quiet = true;
     ctx.args.commit = true;
-
-    vi.mocked(logPrompt).mockClear();
 
     // Every operation targets iOS, which this project does not have
     await runCommand(ctx, join(dir, 'ios.yml'));
 
     expect(ctx.project.vfs.modifiedFiles()).toEqual([]);
     expect(logPrompt).not.toHaveBeenCalled();
-
-    await rm(dir, { force: true, recursive: true });
   });
 
   it('should apply the changes when the user confirms', async () => {

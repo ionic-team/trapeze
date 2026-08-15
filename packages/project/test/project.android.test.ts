@@ -1,20 +1,18 @@
-import { temporaryDirectory } from 'tempy';
-
 import { MobileProject, XmlFile } from '../src';
 
 import { join } from 'path';
-import { copy, pathExists, readFile, rm, stat, writeFile } from '@ionic/utils-fs';
+import { pathExists, readFile, stat, writeFile } from '@ionic/utils-fs';
 import { formatXml, serializeXml } from "../src/util/xml";
 import { MobileProjectConfig } from '../src/config';
 import { GradleFile } from '../src/android/gradle-file';
+import { useFixture } from './utils';
 
 describe('project - android', () => {
   let config: MobileProjectConfig;
   let project: MobileProject;
   let dir: string;
   beforeEach(async () => {
-    dir = temporaryDirectory();
-    await copy('../common/test/fixtures/ios-and-android', dir);
+    dir = await useFixture('ios-and-android');
 
     config = {
       ios: {
@@ -27,10 +25,6 @@ describe('project - android', () => {
 
     project = new MobileProject(dir, config);
     await project.load();
-  });
-
-  afterEach(async () => {
-    await rm(dir, { force: true, recursive: true });
   });
 
   it('should load project', async () => {
@@ -382,8 +376,7 @@ describe('project - android - capacitor v5', () => {
   let project: MobileProject;
   let dir: string;
   beforeEach(async () => {
-    dir = temporaryDirectory();
-    await copy('../common/test/fixtures/cap-v5', dir);
+    dir = await useFixture('cap-v5');
 
     config = {
       ios: {
@@ -396,10 +389,6 @@ describe('project - android - capacitor v5', () => {
 
     project = new MobileProject(dir, config);
     await project.load();
-  });
-
-  afterEach(async () => {
-    await rm(dir, { force: true, recursive: true });
   });
 
   it('should detect new android activity location', async () => {
@@ -430,8 +419,7 @@ describe('project - android - capacitor v8', () => {
   let dir: string;
   let androidDir: string;
   beforeEach(async () => {
-    dir = temporaryDirectory();
-    await copy('../common/test/fixtures/cap-v8', dir);
+    dir = await useFixture('cap-v8');
 
     config = {
       android: {
@@ -442,10 +430,6 @@ describe('project - android - capacitor v8', () => {
     project = new MobileProject(dir, config);
     await project.load();
     androidDir = project.config.android?.path!;
-  });
-
-  afterEach(async () => {
-    await rm(dir, { force: true, recursive: true });
   });
 
   it('should get package name from a namespace assignment', async () => {
@@ -546,8 +530,7 @@ describe('project - android - kotlin', () => {
   let dir: string;
   let androidDir: string;
   beforeEach(async () => {
-    dir = temporaryDirectory();
-    await copy('../common/test/fixtures/android-kotlin', dir);
+    dir = await useFixture('android-kotlin');
 
     config = {
       android: {
@@ -558,10 +541,6 @@ describe('project - android - kotlin', () => {
     project = new MobileProject(dir, config);
     await project.load();
     androidDir = project.config.android?.path!;
-  });
-
-  afterEach(async () => {
-    await rm(dir, { force: true, recursive: true });
   });
 
   it('should get main activity filename', async () => {

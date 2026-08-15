@@ -1,20 +1,18 @@
-import { copy } from '@ionic/utils-fs';
 import { JsonFile } from '@trapezedev/project';
 import { join } from 'path';
-import { temporaryDirectory } from 'tempy';
 
 import { Context, loadContext } from '../../src/ctx';
 import { IosJsonOperation, Operation } from '../../src/definitions';
 import Op from '../../src/operations/ios/json';
+
+import { useFixture } from '../utils';
 
 describe('op: ios.json', () => {
   let dir: string;
   let ctx: Context;
 
   beforeEach(async () => {
-    dir = temporaryDirectory();
-
-    await copy('../common/test/fixtures/ios-and-android', dir);
+    dir = await useFixture('ios-and-android');
 
     ctx = await loadContext(dir);
     ctx.args.quiet = true;

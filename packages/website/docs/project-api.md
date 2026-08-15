@@ -49,11 +49,13 @@ project.commit();
 To get a preview of changes that will be committed, the `VFS` object can be accessed on the project:
 
 ```typescript
-const changedFiles = project.vfs.all();
-Object.values(changedFiles).forEach((f) => {
+const changedFiles = project.vfs.modifiedFiles();
+changedFiles.forEach((f) => {
   console.log(f.getFilename(), f.getData());
 });
 ```
+
+`modifiedFiles()` returns only the files an operation actually changed. Use `project.vfs.all()` instead to get every file the project has opened, including the ones that were only read.
 
 Once the project is loaded, iOS and Android operations can be performed on the project, as shown below:
 
