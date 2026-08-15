@@ -28,6 +28,9 @@ const LAUNCHER_ACTIVITY = 'manifest/application/activity[intent-filter/action/@a
 // The Capacitor string resources that hold a copy of the package name
 const PACKAGE_NAME_STRINGS = ['package_name', 'custom_url_scheme'];
 
+// Used when the manifest declares no activity to take the name from
+const DEFAULT_MAIN_ACTIVITY_NAME = 'MainActivity';
+
 export class AndroidProject extends PlatformProject {
   private manifest: XmlFile;
   private buildGradle: GradleFile | null = null;
@@ -219,21 +222,32 @@ export class AndroidProject extends PlatformProject {
   /**
    * Move every file of the old package, sub packages included, to the new package
    * directory and return the new file paths.
+   *
+   * Every destination is checked before the first file is moved, so a file that is in
+   * the way cannot leave the sources split across the old and the new package.
    */
   private async movePackageSources(oldPackageDir: string, newPackageDir: string) {
-    const movedFiles: string[] = [];
+    const files = (await listFilesRecursive(oldPackageDir)).map(file => ({
+      file,
+      dest: join(newPackageDir, relative(oldPackageDir, file)),
+    }));
 
-    for (const file of await listFilesRecursive(oldPackageDir)) {
-      const dest = join(newPackageDir, relative(oldPackageDir, file));
+    for (const { dest } of files) {
+      if (await pathExists(dest)) {
+        throw new Error(
+          `Unable to move the sources to the new package: a file already exists at ${dest}. Remove it before modifying the project package name`,
+        );
+      }
+    }
 
+    for (const { file, dest } of files) {
       Logger.v('android', 'setPackageName', `moving ${file} to ${dest}`);
 
       await mkdirp(dirname(dest));
       await move(file, dest);
-      movedFiles.push(dest);
     }
 
-    return movedFiles;
+    return files.map(({ dest }) => dest);
   }
 
   /**
@@ -241,7 +255,9 @@ export class AndroidProject extends PlatformProject {
    * source files. Sources that declare a package outside of the old one are left alone.
    */
   private async renamePackageInSources(files: string[], oldPackageName: string, packageName: string) {
-    const packageDeclaration = /(package\s+)([^\s;]+)/;
+    // Anchored to the start of a line so that the word package in a header comment is
+    // not mistaken for the declaration
+    const packageDeclaration = /^([ \t]*package\s+)([\w.]+)/m;
     const oldPackageImport = new RegExp(`(import\\s+(static\\s+)?)${oldPackageName.replace(/\./g, '\\.')}\\.`, 'g');
 
     for (const file of files.filter(f => /\.(java|kt)$/.test(f))) {
@@ -339,16 +355,25 @@ export class AndroidProject extends PlatformProject {
   }
 
   /**
+   * Get the Java file name of the main activity. Use `getMainActivityPath()` to get the
+   * name of the source file the project actually has, which can be a Kotlin one.
+   */
+  getMainActivityFilename(): string {
+    return `${this.getMainActivityName()}.java`;
+  }
+
+  async getMainActivityPath() {
+    const packageParts = (await this.getPackageName())?.split('.') ?? [];
+
+    return join('app', 'src', 'main', 'java', ...packageParts, await this.resolveMainActivityFilename());
+  }
+
+  /**
    * Get the file name of the main activity, with the source file extension the
    * project actually uses.
    */
-  async getMainActivityFilename(): Promise<string> {
+  private async resolveMainActivityFilename(): Promise<string> {
     const activityName = this.getMainActivityName();
-
-    if (!activityName) {
-      return '';
-    }
-
     const packageParts = (await this.getPackageName())?.split('.') ?? [];
     const kotlinActivity = `${activityName}.kt`;
 
@@ -359,20 +384,13 @@ export class AndroidProject extends PlatformProject {
     return `${activityName}.java`;
   }
 
-  async getMainActivityPath() {
-    const packageParts = (await this.getPackageName())?.split('.') ?? [];
-    const activityName = await this.getMainActivityFilename();
-
-    return join('app', 'src', 'main', 'java', ...packageParts, activityName);
-  }
-
   private getMainActivityName() {
     const activity =
       this.manifest.find(LAUNCHER_ACTIVITY)?.[0] ?? this.manifest.find('manifest/application/activity')?.[0];
 
     const activityName = activity?.getAttribute('android:name');
 
-    return activityName?.split('.').pop() ?? null;
+    return activityName?.split('.').pop() ?? DEFAULT_MAIN_ACTIVITY_NAME;
   }
 
   async getGradlePluginVersion() {

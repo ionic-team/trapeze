@@ -189,6 +189,35 @@ describe('xml file', () => {
     expect(warn).toHaveBeenCalledWith(expect.stringContaining(`match the target 'missing'`));
   });
 
+  // A file that wasn't touched must not be committed, otherwise it is reformatted for nothing
+  describe('Targets that select no nodes', () => {
+    beforeEach(() => {
+      vi.spyOn(Logger, 'warn').mockImplementation(() => undefined);
+    });
+
+    it('Should not modify the file when the target matches no nodes', async () => {
+      file.deleteNodes('//missing');
+
+      expect(vfs.modifiedFiles()).toHaveLength(0);
+    });
+
+    it('Should not modify the file when the target is not a node-set expression', async () => {
+      expect(() => file.deleteNodes('string(//string/@name)')).not.toThrow();
+
+      expect(vfs.modifiedFiles()).toHaveLength(0);
+    });
+
+    it('Should find nothing for a target that is not a node-set expression', async () => {
+      expect(file.find('string(//string/@name)')).toEqual([]);
+    });
+
+    it('Should modify the file when the target matches', async () => {
+      file.deleteNodes('//string');
+
+      expect(vfs.modifiedFiles()).toHaveLength(1);
+    });
+  });
+
   it('Should replace', async () => {
     file.replaceFragment('resources/string[@name="app_name"]', `
       <string name="app_name">$PRODUCT_NAME</string>

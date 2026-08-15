@@ -17,3 +17,7 @@ platforms:
                   $BUNDLE_ID: $PROFILE
               - serializedKeys:
                   $PROFILE_MAP: My iOS Profiles
+              - literalKeys:
+                  $schema: ./schema.json
+                  prefix_$BUNDLE_ID: Interpolated
+                  prefix_$UNDECLARED: Literal

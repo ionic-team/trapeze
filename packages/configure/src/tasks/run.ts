@@ -38,6 +38,8 @@ export async function runCommand(ctx: Context, configFile: YamlFile) {
 
 // A platform project that fails to load stores the error instead of throwing, and every
 // operation on it then fails with a misleading message, so report the real cause up front.
+// The run continues so the other platform is still configured, but it exits non-zero so
+// that CI notices the operations that were silently dropped.
 function printPlatformLoadErrors(ctx: Context) {
   const iosError = ctx.project.ios?.getError();
   if (iosError) {
@@ -47,6 +49,10 @@ function printPlatformLoadErrors(ctx: Context) {
   const androidError = ctx.project.android?.getError();
   if (androidError) {
     logger.error(`Unable to load the Android project: ${androidError.message}`);
+  }
+
+  if (iosError || androidError) {
+    process.exitCode = 1;
   }
 }
 

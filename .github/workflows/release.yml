@@ -14,8 +14,11 @@ permissions:
   issues: write
   pull-requests: write
 
+# Same toolchain as ci.yml, so the published artifacts are built on a version CI covers
 env:
-  NODE_VERSION: 24
+  NODE_VERSION: 20
+  JAVA_VERSION: 17
+  JAVA_DISTRIBUTION: temurin
 
 jobs:
   release:
@@ -28,10 +31,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+      # Gradle tests shell out to java; don't rely on the JDK preinstalled in the runner image
+      - uses: actions/setup-java@v4
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
       - run: npm ci
       # Scoped to the published packages; the private website is covered by CI
       - run: npm run build -- --filter='@trapezedev/*'
+      - run: npm run typecheck -- --filter='@trapezedev/*'
       - run: npm test -- --filter='@trapezedev/*'
+      # Catches packaging breakage (files/bin/exports) that unit tests can't see
+      - run: node scripts/smoke.mjs
       - name: Create release pull request or GitHub release
         id: release-please
         uses: googleapis/release-please-action@v4

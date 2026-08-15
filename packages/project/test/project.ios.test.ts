@@ -78,6 +78,18 @@ describe('project - ios standard', () => {
     expect(releaseBundleId).toBe('io.ionic.betterBundleId');
   });
 
+  it('should round-trip a bundle id that has to be quoted in the pbxproj', async () => {
+    const ios = project.ios!;
+
+    ios.setBundleId('App', null, 'io.ionic.my-awesome-app');
+    expect(ios.getBundleId('App', 'Debug')).toBe('io.ionic.my-awesome-app');
+    expect(ios.getBundleId('App')).toBe('io.ionic.my-awesome-app');
+
+    // Writing back what was read must not add another layer of quoting
+    ios.setBundleId('App', null, ios.getBundleId('App')!);
+    expect(ios.getBundleId('App', 'Debug')).toBe('io.ionic.my-awesome-app');
+  });
+
   it('should get target product name', async () => {
     expect(project.ios?.getProductName('App')).toBe('App');
   });
@@ -129,6 +141,17 @@ describe('project - ios standard', () => {
     const filename = await project.ios?.getInfoPlistFilename('App', 'Debug');
     const updated = project.vfs.get<PlistFile>(filename!)?.getData();
     expect(updated?.getDocument()?.['CFBundleShortVersionString']).toBe('$(MARKETING_VERSION)');
+  });
+
+  it('should round-trip a version that has to be quoted in the pbxproj', async () => {
+    const ios = project.ios!;
+
+    await ios.setVersion('App', 'Debug', '1.0.0-beta.1');
+    expect(ios.getVersion('App', 'Debug')).toBe('1.0.0-beta.1');
+
+    // Writing back what was read must not add another layer of quoting
+    await ios.setVersion('App', 'Debug', ios.getVersion('App', 'Debug'));
+    expect(ios.getVersion('App', 'Debug')).toBe('1.0.0-beta.1');
   });
 
   it('should update build settings', async () => {
@@ -462,6 +485,7 @@ describe('project - ios standard', () => {
     await project.ios?.addFile('App/Brand.plist');
     await project.ios?.addFile('App/New.strings');
     await project.ios?.addFile('App/Build.xcconfig');
+    await project.ios?.addFile('My App Clip/Info.plist');
 
     await project.commit();
 
@@ -479,6 +503,30 @@ describe('project - ios standard', () => {
     expect(pbxOnDisk).toContain('Build.xcconfig');
     expect(resources).not.toContain('Build.xcconfig');
     expect(sources).not.toContain('Build.xcconfig');
+
+    // Xcode copies a target's Info.plist into the bundle itself, copying it from the
+    // resources phase too fails the build with "Multiple commands produce Info.plist"
+    expect(pbxOnDisk).toContain('My App Clip/Info.plist');
+    expect(resources).not.toContain('Info.plist');
+    expect(sources).not.toContain('Info.plist');
+  });
+
+  it('should add resource files to the resources build phase of the app target', async () => {
+    await project.ios?.addFile('App/New.strings');
+
+    const pbx = project.ios?.getPbxProject();
+    const resourcesPhases = pbx?.hash.project.objects['PBXResourcesBuildPhase'];
+    const appTarget = pbx?.pbxNativeTargetSection()[project.ios?.getAppTarget()?.id!];
+    const appResourcesPhaseId = appTarget.buildPhases.find((p: any) => p.comment === 'Resources').value;
+
+    const filesInPhase = (id: string) => resourcesPhases[id].files.map((f: any) => f.comment);
+
+    expect(filesInPhase(appResourcesPhaseId)).toContain('New.strings in Resources');
+
+    // Any other target (here: the app clip and the extensions) must be left alone
+    Object.keys(resourcesPhases)
+      .filter(id => id.indexOf('_comment') < 0 && id !== appResourcesPhaseId)
+      .forEach(id => expect(filesInPhase(id)).not.toContain('New.strings in Resources'));
   });
 
 });

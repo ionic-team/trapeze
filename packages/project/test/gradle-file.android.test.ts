@@ -1,8 +1,8 @@
-import { AndroidGradleInjectType, MobileProject } from '../src';
+import { AndroidGradleInjectType, Logger, MobileProject } from '../src';
 import { MobileProjectConfig } from '../src/config';
 import { GradleFile, WINDOWS_GRADLE_PARSE_CLASSPATH } from '../src/android/gradle-file';
 
-import { readdir } from '@ionic/utils-fs';
+import { readdir, readFile } from '@ionic/utils-fs';
 import { join } from 'path';
 import { VFS } from '../src/vfs';
 
@@ -263,6 +263,17 @@ allprojects {
 }
 `.trim(),
     );
+  });
+
+  it('Should reject when inserting the replacement fails', async () => {
+    const gradle = new GradleFile(
+      join('../common/test/fixtures/replace.gradle'),
+      vfs,
+    );
+
+    await expect(
+      gradle.replaceProperties({ extra: {} }, { missing: undefined }),
+    ).rejects.toThrow(/Cannot convert undefined or null to object/);
   });
 
   it('Should replace assignments with a non-constant value without duplicating them', async () => {
@@ -798,6 +809,47 @@ intunemam {
 
     namespace = await gradle.getNamespace();
     expect(namespace).toBe('io.ionic.test');
+  });
+
+  // An app build.gradle can declare only a namespace, the applicationId then defaults
+  // to it and there is no defaultConfig block to set it in
+  it('Should warn instead of failing to set the applicationId without a defaultConfig block', async () => {
+    const warn = vi.spyOn(Logger, 'warn').mockImplementation(() => undefined);
+    const filename = join('../common/test/fixtures/no-default-config.gradle');
+    const gradle = new GradleFile(filename, vfs);
+
+    await gradle.setApplicationId('io.ionic.test');
+
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('no android.defaultConfig block found'));
+    expect(vfs.get<GradleFile>(filename)?.isModified()).toBe(false);
+    expect(vfs.get<GradleFile>(filename)?.getData()?.getDocument()).toBe(
+      await readFile(filename, { encoding: 'utf-8' }),
+    );
+  });
+
+  it('Should get versions assigned with =', async () => {
+    const gradle = new GradleFile(
+      join('../common/test/fixtures/version-assignments.gradle'),
+      vfs,
+    );
+
+    expect(await gradle.getVersionCode()).toBe(4);
+    expect(await gradle.getVersionName()).toBe('1.0');
+    expect(await gradle.getVersionNameSuffix()).toBe('beta');
+  });
+
+  it('Should increment a version code assigned with =', async () => {
+    const gradle = new GradleFile(
+      join('../common/test/fixtures/version-assignments.gradle'),
+      vfs,
+    );
+
+    await gradle.incrementVersionCode();
+
+    expect(await gradle.getVersionCode()).toBe(5);
+    expect(
+      vfs.get<GradleFile>(gradle.filename)?.getData()?.getDocument(),
+    ).toContain('versionCode = 5');
   });
 
   it('Should inject into a block shadowed by an assignment of the same name', async () => {

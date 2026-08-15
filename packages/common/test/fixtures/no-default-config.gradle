@@ -1,0 +1,6 @@
+apply plugin: 'com.android.application'
+
+android {
+    namespace "io.ionic.starter"
+    compileSdk 35
+}

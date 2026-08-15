@@ -74,13 +74,22 @@ export class XmlFile extends VFSStorable {
    * XPath 1.0, but acceptable here: prefixed name tests still resolve through the
    * namespaces collected from the root element, and without it an unprefixed target
    * matches nothing at all in a document that declares a default namespace.
+   *
+   * An expression that evaluates to a string, a number or a boolean selects nothing.
    */
   private select(expression: string, doc: Document): Node[] {
-    return (xpath as any).parse(expression).select({
+    const result = (xpath as any).parse(expression).evaluate({
       node: doc,
       namespaces: this.namespaces,
       allowAnyNamespaceForNoPrefix: true,
     });
+
+    if (!(result instanceof (xpath as any).XNodeSet)) {
+      Logger.warn(`The target '${expression}' in ${this.path} does not evaluate to nodes, only node-set expressions are supported`);
+      return [];
+    }
+
+    return result.toArray();
   }
 
   private selectTargetNodes(target: string, doc: Document): Element[] {
@@ -101,30 +110,37 @@ export class XmlFile extends VFSStorable {
     return this.select(target, this.doc) as Element[];
   }
 
-  deleteNodes(target: string) {
+  /**
+   * Modifies every node matching the target and flags the file as modified.
+   * A target that matches no node leaves the file untouched, so it isn't
+   * needlessly rewritten on commit.
+   */
+  private modifyTargetNodes(target: string, modify: (nodes: Element[]) => void) {
     if (!this.doc) {
       return;
     }
 
-    Logger.v('xml', 'deleteNodes', `at ${target}`);
-
     const nodes = this.selectTargetNodes(target, this.doc);
-    nodes.forEach(n => n.parentNode?.removeChild(n));
+
+    if (!nodes.length) {
+      return;
+    }
+
+    modify(nodes);
 
     this.vfs.set(this.path, this);
   }
 
+  deleteNodes(target: string) {
+    Logger.v('xml', 'deleteNodes', `at ${target}`);
+
+    this.modifyTargetNodes(target, nodes => nodes.forEach(n => n.parentNode?.removeChild(n)));
+  }
+
   deleteAttributes(target: string, attributes: string[]) {
-    if (!this.doc) {
-      return;
-    }
-
-    const nodes = this.selectTargetNodes(target, this.doc);
-    nodes.forEach(n => attributes.forEach(a => n.removeAttribute(a)));
-
     Logger.v('xml', 'deleteAttributes', `at ${target}`);
 
-    this.vfs.set(this.path, this);
+    this.modifyTargetNodes(target, nodes => nodes.forEach(n => attributes.forEach(a => n.removeAttribute(a))));
   }
 
   /**
@@ -133,58 +149,41 @@ export class XmlFile extends VFSStorable {
    * have the fragment appended.
    */
   injectFragment(target: string, fragment: string) {
-    if (!this.doc) {
-      return;
-    }
-
-    const nodes = this.selectTargetNodes(target, this.doc);
-    const docNodes = Array.from(parseXmlFragment(fragment, this.getNamespaceAttrs()));
-
     Logger.v('xml', 'injectFragment', `at ${target}`);
 
-    nodes.forEach(n =>
-      docNodes.forEach(d => n.appendChild(d)),
-    );
+    this.modifyTargetNodes(target, nodes => {
+      const docNodes = Array.from(parseXmlFragment(fragment, this.getNamespaceAttrs()));
 
-    this.vfs.set(this.path, this);
+      nodes.forEach(n =>
+        docNodes.forEach(d => n.appendChild(d)),
+      );
+    });
   }
 
   /**
    * Merges a fragment of XML into the given target.
    */
   mergeFragment(target: string, fragment: string) {
-    if (!this.doc) {
-      return;
-    }
-
-    // Get the target element
-    const node = this.selectTargetNodes(target, this.doc);
-
     Logger.v('xml', 'mergeFragment', `at ${target}`);
 
-    if (!node.length) {
-      return;
-    }
+    this.modifyTargetNodes(target, ([node]) => {
+      const targetSerialized = serializeXml(node);
+      const targetParsed = xml2js(targetSerialized.trim());
+      const fragmentParsed = xml2js(fragment.trim());
 
+      const newTree = this.mergeJsonTree(targetParsed, fragmentParsed);
 
-    const targetSerialized = serializeXml(node[0]);
-    const targetParsed = xml2js(targetSerialized.trim());
-    const fragmentParsed = xml2js(fragment.trim());
+      const xml = js2xml(newTree);
 
-    const newTree = this.mergeJsonTree(targetParsed, fragmentParsed);
+      const newTreeElement = parseXmlString(xml);
 
-    const xml = js2xml(newTree);
-
-    const newTreeElement = parseXmlString(xml);
-
-    for (const n of Array.prototype.slice.call(node[0].childNodes)) {
-      node[0].removeChild(n);
-    }
-    for (const n of Array.prototype.slice.call(newTreeElement.documentElement.childNodes)) {
-      node[0].appendChild(n);
-    }
-
-    this.vfs.set(this.path, this);
+      for (const n of Array.prototype.slice.call(node.childNodes)) {
+        node.removeChild(n);
+      }
+      for (const n of Array.prototype.slice.call(newTreeElement.documentElement.childNodes)) {
+        node.appendChild(n);
+      }
+    });
   }
 
   mergeJsonTree(target: any, fragment: any) {
@@ -232,26 +231,21 @@ export class XmlFile extends VFSStorable {
    * Replaces a given target with the given fragment
    */
   replaceFragment(target: string, fragment: string) {
-    if (!this.doc) {
-      return;
-    }
+    this.modifyTargetNodes(target, nodes => {
+      const parsed = parseXmlString(fragment);
 
-    const nodes = this.selectTargetNodes(target, this.doc);
-    const parsed = parseXmlString(fragment);
-
-    nodes.forEach(n => {
-      const index = Array.prototype.indexOf.call(n.parentNode?.childNodes, n);
-      if (index >= 0) {
-        const parent = n.parentNode;
-        parent!.removeChild(n);
-        parent!.insertBefore(
-          parsed.documentElement,
-          parent?.childNodes[index] ?? null,
-        );
-      }
+      nodes.forEach(n => {
+        const index = Array.prototype.indexOf.call(n.parentNode?.childNodes, n);
+        if (index >= 0) {
+          const parent = n.parentNode;
+          parent!.removeChild(n);
+          parent!.insertBefore(
+            parsed.documentElement,
+            parent?.childNodes[index] ?? null,
+          );
+        }
+      });
     });
-
-    this.vfs.set(this.path, this);
   }
 
   /**
@@ -260,20 +254,13 @@ export class XmlFile extends VFSStorable {
    * have its attributes modified
    */
   setAttrs(target: string, attrs: any) {
-    if (!this.doc) {
-      return;
-    }
-
     Logger.v('xml', 'setAttrs', `at ${this.path} - ${target}`);
 
-    const nodes = this.selectTargetNodes(target, this.doc);
-    nodes.forEach((n: any) => {
+    this.modifyTargetNodes(target, nodes => nodes.forEach(n => {
       Object.keys(attrs).forEach(attr => {
         n.setAttribute(attr, attrs[attr]);
       });
-    });
-
-    this.vfs.set(this.path, this);
+    }));
   }
 
   private xmlCommitFn = async (file: VFSFile) => {

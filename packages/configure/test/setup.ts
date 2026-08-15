@@ -9,4 +9,6 @@ const ORIGINAL_ENV = { ...process.env };
 afterEach(() => {
   process.argv = [...ORIGINAL_ARGV];
   process.env = { ...ORIGINAL_ENV };
+  // A run that reports a failure sets this, and vitest would exit with it
+  process.exitCode = 0;
 });

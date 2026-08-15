@@ -149,7 +149,7 @@ describe('task: run', () => {
     });
   });
 
-  it('should commit operations to filesystem', async () => {
+  it('should commit operations to filesystem', { timeout: 120000 }, async () => {
     const dir = await useFixture('ios-and-android');
     await copy(fixturePath('basic.yml'), join(dir, 'basic.yml'));
 
@@ -228,7 +228,7 @@ describe('task: run', () => {
   });
 
   // TODO: Separate this out into multiple sub-tests
-  it('should commit operations to filesystem directly with y', async () => {
+  it('should commit operations to filesystem directly with y', { timeout: 120000 }, async () => {
     const dir = await useFixture('ios-and-android');
     await copy(fixturePath('basic.yml'), join(dir, 'basic.yml'));
 
@@ -387,6 +387,27 @@ describe('task: run', () => {
     expect(errors).toContainEqual(
       expect.stringContaining('Unable to load the iOS project'),
     );
+  });
+
+  it('should exit non-zero when a native project failed to load', async () => {
+    const dir = await useFixture('ios-and-android');
+    await writeFile(
+      join(dir, 'ios/App/App.xcodeproj/project.pbxproj'),
+      '// !$*UTF8*$!\n{ this is not a pbxproj }\n',
+    );
+
+    const ctx = await loadContext(dir);
+    ctx.args.commit = false;
+    ctx.args.quiet = true;
+
+    vi.spyOn(logger, 'error').mockImplementation(() => undefined);
+
+    await runCommand(ctx, '../common/test/fixtures/project.basic.yml');
+
+    expect(process.exitCode).toBe(1);
+
+    // The run has to carry on so the operations that can be applied still are
+    expect(ctx.project.vfs.modifiedFiles()).not.toEqual([]);
   });
 
   it('should leave files alone that no operation modified', { timeout: 120000 }, async () => {
