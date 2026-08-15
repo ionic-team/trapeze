@@ -54,6 +54,7 @@ By default `run` lists the changed files and then asks for confirmation before w
 | `--android` | Only run Android operations. Project-level operations still run. |
 | `--ios-project <path>` | Path to the root of the iOS Xcode project (default: `ios/App`). |
 | `--android-project <path>` | Path to the root of the Android project (default: `android`). |
+| `--project-root <path>` | Path to the root of the project the platform paths are resolved against (default: the current directory). |
 
 `npx trapeze --version` prints the installed version, and `npx trapeze run --help` prints this list for the version you have installed.
 

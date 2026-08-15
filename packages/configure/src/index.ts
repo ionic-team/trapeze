@@ -18,6 +18,10 @@ export async function run() {
 }
 
 export function runProgram(ctx: Context) {
+  createProgram(ctx).parse(process.argv);
+}
+
+export function createProgram(ctx: Context) {
   const program = new Command();
 
   program.version(version);
@@ -31,6 +35,7 @@ export function runProgram(ctx: Context) {
     .option('--diff', 'Show a diff of each file')
     .option('--verbose', 'Verbose output')
     .option('--quiet', 'Only print warnings and errors')
+    .option('--project-root <path>', 'Path to the root of the project (default: the current directory)')
     .option('--android-project <path>', 'Path to the root of the Android project (default: \'android\')')
     .option('--ios-project <path>', 'Path to the root of the iOS project (default: \'ios/App\')')
     .option('--ios', 'Explicitly run iOS operations. This is exclusive, meaning other platforms not specified won\'t run when this flag is used')
@@ -55,5 +60,5 @@ export function runProgram(ctx: Context) {
     }),
   );
 
-  program.parse(process.argv);
+  return program;
 }

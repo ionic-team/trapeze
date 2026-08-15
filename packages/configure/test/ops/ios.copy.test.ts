@@ -1,4 +1,4 @@
-import { copy, readFile, rm } from '@ionic/utils-fs';
+import { copy, pathExists, readFile, rm } from '@ionic/utils-fs';
 import { join } from 'path';
 import { temporaryDirectory } from 'tempy';
 
@@ -42,5 +42,22 @@ describe('op: ios.copy', () => {
     const dest = join(dir, 'ios/App', 'json-file2.json');
     const destContents = await readFile(dest);
     expect(srcContents).toEqual(destContents);
+  });
+
+  it('should not copy file on a dry run', async () => {
+    ctx.args.dryRun = true;
+
+    const op: IosCopyOperation = makeOp('ios', 'copy',
+      [
+        {
+          src: 'json-file.json',
+          dest: 'json-file2.json',
+        },
+      ],
+    );
+
+    await Op(ctx, op as Operation);
+
+    expect(await pathExists(join(dir, 'ios/App', 'json-file2.json'))).toBe(false);
   });
 });

@@ -78,6 +78,13 @@ export function setArguments(ctx: Context, args: any) {
   ctx.args = args;
 }
 
+// --dry-run and --no-commit (commander sets `commit` to false) both promise to report the
+// changes without writing them. Operations that write straight to disk instead of going
+// through the VFS have to honor that promise themselves.
+export function isDryRun(ctx: Context): boolean {
+  return !!ctx.args.dryRun || ctx.args.commit === false;
+}
+
 // Given a variable of the form $VARIABLE, resolve the
 // actual value from the environment
 export function str(ctx: Context, s: string): string | any {
