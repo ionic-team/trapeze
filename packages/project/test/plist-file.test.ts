@@ -4,7 +4,6 @@ import { temporaryDirectory } from 'tempy';
 
 import { PlistFile } from '../src/plist';
 import { MobileProject } from '../src/project';
-import { serializeXml } from '../src/util/xml';
 import { VFS } from '../src/vfs';
 
 const fixture = '../common/test/fixtures/ios-and-android/ios/App/My App Clip/AppClip.plist';
