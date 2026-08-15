@@ -98,7 +98,7 @@ describe('context and capacitor project loading', () => {
     expect(s3).toBe('${THING}');
   });
 
-  it('should warn about variables without a value', async () => {
+  it('should warn about unknown variable references', async () => {
     const dir = '../common/test/fixtures/ios-and-android';
     ctx = await loadContext(dir, 'android', 'ios/App');
 
