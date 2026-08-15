@@ -1,0 +1,9 @@
+platforms:
+  ios:
+    bundleId: com.ionicframework.testBundle
+    targets:
+      App:
+        version: 16.4
+        builds:
+          Debug:
+            displayName: My Awesome App

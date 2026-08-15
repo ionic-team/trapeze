@@ -46,28 +46,24 @@ function createIosPlatform(platform: string, platformEntry: any) {
     return [];
   }
 
-  if (typeof platformEntry.targets !== 'undefined') {
-    return createIosPlatformTargets(platform, platformEntry);
-  } else {
-    return Object.keys(platformEntry || {})
-      .map(op =>
-        createIosOperation({
-          platform,
-          target: null,
-          build: null,
-          op,
-          opEntry: platformEntry[op],
-        }),
-      )
-      .flat();
-  }
+  // Platform-wide operations run first so target-specific ones win on conflict
+  return Object.keys(platformEntry)
+    .filter(op => op !== 'targets')
+    .map(op =>
+      createIosOperation({
+        platform,
+        target: null,
+        build: null,
+        op,
+        opEntry: platformEntry[op],
+      }),
+    )
+    .concat(createIosPlatformTargets(platform, platformEntry.targets));
 }
 
-function createIosPlatformTargets(platform: string, platformEntry: any) {
-  return Object.keys(platformEntry.targets || {})
-    .map(target =>
-      createIosPlatformTarget(platform, target, platformEntry.targets[target]),
-    )
+function createIosPlatformTargets(platform: string, targets: any) {
+  return Object.keys(targets || {})
+    .map(target => createIosPlatformTarget(platform, target, targets[target]))
     .flat();
 }
 
@@ -76,39 +72,28 @@ function createIosPlatformTarget(
   target: string,
   targetEntry: any,
 ) {
-  if (typeof targetEntry.builds !== 'undefined') {
-    return createIosPlatformBuilds(platform, target, targetEntry);
-  } else {
-    return Object.keys(targetEntry || {})
-      .map(op =>
-        createIosOperation({
-          platform,
-          target,
-          build: null,
-          op,
-          opEntry: targetEntry[op],
-        }),
-      )
-      .flat();
-  }
+  // Target-wide operations run first so build-specific ones win on conflict
+  return Object.keys(targetEntry || {})
+    .filter(op => op !== 'builds')
+    .map(op =>
+      createIosOperation({
+        platform,
+        target,
+        build: null,
+        op,
+        opEntry: targetEntry[op],
+      }),
+    )
+    .concat(createIosPlatformBuilds(platform, target, targetEntry?.builds));
 }
 
 function createIosPlatformBuilds(
   platform: string,
   target: string,
-  targetEntry: any,
+  builds: any,
 ) {
-  return Object.keys(targetEntry.builds || {})
-    .map(
-      build =>
-        createIosPlatformBuild(
-          platform,
-          target,
-          build,
-          targetEntry.builds[build],
-        ),
-      // createIosPlatformBuild({ platform, target, build, buildEntry: targetEntry.builds[build] })
-    )
+  return Object.keys(builds || {})
+    .map(build => createIosPlatformBuild(platform, target, build, builds[build]))
     .flat();
 }
 

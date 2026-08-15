@@ -1,0 +1,10 @@
+platforms:
+  ios:
+    targets:
+      App:
+        builds:
+          Debug: &shared
+            bundleId: com.ionicframework.testBundle
+          Release:
+            <<: *shared
+            displayName: My Awesome App
