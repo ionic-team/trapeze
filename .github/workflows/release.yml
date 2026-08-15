@@ -36,10 +36,11 @@ jobs:
         run: npm install -g npm@latest
       - if: ${{ steps.release-please.outputs.releases_created == 'true' }}
         run: npm ci
+      # Scoped to the published packages; the private website is covered by CI
       - if: ${{ steps.release-please.outputs.releases_created == 'true' }}
-        run: npm run build
+        run: npm run build -- --filter='@trapezedev/*'
       - if: ${{ steps.release-please.outputs.releases_created == 'true' }}
-        run: npm test
+        run: npm test -- --filter='@trapezedev/*'
       # Published in dependency order: gradle-parse <- project <- configure
       - name: Publish @trapezedev/gradle-parse
         if: ${{ steps.release-please.outputs['packages/gradle-parse--release_created'] == 'true' }}
