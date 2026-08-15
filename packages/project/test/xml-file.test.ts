@@ -1,4 +1,4 @@
-import { XmlFile } from '../src';
+import { Logger, XmlFile } from '../src';
 import { formatXml, serializeXml } from '../src/util/xml';
 import { VFS } from '../src/vfs';
 
@@ -172,6 +172,16 @@ describe('xml file', () => {
     `.trim());
   });
 
+  it('Should warn when a target matches no nodes', async () => {
+    const warn = vi.spyOn(Logger, 'warn').mockImplementation(() => undefined);
+
+    file.setAttrs('missing', { test: 'thing' });
+
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining(`match the target 'missing'`));
+
+    warn.mockRestore();
+  });
+
   it('Should replace', async () => {
     file.replaceFragment('resources/string[@name="app_name"]', `
       <string name="app_name">$PRODUCT_NAME</string>
@@ -201,6 +211,53 @@ describe('xml file', () => {
       const node = file.find(target);
 
       expect(node).toBeDefined();
+    });
+
+    // https://github.com/ionic-team/trapeze/issues/190
+    describe('Should support documents with a default namespace #190', () => {
+      beforeEach(async () => {
+        vfs = new VFS();
+        file = new XmlFile('../common/test/fixtures/issues/190/config.xml', vfs);
+        await file.load();
+      });
+
+      it('Should find unprefixed targets', async () => {
+        expect(file.find('widget')).toHaveLength(1);
+        expect(file.find('//widget')).toHaveLength(1);
+        expect(file.find('/widget/allow-navigation')).toHaveLength(1);
+        expect(file.find(`//allow-navigation[@href='https://*/*']`)).toHaveLength(1);
+      });
+
+      it('Should find prefixed targets', async () => {
+        expect(file.find('/widget/cdv:plugin')).toHaveLength(1);
+      });
+
+      it('Should find targets using the local-name() workaround', async () => {
+        expect(file.find(`//*[local-name()='widget']`)).toHaveLength(1);
+      });
+
+      it('Should set attributes on an unprefixed target', async () => {
+        file.setAttrs('widget', { version: '7.8.9' });
+
+        const doc = file.getDocumentElement();
+        expect(doc?.getAttribute('version')).toBe('7.8.9');
+      });
+
+      it('Should inject into an unprefixed target', async () => {
+        file.injectFragment('widget', `<allow-navigation href="http://*/*" />`);
+
+        const serialized = await formatXml(file.getDocumentElement());
+        expect(serialized).toContain(`<allow-navigation href="http://*/*" />`);
+        // The injected node inherits the default namespace, so it is selectable too
+        expect(file.find('/widget/allow-navigation')).toHaveLength(2);
+      });
+
+      it('Should delete an unprefixed target', async () => {
+        file.deleteNodes('/widget/allow-navigation');
+
+        const serialized = await formatXml(file.getDocumentElement());
+        expect(serialized).not.toContain('allow-navigation');
+      });
     });
   });
 });
