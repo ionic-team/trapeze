@@ -1,6 +1,13 @@
+import { copy, readFile, rm } from '@ionic/utils-fs';
+import { join } from 'path';
+import { temporaryDirectory } from 'tempy';
+
 import { StringsFile } from '../src';
+import { MobileProject } from '../src/project';
 import { generateStrings } from '../src/util/strings';
 import { VFS } from '../src/vfs';
+
+const fixture = '../common/test/fixtures/strings.strings';
 
 describe('strings file', () => {
   let vfs: VFS;
@@ -8,7 +15,7 @@ describe('strings file', () => {
 
   beforeEach(async () => {
     vfs = new VFS();
-    file = new StringsFile('../common/test/fixtures/strings.strings', vfs);
+    file = new StringsFile(fixture, vfs);
     await file.load();
   });
 
@@ -151,6 +158,33 @@ describe('strings file', () => {
 
 "New key" = "Yes";
     `.trim());
+  });
+
+  it('Should write the document on commit', async () => {
+    const dir = temporaryDirectory();
+    const path = join(dir, 'Localizable.strings');
+    await copy(fixture, path);
+
+    const tempVfs = new VFS();
+    const tempFile = new StringsFile(path, tempVfs);
+    await tempFile.load();
+    await tempFile.set({ 'Insert Element': 'New1' });
+
+    await tempVfs.commitAll({} as MobileProject);
+
+    const contents = await readFile(path, { encoding: 'utf-8' });
+    expect(contents).toContain('"Insert Element" = "New1";');
+    expect(contents).toContain('/* Insert Element menu item */');
+
+    await rm(dir, { force: true, recursive: true });
+  });
+
+  it('Should not reload a file that is already open', async () => {
+    await file.set({ 'Insert Element': 'New1' });
+    await file.load();
+
+    expect(generateStrings(file.getDocument())).toContain('"Insert Element" = "New1";');
+    expect(Object.keys(vfs.all())).toEqual([fixture]);
   });
 
   it('Should set from JSON file', async () => {

@@ -1,7 +1,8 @@
 import { AndroidGradleInjectType, MobileProject } from '../src';
 import { MobileProjectConfig } from '../src/config';
-import { GradleFile } from '../src/android/gradle-file';
+import { GradleFile, WINDOWS_GRADLE_PARSE_CLASSPATH } from '../src/android/gradle-file';
 
+import { readdir } from '@ionic/utils-fs';
 import { join } from 'path';
 import { VFS } from '../src/vfs';
 
@@ -36,6 +37,23 @@ describe('project - android - gradle', () => {
 
     const output = await gradle.parse();
     expect(output).not.toBeNull();
+  });
+
+  // The Windows classpath lists the vendored jars by name, so bumping one without updating
+  // it would break gradle parsing on Windows only
+  it('Should list every vendored jar in the Windows classpath', async () => {
+    const gradle = new GradleFile(
+      join(project.config.android!.path!, 'build.gradle'),
+      vfs,
+    );
+    const jars = (await readdir(join(gradle.getGradleParserPath(), 'lib'))).filter(f =>
+      f.endsWith('.jar'),
+    );
+
+    expect(jars.length).toBeGreaterThan(0);
+    for (const jar of jars) {
+      expect(WINDOWS_GRADLE_PARSE_CLASSPATH).toContain(`lib/${jar}`);
+    }
   });
 
   it('Should find target element in parsed Gradle', async () => {

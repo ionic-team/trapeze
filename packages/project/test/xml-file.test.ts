@@ -3,8 +3,11 @@ import { copy, readFile, rm } from '@ionic/utils-fs';
 import { temporaryDirectory } from 'tempy';
 
 import { Logger, XmlFile } from '../src';
+import { MobileProject } from '../src/project';
 import { formatXml, serializeXml } from '../src/util/xml';
 import { VFS } from '../src/vfs';
+
+const fixture = '../common/test/fixtures/ios-and-android/android/app/src/main/res/values/strings.xml';
 
 describe('xml file', () => {
   let vfs: VFS;
@@ -12,7 +15,7 @@ describe('xml file', () => {
 
   beforeEach(async () => {
     vfs = new VFS();
-    file = new XmlFile('../common/test/fixtures/ios-and-android/android/app/src/main/res/values/strings.xml', vfs);
+    file = new XmlFile(fixture, vfs);
     await file.load();
   });
 
@@ -200,6 +203,40 @@ describe('xml file', () => {
     <string name="package_name">io.ionic.starter</string>
     <string name="custom_url_scheme">io.ionic.starter</string>
 </resources>`.trim());
+  });
+
+  it('Should write the document on commit', async () => {
+    const dir = temporaryDirectory();
+    const path = join(dir, 'strings.xml');
+    await copy(fixture, path);
+
+    const tempVfs = new VFS();
+    const tempFile = new XmlFile(path, tempVfs);
+    await tempFile.load();
+    tempFile.replaceFragment('resources/string[@name="app_name"]', `<string name="app_name">Awesome App</string>`);
+
+    await tempVfs.commitAll({} as MobileProject);
+
+    const contents = await readFile(path, { encoding: 'utf-8' });
+    expect(contents.trim()).toBe(`
+<?xml version='1.0' encoding='utf-8' ?>
+<resources>
+    <string name="app_name">Awesome App</string>
+    <string name="title_activity_main">capacitor-configure-test</string>
+    <string name="package_name">io.ionic.starter</string>
+    <string name="custom_url_scheme">io.ionic.starter</string>
+</resources>
+    `.trim());
+
+    await rm(dir, { force: true, recursive: true });
+  });
+
+  it('Should not reload a file that is already open', async () => {
+    file.setAttrs('/resources', { test: 'thing' });
+    await file.load();
+
+    expect(file.getDocumentElement()?.getAttribute('test')).toBe('thing');
+    expect(Object.keys(vfs.all())).toEqual([fixture]);
   });
 
   // The XML formatter must never re-space text nodes: doing so silently rewrites values

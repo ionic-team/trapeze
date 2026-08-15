@@ -1,14 +1,21 @@
+import { copy, readFile, rm } from '@ionic/utils-fs';
+import { join } from 'path';
+import { temporaryDirectory } from 'tempy';
+
 import { PlistFile } from '../src/plist';
+import { MobileProject } from '../src/project';
 import { serializeXml } from '../src/util/xml';
 import { VFS } from '../src/vfs';
 
-describe('xml file', () => {
+const fixture = '../common/test/fixtures/ios-and-android/ios/App/My App Clip/AppClip.plist';
+
+describe('plist file', () => {
   let vfs: VFS;
   let file: PlistFile;
 
   beforeEach(async () => {
     vfs = new VFS();
-    file = new PlistFile('../common/test/fixtures/ios-and-android/ios/App/My App Clip/AppClip.plist', vfs);
+    file = new PlistFile(fixture, vfs);
     await file.load();
   });
 
@@ -52,5 +59,41 @@ describe('xml file', () => {
         Bar: true
       }
     });
+  });
+
+  it('Should write the document on commit', async () => {
+    const dir = temporaryDirectory();
+    const path = join(dir, 'AppClip.plist');
+    await copy(fixture, path);
+
+    const tempVfs = new VFS();
+    const tempFile = new PlistFile(path, tempVfs);
+    await tempFile.load();
+    await tempFile.merge({ NSFaceIDUsageDescription: 'Log in' });
+
+    await tempVfs.commitAll({} as MobileProject);
+
+    const contents = await readFile(path, { encoding: 'utf-8' });
+    // Xcode indents plists with tabs
+    expect(contents).toContain('\n\t<dict>');
+
+    const reloaded = new PlistFile(path, new VFS());
+    await reloaded.load();
+    expect(reloaded.getDocument()).toMatchObject({
+      NSFaceIDUsageDescription: 'Log in',
+      NSAppClip: {
+        NSAppClipRequestEphemeralUserNotification: false
+      }
+    });
+
+    await rm(dir, { force: true, recursive: true });
+  });
+
+  it('Should not reload a file that is already open', async () => {
+    await file.set({ NSFaceIDUsageDescription: 'Log in' });
+    await file.load();
+
+    expect(file.getDocument()).toMatchObject({ NSFaceIDUsageDescription: 'Log in' });
+    expect(Object.keys(vfs.all())).toEqual([fixture]);
   });
 });
