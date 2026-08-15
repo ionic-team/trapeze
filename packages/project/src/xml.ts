@@ -70,8 +70,11 @@ export class XmlFile extends VFSStorable {
   /**
    * Selects the nodes matching an XPath node-set expression.
    *
-   * `allowAnyNamespaceForNoPrefix` lets an unprefixed name test match elements in the
-   * document's default namespace, which plain XPath 1.0 would never match.
+   * `allowAnyNamespaceForNoPrefix` lets an unprefixed name test match elements in any
+   * namespace, not just the document's default one. That is more permissive than plain
+   * XPath 1.0, but acceptable here: prefixed name tests still resolve through the
+   * namespaces collected from the root element, and without it an unprefixed target
+   * matches nothing at all in a document that declares a default namespace.
    */
   private select(expression: string, doc: Document): Node[] {
     return (xpath as any).parse(expression).select({

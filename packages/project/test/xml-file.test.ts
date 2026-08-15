@@ -174,12 +174,11 @@ describe('xml file', () => {
 
   it('Should warn when a target matches no nodes', async () => {
     const warn = vi.spyOn(Logger, 'warn').mockImplementation(() => undefined);
+    onTestFinished(() => warn.mockRestore());
 
     file.setAttrs('missing', { test: 'thing' });
 
     expect(warn).toHaveBeenCalledWith(expect.stringContaining(`match the target 'missing'`));
-
-    warn.mockRestore();
   });
 
   it('Should replace', async () => {
