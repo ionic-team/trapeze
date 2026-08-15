@@ -40,4 +40,16 @@ describe('op: ios.buildVersion', () => {
 
     expect(ctx.project.ios?.getBuildProperty(null, null, 'CURRENT_PROJECT_VERSION')).toBe(1337);
   });
+
+  it('should write build settings to the pbxproj on commit', async () => {
+    const op: IosCopyOperation = makeOp('ios', 'buildNumber', 1337);
+
+    await Op(ctx, op as Operation);
+    await ctx.project.commit();
+
+    const pbxProj = await readFile(join(dir, 'ios/App/App.xcodeproj/project.pbxproj'), {
+      encoding: 'utf-8',
+    });
+    expect(pbxProj).toContain('CURRENT_PROJECT_VERSION = 1337');
+  });
 });

@@ -1,4 +1,5 @@
-import { VFS } from "../src/vfs";
+import { MobileProject } from "../src/project";
+import { VFS, VFSFile } from "../src/vfs";
 
 describe('vfs', () => {
   let vfs: VFS;
@@ -33,5 +34,25 @@ describe('vfs', () => {
       f2: vfs.get('f2'),
       f3: vfs.get('f3')
     });
+  });
+
+  it('should only commit modified files', async () => {
+    const committed: string[] = [];
+    const commitFn = async (file: VFSFile) => {
+      committed.push(file.getFilename());
+    };
+
+    vfs.open('f1', { thing: 'f1' }, commitFn);
+    vfs.open('f2', { thing: 'f2' }, commitFn);
+    vfs.open('f3', { thing: 'f3' }, commitFn);
+
+    vfs.markModified('f2');
+    vfs.set('f3', { thing: 'f3 updated' });
+
+    expect(vfs.modifiedFiles().map(f => f.getFilename())).toEqual(['f2', 'f3']);
+
+    await vfs.commitAll({} as MobileProject);
+
+    expect(committed).toEqual(['f2', 'f3']);
   });
 });

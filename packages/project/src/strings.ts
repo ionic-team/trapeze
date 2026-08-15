@@ -67,6 +67,8 @@ export class StringsFile extends VFSStorable {
         });
       }
     });
+
+    this.vfs.markModified(this.path);
   }
 
   async load() {

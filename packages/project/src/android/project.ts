@@ -142,7 +142,7 @@ export class AndroidProject extends PlatformProject {
       }
     } else {
       Logger.v('android', 'setAppName', `No android:label on <application> node, setting value directly`);
-      application[0].setAttribute('android:label', appName);
+      this.manifest.setAttrs('manifest/application', { 'android:label': appName });
     }
   }
 

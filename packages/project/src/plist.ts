@@ -22,6 +22,7 @@ export class PlistFile extends VFSStorable {
 
   setDocument(doc: any) {
     this.doc = doc;
+    this.vfs.markModified(this.path);
   }
 
   async exists() {
@@ -82,7 +83,7 @@ export class PlistFile extends VFSStorable {
   async setFromXml(xml: string) {
     const parsed = parsePlistString(xml);
 
-    this.doc = parsed;
+    this.setDocument(parsed);
   }
 
   async set(properties: any): Promise<void> {
@@ -119,6 +120,7 @@ export class PlistFile extends VFSStorable {
     });
 
     Object.assign(this.doc, merged);
+    this.vfs.markModified(this.path);
   }
 
   async merge(properties: any): Promise<void> {
@@ -133,6 +135,7 @@ export class PlistFile extends VFSStorable {
     });
 
     Object.assign(this.doc, merged);
+    this.vfs.markModified(this.path);
   }
 
   /**

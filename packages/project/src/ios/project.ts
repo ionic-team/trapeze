@@ -37,9 +37,16 @@ const defaultInfoPlist = `<?xml version="1.0" encoding="UTF-8"?>
  */
 export class IosProject extends PlatformProject {
   private pbxProject: IosPbxProject | null = null;
+  private pbxFile: VFSRef<IosPbxProject> | null = null;
 
   constructor(project: MobileProject) {
     super(project);
+  }
+
+  // The pbx project is mutated in place, so every write has to flag its VFS
+  // entry as modified for it to be committed
+  private markPbxModified() {
+    this.pbxFile?.markModified();
   }
 
   private log(op: string, targetName: string | null, buildName: string | null | undefined, msg: string) {
@@ -150,6 +157,7 @@ export class IosProject extends PlatformProject {
     this.log('setBundleId', targetName, buildName, `to ${bundleId}`);
 
     this.pbxProject?.updateBuildProperty('PRODUCT_BUNDLE_IDENTIFIER', pbxSerializeString(bundleId), buildName, targetName);
+    this.markPbxModified();
   }
 
   /**
@@ -177,6 +185,7 @@ export class IosProject extends PlatformProject {
     this.log(`setProductName`, targetName, null, `PRODUCT_NAME to ${productName}`);
 
     this.pbxProject?.updateBuildProperty('PRODUCT_NAME', pbxSerializeString(productName), null, targetName);
+    this.markPbxModified();
   }
 
   /**
@@ -205,6 +214,7 @@ export class IosProject extends PlatformProject {
     }
 
     this.pbxProject?.updateBuildProperty('CURRENT_PROJECT_VERSION', buildNumber ?? 1, buildName, targetName);
+    this.markPbxModified();
 
     this.log(`setBuild`, targetName, buildName, `to ${buildNumber ?? 1}`);
 
@@ -270,6 +280,7 @@ export class IosProject extends PlatformProject {
         this.log(`incrementBuild`, targetName, buildName, `Setting initial value for CURRENT_PROJECT_VERSION to ensure incremented build number works`);
         // Set an initial value for CURRENT_PROJECT_VERSION
         this.pbxProject?.updateBuildProperty('CURRENT_PROJECT_VERSION', 1, buildName, targetName);
+        this.markPbxModified();
       } else {
         // There's already a CURRENT_PROJECT_VERSION set, which shouldn't happen, so do nothing
       }
@@ -283,6 +294,7 @@ export class IosProject extends PlatformProject {
     targetName = this.assertTargetName(targetName || null);
 
     this.pbxProject?.updateBuildProperty('MARKETING_VERSION', pbxSerializeString(version), buildName, targetName);
+    this.markPbxModified();
 
     this.log(`setVersion`, targetName, buildName, `to ${pbxSerializeString(version)}`);
 
@@ -319,6 +331,7 @@ export class IosProject extends PlatformProject {
     this.log(`setBuildProperty`, targetName, buildName, `Setting iOS build property ${key} = ${value}`);
 
     this.pbxProject?.updateBuildProperty(key, pbxSerializeString(value), buildName ? buildName : undefined /* must use undefined if null */, targetName);
+    this.markPbxModified();
   }
 
   /**
@@ -343,6 +356,7 @@ export class IosProject extends PlatformProject {
       target: target?.id,
       ...opts
     });
+    this.markPbxModified();
   }
 
   /**
@@ -555,6 +569,8 @@ export class IosProject extends PlatformProject {
     } else {
       this.pbxProject?.addSourceFile(path, {}, emptyGroup?.[0]);
     }
+
+    this.markPbxModified();
   }
 
   private async assertEntitlementsFile(targetName: IosTargetName, buildName: IosBuildName | null) {
@@ -685,7 +701,7 @@ export class IosProject extends PlatformProject {
       throw new Error('Unable to load pbxproj');
     }
     const pbxParsed = await parsePbxProject(filename);
-    this.project.vfs.open(filename, pbxParsed, this.pbxCommitFn);
+    this.pbxFile = this.project.vfs.open(filename, pbxParsed, this.pbxCommitFn);
     return pbxParsed;
   }
 

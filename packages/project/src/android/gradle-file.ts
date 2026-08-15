@@ -36,6 +36,11 @@ export class GradleFile extends VFSStorable {
     return this.source;
   }
 
+  private setSource(source: string) {
+    this.source = source;
+    this.vfs.markModified(this.filename);
+  }
+
   /**
    * Replace the given properties at the specified point in the Gradle file or insert
    * if the replacement doesn't exist
@@ -209,7 +214,7 @@ export class GradleFile extends VFSStorable {
         .slice(Math.max(0, resolvedLastLine), sourceLines.length)
         .join('\n');
 
-    this.source = newSource;
+    this.setSource(newSource);
   }
 
   /**
@@ -428,7 +433,7 @@ export class GradleFile extends VFSStorable {
           .join('\n');
     }
 
-    this.source = newSource;
+    this.setSource(newSource);
   }
 
   find(pathObject: any | null, exact = false): { node: GradleASTNode; depth: number }[] {
