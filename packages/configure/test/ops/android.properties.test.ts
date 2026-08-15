@@ -1,4 +1,4 @@
-import { copy } from '@ionic/utils-fs';
+import { copy, readFile } from '@ionic/utils-fs';
 import { join } from 'path';
 import { temporaryDirectory } from 'tempy';
 
@@ -39,6 +39,25 @@ describe('op: android.properties', () => {
       'android.useAndroidX': true,
       'org.gradle.jvmargs': 'test'
     });
+  });
+
+  it('should write properties to disk on commit', async () => {
+    const op: AndroidPropertiesOperation = {
+      value: [
+        {
+          file: 'gradle.properties',
+          entries: {
+            'org.gradle.jvmargs': 'test',
+          },
+        },
+      ],
+    };
+
+    await Op(ctx, op as Operation);
+    await ctx.project.commit();
+
+    const contents = await readFile(join(dir, 'android/gradle.properties'), { encoding: 'utf-8' });
+    expect(contents).toContain('org.gradle.jvmargs=test');
   });
 
 });
