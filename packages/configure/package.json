@@ -1,6 +1,6 @@
 {
   "name": "@trapezedev/configure",
-  "version": "7.1.9",
+  "version": "7.1.10",
   "description": "Trapeze configuration tool for automatically configuring projects",
   "author": "Ionic Team <hi@ionic.io> (https://ionicframework.com) ",
   "license": "SEE LICENSE",
@@ -28,7 +28,7 @@
     "@ionic/cli-framework-output": "^2.2.2",
     "@ionic/utils-fs": "^3.1.5",
     "@ionic/utils-terminal": "^2.3.1",
-    "@trapezedev/project": "^7.1.9",
+    "@trapezedev/project": "^7.1.10",
     "commander": "^8.2.0",
     "kleur": "^4.1.4",
     "lodash": "^4.17.21",
