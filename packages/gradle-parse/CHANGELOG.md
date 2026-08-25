@@ -1,5 +1,12 @@
 # @capacitor/gradle-parse
 
+## [7.1.10](https://github.com/ionic-team/trapeze/compare/@trapezedev/gradle-parse@7.1.9...@trapezedev/gradle-parse@7.1.10) (2026-08-25)
+
+
+### Miscellaneous Chores
+
+* release 7.1.10 ([2b81a20](https://github.com/ionic-team/trapeze/commit/2b81a208b0940a7d5bef1b18aee9483b6f8b23ac))
+
 ## [7.1.9](https://github.com/ionic-team/trapeze/compare/@trapezedev/gradle-parse@7.1.8...@trapezedev/gradle-parse@7.1.9) (2026-08-15)
 
 

@@ -1,5 +1,19 @@
 # @trapezedev/configure
 
+## [7.1.10](https://github.com/ionic-team/trapeze/compare/@trapezedev/configure@7.1.9...@trapezedev/configure@7.1.10) (2026-08-25)
+
+
+### Miscellaneous Chores
+
+* release 7.1.10 ([2b81a20](https://github.com/ionic-team/trapeze/commit/2b81a208b0940a7d5bef1b18aee9483b6f8b23ac))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapezedev/project bumped from ^7.1.9 to ^7.1.10
+
 ## [7.1.9](https://github.com/ionic-team/trapeze/compare/@trapezedev/configure@7.1.8...@trapezedev/configure@7.1.9) (2026-08-15)
 
 
