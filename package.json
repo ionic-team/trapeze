@@ -3,7 +3,7 @@
   "private": false,
   "packageManager": "npm@11.13.0",
   "overrides": {
-    "@xmldom/xmldom": "^0.9.9"
+    "@xmldom/xmldom": "^0.9.12"
   },
   "devDependencies": {
     "turbo": "^2.10.9"

@@ -25,7 +25,7 @@
     "@ionic/utils-subprocess": "^2.1.8",
     "@prettier/plugin-xml": "^2.2.0",
     "@trapezedev/gradle-parse": "7.1.10",
-    "@xmldom/xmldom": "^0.9.9",
+    "@xmldom/xmldom": "^0.9.12",
     "cross-spawn": "^7.0.3",
     "diff": "^5.1.0",
     "gradle-to-js": "^2.0.0",
@@ -56,7 +56,7 @@
     "rimraf": "^6.0.1",
     "tempy": "^3.1.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.4"
+    "vitest": "^4.1.11"
   },
   "gitHead": "3b4f9f02d6a74247a5606fe1c0688c9a1ec3fd4b"
 }
