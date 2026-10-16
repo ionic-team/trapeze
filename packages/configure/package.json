@@ -52,7 +52,7 @@
     "rimraf": "^6.0.1",
     "tempy": "^3.1.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.4"
+    "vitest": "^4.1.11"
   },
   "gitHead": "3b4f9f02d6a74247a5606fe1c0688c9a1ec3fd4b"
 }
