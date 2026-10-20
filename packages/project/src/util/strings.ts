@@ -49,6 +49,23 @@ function parse(contents: string): StringsEntries {
       whitespace += c;
       ++line;
       col = 0;
+    } else if (state === State.Key || state === State.Value) {
+      // Inside a quoted string only an unescaped quote has meaning
+      if (isQuote(c)) {
+        setState(state === State.Key ? State.AfterKey : State.AfterValue);
+      } else {
+        let text = c;
+        if (isEscape(c) && i + 1 < contents.length) {
+          // Keep escape sequences such as \" verbatim
+          text += contents[++i];
+          ++col;
+        }
+        if (state === State.Key) {
+          key += text;
+        } else {
+          value += text;
+        }
+      }
     } else if (isStartComment(c, contents[i + 1])) {
       // Comment start, step forward one character
       ++i;
@@ -96,16 +113,10 @@ function parse(contents: string): StringsEntries {
         setState(State.Key);
         key = "";
         whitespace = "";
-      } else if (state === State.Key) {
-        // Key ends
-        setState(State.AfterKey);
       } else if (state === State.AfterKey) {
         // Start of value
         setState(State.Value);
         value = "";
-      } else if (state === State.Value) {
-        // End of value, commit it
-        setState(State.AfterValue);
       }
     } else if (isSemi(c) && (state === State.AfterValue)) {
       endLine = line;
@@ -119,12 +130,6 @@ function parse(contents: string): StringsEntries {
       key = "";
       value = "";
       setState(State.None);
-    } else if (state === State.Key) {
-      // Build the key
-      key += c;
-    } else if (state === State.Value) {
-      // Build the value
-      value += c;
     } else if (isWhitespace(c)) {
       // Valid to have whitespace before/after lines
       whitespace += c;
@@ -155,6 +160,9 @@ function isEndComment(c: string, c2: string) {
 }
 function isQuote(c: string) {
   return c === '"';
+}
+function isEscape(c: string) {
+  return c === '\\';
 }
 function isEquals(c: string) {
   return c === '=';

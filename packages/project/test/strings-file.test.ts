@@ -206,4 +206,42 @@ describe('strings file', () => {
    "This is a key" = "This is a value";
     `.trim());
   });
+
+  describe('escaped quotes', () => {
+    const escapedFixture = '../common/test/fixtures/strings-escaped.strings';
+
+    beforeEach(async () => {
+      vfs = new VFS();
+      file = new StringsFile(escapedFixture, vfs);
+      await file.load();
+    });
+
+    it('Should keep escape sequences and comment markers inside strings', async () => {
+      expect(file.getDocument()).toMatchObject([
+        { content: '' },
+        { comment: ' Camera permission ' },
+        { content: '\n' },
+        { key: 'NSCameraUsageDescription', value: 'Allow \\"App\\" to use the camera' },
+        { content: '\n\n' },
+        { key: 'Key with \\"quotes\\"', value: 'Paths like /* or */ are not comments' },
+      ]);
+    });
+
+    it('Should regenerate the file unchanged', async () => {
+      const contents = await readFile(escapedFixture, { encoding: 'utf-8' });
+      expect(generateStrings(file.getDocument())).toBe(contents.trim());
+    });
+
+    it('Should set keys next to escaped values', async () => {
+      file.set({ CFBundleDisplayName: 'My App' });
+      expect(generateStrings(file.getDocument())).toBe(`
+/* Camera permission */
+"NSCameraUsageDescription" = "Allow \\"App\\" to use the camera";
+
+"Key with \\"quotes\\"" = "Paths like /* or */ are not comments";
+
+"CFBundleDisplayName" = "My App";
+      `.trim());
+    });
+  });
 });

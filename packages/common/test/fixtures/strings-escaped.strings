@@ -1,0 +1,4 @@
+/* Camera permission */
+"NSCameraUsageDescription" = "Allow \"App\" to use the camera";
+
+"Key with \"quotes\"" = "Paths like /* or */ are not comments";
