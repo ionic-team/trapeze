@@ -1,5 +1,12 @@
 # @capacitor/gradle-parse
 
+## [7.1.11](https://github.com/ionic-team/trapeze/compare/@trapezedev/gradle-parse@7.1.10...@trapezedev/gradle-parse@7.1.11) (2026-10-20)
+
+
+### Miscellaneous Chores
+
+* **@trapezedev/gradle-parse:** Synchronize trapeze versions
+
 ## [7.1.10](https://github.com/ionic-team/trapeze/compare/@trapezedev/gradle-parse@7.1.9...@trapezedev/gradle-parse@7.1.10) (2026-08-25)
 
 

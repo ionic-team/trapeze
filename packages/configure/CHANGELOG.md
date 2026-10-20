@@ -1,5 +1,19 @@
 # @trapezedev/configure
 
+## [7.1.11](https://github.com/ionic-team/trapeze/compare/@trapezedev/configure@7.1.10...@trapezedev/configure@7.1.11) (2026-10-20)
+
+
+### Miscellaneous Chores
+
+* **@trapezedev/configure:** Synchronize trapeze versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapezedev/project bumped from ^7.1.10 to ^7.1.11
+
 ## [7.1.10](https://github.com/ionic-team/trapeze/compare/@trapezedev/configure@7.1.9...@trapezedev/configure@7.1.10) (2026-08-25)
 
 

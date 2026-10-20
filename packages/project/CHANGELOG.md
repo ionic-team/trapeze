@@ -1,5 +1,19 @@
 # @trapezedev/project
 
+## [7.1.11](https://github.com/ionic-team/trapeze/compare/@trapezedev/project@7.1.10...@trapezedev/project@7.1.11) (2026-10-20)
+
+
+### Bug Fixes
+
+* **project:** keep escaped quotes in `.strings` files ([#265](https://github.com/ionic-team/trapeze/issues/265)) ([7573c07](https://github.com/ionic-team/trapeze/commit/7573c078aed14a369072cf498f1bb1e4fd267346))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapezedev/gradle-parse bumped from 7.1.10 to 7.1.11
+
 ## [7.1.10](https://github.com/ionic-team/trapeze/compare/@trapezedev/project@7.1.9...@trapezedev/project@7.1.10) (2026-08-25)
 
 
