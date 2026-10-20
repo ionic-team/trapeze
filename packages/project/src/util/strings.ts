@@ -44,12 +44,24 @@ function parse(contents: string): StringsEntries {
 
   for (let i = 0; i < contents.length; i++) {
     const c = contents[i];
-    if (isNewLine(c)) {
+    const inString = state === State.Key || state === State.Value;
+    if (isEscape(c) && inString) {
+      // Keep escape sequences such as \" verbatim so an escaped
+      // quote doesn't end the key or value
+      const escaped = c + (contents[i + 1] ?? "");
+      if (state === State.Key) {
+        key += escaped;
+      } else {
+        value += escaped;
+      }
+      ++i;
+      ++col;
+    } else if (isNewLine(c)) {
       // Keep track of lines
       whitespace += c;
       ++line;
       col = 0;
-    } else if (isStartComment(c, contents[i + 1])) {
+    } else if (isStartComment(c, contents[i + 1]) && !inString) {
       // Comment start, step forward one character
       ++i;
       // Commit any whitespace up to this point
@@ -64,7 +76,7 @@ function parse(contents: string): StringsEntries {
       comment = "";
       whitespace = "";
       setState(State.Comment);
-    } else if (isEndComment(c, contents[i + 1])) {
+    } else if (isEndComment(c, contents[i + 1]) && !inString) {
       // Comment end, step forward one character
       ++i;
       // Commit the comment
@@ -155,6 +167,9 @@ function isEndComment(c: string, c2: string) {
 }
 function isQuote(c: string) {
   return c === '"';
+}
+function isEscape(c: string) {
+  return c === '\\';
 }
 function isEquals(c: string) {
   return c === '=';

@@ -5,7 +5,7 @@ import { temporaryDirectory } from 'tempy';
 
 import { StringsFile } from '../src';
 import { MobileProject } from '../src/project';
-import { generateStrings } from '../src/util/strings';
+import { generateStrings, parseStrings } from '../src/util/strings';
 import { VFS } from '../src/vfs';
 
 const fixture = '../common/test/fixtures/strings.strings';
@@ -205,5 +205,21 @@ describe('strings file', () => {
 
    "This is a key" = "This is a value";
     `.trim());
+  });
+
+  it('Should keep escaped quotes and comment markers inside strings', async () => {
+    const contents = `/* Camera permission */
+"NSCameraUsageDescription" = "Allow \\"App\\" to use the camera";
+"Path \\"with\\" quotes" = "Files in /* and */ are ignored";`;
+
+    expect(parseStrings(contents)).toMatchObject([
+      { content: '' },
+      { comment: ' Camera permission ' },
+      { content: '\n' },
+      { key: 'NSCameraUsageDescription', value: 'Allow \\"App\\" to use the camera' },
+      { content: '\n' },
+      { key: 'Path \\"with\\" quotes', value: 'Files in /* and */ are ignored' },
+    ]);
+    expect(generateStrings(parseStrings(contents))).toBe(contents);
   });
 });
