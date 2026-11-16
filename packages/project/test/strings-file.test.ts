@@ -1,4 +1,4 @@
-import { copy, readFile } from '@ionic/utils-fs';
+import { copy, readFile, writeFile } from '@ionic/utils-fs';
 import { rm } from 'fs/promises';
 import { join } from 'path';
 import { temporaryDirectory } from 'tempy';
@@ -293,8 +293,35 @@ describe('strings file', () => {
       ['line comments in a CRLF file', '// Title of the app\r\n"title" = "Title";\r\n'],
       ['comment markers inside a line comment', '// see /* and */\n"title" = "Title";'],
       ['whitespace after a block comment', '/* Title */\n\n'],
+      ['comment markers inside a block comment', '/* a /* b // c */\n"title" = "Title";'],
     ])('Should regenerate a file with %s unchanged', async (_, contents) => {
       expect(generateStrings(parseStrings(contents))).toBe(contents);
+    });
+
+    it('Should not accept a comment end outside a comment', async () => {
+      expect(() => parseStrings('"a" = "b"; */')).toThrow('unknown character');
+    });
+
+    it('Should update an empty key', async () => {
+      const entries = setStringsEntry(parseStrings('"" = "b";'), { key: '', value: 'z' });
+      expect(generateStrings(entries)).toBe('"" = "z";');
+    });
+
+    it('Should commit a CRLF file with its line endings', async () => {
+      const dir = temporaryDirectory();
+      onTestFinished(() => rm(dir, { force: true, recursive: true }));
+      const path = join(dir, 'Localizable.strings');
+      await writeFile(path, '/* Title */\r\n"title" = "Title";\r\n');
+
+      const crlfVfs = new VFS();
+      const crlfFile = new StringsFile(path, crlfVfs);
+      await crlfFile.load();
+      await crlfFile.set({ title: 'New title', subtitle: 'Subtitle' });
+      await crlfVfs.commitAll({} as MobileProject);
+
+      expect(await readFile(path, { encoding: 'utf-8' })).toBe(
+        '/* Title */\r\n"title" = "New title";\r\n\r\n"subtitle" = "Subtitle";\r\n'
+      );
     });
 
     it('Should read line comments', async () => {

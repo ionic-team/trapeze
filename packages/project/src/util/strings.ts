@@ -92,15 +92,14 @@ function parse(contents: string): StringsEntries {
       } else {
         comment += c;
       }
-    } else if (isStartComment(c, contents[i + 1])) {
+    } else if (isStartComment(c, contents[i + 1]) && state !== State.Comment) {
       // Comment start, step forward one character
       ++i;
       startComment(State.Comment);
     } else if (isStartLineComment(c, contents[i + 1]) && state === State.None) {
-      // Line comment start, step forward one character
       ++i;
       startComment(State.LineComment);
-    } else if (isEndComment(c, contents[i + 1])) {
+    } else if (isEndComment(c, contents[i + 1]) && state === State.Comment) {
       // Comment end, step forward one character
       ++i;
       // Commit the comment
