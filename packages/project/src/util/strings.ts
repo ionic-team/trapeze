@@ -5,6 +5,7 @@ export function parseStrings(contents: string): StringsEntries {
 enum State {
   None = "none",
   Comment = "comment",
+  LineComment = "linecomment",
   Key = "key",
   AfterKey = "afterkey",
   Value = "value",
@@ -13,6 +14,7 @@ enum State {
 
 export interface StringsEntry {
   comment?: string;
+  lineComment?: string;
   key?: string;
   value?: string;
   content?: string;
@@ -42,6 +44,27 @@ function parse(contents: string): StringsEntries {
     state = s;
   }
 
+  function startComment(commentState: State) {
+    commitEntry(entries, {
+      content: whitespace,
+      startLine, startCol, endLine, endCol
+    });
+    startCol = col;
+    startLine = line;
+    comment = "";
+    whitespace = "";
+    setState(commentState);
+  }
+
+  function commitLineComment() {
+    endLine = line;
+    endCol = col;
+    commitEntry(entries, {
+      lineComment: comment, startLine, startCol, endLine, endCol
+    });
+    comment = "";
+  }
+
   for (let i = 0; i < contents.length; i++) {
     const c = contents[i];
     if (state === State.Key || state === State.Value) {
@@ -61,22 +84,22 @@ function parse(contents: string): StringsEntries {
           value += text;
         }
       }
-    } else if (isStartComment(c, contents[i + 1])) {
+    } else if (state === State.LineComment) {
+      if (isNewLine(c) || isCarriageReturn(c)) {
+        commitLineComment();
+        whitespace = c;
+        setState(State.None);
+      } else {
+        comment += c;
+      }
+    } else if (isStartComment(c, contents[i + 1]) && state !== State.Comment) {
       // Comment start, step forward one character
       ++i;
-      // Commit any whitespace up to this point
-      commitEntry(entries, {
-        content: whitespace,
-        startLine, startCol, endLine, endCol
-      });
-      // Mark starting source location
-      startCol = col;
-      startLine = line;
-      // Clear state
-      comment = "";
-      whitespace = "";
-      setState(State.Comment);
-    } else if (isEndComment(c, contents[i + 1])) {
+      startComment(State.Comment);
+    } else if (isStartLineComment(c, contents[i + 1]) && state === State.None) {
+      ++i;
+      startComment(State.LineComment);
+    } else if (isEndComment(c, contents[i + 1]) && state === State.Comment) {
       // Comment end, step forward one character
       ++i;
       // Commit the comment
@@ -144,6 +167,15 @@ function parse(contents: string): StringsEntries {
     ++col;
   }
 
+  // Keep what follows the last entry, such as the final line break
+  if (state === State.LineComment) {
+    commitLineComment();
+  } else if (state === State.None && whitespace) {
+    commitEntry(entries, {
+      content: whitespace, startLine, startCol, endLine: line, endCol: col
+    });
+  }
+
   return entries;
 }
 
@@ -156,6 +188,9 @@ function isNewLine(c: string) {
 }
 function isStartComment(c: string, c2: string) {
   return c === '/' && c2 === '*';
+}
+function isStartLineComment(c: string, c2: string) {
+  return c === '/' && c2 === '/';
 }
 function isEndComment(c: string, c2: string) {
   return c === '*' && c2 === '/';
@@ -170,7 +205,10 @@ function isEquals(c: string) {
   return c === '=';
 }
 function isWhitespace(c: string) {
-  return isSpace(c) || isTab(c);
+  return isSpace(c) || isTab(c) || isCarriageReturn(c);
+}
+function isCarriageReturn(c: string) {
+  return c === '\r';
 }
 function isSpace(c: string) {
   return c === ' ';
@@ -196,11 +234,51 @@ export function generateStrings(entries: StringsEntries) {
   return lines.join('');
 }
 
+/**
+ * Updates every entry with the given key, or appends a new entry if there is none.
+ * The key and value are escaped source text.
+ */
+export function setStringsEntry(entries: StringsEntries, { key, value }: { key: string; value: string }): StringsEntries {
+  if (!entries.some(entry => entry.key === key)) {
+    return appendStringsEntry(entries, { key, value });
+  }
+
+  return entries.map(entry => entry.key === key ? { ...entry, value } : entry);
+}
+
+function appendStringsEntry(entries: StringsEntries, { key, value }: { key: string; value: string }): StringsEntries {
+  const lineEnding = detectLineEnding(entries);
+  const lastEntry = entries[entries.length - 1];
+  // New entries go before the whitespace at the end of the file, so the file keeps its final line break
+  const trailingWhitespace = lastEntry?.content !== undefined ? [lastEntry] : [];
+  const body = entries.slice(0, entries.length - trailingWhitespace.length);
+  const previousEntry = body[body.length - 1];
+  const separator: StringsEntries = previousEntry
+    ? [{ content: lineEnding.repeat(2), startLine: previousEntry.endLine + 1, startCol: 0, endLine: previousEntry.endLine + 2, endCol: 0 }]
+    : [];
+  const entry: StringsEntry = {
+    key,
+    value,
+    startLine: previousEntry ? previousEntry.endLine + 3 : 0,
+    startCol: 0,
+    endLine: previousEntry ? previousEntry.endLine + 4 : 0,
+    endCol: 0,
+  };
+
+  return [...body, ...separator, entry, ...trailingWhitespace];
+}
+
+function detectLineEnding(entries: StringsEntries) {
+  return entries.map(entry => entry.content?.match(/\r\n|\n/)?.[0]).find(lineEnding => lineEnding) ?? '\n';
+}
+
 function generateLines(entry: StringsEntry) {
   const lines = [];
-  if (entry.comment) {
+  if (entry.comment !== undefined) {
     lines.push(`/*${entry.comment}*/`);
-  } else if (entry.key) {
+  } else if (entry.lineComment !== undefined) {
+    lines.push(`//${entry.lineComment}`);
+  } else if (entry.key !== undefined) {
     lines.push(`"${entry.key}" = "${entry.value}";`);
   } else if (entry.content) {
     lines.push(entry.content);

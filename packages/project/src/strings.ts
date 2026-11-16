@@ -3,7 +3,7 @@ import { relative } from 'path';
 import { Logger } from './logger';
 import { MobileProject } from './project';
 import { assertParentDirs, readFileOrEmpty } from './util/fs';
-import { escapeStringsText, generateStrings, parseStrings, StringsEntries } from './util/strings';
+import { escapeStringsText, generateStrings, parseStrings, setStringsEntry, StringsEntries } from './util/strings';
 import { VFS, VFSFile, VFSStorable } from './vfs';
 
 /**
@@ -36,39 +36,7 @@ export class StringsFile extends VFSStorable {
       // The document holds escaped source text. The values passed in are plain text.
       const key = escapeStringsText(k);
       const value = escapeStringsText(String(values[k]));
-      let found = false;
-      this.doc = this.doc.map(e => {
-        if (e.key === key) {
-          found = true;
-          return {
-            ...e,
-            value
-          }
-        }
-        return e;
-      });
-
-      const lastEntry = this.doc[Math.max(0, this.doc.length - 1)];
-
-      if (!found) {
-        if (lastEntry) {
-          this.doc.push({
-            content: '\n\n',
-            startLine: lastEntry ? lastEntry.endLine + 1 : 0,
-            startCol: 0,
-            endLine: lastEntry ? lastEntry.endLine + 2 : 0,
-            endCol: 0
-          });
-        }
-        this.doc.push({
-          key,
-          value,
-          startLine: lastEntry ? lastEntry.endLine + 3 : 0,
-          startCol: 0,
-          endLine: lastEntry ? lastEntry.endLine + 4 : 0,
-          endCol: 0
-        });
-      }
+      this.doc = setStringsEntry(this.doc, { key, value });
     });
 
     this.vfs.markModified(this.path);

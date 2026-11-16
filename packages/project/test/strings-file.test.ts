@@ -1,11 +1,11 @@
-import { copy, readFile } from '@ionic/utils-fs';
+import { copy, readFile, writeFile } from '@ionic/utils-fs';
 import { rm } from 'fs/promises';
 import { join } from 'path';
 import { temporaryDirectory } from 'tempy';
 
 import { StringsFile } from '../src';
 import { MobileProject } from '../src/project';
-import { generateStrings, parseStrings } from '../src/util/strings';
+import { generateStrings, parseStrings, setStringsEntry } from '../src/util/strings';
 import { VFS } from '../src/vfs';
 
 const fixture = '../common/test/fixtures/strings.strings';
@@ -224,15 +224,16 @@ describe('strings file', () => {
         { key: 'NSCameraUsageDescription', value: 'Allow \\"App\\" to use the camera' },
         { content: '\n\n' },
         { key: 'Key with \\"quotes\\"', value: 'Paths like /* or */ are not comments' },
+        { content: '\n' },
       ]);
     });
 
     it('Should regenerate the file unchanged', async () => {
       const contents = await readFile(escapedFixture, { encoding: 'utf-8' });
-      expect(generateStrings(file.getDocument())).toBe(contents.trim());
+      expect(generateStrings(file.getDocument())).toBe(contents);
     });
 
-    it('Should set keys next to escaped values', async () => {
+    it('Should set keys before the final line break', async () => {
       file.set({ CFBundleDisplayName: 'My App' });
       expect(generateStrings(file.getDocument())).toBe(`
 /* Camera permission */
@@ -241,7 +242,7 @@ describe('strings file', () => {
 "Key with \\"quotes\\"" = "Paths like /* or */ are not comments";
 
 "CFBundleDisplayName" = "My App";
-      `.trim());
+      `.trim() + '\n');
     });
 
     it('Should update an existing key that contains quotes', async () => {
@@ -251,7 +252,7 @@ describe('strings file', () => {
 "NSCameraUsageDescription" = "Allow \\"App\\" to use the camera";
 
 "Key with \\"quotes\\"" = "Updated";
-      `.trim());
+      `.trim() + '\n');
     });
   });
 
@@ -279,6 +280,77 @@ describe('strings file', () => {
       expect(entries).toContainEqual(expect.objectContaining({ comment: ' Class = "UILabel";\n   ObjectID = "abc"; ' }));
       expect(entries).toContainEqual(expect.objectContaining({ key: 'title', value: 'line1\nline2' }));
       expect(generateStrings(entries)).toBe(contents);
+    });
+  });
+
+  describe('file format', () => {
+    it.each([
+      ['CRLF line endings', '/* Title */\r\n"title" = "Title";\r\n'],
+      ['a final line break', '"title" = "Title";\n'],
+      ['an empty key', '"" = "empty";\n"title" = "Title";'],
+      ['an empty comment', '/**/\n"title" = "Title";'],
+      ['line comments', '// Title of the app\n"title" = "Title"; // after an entry\n// at the end'],
+      ['line comments in a CRLF file', '// Title of the app\r\n"title" = "Title";\r\n'],
+      ['comment markers inside a line comment', '// see /* and */\n"title" = "Title";'],
+      ['whitespace after a block comment', '/* Title */\n\n'],
+      ['comment markers inside a block comment', '/* a /* b // c */\n"title" = "Title";'],
+    ])('Should regenerate a file with %s unchanged', async (_, contents) => {
+      expect(generateStrings(parseStrings(contents))).toBe(contents);
+    });
+
+    it('Should not accept a comment end outside a comment', async () => {
+      expect(() => parseStrings('"a" = "b"; */')).toThrow('unknown character');
+    });
+
+    it('Should update an empty key', async () => {
+      const entries = setStringsEntry(parseStrings('"" = "b";'), { key: '', value: 'z' });
+      expect(generateStrings(entries)).toBe('"" = "z";');
+    });
+
+    it('Should commit a CRLF file with its line endings', async () => {
+      const dir = temporaryDirectory();
+      onTestFinished(() => rm(dir, { force: true, recursive: true }));
+      const path = join(dir, 'Localizable.strings');
+      await writeFile(path, '/* Title */\r\n"title" = "Title";\r\n');
+
+      const crlfVfs = new VFS();
+      const crlfFile = new StringsFile(path, crlfVfs);
+      await crlfFile.load();
+      await crlfFile.set({ title: 'New title', subtitle: 'Subtitle' });
+      await crlfVfs.commitAll({} as MobileProject);
+
+      expect(await readFile(path, { encoding: 'utf-8' })).toBe(
+        '/* Title */\r\n"title" = "New title";\r\n\r\n"subtitle" = "Subtitle";\r\n'
+      );
+    });
+
+    it('Should read line comments', async () => {
+      expect(parseStrings('// Title of the app\n"title" = "Title";')).toMatchObject([
+        { content: '' },
+        { lineComment: ' Title of the app' },
+        { content: '\n' },
+        { key: 'title', value: 'Title' },
+      ]);
+    });
+
+    it('Should set new keys with the line ending of the file', async () => {
+      const entries = setStringsEntry(parseStrings('"a" = "b";\r\n'), { key: 'c', value: 'd' });
+      expect(generateStrings(entries)).toBe('"a" = "b";\r\n\r\n"c" = "d";\r\n');
+    });
+
+    it('Should keep one final line break when setting several new keys', async () => {
+      const once = setStringsEntry(parseStrings('"a" = "b";\n'), { key: 'c', value: 'd' });
+      const twice = setStringsEntry(once, { key: 'e', value: 'f' });
+      expect(generateStrings(twice)).toBe('"a" = "b";\n\n"c" = "d";\n\n"e" = "f";\n');
+    });
+
+    it('Should set new keys after a line comment at the end of the file', async () => {
+      const entries = setStringsEntry(parseStrings('"a" = "b";\n// end\n'), { key: 'c', value: 'd' });
+      expect(generateStrings(entries)).toBe('"a" = "b";\n// end\n\n"c" = "d";\n');
+    });
+
+    it('Should set the first key of an empty file without a separator', async () => {
+      expect(generateStrings(setStringsEntry([], { key: 'a', value: 'b' }))).toBe('"a" = "b";');
     });
   });
 });
