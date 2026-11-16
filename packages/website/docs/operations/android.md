@@ -337,6 +337,8 @@ platforms:
           android.useAndroidX: true
 ```
 
+The file is read and written with the rules of `java.util.Properties`. Comments, blank lines and entries that are not listed stay exactly as they are. Changed and new entries are written as `key=value` without quotes, and special characters are escaped only where Java needs it.
+
 ### `copy`
 
 Copies files, directories, or URLs relative to the root of the android project (`./android` by default).

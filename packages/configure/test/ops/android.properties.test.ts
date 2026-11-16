@@ -35,8 +35,8 @@ describe('op: android.properties', () => {
 
     const file = ctx.project.vfs.get<PropertiesFile>(join(dir, 'android/gradle.properties'));
     expect(file?.getData()?.getProperties()).toMatchObject({
-      'android.enableJetifier': true,
-      'android.useAndroidX': true,
+      'android.enableJetifier': 'true',
+      'android.useAndroidX': 'true',
       'org.gradle.jvmargs': 'test'
     });
   });
@@ -73,7 +73,7 @@ describe('op: android.properties', () => {
         {
           file: 'gradle.properties',
           entries: {
-            'org.gradle.jvmargs': 'test',
+            'org.gradle.jvmargs': '-Xmx2048m -Dfile.encoding=UTF-8',
           },
         },
       ],
@@ -83,7 +83,8 @@ describe('op: android.properties', () => {
     await ctx.project.commit();
 
     const contents = await readFile(join(dir, 'android/gradle.properties'), { encoding: 'utf-8' });
-    expect(contents).toContain('org.gradle.jvmargs=test');
+    expect(contents).toContain('org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8\n');
+    expect(contents).toContain('# Project-wide Gradle settings.');
   });
 
 });

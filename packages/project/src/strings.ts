@@ -3,7 +3,7 @@ import { relative } from 'path';
 import { Logger } from './logger';
 import { MobileProject } from './project';
 import { assertParentDirs, readFileOrEmpty } from './util/fs';
-import { generateStrings, parseStrings, StringsEntries } from './util/strings';
+import { escapeStringsText, generateStrings, parseStrings, StringsEntries } from './util/strings';
 import { VFS, VFSFile, VFSStorable } from './vfs';
 
 /**
@@ -33,13 +33,16 @@ export class StringsFile extends VFSStorable {
     Logger.v('strings', 'update', `${this.path}`);
 
     Object.keys(values).forEach(k => {
+      // The document holds escaped source text. The values passed in are plain text.
+      const key = escapeStringsText(k);
+      const value = escapeStringsText(String(values[k]));
       let found = false;
       this.doc = this.doc.map(e => {
-        if (e.key === k) {
+        if (e.key === key) {
           found = true;
           return {
             ...e,
-            value: values[k]
+            value
           }
         }
         return e;
@@ -58,8 +61,8 @@ export class StringsFile extends VFSStorable {
           });
         }
         this.doc.push({
-          key: k,
-          value: values[k],
+          key,
+          value,
           startLine: lastEntry ? lastEntry.endLine + 3 : 0,
           startCol: 0,
           endLine: lastEntry ? lastEntry.endLine + 4 : 0,
