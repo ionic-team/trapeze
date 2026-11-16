@@ -1,5 +1,21 @@
 # @trapezedev/project
 
+## [7.1.12](https://github.com/ionic-team/trapeze/compare/@trapezedev/project@7.1.11...@trapezedev/project@7.1.12) (2026-11-16)
+
+
+### Bug Fixes
+
+* **deps:** update `xcode` to 4.0.0 ([#268](https://github.com/ionic-team/trapeze/issues/268)) ([2f185c0](https://github.com/ionic-team/trapeze/commit/2f185c05e5be41dfdafcf2a8baeacf13d4bc5680))
+* **project:** follow Java rules in `.properties` files and escape `.strings` values ([#270](https://github.com/ionic-team/trapeze/issues/270)) ([4c795eb](https://github.com/ionic-team/trapeze/commit/4c795ebb6a696b9104755f4a353e6d8d77dc3316))
+* **project:** keep line endings, line comments and empty entries in `.strings` files ([#271](https://github.com/ionic-team/trapeze/issues/271)) ([b68fab6](https://github.com/ionic-team/trapeze/commit/b68fab60026c7acc97d11e826127647c496f859b))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapezedev/gradle-parse bumped from 7.1.11 to 7.1.12
+
 ## [7.1.11](https://github.com/ionic-team/trapeze/compare/@trapezedev/project@7.1.10...@trapezedev/project@7.1.11) (2026-10-20)
 
 
