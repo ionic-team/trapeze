@@ -1,5 +1,19 @@
 # @trapezedev/project
 
+## [7.1.13](https://github.com/ionic-team/trapeze/compare/@trapezedev/project@7.1.12...@trapezedev/project@7.1.13) (2026-11-16)
+
+
+### Bug Fixes
+
+* **project:** throw on unfinished input at the end of `.strings` files ([#274](https://github.com/ionic-team/trapeze/issues/274)) ([a3d5ec7](https://github.com/ionic-team/trapeze/commit/a3d5ec776f69eb7e937407b26e51e748fe7219ba))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapezedev/gradle-parse bumped from 7.1.12 to 7.1.13
+
 ## [7.1.12](https://github.com/ionic-team/trapeze/compare/@trapezedev/project@7.1.11...@trapezedev/project@7.1.12) (2026-11-16)
 
 
