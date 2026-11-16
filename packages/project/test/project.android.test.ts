@@ -349,8 +349,8 @@ try {
     await props?.load();
     expect(props?.getProperties()).toMatchObject({
       'org.gradle.jvmargs': '-Xmx1536m',
-      'android.useAndroidX': true,
-      'android.enableJetifier': true
+      'android.useAndroidX': 'true',
+      'android.enableJetifier': 'true'
     });
   });
 

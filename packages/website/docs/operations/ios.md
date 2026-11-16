@@ -300,6 +300,8 @@ platforms:
             setFromJson: "lang/en.json"
 ```
 
+Keys and values are plain text. Quotes, backslashes and line breaks are escaped for you, so do not escape them yourself.
+
 ### `xcconfig`
 
 *Since: 6.0.7*

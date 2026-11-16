@@ -1,55 +1,32 @@
-import { pathExists } from '@ionic/utils-fs';
-import { mergeWith } from 'lodash';
+import { pathExists, readFile, writeFile } from '@ionic/utils-fs';
 import { Logger } from './logger';
 import { assertParentDirs, readFileOrEmpty } from './util/fs';
-import { parseProperties, serializeProperties, writeProperties } from './util/properties';
+import { generateProperties, parseProperties, PropertiesLine, setProperty, toPropertiesObject } from './util/properties';
 import { VFS, VFSFile, VFSStorable } from './vfs';
 
+/**
+ * Java .properties files
+ */
 export class PropertiesFile extends VFSStorable {
-  private doc: any;
+  private lines: PropertiesLine[] | null = null;
   constructor(public path: string, private vfs: VFS) {
     super();
   }
 
-  getProperties() {
-    return this.doc;
+  getProperties(): Record<string, string> {
+    return toPropertiesObject(this.lines ?? []);
   }
 
-  async updateProperties(properties: any): Promise<void> {
-    if (!this.doc) {
+  async updateProperties(properties: Record<string, unknown>): Promise<void> {
+    if (!this.lines) {
       return;
     }
 
     Logger.v('properties', 'update', `${this.path} - ${properties}`);
 
-    const merged = mergeWith(this.doc, properties, (objValue, srcValue) => {
-      // Override the default merge behavior for arrays of objects that have the
-      // same sub-key. Otherwise lodash merge doesn't work how we need it to
-      if (Array.isArray(objValue)) {
-        //if (replace) {
-          return srcValue;
-        //}
-
-        /*
-        const firstObjValue = objValue[0];
-        const firstSrcValue = srcValue[0];
-
-        // https://github.com/ionic-team/capacitor-configure/issues/32
-        // When merging an array of dicts, like when modifying
-        // CFBundleURLTypes, we don't want to union the two arrays because that
-        // would result in duplicated array of dicts. Instead, we want to merge as-is.
-        // This check makes sure we're not trying to union an array of dicts
-        if (typeof firstObjValue !== 'object' && typeof firstSrcValue !== 'object') {
-          return union(objValue, srcValue);
-        }
-        */
-      } else if (typeof objValue === 'object' && objValue !== null) {
-        //if (replace) {
-          return srcValue;
-        //}
-      }
-    });
-    Object.assign(this.doc, merged);
+    for (const [key, value] of Object.entries(properties)) {
+      this.lines = setProperty(this.lines, { key, value: String(value) });
+    }
     this.vfs.markModified(this.path);
   }
 
@@ -61,20 +38,24 @@ export class PropertiesFile extends VFSStorable {
     if (!await pathExists(this.path)) {
       throw new Error(`Unable to locate file at ${this.path}`);
     }
-    this.doc = await parseProperties(this.path);
-    Logger.v('properties', 'load', `at ${this.path}`, this.doc);
+    this.lines = parseProperties(await readFile(this.path, { encoding: 'utf-8' }));
+    Logger.v('properties', 'load', `at ${this.path}`, this.getProperties());
     this.vfs.open(this.path, this, this.commitFn, this.diffFn);
+  }
+
+  generate() {
+    return generateProperties(this.lines ?? []);
   }
 
   private commitFn = async (file: VFSFile) => {
     await assertParentDirs(file.getFilename());
-    return writeProperties(file.getFilename(), (file.getData() as PropertiesFile).getProperties());
+    return writeFile(file.getFilename(), (file.getData() as PropertiesFile).generate());
   }
 
   private diffFn = async (file: VFSFile) => {
     return {
       old: await readFileOrEmpty(file.getFilename()),
-      new: serializeProperties((file.getData() as PropertiesFile).getProperties()),
+      new: (file.getData() as PropertiesFile).generate(),
     };
   }
 }

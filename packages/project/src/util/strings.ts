@@ -44,12 +44,7 @@ function parse(contents: string): StringsEntries {
 
   for (let i = 0; i < contents.length; i++) {
     const c = contents[i];
-    if (isNewLine(c)) {
-      // Keep track of lines
-      whitespace += c;
-      ++line;
-      col = 0;
-    } else if (state === State.Key || state === State.Value) {
+    if (state === State.Key || state === State.Value) {
       // Inside a quoted string only an unescaped quote has meaning
       if (isQuote(c)) {
         setState(state === State.Key ? State.AfterKey : State.AfterValue);
@@ -96,6 +91,8 @@ function parse(contents: string): StringsEntries {
     } else if (state === State.Comment) {
       // Build the comment
       comment += c;
+    } else if (isNewLine(c)) {
+      whitespace += c;
     } else if (isEquals(c) && (state === State.AfterKey || state === State.AfterValue)) {
       // Valid state, do nothing
     } else if (isQuote(c)) {
@@ -139,6 +136,11 @@ function parse(contents: string): StringsEntries {
       throw new Error(`Error parsing .strings file: unknown character at ${line}:${col}`);
     }
 
+    // Keep track of lines
+    if (isNewLine(c)) {
+      ++line;
+      col = 0;
+    }
     ++col;
   }
 
@@ -178,6 +180,12 @@ function isTab(c: string) {
 }
 function isSemi(c: string) {
   return c === ';';
+}
+
+const ESCAPED_LINE_BREAKS: Record<string, string> = { '\n': '\\n', '\r': '\\r' };
+
+export function escapeStringsText(text: string) {
+  return text.replace(/[\\"\n\r]/g, character => ESCAPED_LINE_BREAKS[character] ?? `\\${character}`);
 }
 
 export function generateStrings(entries: StringsEntries) {

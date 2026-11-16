@@ -5,7 +5,7 @@ import { temporaryDirectory } from 'tempy';
 
 import { StringsFile } from '../src';
 import { MobileProject } from '../src/project';
-import { generateStrings } from '../src/util/strings';
+import { generateStrings, parseStrings } from '../src/util/strings';
 import { VFS } from '../src/vfs';
 
 const fixture = '../common/test/fixtures/strings.strings';
@@ -242,6 +242,43 @@ describe('strings file', () => {
 
 "CFBundleDisplayName" = "My App";
       `.trim());
+    });
+
+    it('Should update an existing key that contains quotes', async () => {
+      file.set({ 'Key with "quotes"': 'Updated' });
+      expect(generateStrings(file.getDocument())).toBe(`
+/* Camera permission */
+"NSCameraUsageDescription" = "Allow \\"App\\" to use the camera";
+
+"Key with \\"quotes\\"" = "Updated";
+      `.trim());
+    });
+  });
+
+  describe('plain text values', () => {
+    it('Should escape quotes, backslashes and line breaks', async () => {
+      file.set({
+        'Say "hi"': 'Say "hi"',
+        multiline: 'line1\r\nline2',
+        trailingSlash: 'C:\\',
+      });
+
+      const generated = generateStrings(file.getDocument());
+      expect(generated).toContain('"Say \\"hi\\"" = "Say \\"hi\\"";');
+      expect(generated).toContain('"multiline" = "line1\\r\\nline2";');
+      expect(generated).toContain('"trailingSlash" = "C:\\\\";');
+      expect(generateStrings(parseStrings(generated))).toBe(generated);
+    });
+  });
+
+  describe('line breaks', () => {
+    it('Should keep line breaks inside values and comments', async () => {
+      const contents = '/* Class = "UILabel";\n   ObjectID = "abc"; */\n"title" = "line1\nline2";';
+      const entries = parseStrings(contents);
+
+      expect(entries).toContainEqual(expect.objectContaining({ comment: ' Class = "UILabel";\n   ObjectID = "abc"; ' }));
+      expect(entries).toContainEqual(expect.objectContaining({ key: 'title', value: 'line1\nline2' }));
+      expect(generateStrings(entries)).toBe(contents);
     });
   });
 });

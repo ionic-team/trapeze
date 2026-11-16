@@ -4,7 +4,7 @@
     "noEmit": true,
     "allowUnusedLabels": false,
     "skipLibCheck": true,
-    "types": ["node", "cross-spawn", "diff", "ini", "lodash", "plist", "vitest/globals"]
+    "types": ["node", "cross-spawn", "diff", "lodash", "plist", "vitest/globals"]
   },
   "files": [],
   "include": ["src/**/*.ts", "test/**/*.ts"]
