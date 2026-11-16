@@ -39,8 +39,14 @@ function assertContains(file, expected) {
   assert(contents.includes(expected), `${file} does not contain ${JSON.stringify(expected)}`);
 }
 
+// npm 11 prints a list of the packed packages, npm 12 an object keyed by package name
+function readPackedPackages(output) {
+  const packed = JSON.parse(output);
+  return Array.isArray(packed) ? packed : Object.values(packed);
+}
+
 function assertGradleParseTarballIsComplete() {
-  const [{ files }] = JSON.parse(
+  const [{ files }] = readPackedPackages(
     exec(npm, ['pack', '--dry-run', '--json', '-w', 'packages/gradle-parse'], REPO_ROOT),
   );
   const paths = files.map(f => f.path);
@@ -55,7 +61,7 @@ function assertGradleParseTarballIsComplete() {
 
 function packAndInstall(workDir) {
   const args = ['pack', ...PACKAGES.flatMap(p => ['-w', p]), '--pack-destination', workDir, '--json'];
-  const tarballs = JSON.parse(exec(npm, args, REPO_ROOT)).map(({ filename }) => `./${filename}`);
+  const tarballs = readPackedPackages(exec(npm, args, REPO_ROOT)).map(({ filename }) => `./${filename}`);
 
   writeFileSync(join(workDir, 'package.json'), JSON.stringify({ name: 'trapeze-smoke', private: true }));
   exec(npm, ['install', '--no-audit', '--no-fund', ...tarballs], workDir);
