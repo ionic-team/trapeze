@@ -167,10 +167,13 @@ function parse(contents: string): StringsEntries {
     ++col;
   }
 
-  // Keep what follows the last entry, such as the final line break
   if (state === State.LineComment) {
     commitLineComment();
-  } else if (state === State.None && whitespace) {
+  } else if (state !== State.None) {
+    // Without this check the unfinished part would be lost on the next write
+    throw new Error(`Error parsing .strings file: unexpected end of file in the entry or comment that starts at ${startLine}:${startCol}`);
+  } else if (whitespace) {
+    // Keep what follows the last entry, such as the final line break
     commitEntry(entries, {
       content: whitespace, startLine, startCol, endLine: line, endCol: col
     });

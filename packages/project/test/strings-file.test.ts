@@ -294,12 +294,32 @@ describe('strings file', () => {
       ['comment markers inside a line comment', '// see /* and */\n"title" = "Title";'],
       ['whitespace after a block comment', '/* Title */\n\n'],
       ['comment markers inside a block comment', '/* a /* b // c */\n"title" = "Title";'],
+      ['a block comment at the end', '"title" = "Title";\n/* end */'],
     ])('Should regenerate a file with %s unchanged', async (_, contents) => {
       expect(generateStrings(parseStrings(contents))).toBe(contents);
     });
 
     it('Should not accept a comment end outside a comment', async () => {
       expect(() => parseStrings('"a" = "b"; */')).toThrow('unknown character');
+    });
+
+    it.each([
+      ['a missing final semicolon', '"a" = "b";\n"c" = "d"\n', '2:1'],
+      ['an unclosed string', '"a" = "b";\n"c" = "d\n', '2:1'],
+      ['a key without a value', '"a" = "b";\n"c"\n', '2:1'],
+      ['an unclosed comment', '"a" = "b";\n/* open\n"c" = "d";', '2:1'],
+      ['an indented unfinished entry', '"a" = "b";\n   "c" = "d"', '2:4'],
+    ])('Should throw at the end of a file with %s', async (_, contents, start) => {
+      expect(() => parseStrings(contents)).toThrow(`unexpected end of file in the entry or comment that starts at ${start}`);
+    });
+
+    it('Should not load a file with an unfinished entry', async () => {
+      const dir = temporaryDirectory();
+      onTestFinished(() => rm(dir, { force: true, recursive: true }));
+      const path = join(dir, 'Localizable.strings');
+      await writeFile(path, '"a" = "b";\n"c" = "d"\n');
+
+      await expect(new StringsFile(path, new VFS()).load()).rejects.toThrow('unexpected end of file');
     });
 
     it('Should update an empty key', async () => {
